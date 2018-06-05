@@ -726,13 +726,6 @@ def return_if_object(module, response, kind, allow_not_found=False):
 
     return result
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
-    if result['kind'] != kind:
-        module.fail_json(msg="Incorrect result: {kind}".format(**result))
-
-    return result
-
 
 def is_different(module, response):
     request = resource_to_request(module)
