@@ -189,10 +189,10 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                fetch = update(module, self_link(module), kind)
+                fetch = update(module, self_link(module), kind, fetch)
                 changed = True
         else:
-            delete(module, self_link(module), kind)
+            delete(module, self_link(module), kind, fetch)
             fetch = {}
             changed = True
     else:
@@ -215,7 +215,7 @@ def create(module, link, kind):
     return fetch_wrapped_resource(module, 'dns#resourceRecordSet', 'dns#resourceRecordSetsListResponse', 'rrsets')
 
 
-def update(module, link, kind):
+def update(module, link, kind, fetch):
     change = create_change(fetch, updated_record(module), module)
     change_id = int(change['id'])
     if change['status'] == 'pending':
@@ -223,7 +223,7 @@ def update(module, link, kind):
     return fetch_wrapped_resource(module, 'dns#resourceRecordSet', 'dns#resourceRecordSetsListResponse', 'rrsets')
 
 
-def delete(module, link, kind):
+def delete(module, link, kind, fetch):
     change = create_change(fetch, None, module)
     change_id = int(change['id'])
     if change['status'] == 'pending':
