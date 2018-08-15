@@ -238,11 +238,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetTcpProxies/{name}/setBackendService"]).format(**module.params),
-        {u'service': replace_resource_dict(module.params.get(u'service', {}), 'selfLink')},
-    )
+    module.fail_json(msg="TargetTcpProxy cannot be edited")
 
 
 def delete(module, link, kind):

@@ -461,11 +461,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/forwardingRules/{name}/setTarget"]).format(**module.params),
-        {u'target': replace_resource_dict(module.params.get(u'target', {}), 'selfLink')},
-    )
+    module.fail_json(msg="ForwardingRule cannot be edited")
 
 
 def delete(module, link, kind):

@@ -305,52 +305,8 @@ def create(module, link, kind):
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
-    return fetch_resource(module, self_link(module), kind)
-
-
-def update_fields(module, request, response):
-    if response.get('proxyHeader') != request.get('proxyHeader'):
-        proxy_header_update(module, request, response)
-    if response.get('service') != request.get('service'):
-        service_update(module, request, response)
-    if response.get('sslCertificates') != request.get('sslCertificates'):
-        ssl_certificates_update(module, request, response)
-    if response.get('sslPolicy') != request.get('sslPolicy'):
-        ssl_policy_update(module, request, response)
-
-
-def proxy_header_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetSslProxies/{name}/setProxyHeader"]).format(**module.params),
-        {u'proxyHeader': module.params.get('proxy_header')},
-    )
-
-
-def service_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetSslProxies/{name}/setBackendService"]).format(**module.params),
-        {u'service': replace_resource_dict(module.params.get(u'service', {}), 'selfLink')},
-    )
-
-
-def ssl_certificates_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetSslProxies/{name}/setSslCertificates"]).format(**module.params),
-        {u'sslCertificates': replace_resource_dict(module.params.get('ssl_certificates', []), 'selfLink')},
-    )
-
-
-def ssl_policy_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetSslProxies/{name}/setSslPolicy"]).format(**module.params),
-        {u'sslPolicy': replace_resource_dict(module.params.get(u'ssl_policy', {}), 'selfLink')},
-    )
+def update(module, link, kind):
+    module.fail_json(msg="TargetSslProxy cannot be edited")
 
 
 def delete(module, link, kind):
