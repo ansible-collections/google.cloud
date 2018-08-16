@@ -89,6 +89,15 @@ options:
       of sizeGb must not be less than the size of the sourceImage or the size of the
       snapshot.
     required: false
+  physical_block_size_bytes:
+    description:
+    - Physical block size of the persistent disk, in bytes. If not present in a request,
+      a default value is used. Currently supported sizes are 4096 and 16384, other
+      sizes may be added in the future.
+    - If an unsupported value is requested, the error message will list the supported
+      values for the caller's project.
+    required: false
+    version_added: 2.8
   type:
     description:
     - URL of the disk type resource describing which disk type to use to create the
@@ -124,11 +133,6 @@ options:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.
         required: false
-      sha256:
-        description:
-        - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-          key that protects this resource.
-        required: false
       kms_key_name:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
@@ -150,11 +154,6 @@ options:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.
         required: false
-      sha256:
-        description:
-        - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-          key that protects this resource.
-        required: false
       kms_key_name:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
@@ -164,9 +163,10 @@ options:
     - The source snapshot used to create this disk. You can provide this as a partial
       or full URL to the resource.
     - 'This field represents a link to a Snapshot resource in GCP. It can be specified
-      in two ways. First, you can place in the selfLink of the resource here as a
-      string Alternatively, you can add `register: name-of-resource` to a gcp_compute_snapshot
-      task and then set this source_snapshot field to "{{ name-of-resource }}"'
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_snapshot task and then set this source_snapshot field to "{{
+      name-of-resource }}"'
     required: false
   source_snapshot_encryption_key:
     description:
@@ -183,228 +183,203 @@ options:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
         required: false
-      sha256:
-        description:
-        - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-          key that protects this resource.
-        required: false
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/disks)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/disks)'
 - 'Adding a persistent disk: U(https://cloud.google.com/compute/docs/disks/add-persistent-disk)'
 '''
 
 EXAMPLES = '''
 - name: create a disk
   gcp_compute_disk:
-      name: "test_object"
-      size_gb: 50
-      disk_encryption_key:
-        raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
-      zone: us-central1-a
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    size_gb: 50
+    disk_encryption_key:
+      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
+    zone: us-central1-a
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''
-labelFingerprint:
-  description:
-  - The fingerprint used for optimistic locking of this resource. Used internally
-    during updates.
-  returned: success
-  type: str
-creationTimestamp:
-  description:
-  - Creation timestamp in RFC3339 text format.
-  returned: success
-  type: str
-description:
-  description:
-  - An optional description of this resource. Provide this property when you create
-    the resource.
-  returned: success
-  type: str
-id:
-  description:
-  - The unique identifier for the resource.
-  returned: success
-  type: int
-lastAttachTimestamp:
-  description:
-  - Last attach timestamp in RFC3339 text format.
-  returned: success
-  type: str
-lastDetachTimestamp:
-  description:
-  - Last dettach timestamp in RFC3339 text format.
-  returned: success
-  type: str
-labels:
-  description:
-  - Labels to apply to this disk. A list of key->value pairs.
-  returned: success
-  type: dict
-licenses:
-  description:
-  - Any applicable publicly visible licenses.
-  returned: success
-  type: list
-name:
-  description:
-  - Name of the resource. Provided by the client when the resource is created. The
-    name must be 1-63 characters long, and comply with RFC1035. Specifically, the
-    name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-    which means the first character must be a lowercase letter, and all following
-    characters must be a dash, lowercase letter, or digit, except the last character,
-    which cannot be a dash.
-  returned: success
-  type: str
-sizeGb:
-  description:
-  - Size of the persistent disk, specified in GB. You can specify this field when
-    creating a persistent disk using the sourceImage or sourceSnapshot parameter,
-    or specify it alone to create an empty persistent disk.
-  - If you specify this field along with sourceImage or sourceSnapshot, the value
-    of sizeGb must not be less than the size of the sourceImage or the size of the
-    snapshot.
-  returned: success
-  type: int
-users:
-  description:
-  - 'Links to the users of the disk (attached instances) in form: project/zones/zone/instances/instance
-    .'
-  returned: success
-  type: list
-type:
-  description:
-  - URL of the disk type resource describing which disk type to use to create the
-    disk. Provide this when creating the disk.
-  returned: success
-  type: str
-sourceImage:
-  description:
-  - The source image used to create this disk. If the source image is deleted, this
-    field will not be set.
-  - 'To create a disk with one of the public operating system images, specify the
-    image by its family name. For example, specify family/debian-8 to use the latest
-    Debian 8 image: projects/debian-cloud/global/images/family/debian-8 Alternatively,
-    use a specific version of a public operating system image: projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD
-    To create a disk with a private image that you created, specify the image name
-    in the following format: global/images/my-private-image You can also specify a
-    private image by its image family, which returns the latest version of the image
-    in that family. Replace the image name with family/family-name: global/images/family/my-private-family
-    .'
-  returned: success
-  type: str
-zone:
-  description:
-  - A reference to the zone where the disk resides.
-  returned: success
-  type: str
-sourceImageEncryptionKey:
-  description:
-  - The customer-supplied encryption key of the source image. Required if the source
-    image is protected by a customer-supplied encryption key.
-  returned: success
-  type: complex
-  contains:
-    rawKey:
-      description:
-      - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
-        base64 to either encrypt or decrypt this resource.
-      returned: success
-      type: str
-    sha256:
-      description:
-      - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-        key that protects this resource.
-      returned: success
-      type: str
-    kmsKeyName:
-      description:
-      - The name of the encryption key that is stored in Google Cloud KMS.
-      returned: success
-      type: str
-sourceImageId:
-  description:
-  - The ID value of the image used to create this disk. This value identifies the
-    exact image that was used to create this persistent disk. For example, if you
-    created the persistent disk from an image that was later deleted and recreated
-    under the same name, the source image ID would identify the exact version of the
-    image that was used.
-  returned: success
-  type: str
-diskEncryptionKey:
-  description:
-  - Encrypts the disk using a customer-supplied encryption key.
-  - After you encrypt a disk with a customer-supplied key, you must provide the same
-    key if you use the disk later (e.g. to create a disk snapshot or an image, or
-    to attach the disk to a virtual machine).
-  - Customer-supplied encryption keys do not protect access to metadata of the disk.
-  - If you do not provide an encryption key when creating the disk, then the disk
-    will be encrypted using an automatically generated key and you do not need to
-    provide a key to use the disk later.
-  returned: success
-  type: complex
-  contains:
-    rawKey:
-      description:
-      - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
-        base64 to either encrypt or decrypt this resource.
-      returned: success
-      type: str
-    sha256:
-      description:
-      - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-        key that protects this resource.
-      returned: success
-      type: str
-    kmsKeyName:
-      description:
-      - The name of the encryption key that is stored in Google Cloud KMS.
-      returned: success
-      type: str
-sourceSnapshot:
-  description:
-  - The source snapshot used to create this disk. You can provide this as a partial
-    or full URL to the resource.
-  returned: success
-  type: str
-sourceSnapshotEncryptionKey:
-  description:
-  - The customer-supplied encryption key of the source snapshot. Required if the source
-    snapshot is protected by a customer-supplied encryption key.
-  returned: success
-  type: complex
-  contains:
-    rawKey:
-      description:
-      - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
-        base64 to either encrypt or decrypt this resource.
-      returned: success
-      type: str
-    kmsKeyName:
-      description:
-      - The name of the encryption key that is stored in Google Cloud KMS.
-      returned: success
-      type: str
-    sha256:
-      description:
-      - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-        key that protects this resource.
-      returned: success
-      type: str
-sourceSnapshotId:
-  description:
-  - The unique ID of the snapshot used to create this disk. This value identifies
-    the exact snapshot that was used to create this persistent disk. For example,
-    if you created the persistent disk from a snapshot that was later deleted and
-    recreated under the same name, the source snapshot ID would identify the exact
-    version of the snapshot that was used.
-  returned: success
-  type: str
+    creation_timestamp:
+        description:
+            - Creation timestamp in RFC3339 text format.
+        returned: success
+        type: str
+    description:
+        description:
+            - An optional description of this resource. Provide this property when you create
+              the resource.
+        returned: success
+        type: str
+    id:
+        description:
+            - The unique identifier for the resource.
+        returned: success
+        type: int
+    last_attach_timestamp:
+        description:
+            - Last attach timestamp in RFC3339 text format.
+        returned: success
+        type: str
+    last_detach_timestamp:
+        description:
+            - Last dettach timestamp in RFC3339 text format.
+        returned: success
+        type: str
+    labels:
+        description:
+            - Labels to apply to this disk.  A list of key->value pairs.
+        returned: success
+        type: dict
+    licenses:
+        description:
+            - Any applicable publicly visible licenses.
+        returned: success
+        type: list
+    name:
+        description:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035. Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        returned: success
+        type: str
+    size_gb:
+        description:
+            - Size of the persistent disk, specified in GB. You can specify this field when creating
+              a persistent disk using the sourceImage or sourceSnapshot parameter, or specify
+              it alone to create an empty persistent disk.
+            - If you specify this field along with sourceImage or sourceSnapshot, the value of
+              sizeGb must not be less than the size of the sourceImage or the size of the snapshot.
+        returned: success
+        type: int
+    users:
+        description:
+            - 'Links to the users of the disk (attached instances) in form: project/zones/zone/instances/instance
+              .'
+        returned: success
+        type: list
+    type:
+        description:
+            - URL of the disk type resource describing which disk type to use to create the disk.
+              Provide this when creating the disk.
+        returned: success
+        type: str
+    source_image:
+        description:
+            - The source image used to create this disk. If the source image is deleted, this
+              field will not be set.
+            - 'To create a disk with one of the public operating system images, specify the image
+              by its family name. For example, specify family/debian-8 to use the latest Debian
+              8 image:  projects/debian-cloud/global/images/family/debian-8  Alternatively, use
+              a specific version of a public operating system image:  projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD  To
+              create a disk with a private image that you created, specify the image name in the
+              following format:  global/images/my-private-image  You can also specify a private
+              image by its image family, which returns the latest version of the image in that
+              family. Replace the image name with family/family-name:  global/images/family/my-private-family
+              .'
+        returned: success
+        type: str
+    zone:
+        description:
+            - A reference to the zone where the disk resides.
+        returned: success
+        type: str
+    source_image_encryption_key:
+        description:
+            - The customer-supplied encryption key of the source image. Required if the source
+              image is protected by a customer-supplied encryption key.
+        returned: success
+        type: complex
+        contains:
+            raw_key:
+                description:
+                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                      to either encrypt or decrypt this resource.
+                returned: success
+                type: str
+            sha256:
+                description:
+                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                      that protects this resource.
+                returned: success
+                type: str
+    source_image_id:
+        description:
+            - The ID value of the image used to create this disk. This value identifies the exact
+              image that was used to create this persistent disk. For example, if you created
+              the persistent disk from an image that was later deleted and recreated under the
+              same name, the source image ID would identify the exact version of the image that
+              was used.
+        returned: success
+        type: str
+    disk_encryption_key:
+        description:
+            - Encrypts the disk using a customer-supplied encryption key.
+            - After you encrypt a disk with a customer-supplied key, you must provide the same
+              key if you use the disk later (e.g. to create a disk snapshot or an image, or to
+              attach the disk to a virtual machine).
+            - Customer-supplied encryption keys do not protect access to metadata of the disk.
+            - If you do not provide an encryption key when creating the disk, then the disk will
+              be encrypted using an automatically generated key and you do not need to provide
+              a key to use the disk later.
+        returned: success
+        type: complex
+        contains:
+            raw_key:
+                description:
+                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                      to either encrypt or decrypt this resource.
+                returned: success
+                type: str
+            sha256:
+                description:
+                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                      that protects this resource.
+                returned: success
+                type: str
+    source_snapshot:
+        description:
+            - 'The source snapshot used to create this disk. You can provide this as a partial or
+              full URL to the resource. For example, the following are valid values: *
+              `U(https://www.googleapis.com/compute/v1/projects/project/global/snapshots/snapshot`)
+              * `projects/project/global/snapshots/snapshot` * `global/snapshots/snapshot` .'
+        returned: success
+        type: dict
+    source_snapshot_encryption_key:
+        description:
+            - The customer-supplied encryption key of the source snapshot. Required if the source
+              snapshot is protected by a customer-supplied encryption key.
+        returned: success
+        type: complex
+        contains:
+            raw_key:
+                description:
+                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                      to either encrypt or decrypt this resource.
+                returned: success
+                type: str
+            sha256:
+                description:
+                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                      that protects this resource.
+                returned: success
+                type: str
+    source_snapshot_id:
+        description:
+            - The unique ID of the snapshot used to create this disk. This value identifies the
+              exact snapshot that was used to create this persistent disk. For example, if you
+              created the persistent disk from a snapshot that was later deleted and recreated
+              under the same name, the source snapshot ID would identify the exact version of
+              the snapshot that was used.
+        returned: success
+        type: str
 '''
 
 ################################################################################
@@ -432,13 +407,14 @@ def main():
             licenses=dict(type='list', elements='str'),
             name=dict(required=True, type='str'),
             size_gb=dict(type='int'),
+            physical_block_size_bytes=dict(type='int'),
             type=dict(type='str'),
             source_image=dict(type='str'),
             zone=dict(required=True, type='str'),
-            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'), kms_key_name=dict(type='str'))),
-            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'), kms_key_name=dict(type='str'))),
-            source_snapshot=dict(),
-            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), sha256=dict(type='str'))),
+            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
+            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
+            source_snapshot=dict(type='dict'),
+            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
         )
     )
 
@@ -522,6 +498,7 @@ def resource_to_request(module):
         u'licenses': module.params.get('licenses'),
         u'name': module.params.get('name'),
         u'sizeGb': module.params.get('size_gb'),
+        u'physicalBlockSizeBytes': module.params.get('physical_block_size_bytes'),
         u'type': disk_type_selflink(module.params.get('type'), module.params),
         u'sourceImage': module.params.get('source_image'),
     }
@@ -601,7 +578,7 @@ def response_to_hash(module, response):
         u'sizeGb': response.get(u'sizeGb'),
         u'users': response.get(u'users'),
         u'type': response.get(u'type'),
-        u'sourceImage': module.params.get('source_image'),
+        u'sourceImage': module.params.get('source_image')
     }
 
 
@@ -658,14 +635,10 @@ class DiskSourceimageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256'), u'kmsKeyName': self.request.get('kms_key_name')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256'), u'kmsKeyName': self.request.get(u'kmsKeyName')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
 
 
 class DiskDiskencryptionkey(object):
@@ -677,14 +650,10 @@ class DiskDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256'), u'kmsKeyName': self.request.get('kms_key_name')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256'), u'kmsKeyName': self.request.get(u'kmsKeyName')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
 
 
 class DiskSourcesnapshotencryptionkey(object):
@@ -696,14 +665,10 @@ class DiskSourcesnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name'), u'sha256': self.request.get('sha256')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName'), u'sha256': self.request.get(u'sha256')}
-        )
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
 
 
 if __name__ == '__main__':
