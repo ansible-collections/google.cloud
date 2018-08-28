@@ -31,15 +31,15 @@ DOCUMENTATION = '''
 ---
 module: gcp_compute_health_check
 description:
-- Health Checks determine whether instances are responsive and able to do work.
-- They are an important part of a comprehensive load balancing configuration, as they
-  enable monitoring instances behind load balancers.
-- Health Checks poll instances at a specified interval. Instances that do not respond
-  successfully to some number of probes in a row are marked as unhealthy. No new connections
-  are sent to unhealthy instances, though existing connections will continue. The
-  health check will continue to poll unhealthy instances. If an instance later responds
-  successfully to some number of consecutive probes, it is marked healthy again and
-  can receive new connections.
+    - Health Checks determine whether instances are responsive and able to do work.
+    - They are an important part of a comprehensive load balancing configuration, as they
+      enable monitoring instances behind load balancers.
+    - Health Checks poll instances at a specified interval. Instances that do not respond
+      successfully to some number of probes in a row are marked as unhealthy. No new connections
+      are sent to unhealthy instances, though existing connections will continue. The
+      health check will continue to poll unhealthy instances. If an instance later responds
+      successfully to some number of consecutive probes, it is marked healthy again and
+      can receive new connections.
 short_description: Creates a GCP HealthCheck
 version_added: 2.6
 author: Google Inc. (@googlecloudplatform)
@@ -122,14 +122,17 @@ options:
         - The request path of the HTTP health check request.
         - The default value is /.
         required: false
-        default: "/"
-      response:
+        default: 2
+    name:
         description:
-        - The bytes to match against the beginning of the response data. If left empty
-          (the default value), any response will indicate health. The response data
-          can only be ASCII.
-        required: false
-      port:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035.  Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        required: true
+    timeout_sec:
         description:
         - The TCP port number for the HTTP health check request.
         - The default value is 80.
@@ -144,39 +147,175 @@ options:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
         required: false
-        default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
-  https_health_check:
-    description:
-    - A nested object resource.
-    required: false
-    suboptions:
-      host:
+        choices: ['TCP', 'SSL', 'HTTP', 'HTTPS']
+    http_health_check:
         description:
         - The value of the host header in the HTTPS health check request.
         - If left empty (default value), the public IP on behalf of which this health
           check is performed will be used.
         required: false
-      request_path:
+        suboptions:
+            host:
+                description:
+                    - The value of the host header in the HTTP health check request.
+                    - If left empty (default value), the public IP on behalf of which this health check
+                      is performed will be used.
+                required: false
+            request_path:
+                description:
+                    - The request path of the HTTP health check request.
+                    - The default value is /.
+                required: false
+                default: /
+            port:
+                description:
+                    - The TCP port number for the HTTP health check request.
+                    - The default value is 80.
+                required: false
+            port_name:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                required: false
+            proxy_header:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                required: false
+                default: NONE
+                choices: ['NONE', 'PROXY_V1']
+    https_health_check:
         description:
         - The request path of the HTTPS health check request.
         - The default value is /.
         required: false
-        default: "/"
-      response:
+        suboptions:
+            host:
+                description:
+                    - The value of the host header in the HTTPS health check request.
+                    - If left empty (default value), the public IP on behalf of which this health check
+                      is performed will be used.
+                required: false
+            request_path:
+                description:
+                    - The request path of the HTTPS health check request.
+                    - The default value is /.
+                required: false
+                default: /
+            port:
+                description:
+                    - The TCP port number for the HTTPS health check request.
+                    - The default value is 443.
+                required: false
+            port_name:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                required: false
+            proxy_header:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                required: false
+                default: NONE
+                choices: ['NONE', 'PROXY_V1']
+    tcp_health_check:
         description:
         - The bytes to match against the beginning of the response data. If left empty
           (the default value), any response will indicate health. The response data
           can only be ASCII.
         required: false
-      port:
+        suboptions:
+            request:
+                description:
+                    - The application data to send once the TCP connection has been established (default
+                      value is empty). If both request and response are empty, the connection establishment
+                      alone will indicate health. The request data can only be ASCII.
+                required: false
+            response:
+                description:
+                    - The bytes to match against the beginning of the response data. If left empty (the
+                      default value), any response will indicate health. The response data can only be
+                      ASCII.
+                required: false
+            port:
+                description:
+                    - The TCP port number for the TCP health check request.
+                    - The default value is 443.
+                required: false
+            port_name:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                required: false
+            proxy_header:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                required: false
+                default: NONE
+                choices: ['NONE', 'PROXY_V1']
+    ssl_health_check:
         description:
         - The TCP port number for the HTTPS health check request.
         - The default value is 443.
         required: false
-      port_name:
+        suboptions:
+            request:
+                description:
+                    - The application data to send once the SSL connection has been established (default
+                      value is empty). If both request and response are empty, the connection establishment
+                      alone will indicate health. The request data can only be ASCII.
+                required: false
+            response:
+                description:
+                    - The bytes to match against the beginning of the response data. If left empty (the
+                      default value), any response will indicate health. The response data can only be
+                      ASCII.
+                required: false
+            port:
+                description:
+                    - The TCP port number for the SSL health check request.
+                    - The default value is 443.
+                required: false
+            port_name:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                required: false
+            proxy_header:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                required: false
+                default: NONE
+                choices: ['NONE', 'PROXY_V1']
+extends_documentation_fragment: gcp
+notes:
+    - "API Reference: U(https://cloud.google.com/compute/docs/reference/rest/latest/healthChecks)"
+    - "Official Documentation: U(https://cloud.google.com/load-balancing/docs/health-checks)"
+'''
+
+EXAMPLES = '''
+- name: create a health check
+  gcp_compute_health_check:
+      name: "test_object"
+      type: TCP
+      tcp_health_check:
+        port_name: service-health
+        request: ping
+        response: pong
+      healthy_threshold: 10
+      timeout_sec: 2
+      unhealthy_threshold: 5
+      project: "test_project"
+      auth_kind: "service_account"
+      service_account_file: "/tmp/auth.pem"
+      state: present
+'''
+
+RETURN = '''
+    check_interval_sec:
         description:
         - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
           are defined, port takes precedence.
@@ -536,50 +675,35 @@ def main():
             timeout_sec=dict(default=5, type='int', aliases=['timeout_seconds']),
             unhealthy_threshold=dict(default=2, type='int'),
             type=dict(type='str', choices=['TCP', 'SSL', 'HTTP', 'HTTPS']),
-            http_health_check=dict(
-                type='dict',
-                options=dict(
-                    host=dict(type='str'),
-                    request_path=dict(default='/', type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
-                ),
-            ),
-            https_health_check=dict(
-                type='dict',
-                options=dict(
-                    host=dict(type='str'),
-                    request_path=dict(default='/', type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
-                ),
-            ),
-            tcp_health_check=dict(
-                type='dict',
-                options=dict(
-                    request=dict(type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
-                ),
-            ),
-            ssl_health_check=dict(
-                type='dict',
-                options=dict(
-                    request=dict(type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
-                ),
-            ),
-        ),
-        mutually_exclusive=[['http_health_check', 'https_health_check', 'ssl_health_check', 'tcp_health_check']],
+            http_health_check=dict(type='dict', options=dict(
+                host=dict(type='str'),
+                request_path=dict(default='/', type='str'),
+                port=dict(type='int'),
+                port_name=dict(type='str'),
+                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
+            )),
+            https_health_check=dict(type='dict', options=dict(
+                host=dict(type='str'),
+                request_path=dict(default='/', type='str'),
+                port=dict(type='int'),
+                port_name=dict(type='str'),
+                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
+            )),
+            tcp_health_check=dict(type='dict', options=dict(
+                request=dict(type='str'),
+                response=dict(type='str'),
+                port=dict(type='int'),
+                port_name=dict(type='str'),
+                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
+            )),
+            ssl_health_check=dict(type='dict', options=dict(
+                request=dict(type='str'),
+                response=dict(type='str'),
+                port=dict(type='int'),
+                port_name=dict(type='str'),
+                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
+            ))
+        )
     )
 
     if not module.params['scopes']:
