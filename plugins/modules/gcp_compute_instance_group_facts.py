@@ -53,19 +53,20 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a instance group facts
+- name: " a instance group facts"
   gcp_compute_instance_group_facts:
-      zone: us-central1-a
-      filters:
-      - name = test_object
-      project: test_project
-      auth_kind: serviceaccount
-      service_account_file: "/tmp/auth.pem"
+    zone: us-central1-a
+    filters:
+    - name = test_object
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: facts
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -103,45 +104,62 @@ items:
       type: complex
       contains:
         name:
-          description:
-          - The name for this named port.
-          - The name must be 1-63 characters long, and comply with RFC1035.
-          returned: success
-          type: str
-        port:
-          description:
-          - The port number, which can be a value between 1 and 65535.
-          returned: success
-          type: int
-    network:
-      description:
-      - The network to which all instances in the instance group belong.
-      returned: success
-      type: str
-    region:
-      description:
-      - The region where the instance group is located (for regional resources).
-      returned: success
-      type: str
-    subnetwork:
-      description:
-      - The subnetwork to which all instances in the instance group belong.
-      returned: success
-      type: str
-    zone:
-      description:
-      - A reference to the zone where the instance group resides.
-      returned: success
-      type: str
-    instances:
-      description:
-      - The list of instances associated with this InstanceGroup.
-      - All instances must be created before being added to an InstanceGroup.
-      - All instances not in this list will be removed from the InstanceGroup and
-        will not be deleted.
-      - Only the full identifier of the instance will be returned.
-      returned: success
-      type: list
+            description:
+                - The name of the instance group.
+                - The name must be 1-63 characters long, and comply with RFC1035.
+            returned: success
+            type: str
+        named_ports:
+            description:
+                - Assigns a name to a port number.
+                - 'For example: {name: "http", port: 80}.'
+                - This allows the system to reference ports by the assigned name instead of a port
+                  number. Named ports can also contain multiple ports.
+                - 'For example: [{name: "http", port: 80},{name: "http", port: 8080}]  Named ports
+                  apply to all instances in this instance group.'
+            returned: success
+            type: complex
+            contains:
+                name:
+                    description:
+                        - The name for this named port.
+                        - The name must be 1-63 characters long, and comply with RFC1035.
+                    returned: success
+                    type: str
+                port:
+                    description:
+                        - The port number, which can be a value between 1 and 65535.
+                    returned: success
+                    type: int
+        network:
+            description:
+                - The network to which all instances in the instance group belong.
+            returned: success
+            type: dict
+        region:
+            description:
+                - The region where the instance group is located (for regional resources).
+            returned: success
+            type: str
+        subnetwork:
+            description:
+                - The subnetwork to which all instances in the instance group belong.
+            returned: success
+            type: dict
+        zone:
+            description:
+                - A reference to the zone where the instance group resides.
+            returned: success
+            type: str
+        instances:
+            description:
+                - The list of instances associated with this InstanceGroup.
+                - All instances must be created before being added to an InstanceGroup.
+                - All instances not in this list will be removed from the InstanceGroup and will not
+                  be deleted.
+                - Only the full identifier of the instance will be returned.
+            returned: success
+            type: list
 '''
 
 ################################################################################
@@ -166,7 +184,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 
