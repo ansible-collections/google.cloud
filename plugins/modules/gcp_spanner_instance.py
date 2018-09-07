@@ -85,7 +85,7 @@ notes:
 EXAMPLES = '''
 - name: create a instance
   gcp_spanner_instance:
-      name: testinstance
+      name: "test_object"
       display_name: My Spanner Instance
       node_count: 2
       labels:

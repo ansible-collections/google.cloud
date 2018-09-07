@@ -54,7 +54,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a address facts
+- name: " a address facts"
   gcp_compute_address_facts:
       region: us-west1
       filters:
@@ -65,8 +65,8 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -121,7 +121,7 @@ items:
       - This field can only be used with INTERNAL type with GCE_ENDPOINT/DNS_RESOLVER
         purposes.
       returned: success
-      type: str
+      type: dict
     users:
       description:
       - The URLs of the resources that are using this address.
@@ -157,7 +157,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

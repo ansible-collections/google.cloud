@@ -49,7 +49,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a target tcp proxy facts
+- name: " a target tcp proxy facts"
   gcp_compute_target_tcp_proxy_facts:
       filters:
       - name = test_object
@@ -59,8 +59,8 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -99,7 +99,7 @@ items:
       description:
       - A reference to the BackendService resource.
       returned: success
-      type: str
+      type: dict
 '''
 
 ################################################################################
@@ -124,7 +124,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

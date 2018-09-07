@@ -422,24 +422,24 @@ EXAMPLES = '''
 
 - name: create a instance template
   gcp_compute_instance_template:
-    name: test_object
-    properties:
-      disks:
-      - auto_delete: 'true'
-        boot: 'true'
-        initialize_params:
-          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
-      machine_type: n1-standard-1
-      network_interfaces:
-      - network: "{{ network }}"
-        access_configs:
-        - name: test-config
-          type: ONE_TO_ONE_NAT
-          nat_ip: "{{ address }}"
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      name: "test_object"
+      properties:
+        disks:
+        - auto_delete: true
+          boot: true
+          initialize_params:
+            source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+        machine_type: n1-standard-1
+        network_interfaces:
+        - network: "{{ network }}"
+          access_configs:
+          - name: test-config
+            type: ONE_TO_ONE_NAT
+            nat_ip: "{{ address }}"
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''

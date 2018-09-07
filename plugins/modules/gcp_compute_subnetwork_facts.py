@@ -53,7 +53,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a subnetwork facts
+- name: " a subnetwork facts"
   gcp_compute_subnetwork_facts:
       region: us-west1
       filters:
@@ -64,8 +64,8 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -114,7 +114,7 @@ items:
       - The network this subnet belongs to.
       - Only networks that are in the distributed mode can have subnetworks.
       returned: success
-      type: str
+      type: dict
     enableFlowLogs:
       description:
       - Whether to enable flow logging for this subnetwork.
@@ -152,8 +152,8 @@ items:
           type: str
     privateIpGoogleAccess:
       description:
-      - Whether the VMs in this subnet can access Google services without assigned
-        external IP addresses.
+      - When enabled, VMs in this subnetwork without external IP addresses can access
+        Google APIs and services by using Private Google Access.
       returned: success
       type: bool
     region:
@@ -185,7 +185,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

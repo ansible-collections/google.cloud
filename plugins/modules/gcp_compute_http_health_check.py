@@ -105,7 +105,7 @@ options:
     required: false
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/httpHealthChecks)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/httpHealthChecks)'
 - 'Adding Health Checks: U(https://cloud.google.com/compute/docs/load-balancing/health-checks#legacy_health_checks)'
 '''
 

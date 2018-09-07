@@ -159,15 +159,15 @@ EXAMPLES = '''
 
 - name: create a vpn tunnel
   gcp_compute_vpn_tunnel:
-    name: test_object
-    region: us-west1
-    target_vpn_gateway: "{{ gateway }}"
-    router: "{{ router }}"
-    shared_secret: super secret
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      name: "test_object"
+      region: us-west1
+      target_vpn_gateway: "{{ gateway }}"
+      router: "{{ router }}"
+      shared_secret: super secret
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''

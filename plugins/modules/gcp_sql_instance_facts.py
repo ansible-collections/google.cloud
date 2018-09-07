@@ -44,16 +44,17 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a instance facts
+- name: " a instance facts"
   gcp_sql_instance_facts:
-      project: test_project
-      auth_kind: serviceaccount
-      service_account_file: "/tmp/auth.pem"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: facts
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -312,6 +313,34 @@ items:
             Generation (recommended) or First Generation.
           returned: success
           type: str
+        availabilityType:
+          description:
+          - The availabilityType define if your postgres instance is run zonal or
+            regional.
+          returned: success
+          type: str
+        backupConfiguration:
+          description:
+          - The daily backup configuration for the instance.
+          returned: success
+          type: complex
+          contains:
+            enabled:
+              description:
+              - Enable Autobackup for your instance.
+              returned: success
+              type: bool
+            binaryLogEnabled:
+              description:
+              - Whether binary log is enabled. If backup configuration is disabled,
+                binary log must be disabled as well. MySQL only.
+              returned: success
+              type: bool
+            startTime:
+              description:
+              - Define the backup start time in UTC (HH:MM) .
+              returned: success
+              type: str
         settingsVersion:
           description:
           - The version of instance settings. This is a required field for update
@@ -344,7 +373,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

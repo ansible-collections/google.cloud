@@ -71,6 +71,7 @@ options:
     - SOA
     - SPF
     - SRV
+    - TLSA
     - TXT
   ttl:
     description:
@@ -83,11 +84,11 @@ options:
   managed_zone:
     description:
     - Identifies the managed zone addressed by this request.
-    - Can be the managed zone name or id.
     - 'This field represents a link to a ManagedZone resource in GCP. It can be specified
-      in two ways. First, you can place in the name of the resource here as a string
-      Alternatively, you can add `register: name-of-resource` to a gcp_dns_managed_zone
-      task and then set this managed_zone field to "{{ name-of-resource }}"'
+      in two ways. First, you can place a dictionary with key ''name'' and value of
+      your resource''s name Alternatively, you can add `register: name-of-resource`
+      to a gcp_dns_managed_zone task and then set this managed_zone field to "{{ name-of-resource
+      }}"'
     required: true
 extends_documentation_fragment: gcp
 '''
@@ -95,13 +96,13 @@ extends_documentation_fragment: gcp
 EXAMPLES = '''
 - name: create a managed zone
   gcp_dns_managed_zone:
-      name: "managedzone-rrs"
-      dns_name: testzone-4.com.
-      description: test zone
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      state: present
+    name: managedzone-rrs
+    dns_name: testzone-4.com.
+    description: test zone
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
   register: managed_zone
 
 - name: create a resource record set
@@ -143,9 +144,8 @@ target:
 managed_zone:
   description:
   - Identifies the managed zone addressed by this request.
-  - Can be the managed zone name or id.
   returned: success
-  type: str
+  type: dict
 '''
 
 ################################################################################
@@ -170,10 +170,10 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
-            type=dict(required=True, type='str', choices=['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SPF', 'SRV', 'TXT']),
+            type=dict(required=True, type='str', choices=['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SPF', 'SRV', 'TLSA', 'TXT']),
             ttl=dict(type='int'),
             target=dict(type='list', elements='str'),
-            managed_zone=dict(required=True),
+            managed_zone=dict(required=True, type='dict'),
         )
     )
 
@@ -325,7 +325,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': response.get(u'name'), u'type': response.get(u'type'), u'ttl': response.get(u'ttl'), u'rrdatas': response.get(u'target')}
+    return {u'name': response.get(u'name'), u'type': response.get(u'type'), u'ttl': response.get(u'ttl'), u'rrdatas': response.get(u'rrdatas')}
 
 
 def updated_record(module):
@@ -357,13 +357,12 @@ class SOAForwardable(object):
 
 
 def prefetch_soa_resource(module):
-    name = module.params['name'].split('.')[1:]
 
     resource = SOAForwardable(
         {
             'type': 'SOA',
             'managed_zone': module.params['managed_zone'],
-            'name': '.'.join(name),
+            'name': replace_resource_dict(module.params['managed_zone'], 'dnsName'),
             'project': module.params['project'],
             'scopes': module.params['scopes'],
             'service_account_file': module.params['service_account_file'],
@@ -375,7 +374,7 @@ def prefetch_soa_resource(module):
 
     result = fetch_wrapped_resource(resource, 'dns#resourceRecordSet', 'dns#resourceRecordSetsListResponse', 'rrsets')
     if not result:
-        raise ValueError("Google DNS Managed Zone %s not found" % module.params['managed_zone']['name'])
+        raise ValueError("Google DNS Managed Zone %s not found" % replace_resource_dict(module.params['managed_zone'], 'name'))
     return result
 
 

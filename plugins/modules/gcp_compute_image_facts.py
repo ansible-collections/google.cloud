@@ -49,7 +49,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a image facts
+- name: " a image facts"
   gcp_compute_image_facts:
       filters:
       - name = test_object
@@ -59,8 +59,8 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -243,7 +243,7 @@ items:
       - You must provide either this property or the rawDisk.source property but not
         both to create an image.
       returned: success
-      type: str
+      type: dict
     sourceDiskEncryptionKey:
       description:
       - The customer-supplied encryption key of the source disk. Required if the source
@@ -300,7 +300,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

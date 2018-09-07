@@ -49,7 +49,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a ssl policy facts
+- name: " a ssl policy facts"
   gcp_compute_ssl_policy_facts:
       filters:
       - name = test_object
@@ -59,8 +59,8 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-items:
-  description: List of items
+resources:
+  description: List of resources
   returned: always
   type: complex
   contains:
@@ -163,7 +163,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {'resources': items}
     module.exit_json(**return_value)
 
 

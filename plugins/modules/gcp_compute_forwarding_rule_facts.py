@@ -56,13 +56,12 @@ extends_documentation_fragment: gcp
 EXAMPLES = '''
 - name: " a forwarding rule facts"
   gcp_compute_forwarding_rule_facts:
-    region: us-west1
-    filters:
-    - name = test_object
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: facts
+      region: us-west1
+      filters:
+      - name = test_object
+      project: test_project
+      auth_kind: serviceaccount
+      service_account_file: "/tmp/auth.pem"
 '''
 
 RETURN = '''
