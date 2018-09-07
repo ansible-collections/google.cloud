@@ -199,7 +199,7 @@ RETURN = '''
         description:
             - URL of router resource to be used for dynamic routing.
         returned: success
-        type: str
+        type: dict
     peer_ip:
         description:
             - IP address of the peer VPN gateway. Only IPv4 is supported.
