@@ -188,7 +188,7 @@ class GcpModule(AnsibleModule):
             arg_spec,
             dict(
                 project=dict(
-                    required=False,
+                    required=True,
                     type='str',
                     fallback=(env_fallback, ['GCP_PROJECT'])),
                 auth_kind=dict(
