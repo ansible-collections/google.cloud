@@ -100,25 +100,25 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-name:
-  description:
-  - A unique identifier for the database, which cannot be changed after the instance
-    is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].
-  returned: success
-  type: str
-extraStatements:
-  description:
-  - 'An optional list of DDL statements to run inside the newly created database.
-    Statements can create tables, indexes, etc. These statements execute atomically
-    with the creation of the database: if there is an error in any statement, the
-    database is not created.'
-  returned: success
-  type: list
-instance:
-  description:
-  - The instance to create the database on.
-  returned: success
-  type: dict
+    name:
+        description:
+            - A unique identifier for the database, which cannot be changed after the instance
+              is created. Values are of the form projects/<project>/instances/[a-z][-a-z0-9]*[a-z0-9].
+              The final segment of the name must be between 6 and 30 characters in length.
+        returned: success
+        type: str
+    extraStatements:
+        description:
+            - 'An optional list of DDL statements to run inside the newly created database. Statements
+              can create tables, indexes, etc. These statements execute atomically with the creation
+              of the database: if there is an error in any statement, the database is not created.'
+        returned: success
+        type: list
+    instance:
+        description:
+            - The instance to create the database on.
+        returned: success
+        type: dict
 '''
 
 ################################################################################

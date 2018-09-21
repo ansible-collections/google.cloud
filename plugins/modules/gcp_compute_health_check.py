@@ -315,12 +315,12 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-    check_interval_sec:
+    checkIntervalSec:
         description:
-        - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-          are defined, port takes precedence.
-        required: false
-      proxy_header:
+            - How often (in seconds) to send a health check. The default value is 5 seconds.
+        returned: success
+        type: int
+    creationTimestamp:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
@@ -336,11 +336,17 @@ RETURN = '''
     suboptions:
       request:
         description:
-        - The application data to send once the TCP connection has been established
-          (default value is empty). If both request and response are empty, the connection
-          establishment alone will indicate health. The request data can only be ASCII.
-        required: false
-      response:
+            - An optional description of this resource. Provide this property when you create
+              the resource.
+        returned: success
+        type: str
+    healthyThreshold:
+        description:
+            - A so-far unhealthy instance will be marked healthy after this many consecutive successes.
+              The default value is 2.
+        returned: success
+        type: int
+    id:
         description:
         - The bytes to match against the beginning of the response data. If left empty
           (the default value), any response will indicate health. The response data
@@ -348,15 +354,22 @@ RETURN = '''
         required: false
       port:
         description:
-        - The TCP port number for the TCP health check request.
-        - The default value is 443.
-        required: false
-      port_name:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035.  Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        returned: success
+        type: str
+    timeoutSec:
         description:
-        - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-          are defined, port takes precedence.
-        required: false
-      proxy_header:
+            - How long (in seconds) to wait before claiming failure.
+            - The default value is 5 seconds.  It is invalid for timeoutSec to have greater value
+              than checkIntervalSec.
+        returned: success
+        type: int
+    unhealthyThreshold:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
@@ -372,281 +385,161 @@ RETURN = '''
     suboptions:
       request:
         description:
-        - The application data to send once the SSL connection has been established
-          (default value is empty). If both request and response are empty, the connection
-          establishment alone will indicate health. The request data can only be ASCII.
-        required: false
-      response:
+            - Specifies the type of the healthCheck, either TCP, SSL, HTTP or HTTPS. If not specified,
+              the default is TCP. Exactly one of the protocol-specific health check field must
+              be specified, which must match type field.
+        returned: success
+        type: str
+    httpHealthCheck:
         description:
-        - The bytes to match against the beginning of the response data. If left empty
-          (the default value), any response will indicate health. The response data
-          can only be ASCII.
-        required: false
-      port:
+            - A nested object resource.
+        returned: success
+        type: complex
+        contains:
+            host:
+                description:
+                    - The value of the host header in the HTTP health check request.
+                    - If left empty (default value), the public IP on behalf of which this health check
+                      is performed will be used.
+                returned: success
+                type: str
+            requestPath:
+                description:
+                    - The request path of the HTTP health check request.
+                    - The default value is /.
+                returned: success
+                type: str
+            port:
+                description:
+                    - The TCP port number for the HTTP health check request.
+                    - The default value is 80.
+                returned: success
+                type: int
+            portName:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                returned: success
+                type: str
+            proxyHeader:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                returned: success
+                type: str
+    httpsHealthCheck:
         description:
-        - The TCP port number for the SSL health check request.
-        - The default value is 443.
-        required: false
-      port_name:
+            - A nested object resource.
+        returned: success
+        type: complex
+        contains:
+            host:
+                description:
+                    - The value of the host header in the HTTPS health check request.
+                    - If left empty (default value), the public IP on behalf of which this health check
+                      is performed will be used.
+                returned: success
+                type: str
+            requestPath:
+                description:
+                    - The request path of the HTTPS health check request.
+                    - The default value is /.
+                returned: success
+                type: str
+            port:
+                description:
+                    - The TCP port number for the HTTPS health check request.
+                    - The default value is 443.
+                returned: success
+                type: int
+            portName:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                returned: success
+                type: str
+            proxyHeader:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                returned: success
+                type: str
+    tcpHealthCheck:
         description:
-        - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-          are defined, port takes precedence.
-        required: false
-      proxy_header:
+            - A nested object resource.
+        returned: success
+        type: complex
+        contains:
+            request:
+                description:
+                    - The application data to send once the TCP connection has been established (default
+                      value is empty). If both request and response are empty, the connection establishment
+                      alone will indicate health. The request data can only be ASCII.
+                returned: success
+                type: str
+            response:
+                description:
+                    - The bytes to match against the beginning of the response data. If left empty (the
+                      default value), any response will indicate health. The response data can only be
+                      ASCII.
+                returned: success
+                type: str
+            port:
+                description:
+                    - The TCP port number for the TCP health check request.
+                    - The default value is 443.
+                returned: success
+                type: int
+            portName:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                returned: success
+                type: str
+            proxyHeader:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                returned: success
+                type: str
+    sslHealthCheck:
         description:
-        - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
-        required: false
-        default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
-extends_documentation_fragment: gcp
-notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)'
-- 'Official Documentation: U(https://cloud.google.com/load-balancing/docs/health-checks)'
-'''
-
-EXAMPLES = '''
-- name: create a health check
-  gcp_compute_health_check:
-    name: test_object
-    type: TCP
-    tcp_health_check:
-      port_name: service-health
-      request: ping
-      response: pong
-    healthy_threshold: 10
-    timeout_sec: 2
-    unhealthy_threshold: 5
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
-'''
-
-RETURN = '''
-checkIntervalSec:
-  description:
-  - How often (in seconds) to send a health check. The default value is 5 seconds.
-  returned: success
-  type: int
-creationTimestamp:
-  description:
-  - Creation timestamp in RFC3339 text format.
-  returned: success
-  type: str
-description:
-  description:
-  - An optional description of this resource. Provide this property when you create
-    the resource.
-  returned: success
-  type: str
-healthyThreshold:
-  description:
-  - A so-far unhealthy instance will be marked healthy after this many consecutive
-    successes. The default value is 2.
-  returned: success
-  type: int
-id:
-  description:
-  - The unique identifier for the resource. This identifier is defined by the server.
-  returned: success
-  type: int
-name:
-  description:
-  - Name of the resource. Provided by the client when the resource is created. The
-    name must be 1-63 characters long, and comply with RFC1035. Specifically, the
-    name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-    which means the first character must be a lowercase letter, and all following
-    characters must be a dash, lowercase letter, or digit, except the last character,
-    which cannot be a dash.
-  returned: success
-  type: str
-timeoutSec:
-  description:
-  - How long (in seconds) to wait before claiming failure.
-  - The default value is 5 seconds. It is invalid for timeoutSec to have greater value
-    than checkIntervalSec.
-  returned: success
-  type: int
-unhealthyThreshold:
-  description:
-  - A so-far healthy instance will be marked unhealthy after this many consecutive
-    failures. The default value is 2.
-  returned: success
-  type: int
-type:
-  description:
-  - Specifies the type of the healthCheck, either TCP, SSL, HTTP or HTTPS. If not
-    specified, the default is TCP. Exactly one of the protocol-specific health check
-    field must be specified, which must match type field.
-  returned: success
-  type: str
-httpHealthCheck:
-  description:
-  - A nested object resource.
-  returned: success
-  type: complex
-  contains:
-    host:
-      description:
-      - The value of the host header in the HTTP health check request.
-      - If left empty (default value), the public IP on behalf of which this health
-        check is performed will be used.
-      returned: success
-      type: str
-    requestPath:
-      description:
-      - The request path of the HTTP health check request.
-      - The default value is /.
-      returned: success
-      type: str
-    response:
-      description:
-      - The bytes to match against the beginning of the response data. If left empty
-        (the default value), any response will indicate health. The response data
-        can only be ASCII.
-      returned: success
-      type: str
-    port:
-      description:
-      - The TCP port number for the HTTP health check request.
-      - The default value is 80.
-      returned: success
-      type: int
-    portName:
-      description:
-      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-        are defined, port takes precedence.
-      returned: success
-      type: str
-    proxyHeader:
-      description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
-      returned: success
-      type: str
-httpsHealthCheck:
-  description:
-  - A nested object resource.
-  returned: success
-  type: complex
-  contains:
-    host:
-      description:
-      - The value of the host header in the HTTPS health check request.
-      - If left empty (default value), the public IP on behalf of which this health
-        check is performed will be used.
-      returned: success
-      type: str
-    requestPath:
-      description:
-      - The request path of the HTTPS health check request.
-      - The default value is /.
-      returned: success
-      type: str
-    response:
-      description:
-      - The bytes to match against the beginning of the response data. If left empty
-        (the default value), any response will indicate health. The response data
-        can only be ASCII.
-      returned: success
-      type: str
-    port:
-      description:
-      - The TCP port number for the HTTPS health check request.
-      - The default value is 443.
-      returned: success
-      type: int
-    portName:
-      description:
-      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-        are defined, port takes precedence.
-      returned: success
-      type: str
-    proxyHeader:
-      description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
-      returned: success
-      type: str
-tcpHealthCheck:
-  description:
-  - A nested object resource.
-  returned: success
-  type: complex
-  contains:
-    request:
-      description:
-      - The application data to send once the TCP connection has been established
-        (default value is empty). If both request and response are empty, the connection
-        establishment alone will indicate health. The request data can only be ASCII.
-      returned: success
-      type: str
-    response:
-      description:
-      - The bytes to match against the beginning of the response data. If left empty
-        (the default value), any response will indicate health. The response data
-        can only be ASCII.
-      returned: success
-      type: str
-    port:
-      description:
-      - The TCP port number for the TCP health check request.
-      - The default value is 443.
-      returned: success
-      type: int
-    portName:
-      description:
-      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-        are defined, port takes precedence.
-      returned: success
-      type: str
-    proxyHeader:
-      description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
-      returned: success
-      type: str
-sslHealthCheck:
-  description:
-  - A nested object resource.
-  returned: success
-  type: complex
-  contains:
-    request:
-      description:
-      - The application data to send once the SSL connection has been established
-        (default value is empty). If both request and response are empty, the connection
-        establishment alone will indicate health. The request data can only be ASCII.
-      returned: success
-      type: str
-    response:
-      description:
-      - The bytes to match against the beginning of the response data. If left empty
-        (the default value), any response will indicate health. The response data
-        can only be ASCII.
-      returned: success
-      type: str
-    port:
-      description:
-      - The TCP port number for the SSL health check request.
-      - The default value is 443.
-      returned: success
-      type: int
-    portName:
-      description:
-      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
-        are defined, port takes precedence.
-      returned: success
-      type: str
-    proxyHeader:
-      description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
-      returned: success
-      type: str
+            - A nested object resource.
+        returned: success
+        type: complex
+        contains:
+            request:
+                description:
+                    - The application data to send once the SSL connection has been established (default
+                      value is empty). If both request and response are empty, the connection establishment
+                      alone will indicate health. The request data can only be ASCII.
+                returned: success
+                type: str
+            response:
+                description:
+                    - The bytes to match against the beginning of the response data. If left empty (the
+                      default value), any response will indicate health. The response data can only be
+                      ASCII.
+                returned: success
+                type: str
+            port:
+                description:
+                    - The TCP port number for the SSL health check request.
+                    - The default value is 443.
+                returned: success
+                type: int
+            portName:
+                description:
+                    - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+                      are defined, port takes precedence.
+                returned: success
+                type: str
+            proxyHeader:
+                description:
+                    - Specifies the type of proxy header to append before sending data to the backend,
+                      either NONE or PROXY_V1. The default is NONE.
+                returned: success
+                type: str
 '''
 
 ################################################################################

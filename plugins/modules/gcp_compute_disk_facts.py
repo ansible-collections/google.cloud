@@ -69,13 +69,13 @@ items:
     returned: always
     type: complex
     contains:
-        label_fingerprint:
+        labelFingerprint:
             description:
                 - The fingerprint used for optimistic locking of this resource.  Used internally during
                   updates.
             returned: success
             type: str
-        creation_timestamp:
+        creationTimestamp:
             description:
                 - Creation timestamp in RFC3339 text format.
             returned: success
@@ -91,12 +91,12 @@ items:
                 - The unique identifier for the resource.
             returned: success
             type: int
-        last_attach_timestamp:
+        lastAttachTimestamp:
             description:
                 - Last attach timestamp in RFC3339 text format.
             returned: success
             type: str
-        last_detach_timestamp:
+        lastDetachTimestamp:
             description:
                 - Last dettach timestamp in RFC3339 text format.
             returned: success
@@ -121,7 +121,7 @@ items:
                   be a dash.
             returned: success
             type: str
-        size_gb:
+        sizeGb:
             description:
                 - Size of the persistent disk, specified in GB. You can specify this field when creating
                   a persistent disk using the sourceImage or sourceSnapshot parameter, or specify
@@ -142,7 +142,7 @@ items:
                   Provide this when creating the disk.
             returned: success
             type: str
-        source_image:
+        sourceImage:
             description:
                 - The source image used to create this disk. If the source image is deleted, this
                   field will not be set.
@@ -162,14 +162,14 @@ items:
                 - A reference to the zone where the disk resides.
             returned: success
             type: str
-        source_image_encryption_key:
+        sourceImageEncryptionKey:
             description:
                 - The customer-supplied encryption key of the source image. Required if the source
                   image is protected by a customer-supplied encryption key.
             returned: success
             type: complex
             contains:
-                raw_key:
+                rawKey:
                     description:
                         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
                           to either encrypt or decrypt this resource.
@@ -181,7 +181,7 @@ items:
                           that protects this resource.
                     returned: success
                     type: str
-        source_image_id:
+        sourceImageId:
             description:
                 - The ID value of the image used to create this disk. This value identifies the exact
                   image that was used to create this persistent disk. For example, if you created
@@ -190,7 +190,7 @@ items:
                   was used.
             returned: success
             type: str
-        disk_encryption_key:
+        diskEncryptionKey:
             description:
                 - Encrypts the disk using a customer-supplied encryption key.
                 - After you encrypt a disk with a customer-supplied key, you must provide the same
@@ -203,7 +203,7 @@ items:
             returned: success
             type: complex
             contains:
-                raw_key:
+                rawKey:
                     description:
                         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
                           to either encrypt or decrypt this resource.
@@ -215,7 +215,7 @@ items:
                           that protects this resource.
                     returned: success
                     type: str
-        source_snapshot:
+        sourceSnapshot:
             description:
                 - 'The source snapshot used to create this disk. You can provide this as a partial
                   or full URL to the resource. For example, the following are valid values: *
@@ -223,14 +223,14 @@ items:
                   * `projects/project/global/snapshots/snapshot` * `global/snapshots/snapshot` .'
             returned: success
             type: dict
-        source_snapshot_encryption_key:
+        sourceSnapshotEncryptionKey:
             description:
                 - The customer-supplied encryption key of the source snapshot. Required if the source
                   snapshot is protected by a customer-supplied encryption key.
             returned: success
             type: complex
             contains:
-                raw_key:
+                rawKey:
                     description:
                         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
                           to either encrypt or decrypt this resource.
@@ -242,7 +242,7 @@ items:
                           that protects this resource.
                     returned: success
                     type: str
-        source_snapshot_id:
+        sourceSnapshotId:
             description:
                 - The unique ID of the snapshot used to create this disk. This value identifies the
                   exact snapshot that was used to create this persistent disk. For example, if you

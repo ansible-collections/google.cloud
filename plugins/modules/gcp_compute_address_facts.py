@@ -65,74 +65,66 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-resources:
-  description: List of resources
-  returned: always
-  type: complex
-  contains:
-    address:
-      description:
-      - The static external IP address represented by this resource. Only IPv4 is
-        supported. An address may only be specified for INTERNAL address types. The
-        IP address must be inside the specified subnetwork, if any.
-      returned: success
-      type: str
-    addressType:
-      description:
-      - The type of address to reserve, either INTERNAL or EXTERNAL.
-      - If unspecified, defaults to EXTERNAL.
-      returned: success
-      type: str
-    creationTimestamp:
-      description:
-      - Creation timestamp in RFC3339 text format.
-      returned: success
-      type: str
-    description:
-      description:
-      - An optional description of this resource.
-      returned: success
-      type: str
-    id:
-      description:
-      - The unique identifier for the resource.
-      returned: success
-      type: int
-    name:
-      description:
-      - Name of the resource. The name must be 1-63 characters long, and comply with
-        RFC1035. Specifically, the name must be 1-63 characters long and match the
-        regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character
-        must be a lowercase letter, and all following characters must be a dash, lowercase
-        letter, or digit, except the last character, which cannot be a dash.
-      returned: success
-      type: str
-    networkTier:
-      description:
-      - 'The networking tier used for configuring this address. This field can take
-        the following values: PREMIUM or STANDARD. If this field is not specified,
-        it is assumed to be PREMIUM.'
-      returned: success
-      type: str
-    subnetwork:
-      description:
-      - The URL of the subnetwork in which to reserve the address. If an IP address
-        is specified, it must be within the subnetwork's IP range.
-      - This field can only be used with INTERNAL type with GCE_ENDPOINT/DNS_RESOLVER
-        purposes.
-      returned: success
-      type: dict
-    users:
-      description:
-      - The URLs of the resources that are using this address.
-      returned: success
-      type: list
-    region:
-      description:
-      - URL of the region where the regional address resides.
-      - This field is not applicable to global addresses.
-      returned: success
-      type: str
+items:
+    description: List of items
+    returned: always
+    type: complex
+    contains:
+        address:
+            description:
+                - The static external IP address represented by this resource. Only IPv4 is supported.
+                  An address may only be specified for INTERNAL address types. The IP address must
+                  be inside the specified subnetwork, if any.
+            returned: success
+            type: str
+        addressType:
+            description:
+                - The type of address to reserve, either INTERNAL or EXTERNAL.
+                - If unspecified, defaults to EXTERNAL.
+            returned: success
+            type: str
+        creationTimestamp:
+            description:
+                - Creation timestamp in RFC3339 text format.
+            returned: success
+            type: str
+        description:
+            description:
+                - An optional description of this resource.
+            returned: success
+            type: str
+        id:
+            description:
+                - The unique identifier for the resource.
+            returned: success
+            type: int
+        name:
+            description:
+                - Name of the resource. The name must be 1-63 characters long, and comply with RFC1035.
+                  Specifically, the name must be 1-63 characters long and match the regular expression
+                  `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be a lowercase
+                  letter, and all following characters must be a dash, lowercase letter, or digit,
+                  except the last character, which cannot be a dash.
+            returned: success
+            type: str
+        subnetwork:
+            description:
+                - The URL of the subnetwork in which to reserve the address. If an IP address is specified,
+                  it must be within the subnetwork's IP range.
+                - This field can only be used with INTERNAL type with GCE_ENDPOINT/DNS_RESOLVER purposes.
+            returned: success
+            type: dict
+        users:
+            description:
+                - The URLs of the resources that are using this address.
+            returned: success
+            type: list
+        region:
+            description:
+                - URL of the region where the regional address resides.
+                - This field is not applicable to global addresses.
+            returned: success
+            type: str
 '''
 
 ################################################################################

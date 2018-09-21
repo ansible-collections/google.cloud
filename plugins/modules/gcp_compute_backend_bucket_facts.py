@@ -59,64 +59,47 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-resources:
-  description: List of resources
-  returned: always
-  type: complex
-  contains:
-    bucketName:
-      description:
-      - Cloud Storage bucket name.
-      returned: success
-      type: str
-    cdnPolicy:
-      description:
-      - Cloud CDN configuration for this Backend Bucket.
-      returned: success
-      type: complex
-      contains:
-        signedUrlCacheMaxAgeSec:
-          description:
-          - Maximum number of seconds the response to a signed URL request will be
-            considered fresh. Defaults to 1hr (3600s). After this time period, the
-            response will be revalidated before being served.
-          - 'When serving responses to signed URL requests, Cloud CDN will internally
-            behave as though all responses from this backend had a "Cache-Control:
-            public, max-age=[TTL]" header, regardless of any existing Cache-Control
-            header. The actual headers served in responses will not be altered.'
-          returned: success
-          type: int
-    creationTimestamp:
-      description:
-      - Creation timestamp in RFC3339 text format.
-      returned: success
-      type: str
-    description:
-      description:
-      - An optional textual description of the resource; provided by the client when
-        the resource is created.
-      returned: success
-      type: str
-    enableCdn:
-      description:
-      - If true, enable Cloud CDN for this BackendBucket.
-      returned: success
-      type: bool
-    id:
-      description:
-      - Unique identifier for the resource.
-      returned: success
-      type: int
-    name:
-      description:
-      - Name of the resource. Provided by the client when the resource is created.
-        The name must be 1-63 characters long, and comply with RFC1035. Specifically,
-        the name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-        which means the first character must be a lowercase letter, and all following
-        characters must be a dash, lowercase letter, or digit, except the last character,
-        which cannot be a dash.
-      returned: success
-      type: str
+items:
+    description: List of items
+    returned: always
+    type: complex
+    contains:
+        bucketName:
+            description:
+                - Cloud Storage bucket name.
+            returned: success
+            type: str
+        creationTimestamp:
+            description:
+                - Creation timestamp in RFC3339 text format.
+            returned: success
+            type: str
+        description:
+            description:
+                - An optional textual description of the resource; provided by the client when the
+                  resource is created.
+            returned: success
+            type: str
+        enableCdn:
+            description:
+                - If true, enable Cloud CDN for this BackendBucket.
+            returned: success
+            type: bool
+        id:
+            description:
+                - Unique identifier for the resource.
+            returned: success
+            type: int
+        name:
+            description:
+                - Name of the resource. Provided by the client when the resource is created. The name
+                  must be 1-63 characters long, and comply with RFC1035.  Specifically, the name must
+                  be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+                  which means the first character must be a lowercase letter, and all following characters
+                  must be a dash, lowercase letter, or digit, except the last character, which cannot
+                  be a dash.
+            returned: success
+            type: str
 '''
 
 ################################################################################

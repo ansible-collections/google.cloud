@@ -119,7 +119,7 @@ RETURN = '''
             - The chain must include at least one intermediate cert.
         returned: success
         type: str
-    creation_timestamp:
+    creationTimestamp:
         description:
             - Creation timestamp in RFC3339 text format.
         returned: success
@@ -144,7 +144,7 @@ RETURN = '''
               be a dash.
         returned: success
         type: str
-    private_key:
+    privateKey:
         description:
             - The write-only private key in PEM format.
         returned: success
