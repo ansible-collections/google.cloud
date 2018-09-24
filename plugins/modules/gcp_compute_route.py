@@ -57,85 +57,64 @@ requirements:
 options:
   state:
     description:
-    - Whether the given object should exist in GCP
-    choices:
-    - present
-    - absent
-    default: present
-  dest_range:
-    description:
-    - The destination range of outgoing packets that this route applies to.
-    - Only IPv4 is supported.
-    required: true
-  description:
-    description:
-    - An optional description of this resource. Provide this property when you create
-      the resource.
-    required: false
-    version_added: 2.7
-  name:
-    description:
-    - Name of the resource. Provided by the client when the resource is created. The
-      name must be 1-63 characters long, and comply with RFC1035. Specifically, the
-      name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-      which means the first character must be a lowercase letter, and all following
-      characters must be a dash, lowercase letter, or digit, except the last character,
-      which cannot be a dash.
-    required: true
-  network:
-    description:
-    - The network that this route applies to.
-    - 'This field represents a link to a Network resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_network task and then set this network field to "{{ name-of-resource
-      }}"'
-    required: true
-  priority:
-    description:
-    - The priority of this route. Priority is used to break ties in cases where there
-      is more than one matching route of equal prefix length.
-    - In the case of two routes with equal prefix length, the one with the lowest-numbered
-      priority value wins.
-    - Default value is 1000. Valid range is 0 through 65535.
-    required: false
-  tags:
-    description:
-    - A list of instance tags to which this route applies.
-    required: false
-  next_hop_gateway:
-    description:
-    - URL to a gateway that should handle matching packets.
-    - 'Currently, you can only specify the internet gateway, using a full or partial
-      valid URL: * U(https://www.googleapis.com/compute/v1/projects/project/global/gateways/default-internet-gateway)
-      * projects/project/global/gateways/default-internet-gateway * global/gateways/default-internet-gateway
-      .'
-    required: false
-  next_hop_instance:
-    description:
-    - URL to an instance that should handle matching packets.
-    - 'You can specify this as a full or partial URL. For example: * U(https://www.googleapis.com/compute/v1/projects/project/zones/zone/)
-      instances/instance * projects/project/zones/zone/instances/instance * zones/zone/instances/instance
-      .'
-    - 'This field represents a link to a Instance resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_instance task and then set this next_hop_instance field to
-      "{{ name-of-resource }}"'
-    required: false
-  next_hop_ip:
-    description:
-    - Network IP address of an instance that should handle matching packets.
-    required: false
-  next_hop_vpn_tunnel:
-    description:
-    - URL to a VpnTunnel that should handle matching packets.
-    - 'This field represents a link to a VpnTunnel resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_vpn_tunnel task and then set this next_hop_vpn_tunnel field
-      to "{{ name-of-resource }}"'
-    required: false
+        description:
+            - An optional description of this resource. Provide this property when you create
+              the resource.
+        required: false
+        version_added: 2.7
+    name:
+        description:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035.  Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        required: true
+    network:
+        description:
+            - The network that this route applies to.
+            - 'This field represents a link to a Network resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_network task
+              and then set this network field to "{{ name-of-resource }}" Alternatively, you can
+              set this network to a dictionary with the selfLink key where the value is the selfLink
+              of your Network.'
+        required: true
+    priority:
+        description:
+            - The priority of this route. Priority is used to break ties in cases where there
+              is more than one matching route of equal prefix length.
+            - In the case of two routes with equal prefix length, the one with the lowest-numbered
+              priority value wins.
+            - Default value is 1000. Valid range is 0 through 65535.
+        required: false
+    tags:
+        description:
+            - A list of instance tags to which this route applies.
+        required: false
+    next_hop_gateway:
+        description:
+            - URL to a gateway that should handle matching packets.
+            - 'Currently, you can only specify the internet gateway, using a full or partial valid
+              URL:  * U(https://www.googleapis.com/compute/v1/projects/project/global/gateways/default-internet-gateway)
+              * projects/project/global/gateways/default-internet-gateway * global/gateways/default-internet-gateway
+              .'
+        required: false
+    next_hop_instance:
+        description:
+            - URL to an instance that should handle matching packets.
+            - 'You can specify this as a full or partial URL. For example:  * U(https://www.googleapis.com/compute/v1/projects/project/zones/zone/)
+              instances/instance * projects/project/zones/zone/instances/instance * zones/zone/instances/instance
+              .'
+        required: false
+    next_hop_ip:
+        description:
+            - Network IP address of an instance that should handle matching packets.
+        required: false
+    next_hop_vpn_tunnel:
+        description:
+            - URL to a VpnTunnel that should handle matching packets.
+        required: false
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/routes)'

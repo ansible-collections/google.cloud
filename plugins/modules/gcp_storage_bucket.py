@@ -80,7 +80,62 @@ options:
         description:
         - The ID for the entity.
         required: false
-      project_team:
+        suboptions:
+            bucket:
+                description:
+                    - The name of the bucket.
+                    - 'This field represents a link to a Bucket resource in GCP. It can be specified in
+                      two ways. You can add `register: name-of-resource` to a gcp_storage_bucket task
+                      and then set this bucket field to "{{ name-of-resource }}" Alternatively, you can
+                      set this bucket to a dictionary with the name key where the value is the name of
+                      your Bucket.'
+                required: true
+            domain:
+                description:
+                    - The domain associated with the entity.
+                required: false
+            email:
+                description:
+                    - The email address associated with the entity.
+                required: false
+            entity:
+                description:
+                    - 'The entity holding the permission, in one of the following forms: user-userId
+                      user-email group-groupId group-email domain-domain project-team-projectId allUsers
+                      allAuthenticatedUsers Examples: The user liz@example.com would be
+                      user-liz@example.com.'
+                    - The group example@googlegroups.com would be   group-example@googlegroups.com.
+                    - To refer to all members of the Google Apps for Business domain   example.com, the
+                      entity would be domain-example.com.
+                required: true
+            entity_id:
+                description:
+                    - The ID for the entity.
+                required: false
+            id:
+                description:
+                    - The ID of the access-control entry.
+                required: false
+            project_team:
+                description:
+                    - The project team associated with the entity.
+                required: false
+                suboptions:
+                    project_number:
+                        description:
+                            - The project team associated with the entity.
+                        required: false
+                    team:
+                        description:
+                            - The team.
+                        required: false
+                        choices: ['editors', 'owners', 'viewers']
+            role:
+                description:
+                    - The access permission for the entity.
+                required: false
+                choices: ['OWNER', 'READER', 'WRITER']
+    cors:
         description:
         - The project team associated with the entity.
         required: false
@@ -101,16 +156,71 @@ options:
         description:
         - The access permission for the entity.
         required: false
-        choices:
-        - OWNER
-        - READER
-        - WRITER
-  cors:
-    description:
-    - The bucket's Cross-Origin Resource Sharing (CORS) configuration.
-    required: false
-    suboptions:
-      max_age_seconds:
+        version_added: 2.7
+        suboptions:
+            bucket:
+                description:
+                    - The name of the bucket.
+                    - 'This field represents a link to a Bucket resource in GCP. It can be specified in
+                      two ways. You can add `register: name-of-resource` to a gcp_storage_bucket task
+                      and then set this bucket field to "{{ name-of-resource }}" Alternatively, you can
+                      set this bucket to a dictionary with the name key where the value is the name of
+                      your Bucket.'
+                required: true
+            domain:
+                description:
+                    - The domain associated with the entity.
+                required: false
+            email:
+                description:
+                    - The email address associated with the entity.
+                required: false
+            entity:
+                description:
+                    - 'The entity holding the permission, in one of the following forms: user-userId
+                      user-email group-groupId group-email domain-domain project-team-projectId allUsers
+                      allAuthenticatedUsers Examples: The user liz@example.com would be
+                      user-liz@example.com.'
+                    - The group example@googlegroups.com would be   group-example@googlegroups.com.
+                    - To refer to all members of the Google Apps for Business domain   example.com, the
+                      entity would be domain-example.com.
+                required: true
+            entity_id:
+                description:
+                    - The ID for the entity.
+                required: false
+            generation:
+                description:
+                    - The content generation of the object, if applied to an object.
+                required: false
+            id:
+                description:
+                    - The ID of the access-control entry.
+                required: false
+            object:
+                description:
+                    - The name of the object, if applied to an object.
+                required: false
+            project_team:
+                description:
+                    - The project team associated with the entity.
+                required: false
+                suboptions:
+                    project_number:
+                        description:
+                            - The project team associated with the entity.
+                        required: false
+                    team:
+                        description:
+                            - The team.
+                        required: false
+                        choices: ['editors', 'owners', 'viewers']
+            role:
+                description:
+                    - The access permission for the entity.
+                required: false
+                choices: ['OWNER', 'READER']
+    lifecycle:
         description:
         - The value, in seconds, to return in the Access-Control-Max-Age header used
           in preflight responses.

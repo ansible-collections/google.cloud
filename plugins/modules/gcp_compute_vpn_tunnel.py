@@ -42,74 +42,64 @@ requirements:
 options:
   state:
     description:
-    - Whether the given object should exist in GCP
-    choices:
-    - present
-    - absent
-    default: present
-  name:
-    description:
-    - Name of the resource. The name must be 1-63 characters long, and comply with
-      RFC1035. Specifically, the name must be 1-63 characters long and match the regular
-      expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must
-      be a lowercase letter, and all following characters must be a dash, lowercase
-      letter, or digit, except the last character, which cannot be a dash.
-    required: true
-  description:
-    description:
-    - An optional description of this resource.
-    required: false
-  target_vpn_gateway:
-    description:
-    - URL of the Target VPN gateway with which this VPN tunnel is associated.
-    - 'This field represents a link to a TargetVpnGateway resource in GCP. It can
-      be specified in two ways. First, you can place a dictionary with key ''selfLink''
-      and value of your resource''s selfLink Alternatively, you can add `register:
-      name-of-resource` to a gcp_compute_target_vpn_gateway task and then set this
-      target_vpn_gateway field to "{{ name-of-resource }}"'
-    required: true
-  router:
-    description:
-    - URL of router resource to be used for dynamic routing.
-    - 'This field represents a link to a Router resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_router task and then set this router field to "{{ name-of-resource
-      }}"'
-    required: false
-  peer_ip:
-    description:
-    - IP address of the peer VPN gateway. Only IPv4 is supported.
-    required: true
-  shared_secret:
-    description:
-    - Shared secret used to set the secure session between the Cloud VPN gateway and
-      the peer VPN gateway.
-    required: true
-  ike_version:
-    description:
-    - IKE protocol version to use when establishing the VPN tunnel with peer VPN gateway.
-    - Acceptable IKE versions are 1 or 2. Default version is 2.
-    required: false
-    default: '2'
-  local_traffic_selector:
-    description:
-    - Local traffic selector to use when establishing the VPN tunnel with peer VPN
-      gateway. The value should be a CIDR formatted string, for example `192.168.0.0/16`.
-      The ranges should be disjoint.
-    - Only IPv4 is supported.
-    required: false
-  remote_traffic_selector:
-    description:
-    - Remote traffic selector to use when establishing the VPN tunnel with peer VPN
-      gateway. The value should be a CIDR formatted string, for example `192.168.0.0/16`.
-      The ranges should be disjoint.
-    - Only IPv4 is supported.
-    required: false
-  region:
-    description:
-    - The region where the tunnel is located.
-    required: true
+        description:
+            - An optional description of this resource.
+        required: false
+    target_vpn_gateway:
+        description:
+            - URL of the Target VPN gateway with which this VPN tunnel is associated.
+            - 'This field represents a link to a TargetVpnGateway resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_target_vpn_gateway
+              task and then set this target_vpn_gateway field to "{{ name-of-resource }}" Alternatively,
+              you can set this target_vpn_gateway to a dictionary with the selfLink key where
+              the value is the selfLink of your TargetVpnGateway.'
+        required: true
+    router:
+        description:
+            - URL of router resource to be used for dynamic routing.
+            - 'This field represents a link to a Router resource in GCP. It can be specified in
+              two ways. You can add `register: name-of-resource` to a gcp_compute_router task
+              and then set this router field to "{{ name-of-resource }}" Alternatively, you can
+              set this router to a dictionary with the selfLink key where the value is the selfLink
+              of your Router.'
+        required: false
+    peer_ip:
+        description:
+            - IP address of the peer VPN gateway. Only IPv4 is supported.
+        required: true
+    shared_secret:
+        description:
+            - Shared secret used to set the secure session between the Cloud VPN gateway and the
+              peer VPN gateway.
+        required: true
+    ike_version:
+        description:
+            - IKE protocol version to use when establishing the VPN tunnel with peer VPN gateway.
+            - Acceptable IKE versions are 1 or 2. Default version is 2.
+        required: false
+        default: 2
+    local_traffic_selector:
+        description:
+            - Local traffic selector to use when establishing the VPN tunnel with peer VPN gateway.
+              The value should be a CIDR formatted string, for example `192.168.0.0/16`. The ranges
+              should be disjoint.
+            - Only IPv4 is supported.
+        required: false
+    remote_traffic_selector:
+        description:
+            - Remote traffic selector to use when establishing the VPN tunnel with peer VPN gateway.
+              The value should be a CIDR formatted string, for example `192.168.0.0/16`. The ranges
+              should be disjoint.
+            - Only IPv4 is supported.
+        required: false
+    labels:
+        description:
+            - Labels to apply to this VpnTunnel.
+        required: false
+    region:
+        description:
+            - The region where the tunnel is located.
+        required: true
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/vpnTunnels)'

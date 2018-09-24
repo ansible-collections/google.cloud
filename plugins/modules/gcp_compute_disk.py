@@ -158,26 +158,28 @@ options:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
         required: false
-  source_snapshot:
-    description:
-    - The source snapshot used to create this disk. You can provide this as a partial
-      or full URL to the resource.
-    - 'This field represents a link to a Snapshot resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_snapshot task and then set this source_snapshot field to "{{
-      name-of-resource }}"'
-    required: false
-  source_snapshot_encryption_key:
-    description:
-    - The customer-supplied encryption key of the source snapshot. Required if the
-      source snapshot is protected by a customer-supplied encryption key.
-    required: false
-    suboptions:
-      raw_key:
+        suboptions:
+            raw_key:
+                description:
+                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                      to either encrypt or decrypt this resource.
+                required: false
+            sha256:
+                description:
+                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                      that protects this resource.
+                required: false
+    source_snapshot:
         description:
-        - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
-          base64 to either encrypt or decrypt this resource.
+            - 'The source snapshot used to create this disk. You can provide this as a partial or
+              full URL to the resource. For example, the following are valid values: *
+              `U(https://www.googleapis.com/compute/v1/projects/project/global/snapshots/snapshot`)
+              * `projects/project/global/snapshots/snapshot` * `global/snapshots/snapshot` .'
+            - 'This field represents a link to a Snapshot resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_snapshot
+              task and then set this source_snapshot field to "{{ name-of-resource }}" Alternatively,
+              you can set this source_snapshot to a dictionary with the selfLink key where the
+              value is the selfLink of your Snapshot.'
         required: false
       kms_key_name:
         description:

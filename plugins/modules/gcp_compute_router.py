@@ -90,14 +90,14 @@ options:
         - CUSTOM
       advertised_groups:
         description:
-        - User-specified list of prefix groups to advertise in custom mode.
-        - This field can only be populated if advertiseMode is CUSTOM and is advertised
-          to all peers of the router. These groups will be advertised in addition
-          to any specified prefixes. Leave this field blank to advertise no custom
-          groups.
-        - 'This enum field has the one valid value: ALL_SUBNETS .'
-        required: false
-      advertised_ip_ranges:
+            - A reference to the network to which this router belongs.
+            - 'This field represents a link to a Network resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_network task
+              and then set this network field to "{{ name-of-resource }}" Alternatively, you can
+              set this network to a dictionary with the selfLink key where the value is the selfLink
+              of your Network.'
+        required: true
+    bgp:
         description:
         - User-specified list of individual IP ranges to advertise in custom mode.
           This field can only be populated if advertiseMode is CUSTOM and is advertised

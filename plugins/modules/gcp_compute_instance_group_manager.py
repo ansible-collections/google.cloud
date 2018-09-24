@@ -88,8 +88,44 @@ options:
     suboptions:
       name:
         description:
-        - The name for this named port. The name must be 1-63 characters long, and
-          comply with RFC1035.
+            - An optional description of this resource. Provide this property when you create
+              the resource.
+        required: false
+    instance_template:
+        description:
+            - The instance template that is specified for this managed instance group. The group
+              uses this template to create all new instances in the managed instance group.
+            - 'This field represents a link to a InstanceTemplate resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_instance_template
+              task and then set this instance_template field to "{{ name-of-resource }}" Alternatively,
+              you can set this instance_template to a dictionary with the selfLink key where the
+              value is the selfLink of your InstanceTemplate.'
+        required: true
+    name:
+        description:
+            - The name of the managed instance group. The name must be 1-63 characters long, and
+              comply with RFC1035.
+        required: true
+    named_ports:
+        description:
+            - Named ports configured for the Instance Groups complementary to this Instance Group
+              Manager.
+        required: false
+        suboptions:
+            name:
+                description:
+                    - The name for this named port. The name must be 1-63 characters long, and comply
+                      with RFC1035.
+                required: false
+            port:
+                description:
+                    - The port number, which can be a value between 1 and 65535.
+                required: false
+    target_pools:
+        description:
+            - TargetPool resources to which instances in the instanceGroup field are added. The
+              target pools automatically apply to all of the instances in the managed instance
+              group.
         required: false
       port:
         description:

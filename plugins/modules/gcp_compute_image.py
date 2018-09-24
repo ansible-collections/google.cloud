@@ -147,24 +147,61 @@ options:
         - The full Google Cloud Storage URL where disk storage is stored You must
           provide either this property or the sourceDisk property but not both.
         required: true
-  source_disk:
-    description:
-    - The source disk to create this image based on.
-    - You must provide either this property or the rawDisk.source property but not
-      both to create an image.
-    - 'This field represents a link to a Disk resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_disk task and then set this source_disk field to "{{ name-of-resource
-      }}"'
-    required: false
-  source_disk_encryption_key:
-    description:
-    - The customer-supplied encryption key of the source disk. Required if the source
-      disk is protected by a customer-supplied encryption key.
-    required: false
-    suboptions:
-      raw_key:
+    raw_disk:
+        description:
+            - The parameters of the raw disk image.
+        required: false
+        suboptions:
+            container_type:
+                description:
+                    - The format used to encode and transmit the block device, which should be TAR. This
+                      is just a container and transmission format and not a runtime format. Provided by
+                      the client when the disk image is created.
+                required: false
+                choices: ['TAR']
+            sha1_checksum:
+                description:
+                    - An optional SHA1 checksum of the disk image before unpackaging.
+                    - This is provided by the client when the disk image is created.
+                required: false
+            source:
+                description:
+                    - The full Google Cloud Storage URL where disk storage is stored You must provide
+                      either this property or the sourceDisk property but not both.
+                required: false
+    source_disk:
+        description:
+            - Refers to a gcompute_disk object You must provide either this property or the rawDisk.source
+              property but not both to create an image.
+            - 'This field represents a link to a Disk resource in GCP. It can be specified in
+              two ways. You can add `register: name-of-resource` to a gcp_compute_disk task and
+              then set this source_disk field to "{{ name-of-resource }}" Alternatively, you can
+              set this source_disk to a dictionary with the selfLink key where the value is the
+              selfLink of your Disk.'
+        required: false
+    source_disk_encryption_key:
+        description:
+            - The customer-supplied encryption key of the source disk. Required if the source
+              disk is protected by a customer-supplied encryption key.
+        required: false
+        suboptions:
+            raw_key:
+                description:
+                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                      to either encrypt or decrypt this resource.
+                required: false
+            sha256:
+                description:
+                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                      that protects this resource.
+                required: false
+    source_disk_id:
+        description:
+            - The ID value of the disk used to create this image. This value may be used to determine
+              whether the image was taken from the current or a previous instance of a given disk
+              name.
+        required: false
+    source_type:
         description:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.

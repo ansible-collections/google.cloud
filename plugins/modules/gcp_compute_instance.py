@@ -88,17 +88,132 @@ options:
         - Encrypts or decrypts a disk using a customer-supplied encryption key.
         required: false
         suboptions:
-          raw_key:
-            description:
-            - Specifies a 256-bit customer-supplied encryption key, encoded in RFC
-              4648 base64 to either encrypt or decrypt this resource.
-            required: false
-          rsa_encrypted_key:
-            description:
-            - Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied
-              encryption key to either encrypt or decrypt this resource.
-            required: false
-      index:
+            auto_delete:
+                description:
+                    - Specifies whether the disk will be auto-deleted when the instance is deleted (but
+                      not when the disk is detached from the instance).
+                    - 'Tip: Disks should be set to autoDelete=true so that leftover disks are not left
+                      behind on machine deletion.'
+                required: false
+                type: bool
+            boot:
+                description:
+                    - Indicates that this is a boot disk. The virtual machine will use the first partition
+                      of the disk for its root filesystem.
+                required: false
+                type: bool
+            device_name:
+                description:
+                    - Specifies a unique device name of your choice that is reflected into the /dev/disk/by-id/google-*
+                      tree of a Linux operating system running within the instance. This name can be used
+                      to reference the device for mounting, resizing, and so on, from within the instance.
+                required: false
+            disk_encryption_key:
+                description:
+                    - Encrypts or decrypts a disk using a customer-supplied encryption key.
+                required: false
+                suboptions:
+                    raw_key:
+                        description:
+                            - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                              to either encrypt or decrypt this resource.
+                        required: false
+                    rsa_encrypted_key:
+                        description:
+                            - Specifies an RFC 4648 base64 encoded, RSA-wrapped 2048-bit customer-supplied encryption
+                              key to either encrypt or decrypt this resource.
+                        required: false
+                    sha256:
+                        description:
+                            - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                              that protects this resource.
+                        required: false
+            index:
+                description:
+                    - Assigns a zero-based index to this disk, where 0 is reserved for the boot disk.
+                      For example, if you have many disks attached to an instance, each disk would have
+                      a unique index number. If not specified, the server will choose an appropriate value.
+                required: false
+            initialize_params:
+                description:
+                    - Specifies the parameters for a new disk that will be created alongside the new instance.
+                      Use initialization parameters to create boot disks or local SSDs attached to the
+                      new instance.
+                required: false
+                suboptions:
+                    disk_name:
+                        description:
+                            - Specifies the disk name. If not specified, the default is to use the name of the
+                              instance.
+                        required: false
+                    disk_size_gb:
+                        description:
+                            - Specifies the size of the disk in base-2 GB.
+                        required: false
+                    disk_type:
+                        description:
+                            - Reference to a gcompute_disk_type resource.
+                            - Specifies the disk type to use to create the instance.
+                            - If not specified, the default is pd-standard.
+                        required: false
+                    source_image:
+                        description:
+                            - The source image to create this disk. When creating a new instance, one of initializeParams.sourceImage
+                              or disks.source is required.  To create a disk with one of the public operating
+                              system images, specify the image by its family name.
+                        required: false
+                    source_image_encryption_key:
+                        description:
+                            - The customer-supplied encryption key of the source image. Required if the source
+                              image is protected by a customer-supplied encryption key.
+                            - Instance templates do not store customer-supplied encryption keys, so you cannot
+                              create disks for instances in a managed instance group if the source images are
+                              encrypted with your own keys.
+                        required: false
+                        suboptions:
+                            raw_key:
+                                description:
+                                    - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648 base64
+                                      to either encrypt or decrypt this resource.
+                                required: false
+                            sha256:
+                                description:
+                                    - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption key
+                                      that protects this resource.
+                                required: false
+            interface:
+                description:
+                    - Specifies the disk interface to use for attaching this disk, which is either SCSI
+                      or NVME. The default is SCSI.
+                    - Persistent disks must always use SCSI and the request will fail if you attempt to
+                      attach a persistent disk in any other format than SCSI.
+                required: false
+                choices: ['SCSI', 'NVME']
+            mode:
+                description:
+                    - The mode in which to attach this disk, either READ_WRITE or READ_ONLY. If not specified,
+                      the default is to attach the disk in READ_WRITE mode.
+                required: false
+                choices: ['READ_WRITE', 'READ_ONLY']
+            source:
+                description:
+                    - Reference to a gcompute_disk resource. When creating a new instance, one of initializeParams.sourceImage
+                      or disks.source is required.
+                    - If desired, you can also attach existing non-root persistent disks using this property.
+                      This field is only applicable for persistent disks.
+                    - 'This field represents a link to a Disk resource in GCP. It can be specified in
+                      two ways. You can add `register: name-of-resource` to a gcp_compute_disk task and
+                      then set this source field to "{{ name-of-resource }}" Alternatively, you can set
+                      this source to a dictionary with the selfLink key where the value is the selfLink
+                      of your Disk.'
+                required: false
+            type:
+                description:
+                    - Specifies the type of the disk, either SCRATCH or PERSISTENT. If not specified,
+                      the default is PERSISTENT.
+                required: false
+                choices: ['SCRATCH', 'PERSISTENT']
+    guest_accelerators:
         description:
         - Assigns a zero-based index to this disk, where 0 is reserved for the boot
           disk. For example, if you have many disks attached to an instance, each
@@ -202,45 +317,94 @@ options:
         description:
         - Full or partial URL of the accelerator type resource to expose to this instance.
         required: false
-  label_fingerprint:
-    description:
-    - A fingerprint for this request, which is essentially a hash of the metadata's
-      contents and used for optimistic locking. The fingerprint is initially generated
-      by Compute Engine and changes after every request to modify or update metadata.
-      You must always provide an up-to-date fingerprint hash in order to update or
-      change metadata.
-    required: false
-  metadata:
-    description:
-    - The metadata key/value pairs to assign to instances that are created from this
-      template. These pairs can consist of custom metadata or predefined keys.
-    required: false
-  machine_type:
-    description:
-    - A reference to a machine type which defines VM kind.
-    required: false
-  min_cpu_platform:
-    description:
-    - Specifies a minimum CPU platform for the VM instance. Applicable values are
-      the friendly names of CPU platforms .
-    required: false
-  name:
-    description:
-    - The name of the resource, provided by the client when initially creating the
-      resource. The resource name must be 1-63 characters long, and comply with RFC1035.
-      Specifically, the name must be 1-63 characters long and match the regular expression
-      `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be a lowercase
-      letter, and all following characters must be a dash, lowercase letter, or digit,
-      except the last character, which cannot be a dash.
-    required: false
-  network_interfaces:
-    description:
-    - An array of configurations for this interface. This specifies how this interface
-      is configured to interact with other network services, such as connecting to
-      the internet. Only one network interface is supported per instance.
-    required: false
-    suboptions:
-      access_configs:
+        suboptions:
+            access_configs:
+                description:
+                    - An array of configurations for this interface. Currently, only one access config,
+                      ONE_TO_ONE_NAT, is supported. If there are no accessConfigs specified, then this
+                      instance will have no external internet access.
+                required: false
+                suboptions:
+                    name:
+                        description:
+                            - The name of this access configuration. The default and recommended name is External
+                              NAT but you can use any arbitrary string you would like. For example, My external
+                              IP or Network Access.
+                        required: true
+                    nat_ip:
+                        description:
+                            - Specifies the title of a gcompute_address.
+                            - An external IP address associated with this instance.
+                            - Specify an unused static external IP address available to the project or leave this
+                              field undefined to use an IP from a shared ephemeral IP address pool. If you specify
+                              a static external IP address, it must live in the same region as the zone of the
+                              instance.
+                            - 'This field represents a link to a Address resource in GCP. It can be specified
+                              in two ways. You can add `register: name-of-resource` to a gcp_compute_address task
+                              and then set this nat_ip field to "{{ name-of-resource }}" Alternatively, you can
+                              set this nat_ip to a dictionary with the address key where the value is the address
+                              of your Address.'
+                        required: false
+                    type:
+                        description:
+                            - The type of configuration. The default and only option is ONE_TO_ONE_NAT.
+                        required: true
+                        choices: ['ONE_TO_ONE_NAT']
+            alias_ip_ranges:
+                description:
+                    - An array of alias IP ranges for this network interface. Can only be specified for
+                      network interfaces on subnet-mode networks.
+                required: false
+                suboptions:
+                    ip_cidr_range:
+                        description:
+                            - The IP CIDR range represented by this alias IP range.
+                            - This IP CIDR range must belong to the specified subnetwork and cannot contain IP
+                              addresses reserved by system or used by other network interfaces. This range may
+                              be a single IP address (e.g. 10.2.3.4), a netmask (e.g. /24) or a CIDR format string
+                              (e.g. 10.1.2.0/24).
+                        required: false
+                    subnetwork_range_name:
+                        description:
+                            - Optional subnetwork secondary range name specifying the secondary range from which
+                              to allocate the IP CIDR range for this alias IP range. If left unspecified, the
+                              primary range of the subnetwork will be used.
+                        required: false
+            name:
+                description:
+                    - The name of the network interface, generated by the server. For network devices,
+                      these are eth0, eth1, etc .
+                required: false
+            network:
+                description:
+                    - Specifies the title of an existing gcompute_network.  When creating an instance,
+                      if neither the network nor the subnetwork is specified, the default network global/networks/default
+                      is used; if the network is not specified but the subnetwork is specified, the network
+                      is inferred.
+                    - 'This field represents a link to a Network resource in GCP. It can be specified
+                      in two ways. You can add `register: name-of-resource` to a gcp_compute_network task
+                      and then set this network field to "{{ name-of-resource }}" Alternatively, you can
+                      set this network to a dictionary with the selfLink key where the value is the selfLink
+                      of your Network.'
+                required: false
+            network_ip:
+                description:
+                    - An IPv4 internal network address to assign to the instance for this network interface.
+                      If not specified by the user, an unused internal IP is assigned by the system.
+                required: false
+            subnetwork:
+                description:
+                    - Reference to a gcompute_subnetwork resource.
+                    - If the network resource is in legacy mode, do not provide this property.  If the
+                      network is in auto subnet mode, providing the subnetwork is optional. If the network
+                      is in custom subnet mode, then this field should be specified.
+                    - 'This field represents a link to a Subnetwork resource in GCP. It can be specified
+                      in two ways. You can add `register: name-of-resource` to a gcp_compute_subnetwork
+                      task and then set this subnetwork field to "{{ name-of-resource }}" Alternatively,
+                      you can set this subnetwork to a dictionary with the selfLink key where the value
+                      is the selfLink of your Subnetwork.'
+                required: false
+    scheduling:
         description:
         - An array of configurations for this interface. Currently, only one access
           config, ONE_TO_ONE_NAT, is supported. If there are no accessConfigs specified,

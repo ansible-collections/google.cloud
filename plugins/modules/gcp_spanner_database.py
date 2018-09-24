@@ -40,34 +40,32 @@ requirements:
 - requests >= 2.18.4
 - google-auth >= 1.3.0
 options:
-  state:
-    description:
-    - Whether the given object should exist in GCP
-    choices:
-    - present
-    - absent
-    default: present
-  name:
-    description:
-    - A unique identifier for the database, which cannot be changed after the instance
-      is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].
-    required: true
-  extra_statements:
-    description:
-    - 'An optional list of DDL statements to run inside the newly created database.
-      Statements can create tables, indexes, etc. These statements execute atomically
-      with the creation of the database: if there is an error in any statement, the
-      database is not created.'
-    required: false
-  instance:
-    description:
-    - The instance to create the database on.
-    - 'This field represents a link to a Instance resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''name'' and value of
-      your resource''s name Alternatively, you can add `register: name-of-resource`
-      to a gcp_spanner_instance task and then set this instance field to "{{ name-of-resource
-      }}"'
-    required: true
+    state:
+        description:
+            - Whether the given object should exist in GCP
+        choices: ['present', 'absent']
+        default: 'present'
+    name:
+        description:
+            - A unique identifier for the database, which cannot be changed after the instance
+              is created. Values are of the form projects/<project>/instances/[a-z][-a-z0-9]*[a-z0-9].
+              The final segment of the name must be between 6 and 30 characters in length.
+        required: false
+    extra_statements:
+        description:
+            - 'An optional list of DDL statements to run inside the newly created database. Statements
+              can create tables, indexes, etc. These statements execute atomically with the creation
+              of the database: if there is an error in any statement, the database is not created.'
+        required: false
+    instance:
+        description:
+            - The instance to create the database on.
+            - 'This field represents a link to a Instance resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_spanner_instance
+              task and then set this instance field to "{{ name-of-resource }}" Alternatively,
+              you can set this instance to a dictionary with the name key where the value is the
+              name of your Instance.'
+        required: true
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/spanner/docs/reference/rest/v1/projects.instances.databases)'

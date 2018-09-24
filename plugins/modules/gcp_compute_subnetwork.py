@@ -110,9 +110,34 @@ options:
     suboptions:
       range_name:
         description:
-        - The name associated with this subnetwork secondary range, used when adding
-          an alias IP range to a VM instance. The name must be 1-63 characters long,
-          and comply with RFC1035. The name must be unique within the subnetwork.
+            - An optional description of this resource. Provide this property when you create
+              the resource. This field can be set only at resource creation time.
+        required: false
+    ip_cidr_range:
+        description:
+            - The range of internal addresses that are owned by this subnetwork.
+            - Provide this property when you create the subnetwork. For example, 10.0.0.0/8 or
+              192.168.0.0/16. Ranges must be unique and non-overlapping within a network. Only
+              IPv4 is supported.
+        required: true
+    name:
+        description:
+            - The name of the resource, provided by the client when initially creating the resource.
+              The name must be 1-63 characters long, and comply with RFC1035. Specifically, the
+              name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        required: true
+    network:
+        description:
+            - The network this subnet belongs to.
+            - Only networks that are in the distributed mode can have subnetworks.
+            - 'This field represents a link to a Network resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_network task
+              and then set this network field to "{{ name-of-resource }}" Alternatively, you can
+              set this network to a dictionary with the selfLink key where the value is the selfLink
+              of your Network.'
         required: true
       ip_cidr_range:
         description:

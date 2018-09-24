@@ -74,14 +74,12 @@ options:
         required: false
       hosts:
         description:
-        - The list of host patterns to match. They must be valid hostnames, except
-          * will match any string of ([a-z0-9-.]*). In that case, * must be the first
-          character and must be followed in the pattern by either - or .
-        required: true
-      path_matcher:
-        description:
-        - The name of the PathMatcher to use to match the path portion of the URL
-          if the hostRule matches the URL's host portion.
+            - A reference to BackendService resource if none of the hostRules match.
+            - 'This field represents a link to a BackendService resource in GCP. It can be specified
+              in two ways. You can add `register: name-of-resource` to a gcp_compute_backend_service
+              task and then set this default_service field to "{{ name-of-resource }}" Alternatively,
+              you can set this default_service to a dictionary with the selfLink key where the
+              value is the selfLink of your BackendService.'
         required: true
   name:
     description:
@@ -120,50 +118,70 @@ options:
         - The list of path rules.
         required: false
         suboptions:
-          paths:
+            default_service:
+                description:
+                    - A reference to a BackendService resource. This will be used if none of the pathRules
+                      defined by this PathMatcher is matched by the URL's path portion.
+                    - 'This field represents a link to a BackendService resource in GCP. It can be specified
+                      in two ways. You can add `register: name-of-resource` to a gcp_compute_backend_service
+                      task and then set this default_service field to "{{ name-of-resource }}" Alternatively,
+                      you can set this default_service to a dictionary with the selfLink key where the
+                      value is the selfLink of your BackendService.'
+                required: false
             description:
-            - 'The list of path patterns to match. Each must start with / and the
-              only place a * is allowed is at the end following a /. The string fed
-              to the path matcher does not include any text after the first ? or #,
-              and those chars are not allowed here.'
-            required: true
-          service:
-            description:
-            - A reference to the BackendService resource if this rule is matched.
-            - 'This field represents a link to a BackendService resource in GCP. It
-              can be specified in two ways. First, you can place a dictionary with
-              key ''selfLink'' and value of your resource''s selfLink Alternatively,
-              you can add `register: name-of-resource` to a gcp_compute_backend_service
-              task and then set this service field to "{{ name-of-resource }}"'
-            required: true
-  tests:
-    description:
-    - The list of expected URL mappings. Requests to update this UrlMap will succeed
-      only if all of the test cases pass.
-    required: false
-    suboptions:
-      description:
+                description:
+                    - An optional description of this resource.
+                required: false
+            name:
+                description:
+                    - The name to which this PathMatcher is referred by the HostRule.
+                required: false
+            path_rules:
+                description:
+                    - The list of path rules.
+                required: false
+                suboptions:
+                    paths:
+                        description:
+                            - 'The list of path patterns to match. Each must start with / and the only place a
+                              * is allowed is at the end following a /. The string fed to the path matcher does
+                              not include any text after the first ? or #, and those chars are not allowed here.'
+                        required: false
+                    service:
+                        description:
+                            - A reference to the BackendService resource if this rule is matched.
+                            - 'This field represents a link to a BackendService resource in GCP. It can be specified
+                              in two ways. You can add `register: name-of-resource` to a gcp_compute_backend_service
+                              task and then set this service field to "{{ name-of-resource }}" Alternatively,
+                              you can set this service to a dictionary with the selfLink key where the value is
+                              the selfLink of your BackendService.'
+                        required: false
+    tests:
         description:
         - Description of this test case.
         required: false
-      host:
-        description:
-        - Host portion of the URL.
-        required: true
-      path:
-        description:
-        - Path portion of the URL.
-        required: true
-      service:
-        description:
-        - A reference to expected BackendService resource the given URL should be
-          mapped to.
-        - 'This field represents a link to a BackendService resource in GCP. It can
-          be specified in two ways. First, you can place a dictionary with key ''selfLink''
-          and value of your resource''s selfLink Alternatively, you can add `register:
-          name-of-resource` to a gcp_compute_backend_service task and then set this
-          service field to "{{ name-of-resource }}"'
-        required: true
+        suboptions:
+            description:
+                description:
+                    - Description of this test case.
+                required: false
+            host:
+                description:
+                    - Host portion of the URL.
+                required: false
+            path:
+                description:
+                    - Path portion of the URL.
+                required: false
+            service:
+                description:
+                    - A reference to expected BackendService resource the given URL should be mapped to.
+                    - 'This field represents a link to a BackendService resource in GCP. It can be specified
+                      in two ways. You can add `register: name-of-resource` to a gcp_compute_backend_service
+                      task and then set this service field to "{{ name-of-resource }}" Alternatively,
+                      you can set this service to a dictionary with the selfLink key where the value is
+                      the selfLink of your BackendService.'
+                required: false
 extends_documentation_fragment: gcp
 '''
 
