@@ -204,7 +204,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
+                update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -215,8 +215,6 @@ def main():
         if state == 'present':
             fetch = create(module, collection(module), kind)
             changed = True
-        else:
-            fetch = {}
 
     fetch.update({'changed': changed})
 
