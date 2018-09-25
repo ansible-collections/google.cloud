@@ -89,19 +89,51 @@ options:
     suboptions:
       routing_mode:
         description:
-        - The network-wide routing mode to use. If set to `REGIONAL`, this network's
-          cloud routers will only advertise routes with subnetworks of this network
-          in the same region as the router. If set to `GLOBAL`, this network's cloud
-          routers will advertise routes with all subnetworks of this network, across
-          regions.
+            - An optional description of this resource. Provide this property when you create
+              the resource.
+        required: false
+    ipv4_range:
+        description:
+            - 'The range of internal addresses that are legal on this network. This range is a
+              CIDR specification, for example: 192.168.0.0/16. Provided by the client when the
+              network is created.'
+        required: false
+    name:
+        description:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035. Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
         required: true
-        choices:
-        - REGIONAL
-        - GLOBAL
+    auto_create_subnetworks:
+        description:
+            - When set to true, the network is created in "auto subnet mode". When set to false,
+              the network is in "custom subnet mode".
+            - In "auto subnet mode", a newly created network is assigned the default CIDR of 10.128.0.0/9
+              and it automatically creates one subnetwork per region.
+        required: false
+        type: bool
+    routing_config:
+        description:
+            - The network-level routing configuration for this network. Used by Cloud Router to
+              determine what type of network-wide routing behavior to enforce.
+        required: false
+        version_added: 2.8
+        suboptions:
+            routing_mode:
+                description:
+                    - The network-wide routing mode to use. If set to REGIONAL, this network's cloud routers
+                      will only advertise routes with subnetworks of this network in the same region as
+                      the router. If set to GLOBAL, this network's cloud routers will advertise routes
+                      with all subnetworks of this network, across regions.
+                required: true
+                choices: ['REGIONAL', 'GLOBAL']
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/networks)'
-- 'Official Documentation: U(https://cloud.google.com/vpc/docs/vpc)'
+    - "API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/networks)"
+    - "Official Documentation: U(https://cloud.google.com/vpc/docs/vpc)"
 '''
 
 EXAMPLES = '''
@@ -169,6 +201,21 @@ RETURN = '''
             - Creation timestamp in RFC3339 text format.
         returned: success
         type: str
+    routingConfig:
+        description:
+            - The network-level routing configuration for this network. Used by Cloud Router to
+              determine what type of network-wide routing behavior to enforce.
+        returned: success
+        type: complex
+        contains:
+            routingMode:
+                description:
+                    - The network-wide routing mode to use. If set to REGIONAL, this network's cloud routers
+                      will only advertise routes with subnetworks of this network in the same region as
+                      the router. If set to GLOBAL, this network's cloud routers will advertise routes
+                      with all subnetworks of this network, across regions.
+                returned: success
+                type: str
 '''
 
 ################################################################################
@@ -194,9 +241,10 @@ def main():
             ipv4_range=dict(type='str'),
             name=dict(required=True, type='str'),
             auto_create_subnetworks=dict(type='bool'),
-            routing_config=dict(type='dict', options=dict(routing_mode=dict(required=True, type='str', choices=['REGIONAL', 'GLOBAL']))),
-        ),
-        mutually_exclusive=[['auto_create_subnetworks', 'ipv4_range']],
+            routing_config=dict(type='list', elements='dict', options=dict(
+                routing_mode=dict(required=True, type='str', choices=['REGIONAL', 'GLOBAL'])
+            ))
+        )
     )
 
     if not module.params['scopes']:
@@ -211,7 +259,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind)
+                update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -234,8 +282,10 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
-    return fetch_resource(module, self_link(module), kind)
+    update_fields(module, resource_to_request(module),
+                  response_to_hash(module, fetch))
+    auth = GcpSession(module, 'compute')
+    return wait_for_operation(module, auth.patch(link, resource_to_request(module)))
 
 
 def update_fields(module, request, response):
@@ -246,8 +296,13 @@ def update_fields(module, request, response):
 def routing_config_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.patch(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/networks/{name}"]).format(**module.params),
-        {u'routingConfig': NetworkRoutingconfig(module.params.get('routing_config', {}), module).to_request()},
+        ''.join([
+            "https://www.googleapis.com/compute/v1/",
+            "projects/{project}/regions/{region}/subnetworks/{name}"
+        ]).format(**module.params),
+        {
+            u'routingConfig': NetworkRoutingConfigArray(module.params.get('routing_config', []), module).to_request()
+        }
     )
 
 
@@ -263,7 +318,7 @@ def resource_to_request(module):
         u'IPv4Range': module.params.get('ipv4_range'),
         u'name': module.params.get('name'),
         u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
-        u'routingConfig': NetworkRoutingconfig(module.params.get('routing_config', {}), module).to_request(),
+        u'routingConfig': NetworkRoutingConfigArray(module.params.get('routing_config', []), module).to_request()
     }
     return_vals = {}
     for k, v in request.items():
@@ -330,14 +385,14 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'description': module.params.get('description'),
-        u'gatewayIPv4': response.get(u'gatewayIPv4'),
+        u'gatewayIPv4': response.get(u'gateway_ipv4'),
         u'id': response.get(u'id'),
         u'IPv4Range': module.params.get('ipv4_range'),
         u'name': module.params.get('name'),
         u'subnetworks': response.get(u'subnetworks'),
         u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'routingConfig': NetworkRoutingconfig(response.get(u'routingConfig', {}), module).from_response(),
+        u'routingConfig': NetworkRoutingConfigArray(response.get(u'routingConfig', []), module).from_response()
     }
 
 
@@ -376,19 +431,35 @@ def raise_if_errors(response, err_path, module):
         module.fail_json(msg=errors)
 
 
-class NetworkRoutingconfig(object):
+class NetworkRoutingConfigArray(object):
     def __init__(self, request, module):
         self.module = module
         if request:
             self.request = request
         else:
-            self.request = {}
+            self.request = []
 
     def to_request(self):
-        return remove_nones_from_dict({u'routingMode': self.request.get('routing_mode')})
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
 
     def from_response(self):
-        return remove_nones_from_dict({u'routingMode': self.request.get(u'routingMode')})
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({
+            u'routingMode': item.get('routing_mode')
+        })
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({
+            u'routingMode': item.get(u'routingMode')
+        })
 
 
 if __name__ == '__main__':
