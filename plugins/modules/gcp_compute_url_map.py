@@ -109,11 +109,33 @@ options:
         description:
         - An optional description of this resource.
         required: false
-      name:
+        suboptions:
+            description:
+                description:
+                    - An optional description of this resource. Provide this property when you create
+                      the resource.
+                required: false
+            hosts:
+                description:
+                    - The list of host patterns to match. They must be valid hostnames, except * will
+                      match any string of ([a-z0-9-.]*). In that case, * must be the first character and
+                      must be followed in the pattern by either - or .
+                required: true
+            path_matcher:
+                description:
+                    - The name of the PathMatcher to use to match the path portion of the URL if the hostRule
+                      matches the URL's host portion.
+                required: true
+    name:
         description:
-        - The name to which this PathMatcher is referred by the HostRule.
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035. Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
         required: true
-      path_rules:
+    path_matchers:
         description:
         - The list of path rules.
         required: false
@@ -127,7 +149,7 @@ options:
                       task and then set this default_service field to "{{ name-of-resource }}" Alternatively,
                       you can set this default_service to a dictionary with the selfLink key where the
                       value is the selfLink of your BackendService.'
-                required: false
+                required: true
             description:
                 description:
                     - An optional description of this resource.
@@ -135,7 +157,7 @@ options:
             name:
                 description:
                     - The name to which this PathMatcher is referred by the HostRule.
-                required: false
+                required: true
             path_rules:
                 description:
                     - The list of path rules.
@@ -155,7 +177,7 @@ options:
                               task and then set this service field to "{{ name-of-resource }}" Alternatively,
                               you can set this service to a dictionary with the selfLink key where the value is
                               the selfLink of your BackendService.'
-                        required: false
+                        required: true
     tests:
         description:
         - Description of this test case.
@@ -168,11 +190,11 @@ options:
             host:
                 description:
                     - Host portion of the URL.
-                required: false
+                required: true
             path:
                 description:
                     - Path portion of the URL.
-                required: false
+                required: true
             service:
                 description:
                     - A reference to expected BackendService resource the given URL should be mapped to.
@@ -181,7 +203,7 @@ options:
                       task and then set this service field to "{{ name-of-resource }}" Alternatively,
                       you can set this service to a dictionary with the selfLink key where the value is
                       the selfLink of your BackendService.'
-                required: false
+                required: true
 extends_documentation_fragment: gcp
 '''
 
@@ -280,6 +302,12 @@ RETURN = '''
             - The unique identifier for the resource.
         returned: success
         type: int
+    fingerprint:
+        description:
+            - Fingerprint of this resource. This field is used internally during updates of this
+              resource.
+        returned: success
+        type: str
     name:
         description:
             - Name of the resource. Provided by the client when the resource is created. The name
@@ -380,38 +408,27 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             default_service=dict(required=True, type='dict'),
             description=dict(type='str'),
-            host_rules=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    description=dict(type='str'), hosts=dict(required=True, type='list', elements='str'), path_matcher=dict(required=True, type='str')
-                ),
-            ),
+            host_rules=dict(type='list', elements='dict', options=dict(
+                description=dict(type='str'),
+                hosts=dict(required=True, type='list', elements='str'),
+                path_matcher=dict(required=True, type='str')
+            )),
             name=dict(required=True, type='str'),
-            path_matchers=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    default_service=dict(required=True, type='dict'),
-                    description=dict(type='str'),
-                    name=dict(required=True, type='str'),
-                    path_rules=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(paths=dict(required=True, type='list', elements='str'), service=dict(required=True, type='dict')),
-                    ),
-                ),
-            ),
-            tests=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    description=dict(type='str'),
-                    host=dict(required=True, type='str'),
-                    path=dict(required=True, type='str'),
-                    service=dict(required=True, type='dict'),
-                ),
-            ),
+            path_matchers=dict(type='list', elements='dict', options=dict(
+                default_service=dict(required=True, type='dict'),
+                description=dict(type='str'),
+                name=dict(required=True, type='str'),
+                path_rules=dict(type='list', elements='dict', options=dict(
+                    paths=dict(type='list', elements='str'),
+                    service=dict(required=True, type='dict')
+                ))
+            )),
+            tests=dict(type='list', elements='dict', options=dict(
+                description=dict(type='str'),
+                host=dict(required=True, type='str'),
+                path=dict(required=True, type='str'),
+                service=dict(required=True, type='dict')
+            ))
         )
     )
 
@@ -542,8 +559,8 @@ def response_to_hash(module, response):
         u'id': response.get(u'id'),
         u'fingerprint': response.get(u'fingerprint'),
         u'name': module.params.get('name'),
-        u'pathMatchers': UrlMapPathmatchersArray(response.get(u'pathMatchers', []), module).from_response(),
-        u'tests': UrlMapTestsArray(response.get(u'tests', []), module).from_response(),
+        u'pathMatchers': UrlMapPathMatchersArray(response.get(u'pathMatchers', []), module).from_response(),
+        u'tests': UrlMapTestsArray(response.get(u'tests', []), module).from_response()
     }
 
 
