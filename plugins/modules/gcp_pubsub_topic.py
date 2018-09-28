@@ -128,6 +128,8 @@ def main():
         if state == 'present':
             fetch = create(module, self_link(module))
             changed = True
+        else:
+            fetch = {}
 
     fetch.update({'changed': changed})
 
