@@ -43,48 +43,34 @@ requirements:
 options:
   state:
     description:
-    - Whether the given object should exist in GCP
-    choices:
-    - present
-    - absent
-    default: present
-  address:
-    description:
-    - The static external IP address represented by this resource.
-    required: false
-    version_added: 2.8
-  description:
-    description:
-    - An optional description of this resource.
-    required: false
-  name:
-    description:
-    - Name of the resource. Provided by the client when the resource is created. The
-      name must be 1-63 characters long, and comply with RFC1035. Specifically, the
-      name must be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
-      which means the first character must be a lowercase letter, and all following
-      characters must be a dash, lowercase letter, or digit, except the last character,
-      which cannot be a dash.
-    required: true
-  ip_version:
-    description:
-    - The IP Version that will be used by this address. Valid options are `IPV4` or
-      `IPV6`. The default value is `IPV4`.
-    required: false
-    choices:
-    - IPV4
-    - IPV6
-  address_type:
-    description:
-    - The type of the address to reserve, default is EXTERNAL.
-    - "* EXTERNAL indicates public/external single IP address."
-    - "* INTERNAL indicates internal IP ranges belonging to some network."
-    required: false
-    default: EXTERNAL
-    version_added: 2.8
-    choices:
-    - EXTERNAL
-    - INTERNAL
+        description:
+            - An optional description of this resource.
+            - Provide this property when you create the resource.
+        required: false
+    name:
+        description:
+            - Name of the resource. Provided by the client when the resource is created. The name
+              must be 1-63 characters long, and comply with RFC1035.  Specifically, the name must
+              be 1-63 characters long and match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?`
+              which means the first character must be a lowercase letter, and all following characters
+              must be a dash, lowercase letter, or digit, except the last character, which cannot
+              be a dash.
+        required: true
+    ip_version:
+        description:
+            - The IP Version that will be used by this address. Valid options are IPV4 or IPV6.
+              The default value is IPV4.
+        required: false
+        choices: ['IPV4', 'IPV6']
+    address_type:
+        description:
+            - The type of the address to reserve, default is EXTERNAL.
+            - "* EXTERNAL indicates public/external single IP address."
+            - "* INTERNAL indicates internal IP ranges belonging to some network."
+        required: false
+        default: EXTERNAL
+        version_added: 2.8
+        choices: ['EXTERNAL', 'INTERNAL']
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/globalAddresses)'
@@ -150,6 +136,13 @@ RETURN = '''
             - A reference to the region where the regional address resides.
         returned: success
         type: str
+    addressType:
+        description:
+            - The type of the address to reserve, default is EXTERNAL.
+            - "* EXTERNAL indicates public/external single IP address."
+            - "* INTERNAL indicates internal IP ranges belonging to some network."
+        returned: success
+        type: str
 '''
 
 ################################################################################
@@ -176,7 +169,7 @@ def main():
             description=dict(type='str'),
             name=dict(required=True, type='str'),
             ip_version=dict(type='str', choices=['IPV4', 'IPV6']),
-            address_type=dict(default='EXTERNAL', type='str', choices=['EXTERNAL', 'INTERNAL']),
+            address_type=dict(default='EXTERNAL', type='str', choices=['EXTERNAL', 'INTERNAL'])
         )
     )
 
@@ -251,7 +244,7 @@ def resource_to_request(module):
         u'description': module.params.get('description'),
         u'name': module.params.get('name'),
         u'ipVersion': module.params.get('ip_version'),
-        u'addressType': module.params.get('address_type'),
+        u'addressType': module.params.get('address_type')
     }
     return_vals = {}
     for k, v in request.items():
@@ -325,7 +318,7 @@ def response_to_hash(module, response):
         u'labelFingerprint': response.get(u'labelFingerprint'),
         u'ipVersion': response.get(u'ipVersion'),
         u'region': response.get(u'region'),
-        u'addressType': response.get(u'addressType'),
+        u'addressType': response.get(u'addressType')
     }
 
 

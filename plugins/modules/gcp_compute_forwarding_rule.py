@@ -172,6 +172,14 @@ options:
               selfLink of your TargetPool.'
         required: false
         version_added: 2.7
+    network_tier:
+        description:
+            - 'The networking tier used for configuring this address. This field can take the
+              following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
+              to be PREMIUM.'
+        required: false
+        version_added: 2.8
+        choices: ['PREMIUM', 'STANDARD']
     region:
         description:
             - A reference to the region where the regional forwarding rule resides.
@@ -352,6 +360,13 @@ RETURN = '''
               updates.
         returned: success
         type: str
+    networkTier:
+        description:
+            - 'The networking tier used for configuring this address. This field can take the
+              following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
+              to be PREMIUM.'
+        returned: success
+        type: str
     region:
         description:
             - A reference to the region where the regional forwarding rule resides.
@@ -391,10 +406,8 @@ def main():
             ports=dict(type='list', elements='str'),
             subnetwork=dict(type='dict'),
             target=dict(type='dict'),
-            all_ports=dict(type='bool'),
             network_tier=dict(type='str', choices=['PREMIUM', 'STANDARD']),
-            service_label=dict(type='str'),
-            region=dict(required=True, type='str'),
+            region=dict(required=True, type='str')
         )
     )
 
@@ -491,9 +504,7 @@ def resource_to_request(module):
         u'ports': module.params.get('ports'),
         u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
         u'target': replace_resource_dict(module.params.get(u'target', {}), 'selfLink'),
-        u'allPorts': module.params.get('all_ports'),
-        u'networkTier': module.params.get('network_tier'),
-        u'serviceLabel': module.params.get('service_label'),
+        u'networkTier': module.params.get('network_tier')
     }
     return_vals = {}
     for k, v in request.items():
@@ -573,7 +584,8 @@ def response_to_hash(module, response):
         u'ports': response.get(u'ports'),
         u'subnetwork': response.get(u'subnetwork'),
         u'target': response.get(u'target'),
-        u'labelFingerprint': response.get(u'labelFingerprint')
+        u'labelFingerprint': response.get(u'labelFingerprint'),
+        u'networkTier': module.params.get('network_tier')
     }
 
 

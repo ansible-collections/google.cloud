@@ -62,6 +62,14 @@ options:
               letter, and all following characters must be a dash, lowercase letter, or digit,
               except the last character, which cannot be a dash.
         required: true
+    network_tier:
+        description:
+            - 'The networking tier used for configuring this address. This field can take the
+              following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
+              to be PREMIUM.'
+        required: false
+        version_added: 2.8
+        choices: ['PREMIUM', 'STANDARD']
     subnetwork:
         description:
             - The URL of the subnetwork in which to reserve the address. If an IP address is specified,
@@ -133,6 +141,13 @@ RETURN = '''
               `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be a lowercase
               letter, and all following characters must be a dash, lowercase letter, or digit,
               except the last character, which cannot be a dash.
+        returned: success
+        type: str
+    networkTier:
+        description:
+            - 'The networking tier used for configuring this address. This field can take the
+              following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
+              to be PREMIUM.'
         returned: success
         type: str
     subnetwork:
@@ -237,7 +252,7 @@ def resource_to_request(module):
         u'description': module.params.get('description'),
         u'name': module.params.get('name'),
         u'networkTier': module.params.get('network_tier'),
-        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
+        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink')
     }
     return_vals = {}
     for k, v in request.items():

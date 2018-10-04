@@ -115,6 +115,40 @@ items:
                 - Only networks that are in the distributed mode can have subnetworks.
             returned: success
             type: dict
+        enableFlowLogs:
+            description:
+                - Whether to enable flow logging for this subnetwork.
+            returned: success
+            type: bool
+        fingerprint:
+            description:
+                - Fingerprint of this resource. This field is used internally during updates of this
+                  resource.
+            returned: success
+            type: str
+        secondaryIpRanges:
+            description:
+                - An array of configurations for secondary IP ranges for VM instances contained in
+                  this subnetwork. The primary IP of such VM must belong to the primary ipCidrRange
+                  of the subnetwork. The alias IPs may belong to either primary or secondary ranges.
+            returned: success
+            type: complex
+            contains:
+                rangeName:
+                    description:
+                        - The name associated with this subnetwork secondary range, used when adding an alias
+                          IP range to a VM instance. The name must be 1-63 characters long, and comply with
+                          RFC1035. The name must be unique within the subnetwork.
+                    returned: success
+                    type: str
+                ipCidrRange:
+                    description:
+                        - The range of IP addresses belonging to this subnetwork secondary range. Provide
+                          this property when you create the subnetwork.
+                        - Ranges must be unique and non-overlapping with all primary and secondary IP ranges
+                          within a network. Only IPv4 is supported.
+                    returned: success
+                    type: str
         privateIpGoogleAccess:
             description:
                 - Whether the VMs in this subnet can access Google services without assigned external
