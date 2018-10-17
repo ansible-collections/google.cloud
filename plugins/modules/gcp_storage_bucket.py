@@ -177,13 +177,10 @@ options:
                 required: false
             entity:
                 description:
-                    - 'The entity holding the permission, in one of the following forms: user-userId
-                      user-email group-groupId group-email domain-domain project-team-projectId allUsers
-                      allAuthenticatedUsers Examples: The user liz@example.com would be
-                      user-liz@example.com.'
-                    - The group example@googlegroups.com would be   group-example@googlegroups.com.
-                    - To refer to all members of the Google Apps for Business domain   example.com, the
-                      entity would be domain-example.com.
+                    - 'The entity holding the permission, in one of the following forms:   * user-{{userId}}   *
+                      user-{{email}} (such as "user-liz@example.com")   * group-{{groupId}}   * group-{{email}}
+                      (such as "group-example@googlegroups.com")   * domain-{{domain}} (such as "domain-example.com")   *
+                      project-team-{{projectId}}   * allUsers   * allAuthenticatedUsers .'
                 required: true
             entity_id:
                 description:
@@ -218,7 +215,7 @@ options:
             role:
                 description:
                     - The access permission for the entity.
-                required: false
+                required: true
                 choices: ['OWNER', 'READER']
     lifecycle:
         description:
@@ -577,13 +574,10 @@ RETURN = '''
                 type: str
             entity:
                 description:
-                    - 'The entity holding the permission, in one of the following forms: user-userId
-                      user-email group-groupId group-email domain-domain project-team-projectId allUsers
-                      allAuthenticatedUsers Examples: The user liz@example.com would be
-                      user-liz@example.com.'
-                    - The group example@googlegroups.com would be   group-example@googlegroups.com.
-                    - To refer to all members of the Google Apps for Business domain   example.com, the
-                      entity would be domain-example.com.
+                    - 'The entity holding the permission, in one of the following forms:   * user-{{userId}}   *
+                      user-{{email}} (such as "user-liz@example.com")   * group-{{groupId}}   * group-{{email}}
+                      (such as "group-example@googlegroups.com")   * domain-{{domain}} (such as "domain-example.com")   *
+                      project-team-{{projectId}}   * allUsers   * allAuthenticatedUsers .'
                 returned: success
                 type: str
             entityId:
@@ -847,63 +841,55 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            acl=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    bucket=dict(required=True, type='dict'),
-                    entity=dict(required=True, type='str'),
-                    entity_id=dict(type='str'),
-                    project_team=dict(
-                        type='dict', options=dict(project_number=dict(type='str'), team=dict(type='str', choices=['editors', 'owners', 'viewers']))
-                    ),
-                    role=dict(type='str', choices=['OWNER', 'READER', 'WRITER']),
-                ),
-            ),
-            cors=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    max_age_seconds=dict(type='int'),
-                    method=dict(type='list', elements='str'),
-                    origin=dict(type='list', elements='str'),
-                    response_header=dict(type='list', elements='str'),
-                ),
-            ),
-            default_object_acl=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    bucket=dict(required=True, type='dict'),
-                    entity=dict(required=True, type='str'),
-                    object=dict(type='str'),
-                    role=dict(required=True, type='str', choices=['OWNER', 'READER']),
-                ),
-            ),
-            lifecycle=dict(
-                type='dict',
-                options=dict(
-                    rule=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(
-                            action=dict(
-                                type='dict', options=dict(storage_class=dict(type='str'), type=dict(type='str', choices=['Delete', 'SetStorageClass']))
-                            ),
-                            condition=dict(
-                                type='dict',
-                                options=dict(
-                                    age_days=dict(type='int'),
-                                    created_before=dict(type='str'),
-                                    is_live=dict(type='bool'),
-                                    matches_storage_class=dict(type='list', elements='str'),
-                                    num_newer_versions=dict(type='int'),
-                                ),
-                            ),
-                        ),
-                    )
-                ),
-            ),
+            acl=dict(type='list', elements='dict', options=dict(
+                bucket=dict(required=True, type='dict'),
+                domain=dict(type='str'),
+                email=dict(type='str'),
+                entity=dict(required=True, type='str'),
+                entity_id=dict(type='str'),
+                id=dict(type='str'),
+                project_team=dict(type='dict', options=dict(
+                    project_number=dict(type='str'),
+                    team=dict(type='str', choices=['editors', 'owners', 'viewers'])
+                )),
+                role=dict(type='str', choices=['OWNER', 'READER', 'WRITER'])
+            )),
+            cors=dict(type='list', elements='dict', options=dict(
+                max_age_seconds=dict(type='int'),
+                method=dict(type='list', elements='str'),
+                origin=dict(type='list', elements='str'),
+                response_header=dict(type='list', elements='str')
+            )),
+            default_object_acl=dict(type='list', elements='dict', options=dict(
+                bucket=dict(required=True, type='dict'),
+                domain=dict(type='str'),
+                email=dict(type='str'),
+                entity=dict(required=True, type='str'),
+                entity_id=dict(type='str'),
+                generation=dict(type='int'),
+                id=dict(type='str'),
+                object=dict(type='str'),
+                project_team=dict(type='dict', options=dict(
+                    project_number=dict(type='str'),
+                    team=dict(type='str', choices=['editors', 'owners', 'viewers'])
+                )),
+                role=dict(required=True, type='str', choices=['OWNER', 'READER'])
+            )),
+            lifecycle=dict(type='dict', options=dict(
+                rule=dict(type='list', elements='dict', options=dict(
+                    action=dict(type='dict', options=dict(
+                        storage_class=dict(type='str'),
+                        type=dict(type='str', choices=['Delete', 'SetStorageClass'])
+                    )),
+                    condition=dict(type='dict', options=dict(
+                        age_days=dict(type='int'),
+                        created_before=dict(type='str'),
+                        is_live=dict(type='bool'),
+                        matches_storage_class=dict(type='list', elements='str'),
+                        num_newer_versions=dict(type='int')
+                    ))
+                ))
+            )),
             location=dict(type='str'),
             logging=dict(type='dict', options=dict(log_bucket=dict(type='str'), log_object_prefix=dict(type='str'))),
             metageneration=dict(type='int'),
