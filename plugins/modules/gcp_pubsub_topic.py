@@ -50,12 +50,7 @@ options:
   name:
     description:
     - Name of the topic.
-    required: true
-  labels:
-    description:
-    - A set of key/value label pairs to assign to this Topic.
     required: false
-    version_added: 2.8
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.topics)'
@@ -78,11 +73,6 @@ name:
   - Name of the topic.
   returned: success
   type: str
-labels:
-  description:
-  - A set of key/value label pairs to assign to this Topic.
-  returned: success
-  type: dict
 '''
 
 ################################################################################

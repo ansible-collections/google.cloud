@@ -44,38 +44,52 @@ requirements:
 - requests >= 2.18.4
 - google-auth >= 1.3.0
 options:
-    state:
-        description:
-            - Whether the given object should exist in GCP
-        choices: ['present', 'absent']
-        default: 'present'
-    name:
-        description:
-            - For example, U(www.example.com.)
-        required: true
-    type:
-        description:
-            - One of valid DNS resource types.
-        required: true
-        choices: ['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SPF', 'SRV', 'TXT']
-    ttl:
-        description:
-            - Number of seconds that this ResourceRecordSet can be cached by resolvers.
-        required: false
-    target:
-        description:
-            - As defined in RFC 1035 (section 5) and RFC 1034 (section 3.6.1) .
-        required: false
-    managed_zone:
-        description:
-            - Identifies the managed zone addressed by this request.
-            - Can be the managed zone name or id.
-            - 'This field represents a link to a ManagedZone resource in GCP. It can be specified
-              in two ways. You can add `register: name-of-resource` to a gcp_dns_managed_zone
-              task and then set this managed_zone field to "{{ name-of-resource }}" Alternatively,
-              you can set this managed_zone to a dictionary with the name key where the value
-              is the name of your ManagedZone.'
-        required: true
+  state:
+    description:
+    - Whether the given object should exist in GCP
+    choices:
+    - present
+    - absent
+    default: present
+  name:
+    description:
+    - For example, U(www.example.com.)
+    required: true
+  type:
+    description:
+    - One of valid DNS resource types.
+    required: true
+    choices:
+    - A
+    - AAAA
+    - CAA
+    - CNAME
+    - MX
+    - NAPTR
+    - NS
+    - PTR
+    - SOA
+    - SPF
+    - SRV
+    - TXT
+  ttl:
+    description:
+    - Number of seconds that this ResourceRecordSet can be cached by resolvers.
+    required: false
+  target:
+    description:
+    - As defined in RFC 1035 (section 5) and RFC 1034 (section 3.6.1) .
+    required: false
+  managed_zone:
+    description:
+    - Identifies the managed zone addressed by this request.
+    - Can be the managed zone name or id.
+    - 'This field represents a link to a ManagedZone resource in GCP. It can be specified
+      in two ways. You can add `register: name-of-resource` to a gcp_dns_managed_zone
+      task and then set this managed_zone field to "{{ name-of-resource }}" Alternatively,
+      you can set this managed_zone to a dictionary with the name key where the value
+      is the name of your ManagedZone'
+    required: true
 extends_documentation_fragment: gcp
 '''
 
@@ -130,6 +144,7 @@ target:
 managed_zone:
   description:
   - Identifies the managed zone addressed by this request.
+  - Can be the managed zone name or id.
   returned: success
   type: dict
 '''

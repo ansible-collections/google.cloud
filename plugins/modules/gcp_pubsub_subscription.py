@@ -51,21 +51,16 @@ options:
   name:
     description:
     - Name of the subscription.
-    required: true
+    required: false
   topic:
     description:
     - A reference to a Topic resource.
     - 'This field represents a link to a Topic resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''name'' and value of
-      your resource''s name Alternatively, you can add `register: name-of-resource`
-      to a gcp_pubsub_topic task and then set this topic field to "{{ name-of-resource
-      }}"'
-    required: true
-  labels:
-    description:
-    - A set of key/value label pairs to assign to this Subscription.
+      in two ways. You can add `register: name-of-resource` to a gcp_pubsub_topic
+      task and then set this topic field to "{{ name-of-resource }}" Alternatively,
+      you can set this topic to a dictionary with the name key where the value is
+      the name of your Topic'
     required: false
-    version_added: 2.8
   push_config:
     description:
     - If push delivery is used with this subscription, this field is used to configure
@@ -75,31 +70,8 @@ options:
     suboptions:
       push_endpoint:
         description:
-            - A reference to a Topic resource.
-            - 'This field represents a link to a Topic resource in GCP. It can be specified in
-              two ways. You can add `register: name-of-resource` to a gcp_pubsub_topic task and
-              then set this topic field to "{{ name-of-resource }}" Alternatively, you can set
-              this topic to a dictionary with the name key where the value is the name of your
-              Topic.'
-        required: false
-    push_config:
-        description:
-        - Endpoint configuration attributes.
-        - Every endpoint has a set of API supported attributes that can be used to
-          control different aspects of the message delivery.
-        - The currently supported attribute is x-goog-version, which you can use to
-          change the format of the pushed message. This attribute indicates the version
-          of the data expected by the endpoint. This controls the shape of the pushed
-          message (i.e., its fields and metadata). The endpoint version is based on
-          the version of the Pub/Sub API.
-        - If not present during the subscriptions.create call, it will default to
-          the version of the API used to make such call. If not present during a subscriptions.modifyPushConfig
-          call, its value will not be changed. subscriptions.get calls will always
-          return a valid version, even if the subscription was created without this
-          attribute.
-        - 'The possible values for this attribute are: - v1beta1: uses the push format
-          defined in the v1beta1 Pub/Sub API.'
-        - "- v1 or v1beta2: uses the push format defined in the v1 Pub/Sub API."
+        - A URL locating the endpoint to which messages should be pushed.
+        - For example, a Webhook endpoint might use "U(https://example.com/push".)
         required: false
   ack_deadline_seconds:
     description:
@@ -118,26 +90,6 @@ options:
     - If the subscriber never acknowledges the message, the Pub/Sub system will eventually
       redeliver the message.
     required: false
-  message_retention_duration:
-    description:
-    - How long to retain unacknowledged messages in the subscription's backlog, from
-      the moment a message is published. If retainAckedMessages is true, then this
-      also configures the retention of acknowledged messages, and thus configures
-      how far back in time a subscriptions.seek can be done. Defaults to 7 days. Cannot
-      be more than 7 days (`"604800s"`) or less than 10 minutes (`"600s"`).
-    - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
-      Example: `"600.5s"`.'
-    required: false
-    default: 604800s
-    version_added: 2.8
-  retain_acked_messages:
-    description:
-    - Indicates whether to retain acknowledged messages. If `true`, then messages
-      are not expunged from the subscription's backlog, even if they are acknowledged,
-      until they fall out of the messageRetentionDuration window.
-    required: false
-    type: bool
-    version_added: 2.8
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/pubsub/docs/reference/rest/v1/projects.subscriptions)'
@@ -168,48 +120,48 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-    name:
-        description:
-            - Name of the subscription.
-        returned: success
-        type: str
-    topic:
-        description:
-            - A reference to a Topic resource.
-        returned: success
-        type: dict
-    pushConfig:
-        description:
-            - If push delivery is used with this subscription, this field is used to configure
-              it. An empty pushConfig signifies that the subscriber will pull and ack messages
-              using API methods.
-        returned: success
-        type: complex
-        contains:
-            pushEndpoint:
-                description:
-                    - A URL locating the endpoint to which messages should be pushed.
-                    - For example, a Webhook endpoint might use "U(https://example.com/push".)
-                returned: success
-                type: str
-    ackDeadlineSeconds:
-        description:
-            - This value is the maximum time after a subscriber receives a message before the
-              subscriber should acknowledge the message. After message delivery but before the
-              ack deadline expires and before the message is acknowledged, it is an outstanding
-              message and will not be delivered again during that time (on a best-effort basis).
-            - For pull subscriptions, this value is used as the initial value for the ack deadline.
-              To override this value for a given message, call subscriptions.modifyAckDeadline
-              with the corresponding ackId if using pull. The minimum custom deadline you can
-              specify is 10 seconds. The maximum custom deadline you can specify is 600 seconds
-              (10 minutes).
-            - If this parameter is 0, a default value of 10 seconds is used.
-            - For push delivery, this value is also used to set the request timeout for the call
-              to the push endpoint.
-            - If the subscriber never acknowledges the message, the Pub/Sub system will eventually
-              redeliver the message.
-        returned: success
-        type: int
+name:
+  description:
+  - Name of the subscription.
+  returned: success
+  type: str
+topic:
+  description:
+  - A reference to a Topic resource.
+  returned: success
+  type: dict
+pushConfig:
+  description:
+  - If push delivery is used with this subscription, this field is used to configure
+    it. An empty pushConfig signifies that the subscriber will pull and ack messages
+    using API methods.
+  returned: success
+  type: complex
+  contains:
+    pushEndpoint:
+      description:
+      - A URL locating the endpoint to which messages should be pushed.
+      - For example, a Webhook endpoint might use "U(https://example.com/push".)
+      returned: success
+      type: str
+ackDeadlineSeconds:
+  description:
+  - This value is the maximum time after a subscriber receives a message before the
+    subscriber should acknowledge the message. After message delivery but before the
+    ack deadline expires and before the message is acknowledged, it is an outstanding
+    message and will not be delivered again during that time (on a best-effort basis).
+  - For pull subscriptions, this value is used as the initial value for the ack deadline.
+    To override this value for a given message, call subscriptions.modifyAckDeadline
+    with the corresponding ackId if using pull. The minimum custom deadline you can
+    specify is 10 seconds. The maximum custom deadline you can specify is 600 seconds
+    (10 minutes).
+  - If this parameter is 0, a default value of 10 seconds is used.
+  - For push delivery, this value is also used to set the request timeout for the
+    call to the push endpoint.
+  - If the subscriber never acknowledges the message, the Pub/Sub system will eventually
+    redeliver the message.
+  returned: success
+  type: int
 '''
 
 ################################################################################

@@ -72,68 +72,48 @@ options:
     suboptions:
       name:
         description:
-            - An optional description of this resource. Provide this property when you create
-              the resource.
-        required: false
-    name:
-        description:
-            - The name of the instance group.
-            - The name must be 1-63 characters long, and comply with RFC1035.
-        required: false
-    named_ports:
-        description:
-            - Assigns a name to a port number.
-            - 'For example: {name: "http", port: 80}.'
-            - This allows the system to reference ports by the assigned name instead of a port
-              number. Named ports can also contain multiple ports.
-            - 'For example: [{name: "http", port: 80},{name: "http", port: 8080}]  Named ports
-              apply to all instances in this instance group.'
-        required: false
-        suboptions:
-            name:
-                description:
-                    - The name for this named port.
-                    - The name must be 1-63 characters long, and comply with RFC1035.
-                required: false
-            port:
-                description:
-                    - The port number, which can be a value between 1 and 65535.
-                required: false
-    network:
-        description:
-            - The network to which all instances in the instance group belong.
-            - 'This field represents a link to a Network resource in GCP. It can be specified
-              in two ways. You can add `register: name-of-resource` to a gcp_compute_network task
-              and then set this network field to "{{ name-of-resource }}" Alternatively, you can
-              set this network to a dictionary with the selfLink key where the value is the selfLink
-              of your Network.'
-        required: false
-    region:
-        description:
-            - The region where the instance group is located (for regional resources).
+        - The name for this named port.
+        - The name must be 1-63 characters long, and comply with RFC1035.
         required: false
       port:
         description:
-            - The subnetwork to which all instances in the instance group belong.
-            - 'This field represents a link to a Subnetwork resource in GCP. It can be specified
-              in two ways. You can add `register: name-of-resource` to a gcp_compute_subnetwork
-              task and then set this subnetwork field to "{{ name-of-resource }}" Alternatively,
-              you can set this subnetwork to a dictionary with the selfLink key where the value
-              is the selfLink of your Subnetwork.'
+        - The port number, which can be a value between 1 and 65535.
         required: false
-    zone:
-        description:
-            - A reference to the zone where the instance group resides.
-        required: true
-    instances:
-        description:
-            - The list of instances associated with this InstanceGroup.
-            - All instances must be created before being added to an InstanceGroup.
-            - All instances not in this list will be removed from the InstanceGroup and will not
-              be deleted.
-            - Only the full identifier of the instance will be returned.
-        required: false
-        version_added: 2.8
+  network:
+    description:
+    - The network to which all instances in the instance group belong.
+    - 'This field represents a link to a Network resource in GCP. It can be specified
+      in two ways. You can add `register: name-of-resource` to a gcp_compute_network
+      task and then set this network field to "{{ name-of-resource }}" Alternatively,
+      you can set this network to a dictionary with the selfLink key where the value
+      is the selfLink of your Network'
+    required: false
+  region:
+    description:
+    - The region where the instance group is located (for regional resources).
+    required: false
+  subnetwork:
+    description:
+    - The subnetwork to which all instances in the instance group belong.
+    - 'This field represents a link to a Subnetwork resource in GCP. It can be specified
+      in two ways. You can add `register: name-of-resource` to a gcp_compute_subnetwork
+      task and then set this subnetwork field to "{{ name-of-resource }}" Alternatively,
+      you can set this subnetwork to a dictionary with the selfLink key where the
+      value is the selfLink of your Subnetwork'
+    required: false
+  zone:
+    description:
+    - A reference to the zone where the instance group resides.
+    required: true
+  instances:
+    description:
+    - The list of instances associated with this InstanceGroup.
+    - All instances must be created before being added to an InstanceGroup.
+    - All instances not in this list will be removed from the InstanceGroup and will
+      not be deleted.
+    - Only the full identifier of the instance will be returned.
+    required: false
+    version_added: 2.8
 extends_documentation_fragment: gcp
 '''
 
@@ -162,79 +142,79 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-    creationTimestamp:
-        description:
-            - Creation timestamp in RFC3339 text format.
-        returned: success
-        type: str
-    description:
-        description:
-            - An optional description of this resource. Provide this property when you create
-              the resource.
-        returned: success
-        type: str
-    id:
-        description:
-            - A unique identifier for this instance group.
-        returned: success
-        type: int
+creationTimestamp:
+  description:
+  - Creation timestamp in RFC3339 text format.
+  returned: success
+  type: str
+description:
+  description:
+  - An optional description of this resource. Provide this property when you create
+    the resource.
+  returned: success
+  type: str
+id:
+  description:
+  - A unique identifier for this instance group.
+  returned: success
+  type: int
+name:
+  description:
+  - The name of the instance group.
+  - The name must be 1-63 characters long, and comply with RFC1035.
+  returned: success
+  type: str
+namedPorts:
+  description:
+  - Assigns a name to a port number.
+  - 'For example: {name: "http", port: 80}.'
+  - This allows the system to reference ports by the assigned name instead of a port
+    number. Named ports can also contain multiple ports.
+  - 'For example: [{name: "http", port: 80},{name: "http", port: 8080}] Named ports
+    apply to all instances in this instance group.'
+  returned: success
+  type: complex
+  contains:
     name:
-        description:
-            - The name of the instance group.
-            - The name must be 1-63 characters long, and comply with RFC1035.
-        returned: success
-        type: str
-    namedPorts:
-        description:
-            - Assigns a name to a port number.
-            - 'For example: {name: "http", port: 80}.'
-            - This allows the system to reference ports by the assigned name instead of a port
-              number. Named ports can also contain multiple ports.
-            - 'For example: [{name: "http", port: 80},{name: "http", port: 8080}]  Named ports
-              apply to all instances in this instance group.'
-        returned: success
-        type: complex
-        contains:
-            name:
-                description:
-                    - The name for this named port.
-                    - The name must be 1-63 characters long, and comply with RFC1035.
-                returned: success
-                type: str
-            port:
-                description:
-                    - The port number, which can be a value between 1 and 65535.
-                returned: success
-                type: int
-    network:
-        description:
-            - The network to which all instances in the instance group belong.
-        returned: success
-        type: dict
-    region:
-        description:
-            - The region where the instance group is located (for regional resources).
-        returned: success
-        type: str
-    subnetwork:
-        description:
-            - The subnetwork to which all instances in the instance group belong.
-        returned: success
-        type: dict
-    zone:
-        description:
-            - A reference to the zone where the instance group resides.
-        returned: success
-        type: str
-    instances:
-        description:
-            - The list of instances associated with this InstanceGroup.
-            - All instances must be created before being added to an InstanceGroup.
-            - All instances not in this list will be removed from the InstanceGroup and will not
-              be deleted.
-            - Only the full identifier of the instance will be returned.
-        returned: success
-        type: list
+      description:
+      - The name for this named port.
+      - The name must be 1-63 characters long, and comply with RFC1035.
+      returned: success
+      type: str
+    port:
+      description:
+      - The port number, which can be a value between 1 and 65535.
+      returned: success
+      type: int
+network:
+  description:
+  - The network to which all instances in the instance group belong.
+  returned: success
+  type: dict
+region:
+  description:
+  - The region where the instance group is located (for regional resources).
+  returned: success
+  type: str
+subnetwork:
+  description:
+  - The subnetwork to which all instances in the instance group belong.
+  returned: success
+  type: dict
+zone:
+  description:
+  - A reference to the zone where the instance group resides.
+  returned: success
+  type: str
+instances:
+  description:
+  - The list of instances associated with this InstanceGroup.
+  - All instances must be created before being added to an InstanceGroup.
+  - All instances not in this list will be removed from the InstanceGroup and will
+    not be deleted.
+  - Only the full identifier of the instance will be returned.
+  returned: success
+  type: list
 '''
 
 ################################################################################

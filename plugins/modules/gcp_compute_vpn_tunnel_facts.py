@@ -42,7 +42,7 @@ requirements:
 options:
   filters:
     description:
-    - A list of filter value pairs. Available filters are listed here U(https://cloud.google.com/sdk/gcloud/reference/topic/filters.)
+    - A list of filter value pairs. Available filters are listed here U(U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).)
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
   region:
@@ -65,93 +65,94 @@ EXAMPLES = '''
 
 RETURN = '''
 items:
-    description: List of items
-    returned: always
-    type: complex
-    contains:
-        creationTimestamp:
-            description:
-                - Creation timestamp in RFC3339 text format.
-            returned: success
-            type: str
-        name:
-            description:
-                - Name of the resource. The name must be 1-63 characters long, and comply with RFC1035.
-                  Specifically, the name must be 1-63 characters long and match the regular expression
-                  `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character must be a lowercase
-                  letter, and all following characters must be a dash, lowercase letter, or digit,
-                  except the last character, which cannot be a dash.
-            returned: success
-            type: str
-        description:
-            description:
-                - An optional description of this resource.
-            returned: success
-            type: str
-        targetVpnGateway:
-            description:
-                - URL of the Target VPN gateway with which this VPN tunnel is associated.
-            returned: success
-            type: dict
-        router:
-            description:
-                - URL of router resource to be used for dynamic routing.
-            returned: success
-            type: dict
-        peerIp:
-            description:
-                - IP address of the peer VPN gateway. Only IPv4 is supported.
-            returned: success
-            type: str
-        sharedSecret:
-            description:
-                - Shared secret used to set the secure session between the Cloud VPN gateway and the
-                  peer VPN gateway.
-            returned: success
-            type: str
-        sharedSecretHash:
-            description:
-                - Hash of the shared secret.
-            returned: success
-            type: str
-        ikeVersion:
-            description:
-                - IKE protocol version to use when establishing the VPN tunnel with peer VPN gateway.
-                - Acceptable IKE versions are 1 or 2. Default version is 2.
-            returned: success
-            type: int
-        localTrafficSelector:
-            description:
-                - Local traffic selector to use when establishing the VPN tunnel with peer VPN gateway.
-                  The value should be a CIDR formatted string, for example `192.168.0.0/16`. The ranges
-                  should be disjoint.
-                - Only IPv4 is supported.
-            returned: success
-            type: list
-        remoteTrafficSelector:
-            description:
-                - Remote traffic selector to use when establishing the VPN tunnel with peer VPN gateway.
-                  The value should be a CIDR formatted string, for example `192.168.0.0/16`. The ranges
-                  should be disjoint.
-                - Only IPv4 is supported.
-            returned: success
-            type: list
-        labels:
-            description:
-                - Labels to apply to this VpnTunnel.
-            returned: success
-            type: dict
-        labelFingerprint:
-            description:
-                - The fingerprint used for optimistic locking of this resource.  Used internally during
-                  updates.
-            returned: success
-            type: str
-        region:
-            description:
-                - The region where the tunnel is located.
-            returned: success
-            type: str
+  description: List of items
+  returned: always
+  type: complex
+  contains:
+    creationTimestamp:
+      description:
+      - Creation timestamp in RFC3339 text format.
+      returned: success
+      type: str
+    name:
+      description:
+      - Name of the resource. The name must be 1-63 characters long, and comply with
+        RFC1035. Specifically, the name must be 1-63 characters long and match the
+        regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means the first character
+        must be a lowercase letter, and all following characters must be a dash, lowercase
+        letter, or digit, except the last character, which cannot be a dash.
+      returned: success
+      type: str
+    description:
+      description:
+      - An optional description of this resource.
+      returned: success
+      type: str
+    targetVpnGateway:
+      description:
+      - URL of the Target VPN gateway with which this VPN tunnel is associated.
+      returned: success
+      type: dict
+    router:
+      description:
+      - URL of router resource to be used for dynamic routing.
+      returned: success
+      type: dict
+    peerIp:
+      description:
+      - IP address of the peer VPN gateway. Only IPv4 is supported.
+      returned: success
+      type: str
+    sharedSecret:
+      description:
+      - Shared secret used to set the secure session between the Cloud VPN gateway
+        and the peer VPN gateway.
+      returned: success
+      type: str
+    sharedSecretHash:
+      description:
+      - Hash of the shared secret.
+      returned: success
+      type: str
+    ikeVersion:
+      description:
+      - IKE protocol version to use when establishing the VPN tunnel with peer VPN
+        gateway.
+      - Acceptable IKE versions are 1 or 2. Default version is 2.
+      returned: success
+      type: int
+    localTrafficSelector:
+      description:
+      - Local traffic selector to use when establishing the VPN tunnel with peer VPN
+        gateway. The value should be a CIDR formatted string, for example `192.168.0.0/16`.
+        The ranges should be disjoint.
+      - Only IPv4 is supported.
+      returned: success
+      type: list
+    remoteTrafficSelector:
+      description:
+      - Remote traffic selector to use when establishing the VPN tunnel with peer
+        VPN gateway. The value should be a CIDR formatted string, for example `192.168.0.0/16`.
+        The ranges should be disjoint.
+      - Only IPv4 is supported.
+      returned: success
+      type: list
+    labels:
+      description:
+      - Labels to apply to this VpnTunnel.
+      returned: success
+      type: dict
+    labelFingerprint:
+      description:
+      - The fingerprint used for optimistic locking of this resource. Used internally
+        during updates.
+      returned: success
+      type: str
+    region:
+      description:
+      - The region where the tunnel is located.
+      returned: success
+      type: str
 '''
 
 ################################################################################
