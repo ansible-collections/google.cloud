@@ -259,11 +259,8 @@ def resource_to_request(module):
     request = {
         u'name': module.params.get('name'),
         u'topic': replace_resource_dict(module.params.get(u'topic', {}), 'name'),
-        u'labels': module.params.get('labels'),
         u'pushConfig': SubscriptionPushconfig(module.params.get('push_config', {}), module).to_request(),
-        u'ackDeadlineSeconds': module.params.get('ack_deadline_seconds'),
-        u'messageRetentionDuration': module.params.get('message_retention_duration'),
-        u'retainAckedMessages': module.params.get('retain_acked_messages'),
+        u'ackDeadlineSeconds': module.params.get('ack_deadline_seconds')
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -333,13 +330,10 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'topic': replace_resource_dict(module.params.get(u'topic', {}), 'name'),
-        u'labels': response.get(u'labels'),
+        u'name': response.get(u'name'),
+        u'topic': response.get(u'topic'),
         u'pushConfig': SubscriptionPushconfig(response.get(u'pushConfig', {}), module).from_response(),
-        u'ackDeadlineSeconds': response.get(u'ackDeadlineSeconds'),
-        u'messageRetentionDuration': response.get(u'messageRetentionDuration'),
-        u'retainAckedMessages': response.get(u'retainAckedMessages'),
+        u'ackDeadlineSeconds': response.get(u'ackDeadlineSeconds')
     }
 
 

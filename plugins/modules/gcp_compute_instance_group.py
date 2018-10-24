@@ -487,7 +487,7 @@ class InstanceLogic(object):
         return request
 
 
-class InstanceGroupNamedPortsArray(object):
+class InstanceGroupNamedportsArray(object):
     def __init__(self, request, module):
         self.module = module
         if request:

@@ -1016,8 +1016,7 @@ def resource_to_request(module):
         u'networkInterfaces': InstanceNetworkinterfacesArray(module.params.get('network_interfaces', []), module).to_request(),
         u'scheduling': InstanceScheduling(module.params.get('scheduling', {}), module).to_request(),
         u'serviceAccounts': InstanceServiceaccountsArray(module.params.get('service_accounts', []), module).to_request(),
-        u'status': module.params.get('status'),
-        u'tags': InstanceTags(module.params.get('tags', {}), module).to_request(),
+        u'tags': InstanceTags(module.params.get('tags', {}), module).to_request()
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -1259,36 +1258,32 @@ class InstanceDisksArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'autoDelete': item.get('auto_delete'),
-                u'boot': item.get('boot'),
-                u'deviceName': item.get('device_name'),
-                u'diskEncryptionKey': InstanceDiskencryptionkey(item.get('disk_encryption_key', {}), self.module).to_request(),
-                u'index': item.get('index'),
-                u'initializeParams': InstanceInitializeparams(item.get('initialize_params', {}), self.module).to_request(),
-                u'interface': item.get('interface'),
-                u'mode': item.get('mode'),
-                u'source': replace_resource_dict(item.get(u'source', {}), 'selfLink'),
-                u'type': item.get('type'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'autoDelete': item.get('auto_delete'),
+            u'boot': item.get('boot'),
+            u'deviceName': item.get('device_name'),
+            u'diskEncryptionKey': InstanceDiskencryptionkey(item.get('disk_encryption_key', {}), self.module).to_request(),
+            u'index': item.get('index'),
+            u'initializeParams': InstanceInitializeparams(item.get('initialize_params', {}), self.module).to_request(),
+            u'interface': item.get('interface'),
+            u'mode': item.get('mode'),
+            u'source': replace_resource_dict(item.get(u'source', {}), 'selfLink'),
+            u'type': item.get('type')
+        })
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'autoDelete': item.get(u'autoDelete'),
-                u'boot': item.get(u'boot'),
-                u'deviceName': item.get(u'deviceName'),
-                u'diskEncryptionKey': InstanceDiskencryptionkey(item.get(u'diskEncryptionKey', {}), self.module).from_response(),
-                u'index': item.get(u'index'),
-                u'initializeParams': InstanceInitializeparams(self.module.params.get('initialize_params', {}), self.module).to_request(),
-                u'interface': item.get(u'interface'),
-                u'mode': item.get(u'mode'),
-                u'source': item.get(u'source'),
-                u'type': item.get(u'type'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'autoDelete': item.get(u'autoDelete'),
+            u'boot': item.get(u'boot'),
+            u'deviceName': item.get(u'deviceName'),
+            u'diskEncryptionKey': InstanceDiskencryptionkey(item.get(u'diskEncryptionKey', {}), self.module).from_response(),
+            u'index': item.get(u'index'),
+            u'initializeParams': InstanceInitializeparams(self.module.params.get('initialize_params', {}), self.module).to_request(),
+            u'interface': item.get(u'interface'),
+            u'mode': item.get(u'mode'),
+            u'source': item.get(u'source'),
+            u'type': item.get(u'type')
+        })
 
 
 class InstanceDiskencryptionkey(object):
@@ -1315,26 +1310,22 @@ class InstanceInitializeparams(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'diskName': self.request.get('disk_name'),
-                u'diskSizeGb': self.request.get('disk_size_gb'),
-                u'diskType': disk_type_selflink(self.request.get('disk_type'), self.module.params),
-                u'sourceImage': self.request.get('source_image'),
-                u'sourceImageEncryptionKey': InstanceSourceimageencryptionkey(self.request.get('source_image_encryption_key', {}), self.module).to_request(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'diskName': self.request.get('disk_name'),
+            u'diskSizeGb': self.request.get('disk_size_gb'),
+            u'diskType': disk_type_selflink(self.request.get('disk_type'), self.module.params),
+            u'sourceImage': self.request.get('source_image'),
+            u'sourceImageEncryptionKey': InstanceSourceimageencryptionkey(self.request.get('source_image_encryption_key', {}), self.module).to_request()
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'diskName': self.request.get(u'diskName'),
-                u'diskSizeGb': self.request.get(u'diskSizeGb'),
-                u'diskType': self.request.get(u'diskType'),
-                u'sourceImage': self.request.get(u'sourceImage'),
-                u'sourceImageEncryptionKey': InstanceSourceimageencryptionkey(self.request.get(u'sourceImageEncryptionKey', {}), self.module).from_response(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'diskName': self.request.get(u'diskName'),
+            u'diskSizeGb': self.request.get(u'diskSizeGb'),
+            u'diskType': self.request.get(u'diskType'),
+            u'sourceImage': self.request.get(u'sourceImage'),
+            u'sourceImageEncryptionKey': InstanceSourceimageencryptionkey(self.request.get(u'sourceImageEncryptionKey', {}), self.module).from_response()
+        })
 
 
 class InstanceSourceimageencryptionkey(object):
@@ -1400,26 +1391,24 @@ class InstanceNetworkinterfacesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'accessConfigs': InstanceAccessconfigsArray(item.get('access_configs', []), self.module).to_request(),
-                u'aliasIpRanges': InstanceAliasiprangesArray(item.get('alias_ip_ranges', []), self.module).to_request(),
-                u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
-                u'networkIP': item.get('network_ip'),
-                u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'accessConfigs': InstanceAccessconfigsArray(item.get('access_configs', []), self.module).to_request(),
+            u'aliasIpRanges': InstanceAliasiprangesArray(item.get('alias_ip_ranges', []), self.module).to_request(),
+            u'name': item.get('name'),
+            u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
+            u'networkIP': item.get('network_ip'),
+            u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink')
+        })
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'accessConfigs': InstanceAccessconfigsArray(item.get(u'accessConfigs', []), self.module).from_response(),
-                u'aliasIpRanges': InstanceAliasiprangesArray(item.get(u'aliasIpRanges', []), self.module).from_response(),
-                u'network': item.get(u'network'),
-                u'networkIP': item.get(u'networkIP'),
-                u'subnetwork': item.get(u'subnetwork'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'accessConfigs': InstanceAccessconfigsArray(item.get(u'accessConfigs', []), self.module).from_response(),
+            u'aliasIpRanges': InstanceAliasiprangesArray(item.get(u'aliasIpRanges', []), self.module).from_response(),
+            u'name': item.get(u'name'),
+            u'network': item.get(u'network'),
+            u'networkIP': item.get(u'networkIP'),
+            u'subnetwork': item.get(u'subnetwork')
+        })
 
 
 class InstanceAccessconfigsArray(object):

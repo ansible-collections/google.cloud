@@ -907,19 +907,17 @@ class BackendServiceBackendsArray(object):
         )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'balancingMode': item.get(u'balancingMode'),
-                u'capacityScaler': item.get(u'capacityScaler'),
-                u'description': item.get(u'description'),
-                u'group': item.get(u'group'),
-                u'maxConnections': item.get(u'maxConnections'),
-                u'maxConnectionsPerInstance': item.get(u'maxConnectionsPerInstance'),
-                u'maxRate': item.get(u'maxRate'),
-                u'maxRatePerInstance': item.get(u'maxRatePerInstance'),
-                u'maxUtilization': item.get(u'maxUtilization'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'balancingMode': item.get(u'balancingMode'),
+            u'capacityScaler': item.get(u'capacityScaler'),
+            u'description': item.get(u'description'),
+            u'group': item.get(u'group'),
+            u'maxConnections': item.get(u'maxConnections'),
+            u'maxConnectionsPerInstance': item.get(u'maxConnectionsPerInstance'),
+            u'maxRate': item.get(u'maxRate'),
+            u'maxRatePerInstance': item.get(u'maxRatePerInstance'),
+            u'maxUtilization': item.get(u'maxUtilization')
+        })
 
 
 class BackendServiceCdnpolicy(object):
@@ -931,20 +929,14 @@ class BackendServiceCdnpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request(),
-                u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request()
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response(),
-                u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response()
+        })
 
 
 class BackendServiceCachekeypolicy(object):

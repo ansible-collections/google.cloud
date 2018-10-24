@@ -450,7 +450,7 @@ def resource_to_request(module):
         u'hostRules': UrlMapHostrulesArray(module.params.get('host_rules', []), module).to_request(),
         u'name': module.params.get('name'),
         u'pathMatchers': UrlMapPathmatchersArray(module.params.get('path_matchers', []), module).to_request(),
-        u'tests': UrlMapTestsArray(module.params.get('tests', []), module).to_request(),
+        u'tests': UrlMapTestsArray(module.params.get('tests', []), module).to_request()
     }
     return_vals = {}
     for k, v in request.items():
@@ -523,7 +523,7 @@ def response_to_hash(module, response):
         u'id': response.get(u'id'),
         u'fingerprint': response.get(u'fingerprint'),
         u'name': module.params.get('name'),
-        u'pathMatchers': UrlMapPathMatchersArray(response.get(u'pathMatchers', []), module).from_response(),
+        u'pathMatchers': UrlMapPathmatchersArray(response.get(u'pathMatchers', []), module).from_response(),
         u'tests': UrlMapTestsArray(response.get(u'tests', []), module).from_response()
     }
 
@@ -611,24 +611,20 @@ class UrlMapPathmatchersArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'defaultService': replace_resource_dict(item.get(u'default_service', {}), 'selfLink'),
-                u'description': item.get('description'),
-                u'name': item.get('name'),
-                u'pathRules': UrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'defaultService': replace_resource_dict(item.get(u'default_service', {}), 'selfLink'),
+            u'description': item.get('description'),
+            u'name': item.get('name'),
+            u'pathRules': UrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request()
+        })
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'defaultService': item.get(u'defaultService'),
-                u'description': item.get(u'description'),
-                u'name': item.get(u'name'),
-                u'pathRules': UrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'defaultService': item.get(u'defaultService'),
+            u'description': item.get(u'description'),
+            u'name': item.get(u'name'),
+            u'pathRules': UrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response()
+        })
 
 
 class UrlMapPathrulesArray(object):

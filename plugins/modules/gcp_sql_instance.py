@@ -670,7 +670,7 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'region': module.params.get('region'),
         u'replicaConfiguration': InstanceReplicaconfiguration(module.params.get('replica_configuration', {}), module).to_request(),
-        u'settings': InstanceSettings(module.params.get('settings', {}), module).to_request(),
+        u'settings': InstanceSettings(module.params.get('settings', {}), module).to_request()
     }
     return_vals = {}
     for k, v in request.items():
@@ -751,7 +751,7 @@ def response_to_hash(module, response):
         u'name': response.get(u'name'),
         u'region': response.get(u'region'),
         u'replicaConfiguration': InstanceReplicaconfiguration(response.get(u'replicaConfiguration', {}), module).from_response(),
-        u'settings': InstanceSettings(response.get(u'settings', {}), module).from_response(),
+        u'settings': InstanceSettings(response.get(u'settings', {}), module).from_response()
     }
 
 
@@ -841,26 +841,20 @@ class InstanceReplicaconfiguration(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'failoverTarget': self.request.get('failover_target'),
-                u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(self.request.get('mysql_replica_configuration', {}), self.module).to_request(),
-                u'replicaNames': self.request.get('replica_names'),
-                u'serviceAccountEmailAddress': self.request.get('service_account_email_address'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'failoverTarget': self.request.get('failover_target'),
+            u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(self.request.get('mysql_replica_configuration', {}), self.module).to_request(),
+            u'replicaNames': self.request.get('replica_names'),
+            u'serviceAccountEmailAddress': self.request.get('service_account_email_address')
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'failoverTarget': self.request.get(u'failoverTarget'),
-                u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(
-                    self.request.get(u'mysqlReplicaConfiguration', {}), self.module
-                ).from_response(),
-                u'replicaNames': self.request.get(u'replicaNames'),
-                u'serviceAccountEmailAddress': self.request.get(u'serviceAccountEmailAddress'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'failoverTarget': self.request.get(u'failoverTarget'),
+            u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(self.request.get(u'mysqlReplicaConfiguration', {}), self.module).from_response(),
+            u'replicaNames': self.request.get(u'replicaNames'),
+            u'serviceAccountEmailAddress': self.request.get(u'serviceAccountEmailAddress')
+        })
 
 
 class InstanceMysqlreplicaconfiguration(object):
@@ -914,14 +908,14 @@ class InstanceSettings(object):
 
     def to_request(self):
         return remove_nones_from_dict({
-            u'ipConfiguration': InstanceIpConfiguration(self.request.get('ip_configuration', {}), self.module).to_request(),
+            u'ipConfiguration': InstanceIpconfiguration(self.request.get('ip_configuration', {}), self.module).to_request(),
             u'tier': self.request.get('tier'),
             u'settingsVersion': self.request.get('settings_version')
         })
 
     def from_response(self):
         return remove_nones_from_dict({
-            u'ipConfiguration': InstanceIpConfiguration(self.request.get(u'ipConfiguration', {}), self.module).from_response(),
+            u'ipConfiguration': InstanceIpconfiguration(self.request.get(u'ipConfiguration', {}), self.module).from_response(),
             u'tier': self.request.get(u'tier'),
             u'settingsVersion': self.request.get(u'settingsVersion')
         })
@@ -936,22 +930,18 @@ class InstanceIpconfiguration(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'ipv4Enabled': self.request.get('ipv4_enabled'),
-                u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get('authorized_networks', []), self.module).to_request(),
-                u'requireSsl': self.request.get('require_ssl'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'ipv4Enabled': self.request.get('ipv4_enabled'),
+            u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get('authorized_networks', []), self.module).to_request(),
+            u'requireSsl': self.request.get('require_ssl')
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
-                u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get(u'authorizedNetworks', []), self.module).from_response(),
-                u'requireSsl': self.request.get(u'requireSsl'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
+            u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get(u'authorizedNetworks', []), self.module).from_response(),
+            u'requireSsl': self.request.get(u'requireSsl')
+        })
 
 
 class InstanceAuthorizednetworksArray(object):

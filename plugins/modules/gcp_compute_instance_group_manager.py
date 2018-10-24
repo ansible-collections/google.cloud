@@ -540,7 +540,16 @@ class InstanceGroupManagerCurrentactions(object):
         return remove_nones_from_dict({})
 
     def from_response(self):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict({
+            u'abandoning': self.request.get(u'abandoning'),
+            u'creating': self.request.get(u'creating'),
+            u'creatingWithoutRetries': self.request.get(u'creatingWithoutRetries'),
+            u'deleting': self.request.get(u'deleting'),
+            u'none': self.request.get(u'none'),
+            u'recreating': self.request.get(u'recreating'),
+            u'refreshing': self.request.get(u'refreshing'),
+            u'restarting': self.request.get(u'restarting')
+        })
 
 
 class InstanceGroupManagerNamedportsArray(object):

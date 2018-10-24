@@ -859,20 +859,18 @@ class ClusterNodeconfig(object):
         )
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'machineType': self.request.get(u'machineType'),
-                u'diskSizeGb': self.request.get(u'diskSizeGb'),
-                u'oauthScopes': self.request.get(u'oauthScopes'),
-                u'serviceAccount': self.request.get(u'serviceAccount'),
-                u'metadata': self.request.get(u'metadata'),
-                u'imageType': self.request.get(u'imageType'),
-                u'labels': self.request.get(u'labels'),
-                u'localSsdCount': self.request.get(u'localSsdCount'),
-                u'tags': self.request.get(u'tags'),
-                u'preemptible': self.request.get(u'preemptible'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'machineType': self.request.get(u'machineType'),
+            u'diskSizeGb': self.request.get(u'diskSizeGb'),
+            u'oauthScopes': self.request.get(u'oauthScopes'),
+            u'serviceAccount': self.request.get(u'serviceAccount'),
+            u'metadata': self.request.get(u'metadata'),
+            u'imageType': self.request.get(u'imageType'),
+            u'labels': self.request.get(u'labels'),
+            u'localSsdCount': self.request.get(u'localSsdCount'),
+            u'tags': self.request.get(u'tags'),
+            u'preemptible': self.request.get(u'preemptible')
+        })
 
 
 class ClusterMasterauth(object):
@@ -890,33 +888,6 @@ class ClusterMasterauth(object):
         return remove_nones_from_dict({u'username': self.request.get(u'username'), u'password': self.request.get(u'password')})
 
 
-class ClusterPrivateclusterconfig(object):
-    def __init__(self, request, module):
-        self.module = module
-        if request:
-            self.request = request
-        else:
-            self.request = {}
-
-    def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'enablePrivateNodes': self.request.get('enable_private_nodes'),
-                u'enablePrivateEndpoint': self.request.get('enable_private_endpoint'),
-                u'masterIpv4CidrBlock': self.request.get('master_ipv4_cidr_block'),
-            }
-        )
-
-    def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'enablePrivateNodes': self.request.get(u'enablePrivateNodes'),
-                u'enablePrivateEndpoint': self.request.get(u'enablePrivateEndpoint'),
-                u'masterIpv4CidrBlock': self.request.get(u'masterIpv4CidrBlock'),
-            }
-        )
-
-
 class ClusterAddonsconfig(object):
     def __init__(self, request, module):
         self.module = module
@@ -926,20 +897,16 @@ class ClusterAddonsconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'httpLoadBalancing': ClusterHttploadbalancing(self.request.get('http_load_balancing', {}), self.module).to_request(),
-                u'horizontalPodAutoscaling': ClusterHorizontalpodautoscaling(self.request.get('horizontal_pod_autoscaling', {}), self.module).to_request(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'httpLoadBalancing': ClusterHttploadbalancing(self.request.get('http_load_balancing', {}), self.module).to_request(),
+            u'horizontalPodAutoscaling': ClusterHorizontalpodautoscaling(self.request.get('horizontal_pod_autoscaling', {}), self.module).to_request()
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'httpLoadBalancing': ClusterHttploadbalancing(self.request.get(u'httpLoadBalancing', {}), self.module).from_response(),
-                u'horizontalPodAutoscaling': ClusterHorizontalpodautoscaling(self.request.get(u'horizontalPodAutoscaling', {}), self.module).from_response(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'httpLoadBalancing': ClusterHttploadbalancing(self.request.get(u'httpLoadBalancing', {}), self.module).from_response(),
+            u'horizontalPodAutoscaling': ClusterHorizontalpodautoscaling(self.request.get(u'horizontalPodAutoscaling', {}), self.module).from_response()
+        })
 
 
 class ClusterHttploadbalancing(object):

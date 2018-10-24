@@ -722,22 +722,18 @@ class NodePoolManagement(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {
-                u'autoUpgrade': self.request.get('auto_upgrade'),
-                u'autoRepair': self.request.get('auto_repair'),
-                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get('upgrade_options', {}), self.module).to_request(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'autoUpgrade': self.request.get('auto_upgrade'),
+            u'autoRepair': self.request.get('auto_repair'),
+            u'upgradeOptions': NodePoolUpgradeoptions(self.request.get('upgrade_options', {}), self.module).to_request()
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'autoUpgrade': self.request.get(u'autoUpgrade'),
-                u'autoRepair': self.request.get(u'autoRepair'),
-                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get(u'upgradeOptions', {}), self.module).from_response(),
-            }
-        )
+        return remove_nones_from_dict({
+            u'autoUpgrade': self.request.get(u'autoUpgrade'),
+            u'autoRepair': self.request.get(u'autoRepair'),
+            u'upgradeOptions': NodePoolUpgradeoptions(self.request.get(u'upgradeOptions', {}), self.module).from_response()
+        })
 
 
 class NodePoolUpgradeoptions(object):

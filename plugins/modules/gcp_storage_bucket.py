@@ -1023,26 +1023,28 @@ class BucketAclArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
-                u'entity': item.get('entity'),
-                u'entityId': item.get('entity_id'),
-                u'projectTeam': BucketProjectteam(item.get('project_team', {}), self.module).to_request(),
-                u'role': item.get('role'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
+            u'domain': item.get('domain'),
+            u'email': item.get('email'),
+            u'entity': item.get('entity'),
+            u'entityId': item.get('entity_id'),
+            u'id': item.get('id'),
+            u'projectTeam': BucketProjectteam(item.get('project_team', {}), self.module).to_request(),
+            u'role': item.get('role')
+        })
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'bucket': item.get(u'bucket'),
-                u'entity': item.get(u'entity'),
-                u'entityId': item.get(u'entityId'),
-                u'projectTeam': BucketProjectteam(item.get(u'projectTeam', {}), self.module).from_response(),
-                u'role': item.get(u'role'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'bucket': item.get(u'bucket'),
+            u'domain': item.get(u'domain'),
+            u'email': item.get(u'email'),
+            u'entity': item.get(u'entity'),
+            u'entityId': item.get(u'entityId'),
+            u'id': item.get(u'id'),
+            u'projectTeam': BucketProjectteam(item.get(u'projectTeam', {}), self.module).from_response(),
+            u'role': item.get(u'role')
+        })
 
 
 class BucketProjectteam(object):
@@ -1122,19 +1124,32 @@ class BucketDefaultobjectaclArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict(
-            {
-                u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
-                u'entity': item.get('entity'),
-                u'object': item.get('object'),
-                u'role': item.get('role'),
-            }
-        )
+        return remove_nones_from_dict({
+            u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
+            u'domain': item.get('domain'),
+            u'email': item.get('email'),
+            u'entity': item.get('entity'),
+            u'entityId': item.get('entity_id'),
+            u'generation': item.get('generation'),
+            u'id': item.get('id'),
+            u'object': item.get('object'),
+            u'projectTeam': BucketProjectteam(item.get('project_team', {}), self.module).to_request(),
+            u'role': item.get('role')
+        })
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict(
-            {u'bucket': item.get(u'bucket'), u'entity': item.get(u'entity'), u'object': item.get(u'object'), u'role': item.get(u'role')}
-        )
+        return remove_nones_from_dict({
+            u'bucket': item.get(u'bucket'),
+            u'domain': item.get(u'domain'),
+            u'email': item.get(u'email'),
+            u'entity': item.get(u'entity'),
+            u'entityId': item.get(u'entityId'),
+            u'generation': item.get(u'generation'),
+            u'id': item.get(u'id'),
+            u'object': item.get(u'object'),
+            u'projectTeam': BucketProjectteam(item.get(u'projectTeam', {}), self.module).from_response(),
+            u'role': item.get(u'role')
+        })
 
 
 class BucketProjectteam(object):
