@@ -228,6 +228,11 @@ options:
         description:
         - Reference to a gcompute_machine_type resource.
         required: true
+      min_cpu_platform:
+        description:
+        - Specifies a minimum CPU platform for the VM instance. Applicable values
+          are the friendly names of CPU platforms .
+        required: false
       metadata:
         description:
         - The metadata key/value pairs to assign to instances that are created from
@@ -650,6 +655,12 @@ properties:
       - Reference to a gcompute_machine_type resource.
       returned: success
       type: str
+    minCpuPlatform:
+      description:
+      - Specifies a minimum CPU platform for the VM instance. Applicable values are
+        the friendly names of CPU platforms .
+      returned: success
+      type: str
     metadata:
       description:
       - The metadata key/value pairs to assign to instances that are created from
@@ -857,68 +868,70 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             description=dict(type='str'),
             name=dict(required=True, type='str'),
-            properties=dict(
-                type='dict',
-                options=dict(
-                    can_ip_forward=dict(type='bool'),
-                    description=dict(type='str'),
-                    disks=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(
-                            auto_delete=dict(type='bool'),
-                            boot=dict(type='bool'),
-                            device_name=dict(type='str'),
-                            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), rsa_encrypted_key=dict(type='str'))),
-                            index=dict(type='int'),
-                            initialize_params=dict(
-                                type='dict',
-                                options=dict(
-                                    disk_name=dict(type='str'),
-                                    disk_size_gb=dict(type='int'),
-                                    disk_type=dict(type='str'),
-                                    source_image=dict(type='str'),
-                                    source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
-                                ),
-                            ),
-                            interface=dict(type='str', choices=['SCSI', 'NVME']),
-                            mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
-                            source=dict(type='dict'),
-                            type=dict(type='str', choices=['SCRATCH', 'PERSISTENT']),
-                        ),
-                    ),
-                    machine_type=dict(required=True, type='str'),
-                    min_cpu_platform=dict(type='str'),
-                    metadata=dict(type='dict'),
-                    guest_accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
-                    network_interfaces=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(
-                            access_configs=dict(
-                                type='list',
-                                elements='dict',
-                                options=dict(
-                                    name=dict(required=True, type='str'),
-                                    nat_ip=dict(type='dict'),
-                                    type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT']),
-                                ),
-                            ),
-                            alias_ip_ranges=dict(
-                                type='list', elements='dict', options=dict(ip_cidr_range=dict(type='str'), subnetwork_range_name=dict(type='str'))
-                            ),
-                            network=dict(type='dict'),
-                            network_ip=dict(type='str'),
-                            subnetwork=dict(type='dict'),
-                        ),
-                    ),
-                    scheduling=dict(
-                        type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
-                    ),
-                    service_accounts=dict(type='list', elements='dict', options=dict(email=dict(type='str'), scopes=dict(type='list', elements='str'))),
-                    tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
-                ),
-            ),
+            properties=dict(type='dict', options=dict(
+                can_ip_forward=dict(type='bool'),
+                description=dict(type='str'),
+                disks=dict(type='list', elements='dict', options=dict(
+                    auto_delete=dict(type='bool'),
+                    boot=dict(type='bool'),
+                    device_name=dict(type='str'),
+                    disk_encryption_key=dict(type='dict', options=dict(
+                        raw_key=dict(type='str'),
+                        rsa_encrypted_key=dict(type='str'),
+                        sha256=dict(type='str')
+                    )),
+                    index=dict(type='int'),
+                    initialize_params=dict(type='dict', options=dict(
+                        disk_name=dict(type='str'),
+                        disk_size_gb=dict(type='int'),
+                        disk_type=dict(type='str'),
+                        source_image=dict(type='str'),
+                        source_image_encryption_key=dict(type='dict', options=dict(
+                            raw_key=dict(type='str'),
+                            sha256=dict(type='str')
+                        ))
+                    )),
+                    interface=dict(type='str', choices=['SCSI', 'NVME']),
+                    mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
+                    source=dict(type='dict'),
+                    type=dict(type='str', choices=['SCRATCH', 'PERSISTENT'])
+                )),
+                machine_type=dict(required=True, type='str'),
+                min_cpu_platform=dict(type='str'),
+                metadata=dict(type='dict'),
+                guest_accelerators=dict(type='list', elements='dict', options=dict(
+                    accelerator_count=dict(type='int'),
+                    accelerator_type=dict(type='str')
+                )),
+                network_interfaces=dict(type='list', elements='dict', options=dict(
+                    access_configs=dict(type='list', elements='dict', options=dict(
+                        name=dict(required=True, type='str'),
+                        nat_ip=dict(type='dict'),
+                        type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT'])
+                    )),
+                    alias_ip_ranges=dict(type='list', elements='dict', options=dict(
+                        ip_cidr_range=dict(type='str'),
+                        subnetwork_range_name=dict(type='str')
+                    )),
+                    name=dict(type='str'),
+                    network=dict(type='dict'),
+                    network_ip=dict(type='str'),
+                    subnetwork=dict(type='dict')
+                )),
+                scheduling=dict(type='dict', options=dict(
+                    automatic_restart=dict(type='bool'),
+                    on_host_maintenance=dict(type='str'),
+                    preemptible=dict(type='bool')
+                )),
+                service_accounts=dict(type='list', elements='dict', options=dict(
+                    email=dict(type='str'),
+                    scopes=dict(type='list', elements='str')
+                )),
+                tags=dict(type='dict', options=dict(
+                    fingerprint=dict(type='str'),
+                    items=dict(type='list', elements='str')
+                ))
+            ))
         )
     )
 
@@ -1154,6 +1167,7 @@ class InstanceTemplateProperties(object):
             u'description': self.request.get('description'),
             u'disks': InstanceTemplateDisksArray(self.request.get('disks', []), self.module).to_request(),
             u'machineType': self.request.get('machine_type'),
+            u'minCpuPlatform': self.request.get('min_cpu_platform'),
             u'metadata': self.request.get('metadata'),
             u'guestAccelerators': InstanceTemplateGuestacceleratorsArray(self.request.get('guest_accelerators', []), self.module).to_request(),
             u'networkInterfaces': InstanceTemplateNetworkinterfacesArray(self.request.get('network_interfaces', []), self.module).to_request(),
@@ -1168,6 +1182,7 @@ class InstanceTemplateProperties(object):
             u'description': self.request.get(u'description'),
             u'disks': InstanceTemplateDisksArray(self.request.get(u'disks', []), self.module).from_response(),
             u'machineType': self.request.get(u'machineType'),
+            u'minCpuPlatform': self.request.get(u'minCpuPlatform'),
             u'metadata': self.request.get(u'metadata'),
             u'guestAccelerators': InstanceTemplateGuestacceleratorsArray(self.request.get(u'guestAccelerators', []), self.module).from_response(),
             u'networkInterfaces': InstanceTemplateNetworkinterfacesArray(self.request.get(u'networkInterfaces', []), self.module).from_response(),
