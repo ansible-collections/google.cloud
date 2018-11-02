@@ -156,7 +156,12 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(filters=dict(type='list', elements='str'), zone=dict(required=True, type='str')))
+    module = GcpModule(
+        argument_spec=dict(
+            filters=dict(type='list', elements='str'),
+            zone=dict(required=True, type='str')
+        )
+    )
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
