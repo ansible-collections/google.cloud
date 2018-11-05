@@ -18,14 +18,15 @@
 # ----------------------------------------------------------------------------
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
 ################################################################################
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ["preview"],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -44,12 +45,11 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a service account facts"
+- name:  a service account facts
   gcp_iam_service_account_facts:
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: facts
+      project: test_project
+      auth_kind: serviceaccount
+      service_account_file: "/tmp/auth.pem"
 '''
 
 RETURN = '''
@@ -102,7 +102,10 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict())
+    module = GcpModule(
+        argument_spec=dict(
+        )
+    )
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/iam']
@@ -112,7 +115,9 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'items': items}
+    return_value = {
+        'items': items
+    }
     module.exit_json(**return_value)
 
 
