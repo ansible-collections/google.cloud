@@ -52,11 +52,11 @@ options:
     description:
     - A mutable string of at most 1024 characters associated with this resource for
       the user's convenience. Has no effect on the managed zone's function.
-    required: false
+    required: true
   dns_name:
     description:
     - The DNS name of this managed zone, for instance "example.com.".
-    required: false
+    required: true
   name:
     description:
     - User assigned name for this resource.
@@ -68,6 +68,11 @@ options:
       is a set of DNS name servers that all host the same ManagedZones. Most users
       will leave this field unset.
     required: false
+  labels:
+    description:
+    - A set of key/value label pairs to assign to this ManagedZone.
+    required: false
+    version_added: 2.8
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/dns/api/v1/managedZones)'
@@ -128,6 +133,11 @@ creationTime:
   - This is in RFC3339 text format.
   returned: success
   type: str
+labels:
+  description:
+  - A set of key/value label pairs to assign to this ManagedZone.
+  returned: success
+  type: dict
 '''
 
 ################################################################################
@@ -151,10 +161,8 @@ def main():
             description=dict(required=True, type='str'),
             dns_name=dict(required=True, type='str'),
             name=dict(required=True, type='str'),
-            name_server_set=dict(type='str'),
-            labels=dict(type='dict'),
-            visibility=dict(default='public', type='str', choices=['private', 'public']),
-            private_visibility_config=dict(type='dict', options=dict(networks=dict(type='list', elements='dict', options=dict(network_url=dict(type='str'))))),
+            name_server_set=dict(type='list', elements='str'),
+            labels=dict(type='dict')
         )
     )
 
@@ -170,7 +178,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind)
+                update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -195,28 +203,27 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module),
+                  response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
 def update_fields(module, request, response):
-    if (
-        response.get('description') != request.get('description')
-        or response.get('labels') != request.get('labels')
-        or response.get('privateVisibilityConfig') != request.get('privateVisibilityConfig')
-    ):
+    if response.get('description') != request.get('description') or response.get('labels') != request.get('labels'):
         description_update(module, request, response)
 
 
 def description_update(module, request, response):
     auth = GcpSession(module, 'dns')
     auth.patch(
-        ''.join(["https://www.googleapis.com/dns/v1/", "projects/{project}/managedZones/{name}"]).format(**module.params),
+        ''.join([
+            "https://www.googleapis.com/dns/v1/",
+            "projects/{project}/managedZones/{name}"
+        ]).format(**module.params),
         {
             u'description': module.params.get('description'),
-            u'labels': module.params.get('labels'),
-            u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(module.params.get('private_visibility_config', {}), module).to_request(),
-        },
+            u'labels': module.params.get('labels')
+        }
     )
 
 
@@ -232,9 +239,7 @@ def resource_to_request(module):
         u'dnsName': module.params.get('dns_name'),
         u'name': module.params.get('name'),
         u'nameServerSet': module.params.get('name_server_set'),
-        u'labels': module.params.get('labels'),
-        u'visibility': module.params.get('visibility'),
-        u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(module.params.get('private_visibility_config', {}), module).to_request(),
+        u'labels': module.params.get('labels')
     }
     return_vals = {}
     for k, v in request.items():
@@ -307,9 +312,7 @@ def response_to_hash(module, response):
         u'nameServers': response.get(u'nameServers'),
         u'nameServerSet': response.get(u'nameServerSet'),
         u'creationTime': response.get(u'creationTime'),
-        u'labels': response.get(u'labels'),
-        u'visibility': response.get(u'visibility'),
-        u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(response.get(u'privateVisibilityConfig', {}), module).from_response(),
+        u'labels': response.get(u'labels')
     }
 
 
