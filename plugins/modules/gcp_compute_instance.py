@@ -374,6 +374,22 @@ options:
         description:
         - The list of scopes to be made available for this service account.
         required: false
+  status:
+    description:
+    - 'The status of the instance. One of the following values: PROVISIONING, STAGING,
+      RUNNING, STOPPING, SUSPENDING, SUSPENDED, and TERMINATED.'
+    - As a user, use RUNNING to keep a machine "on" and TERMINATED to turn a machine
+      off .
+    required: false
+    version_added: 2.8
+    choices:
+    - PROVISIONING
+    - STAGING
+    - RUNNING
+    - STOPPING
+    - SUSPENDING
+    - SUSPENDED
+    - TERMINATED
   tags:
     description:
     - A list of tags to apply to this instance. Tags are used to identify valid sources
@@ -816,6 +832,8 @@ status:
   description:
   - 'The status of the instance. One of the following values: PROVISIONING, STAGING,
     RUNNING, STOPPING, SUSPENDING, SUSPENDED, and TERMINATED.'
+  - As a user, use RUNNING to keep a machine "on" and TERMINATED to turn a machine
+    off .
   returned: success
   type: str
 statusMessage:
@@ -905,30 +923,36 @@ def main():
             machine_type=dict(type='str'),
             min_cpu_platform=dict(type='str'),
             name=dict(type='str'),
-            network_interfaces=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    access_configs=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(
-                            name=dict(required=True, type='str'), nat_ip=dict(type='dict'), type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT'])
-                        ),
-                    ),
-                    alias_ip_ranges=dict(type='list', elements='dict', options=dict(ip_cidr_range=dict(type='str'), subnetwork_range_name=dict(type='str'))),
-                    network=dict(type='dict'),
-                    network_ip=dict(type='str'),
-                    subnetwork=dict(type='dict'),
-                ),
-            ),
-            scheduling=dict(
-                type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
-            ),
-            service_accounts=dict(type='list', elements='dict', options=dict(email=dict(type='str'), scopes=dict(type='list', elements='str'))),
+            network_interfaces=dict(type='list', elements='dict', options=dict(
+                access_configs=dict(type='list', elements='dict', options=dict(
+                    name=dict(required=True, type='str'),
+                    nat_ip=dict(type='dict'),
+                    type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT'])
+                )),
+                alias_ip_ranges=dict(type='list', elements='dict', options=dict(
+                    ip_cidr_range=dict(type='str'),
+                    subnetwork_range_name=dict(type='str')
+                )),
+                name=dict(type='str'),
+                network=dict(type='dict'),
+                network_ip=dict(type='str'),
+                subnetwork=dict(type='dict')
+            )),
+            scheduling=dict(type='dict', options=dict(
+                automatic_restart=dict(type='bool'),
+                on_host_maintenance=dict(type='str'),
+                preemptible=dict(type='bool')
+            )),
+            service_accounts=dict(type='list', elements='dict', options=dict(
+                email=dict(type='str'),
+                scopes=dict(type='list', elements='str')
+            )),
             status=dict(type='str', choices=['PROVISIONING', 'STAGING', 'RUNNING', 'STOPPING', 'SUSPENDING', 'SUSPENDED', 'TERMINATED']),
-            tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
-            zone=dict(required=True, type='str'),
+            tags=dict(type='dict', options=dict(
+                fingerprint=dict(type='str'),
+                items=dict(type='list', elements='str')
+            )),
+            zone=dict(required=True, type='str')
         )
     )
 
@@ -1016,6 +1040,7 @@ def resource_to_request(module):
         u'networkInterfaces': InstanceNetworkinterfacesArray(module.params.get('network_interfaces', []), module).to_request(),
         u'scheduling': InstanceScheduling(module.params.get('scheduling', {}), module).to_request(),
         u'serviceAccounts': InstanceServiceaccountsArray(module.params.get('service_accounts', []), module).to_request(),
+        u'status': module.params.get('status'),
         u'tags': InstanceTags(module.params.get('tags', {}), module).to_request()
     }
     request = encode_request(request, module)
