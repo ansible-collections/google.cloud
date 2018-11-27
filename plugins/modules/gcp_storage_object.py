@@ -18,14 +18,15 @@
 # ----------------------------------------------------------------------------
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
 ################################################################################
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ["preview"],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -78,15 +79,15 @@ extends_documentation_fragment: gcp
 EXAMPLES = '''
 - name: create a object
   gcp_storage_object:
-    name: ansible-storage-module
-    action: download
-    bucket: ansible-bucket
-    src: modules.zip
-    dest: "~/modules.zip"
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      name: ansible-storage-module
+      action: download
+      bucket: ansible-bucket
+      src: modules.zip
+      dest: "~/modules.zip"
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''
@@ -144,7 +145,7 @@ def main():
             overwrite=dict(type='bool'),
             src=dict(type='path'),
             dest=dict(type='path'),
-            bucket=dict(type='str'),
+            bucket=dict(type='str')
         )
     )
 
@@ -276,7 +277,7 @@ def object_headers(module):
     return {
         "name": module.params['dest'],
         "Content-Type": mimetypes.guess_type(module.params['src'])[0],
-        "Content-Length": str(os.path.getsize(module.params['src'])),
+        "Content-Length": str(os.path.getsize(module.params['src']))
     }
 
 
