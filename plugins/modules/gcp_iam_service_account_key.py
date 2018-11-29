@@ -18,14 +18,15 @@
 # ----------------------------------------------------------------------------
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
 ################################################################################
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ["preview"],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -67,10 +68,10 @@ options:
     description:
     - The name of the serviceAccount.
     - 'This field represents a link to a ServiceAccount resource in GCP. It can be
-      specified in two ways. First, you can place a dictionary with key ''name'' and
-      value of your resource''s name Alternatively, you can add `register: name-of-resource`
-      to a gcp_iam_service_account task and then set this service_account field to
-      "{{ name-of-resource }}"'
+      specified in two ways. You can add `register: name-of-resource` to a gcp_iam_service_account
+      task and then set this service_account field to "{{ name-of-resource }}" Alternatively,
+      you can set this service_account to a dictionary with the name key where the
+      value is the name of your ServiceAccount'
     required: false
   path:
     description:
@@ -84,23 +85,23 @@ extends_documentation_fragment: gcp
 EXAMPLES = '''
 - name: create a service account
   gcp_iam_service_account:
-    name: test-ansible@graphite-playground.google.com.iam.gserviceaccount.com
-    display_name: My Ansible test key
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-    state: present
+      name: test-ansible@graphite-playground.google.com.iam.gserviceaccount.com
+      display_name: My Ansible test key
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      state: present
   register: serviceaccount
 
 - name: create a service account key
   gcp_iam_service_account_key:
-    service_account: "{{ serviceaccount }}"
-    private_key_type: TYPE_GOOGLE_CREDENTIALS_FILE
-    path: "~/test_account.json"
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      service_account: "{{ serviceaccount }}"
+      private_key_type: TYPE_GOOGLE_CREDENTIALS_FILE
+      path: "~/test_account.json"
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''
@@ -178,7 +179,7 @@ def main():
             private_key_type=dict(type='str', choices=['TYPE_UNSPECIFIED', 'TYPE_PKCS12_FILE', 'TYPE_GOOGLE_CREDENTIALS_FILE']),
             key_algorithm=dict(type='str', choices=['KEY_ALG_UNSPECIFIED', 'KEY_ALG_RSA_1024', 'KEY_ALG_RSA_2048']),
             service_account=dict(type='dict'),
-            path=dict(type='path'),
+            path=dict(type='path')
         )
     )
 
@@ -220,7 +221,10 @@ def delete(module):
 
 
 def resource_to_request(module):
-    request = {u'privateKeyType': module.params.get('private_key_type'), u'keyAlgorithm': module.params.get('key_algorithm')}
+    request = {
+        u'privateKeyType': module.params.get('private_key_type'),
+        u'keyAlgorithm': module.params.get('key_algorithm')
+    }
     return_vals = {}
     for k, v in request.items():
         if v:
@@ -239,7 +243,7 @@ def key_name_from_file(filename, module):
         try:
             json_data = json.loads(f.read())
             return "projects/{project_id}/serviceAccounts/{client_email}/keys/{private_key_id}".format(**json_data)
-        except ValueError as inst:
+        except:
             module.fail_json(msg="File is not a valid GCP JSON service account key")
 
 
@@ -249,7 +253,10 @@ def self_link_from_file(module):
 
 
 def self_link(module):
-    results = {'project': module.params['project'], 'service_account': replace_resource_dict(module.params['service_account'], 'name')}
+    results = {
+        'project': module.params['project'],
+        'service_account': replace_resource_dict(module.params['service_account'], 'name')
+    }
     return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{service_account}/keys".format(**results)
 
 
