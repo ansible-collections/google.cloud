@@ -150,7 +150,9 @@ options:
       task and then set this network field to "{{ name-of-resource }}" Alternatively,
       you can set this network to a dictionary with the selfLink key where the value
       is the selfLink of your Network'
-    required: true
+    required: false
+    default:
+      selfLink: global/networks/default
   priority:
     description:
     - Priority for this rule. This is an integer between 0 and 65535, both inclusive.
@@ -438,7 +440,7 @@ def main():
             direction=dict(type='str', choices=['INGRESS', 'EGRESS']),
             disabled=dict(type='bool'),
             name=dict(required=True, type='str'),
-            network=dict(required=True, type='dict'),
+            network=dict(default={'selfLink': 'global/networks/default'}, type='dict'),
             priority=dict(default=1000, type='int'),
             source_ranges=dict(type='list', elements='str'),
             source_service_accounts=dict(type='list', elements='str'),
@@ -634,9 +636,8 @@ def raise_if_errors(response, err_path, module):
 def encode_request(request, module):
     if 'network' in request and request['network'] is not None:
         if not re.match(r'https://www.googleapis.com/compute/v1/projects/.*', request['network']):
-            request['network'] = 'https://www.googleapis.com/compute/v1/projects/{project}/{network}'.format(
-                project=module.params['project'], network=request['network']
-            )
+            request['network'] = 'https://www.googleapis.com/compute/v1/projects/{project}/{network}'.format(project=module.params['project'],
+                                                                                                             network=request['network'])
 
     return request
 
