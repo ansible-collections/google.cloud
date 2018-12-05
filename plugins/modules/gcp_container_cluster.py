@@ -699,7 +699,7 @@ def resource_to_request(module):
     request = encode_request(request, module)
     return_vals = {}
     for k, v in request.items():
-        if v or v is False:
+        if v is not None:
             return_vals[k] = v
 
     return return_vals
