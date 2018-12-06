@@ -62,7 +62,7 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['items'] | length >= 1
+      - "'my-pool' in \"{{ results['items'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: create a node pool that already exists
   gcp_container_node_pool:
