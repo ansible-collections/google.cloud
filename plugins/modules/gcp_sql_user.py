@@ -203,7 +203,7 @@ def resource_to_request(module):
     request = {u'kind': 'sql#user', u'password': module.params.get('password'), u'host': module.params.get('host'), u'name': module.params.get('name')}
     return_vals = {}
     for k, v in request.items():
-        if v is not None:
+        if v or v is False:
             return_vals[k] = v
 
     return return_vals
