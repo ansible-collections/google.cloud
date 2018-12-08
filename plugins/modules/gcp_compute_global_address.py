@@ -48,6 +48,11 @@ options:
     - present
     - absent
     default: present
+  address:
+    description:
+    - The static external IP address represented by this resource.
+    required: false
+    version_added: 2.8
   description:
     description:
     - An optional description of this resource.
