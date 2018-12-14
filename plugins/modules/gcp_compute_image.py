@@ -152,10 +152,9 @@ options:
     - Refers to a gcompute_disk object You must provide either this property or the
       rawDisk.source property but not both to create an image.
     - 'This field represents a link to a Disk resource in GCP. It can be specified
-      in two ways. You can add `register: name-of-resource` to a gcp_compute_disk
-      task and then set this source_disk field to "{{ name-of-resource }}" Alternatively,
-      you can set this source_disk to a dictionary with the selfLink key where the
-      value is the selfLink of your Disk'
+      in two ways. First, you can place in the selfLink of the resource here as a
+      string Alternatively, you can add `register: name-of-resource` to a gcp_compute_disk
+      task and then set this source_disk field to "{{ name-of-resource }}"'
     required: false
   source_disk_encryption_key:
     description:
@@ -377,7 +376,7 @@ sourceDisk:
   - Refers to a gcompute_disk object You must provide either this property or the
     rawDisk.source property but not both to create an image.
   returned: success
-  type: dict
+  type: str
 sourceDiskEncryptionKey:
   description:
   - The customer-supplied encryption key of the source disk. Required if the source
@@ -440,12 +439,16 @@ def main():
             labels=dict(type='dict'),
             licenses=dict(type='list', elements='str'),
             name=dict(required=True, type='str'),
-            raw_disk=dict(
-                type='dict',
-                options=dict(container_type=dict(type='str', choices=['TAR']), sha1_checksum=dict(type='str'), source=dict(required=True, type='str')),
-            ),
-            source_disk=dict(type='dict'),
-            source_disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
+            raw_disk=dict(type='dict', options=dict(
+                container_type=dict(type='str', choices=['TAR']),
+                sha1_checksum=dict(type='str'),
+                source=dict(type='str')
+            )),
+            source_disk=dict(),
+            source_disk_encryption_key=dict(type='dict', options=dict(
+                raw_key=dict(type='str'),
+                sha256=dict(type='str')
+            )),
             source_disk_id=dict(type='str'),
             source_type=dict(type='str', choices=['RAW']),
         )

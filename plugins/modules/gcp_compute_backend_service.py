@@ -96,10 +96,10 @@ options:
         - When the BackendService has load balancing scheme INTERNAL, the instance
           group must be in a zone within the same region as the BackendService.
         - 'This field represents a link to a InstanceGroup resource in GCP. It can
-          be specified in two ways. You can add `register: name-of-resource` to a
-          gcp_compute_instance_group task and then set this group field to "{{ name-of-resource
-          }}" Alternatively, you can set this group to a dictionary with the selfLink
-          key where the value is the selfLink of your InstanceGroup'
+          be specified in two ways. First, you can place in the selfLink of the resource
+          here as a string Alternatively, you can add `register: name-of-resource`
+          to a gcp_compute_instance_group task and then set this group field to "{{
+          name-of-resource }}"'
         required: false
       max_connections:
         description:
@@ -389,7 +389,7 @@ backends:
       - When the BackendService has load balancing scheme INTERNAL, the instance group
         must be in a zone within the same region as the BackendService.
       returned: success
-      type: dict
+      type: str
     maxConnections:
       description:
       - The max number of simultaneous connections for the group. Can be used with
@@ -623,38 +623,29 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             affinity_cookie_ttl_sec=dict(type='int'),
-            backends=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    balancing_mode=dict(default='UTILIZATION', type='str', choices=['UTILIZATION', 'RATE', 'CONNECTION']),
-                    capacity_scaler=dict(default=1.0, type='str'),
-                    description=dict(type='str'),
-                    group=dict(type='str'),
-                    max_connections=dict(type='int'),
-                    max_connections_per_instance=dict(type='int'),
-                    max_rate=dict(type='int'),
-                    max_rate_per_instance=dict(type='str'),
-                    max_utilization=dict(default=0.8, type='str'),
-                ),
-            ),
-            cdn_policy=dict(
-                type='dict',
-                options=dict(
-                    cache_key_policy=dict(
-                        type='dict',
-                        options=dict(
-                            include_host=dict(type='bool'),
-                            include_protocol=dict(type='bool'),
-                            include_query_string=dict(type='bool'),
-                            query_string_blacklist=dict(type='list', elements='str'),
-                            query_string_whitelist=dict(type='list', elements='str'),
-                        ),
-                    ),
-                    signed_url_cache_max_age_sec=dict(default=3600, type='int'),
-                ),
-            ),
-            connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
+            backends=dict(type='list', elements='dict', options=dict(
+                balancing_mode=dict(type='str', choices=['UTILIZATION', 'RATE', 'CONNECTION']),
+                capacity_scaler=dict(type='str'),
+                description=dict(type='str'),
+                group=dict(),
+                max_connections=dict(type='int'),
+                max_connections_per_instance=dict(type='int'),
+                max_rate=dict(type='int'),
+                max_rate_per_instance=dict(type='str'),
+                max_utilization=dict(type='str')
+            )),
+            cdn_policy=dict(type='dict', options=dict(
+                cache_key_policy=dict(type='dict', options=dict(
+                    include_host=dict(type='bool'),
+                    include_protocol=dict(type='bool'),
+                    include_query_string=dict(type='bool'),
+                    query_string_blacklist=dict(type='list', elements='str'),
+                    query_string_whitelist=dict(type='list', elements='str')
+                ))
+            )),
+            connection_draining=dict(type='dict', options=dict(
+                draining_timeout_sec=dict(type='int')
+            )),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             health_checks=dict(required=True, type='list', elements='str'),

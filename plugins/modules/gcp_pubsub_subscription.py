@@ -56,10 +56,9 @@ options:
     description:
     - A reference to a Topic resource.
     - 'This field represents a link to a Topic resource in GCP. It can be specified
-      in two ways. You can add `register: name-of-resource` to a gcp_pubsub_topic
-      task and then set this topic field to "{{ name-of-resource }}" Alternatively,
-      you can set this topic to a dictionary with the name key where the value is
-      the name of your Topic'
+      in two ways. First, you can place in the name of the resource here as a string
+      Alternatively, you can add `register: name-of-resource` to a gcp_pubsub_topic
+      task and then set this topic field to "{{ name-of-resource }}"'
     required: false
   push_config:
     description:
@@ -127,7 +126,7 @@ topic:
   description:
   - A reference to a Topic resource.
   returned: success
-  type: dict
+  type: str
 pushConfig:
   description:
   - If push delivery is used with this subscription, this field is used to configure
@@ -180,13 +179,12 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            topic=dict(required=True, type='dict'),
-            labels=dict(type='dict'),
-            push_config=dict(type='dict', options=dict(push_endpoint=dict(required=True, type='str'), attributes=dict(type='dict'))),
-            ack_deadline_seconds=dict(type='int'),
-            message_retention_duration=dict(default='604800s', type='str'),
-            retain_acked_messages=dict(type='bool'),
+            name=dict(type='str'),
+            topic=dict(),
+            push_config=dict(type='dict', options=dict(
+                push_endpoint=dict(type='str')
+            )),
+            ack_deadline_seconds=dict(type='int')
         )
     )
 

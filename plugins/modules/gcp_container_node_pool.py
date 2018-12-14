@@ -203,10 +203,9 @@ options:
     description:
     - The cluster this node pool belongs to.
     - 'This field represents a link to a Cluster resource in GCP. It can be specified
-      in two ways. You can add `register: name-of-resource` to a gcp_container_cluster
-      task and then set this cluster field to "{{ name-of-resource }}" Alternatively,
-      you can set this cluster to a dictionary with the name key where the value is
-      the name of your Cluster'
+      in two ways. First, you can place in the name of the resource here as a string
+      Alternatively, you can add `register: name-of-resource` to a gcp_container_cluster
+      task and then set this cluster field to "{{ name-of-resource }}"'
     required: true
   zone:
     description:
@@ -415,7 +414,7 @@ cluster:
   description:
   - The cluster this node pool belongs to.
   returned: success
-  type: dict
+  type: str
 zone:
   description:
   - The zone where the node pool is deployed.
@@ -459,13 +458,21 @@ def main():
                 ),
             ),
             initial_node_count=dict(required=True, type='int'),
-            version=dict(type='str'),
-            autoscaling=dict(type='dict', options=dict(enabled=dict(type='bool'), min_node_count=dict(type='int'), max_node_count=dict(type='int'))),
-            management=dict(
-                type='dict', options=dict(auto_upgrade=dict(type='bool'), auto_repair=dict(type='bool'), upgrade_options=dict(type='dict', options=dict()))
-            ),
-            cluster=dict(required=True, type='dict'),
-            location=dict(required=True, type='str', aliases=['region', 'zone']),
+            autoscaling=dict(type='dict', options=dict(
+                enabled=dict(type='bool'),
+                min_node_count=dict(type='int'),
+                max_node_count=dict(type='int')
+            )),
+            management=dict(type='dict', options=dict(
+                auto_upgrade=dict(type='bool'),
+                auto_repair=dict(type='bool'),
+                upgrade_options=dict(type='dict', options=dict(
+                    auto_upgrade_start_time=dict(type='str'),
+                    description=dict(type='str')
+                ))
+            )),
+            cluster=dict(required=True),
+            zone=dict(required=True, type='str')
         )
     )
 

@@ -181,10 +181,9 @@ options:
         - If desired, you can also attach existing non-root persistent disks using
           this property. This field is only applicable for persistent disks.
         - 'This field represents a link to a Disk resource in GCP. It can be specified
-          in two ways. You can add `register: name-of-resource` to a gcp_compute_disk
-          task and then set this source field to "{{ name-of-resource }}" Alternatively,
-          you can set this source to a dictionary with the selfLink key where the
-          value is the selfLink of your Disk'
+          in two ways. First, you can place in the selfLink of the resource here as
+          a string Alternatively, you can add `register: name-of-resource` to a gcp_compute_disk
+          task and then set this source field to "{{ name-of-resource }}"'
         required: false
       type:
         description:
@@ -267,10 +266,10 @@ options:
               address pool. If you specify a static external IP address, it must live
               in the same region as the zone of the instance.
             - 'This field represents a link to a Address resource in GCP. It can be
-              specified in two ways. You can add `register: name-of-resource` to a
-              gcp_compute_address task and then set this nat_ip field to "{{ name-of-resource
-              }}" Alternatively, you can set this nat_ip to a dictionary with the
-              address key where the value is the address of your Address'
+              specified in two ways. First, you can place in the address of the resource
+              here as a string Alternatively, you can add `register: name-of-resource`
+              to a gcp_compute_address task and then set this nat_ip field to "{{
+              name-of-resource }}"'
             required: false
           type:
             description:
@@ -310,10 +309,9 @@ options:
           global/networks/default is used; if the network is not specified but the
           subnetwork is specified, the network is inferred.
         - 'This field represents a link to a Network resource in GCP. It can be specified
-          in two ways. You can add `register: name-of-resource` to a gcp_compute_network
-          task and then set this network field to "{{ name-of-resource }}" Alternatively,
-          you can set this network to a dictionary with the selfLink key where the
-          value is the selfLink of your Network'
+          in two ways. First, you can place in the selfLink of the resource here as
+          a string Alternatively, you can add `register: name-of-resource` to a gcp_compute_network
+          task and then set this network field to "{{ name-of-resource }}"'
         required: false
       network_ip:
         description:
@@ -328,10 +326,10 @@ options:
           If the network is in auto subnet mode, providing the subnetwork is optional.
           If the network is in custom subnet mode, then this field should be specified.
         - 'This field represents a link to a Subnetwork resource in GCP. It can be
-          specified in two ways. You can add `register: name-of-resource` to a gcp_compute_subnetwork
-          task and then set this subnetwork field to "{{ name-of-resource }}" Alternatively,
-          you can set this subnetwork to a dictionary with the selfLink key where
-          the value is the selfLink of your Subnetwork'
+          specified in two ways. First, you can place in the selfLink of the resource
+          here as a string Alternatively, you can add `register: name-of-resource`
+          to a gcp_compute_subnetwork task and then set this subnetwork field to "{{
+          name-of-resource }}"'
         required: false
   scheduling:
     description:
@@ -629,7 +627,7 @@ disks:
       - If desired, you can also attach existing non-root persistent disks using this
         property. This field is only applicable for persistent disks.
       returned: success
-      type: dict
+      type: str
     type:
       description:
       - Specifies the type of the disk, either SCRATCH or PERSISTENT. If not specified,
@@ -725,7 +723,7 @@ networkInterfaces:
             address pool. If you specify a static external IP address, it must live
             in the same region as the zone of the instance.
           returned: success
-          type: dict
+          type: str
         type:
           description:
           - The type of configuration. The default and only option is ONE_TO_ONE_NAT.
@@ -767,7 +765,7 @@ networkInterfaces:
         global/networks/default is used; if the network is not specified but the subnetwork
         is specified, the network is inferred.
       returned: success
-      type: dict
+      type: str
     networkIP:
       description:
       - An IPv4 internal network address to assign to the instance for this network
@@ -782,7 +780,7 @@ networkInterfaces:
         the network is in auto subnet mode, providing the subnetwork is optional.
         If the network is in custom subnet mode, then this field should be specified.
       returned: success
-      type: dict
+      type: str
 scheduling:
   description:
   - Sets the scheduling options for this instance.
@@ -891,33 +889,36 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            can_ip_forward=dict(type='bool', aliases=['ip_forward']),
-            disks=dict(
-                type='list',
-                elements='dict',
-                options=dict(
-                    auto_delete=dict(type='bool'),
-                    boot=dict(type='bool'),
-                    device_name=dict(type='str'),
-                    disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), rsa_encrypted_key=dict(type='str'))),
-                    index=dict(type='int'),
-                    initialize_params=dict(
-                        type='dict',
-                        options=dict(
-                            disk_name=dict(type='str'),
-                            disk_size_gb=dict(type='int'),
-                            disk_type=dict(type='str'),
-                            source_image=dict(type='str', aliases=['image', 'image_family']),
-                            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
-                        ),
-                    ),
-                    interface=dict(type='str', choices=['SCSI', 'NVME']),
-                    mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
-                    source=dict(type='dict'),
-                    type=dict(type='str', choices=['SCRATCH', 'PERSISTENT']),
-                ),
-            ),
-            guest_accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
+            can_ip_forward=dict(type='bool'),
+            disks=dict(type='list', elements='dict', options=dict(
+                auto_delete=dict(type='bool'),
+                boot=dict(type='bool'),
+                device_name=dict(type='str'),
+                disk_encryption_key=dict(type='dict', options=dict(
+                    raw_key=dict(type='str'),
+                    rsa_encrypted_key=dict(type='str'),
+                    sha256=dict(type='str')
+                )),
+                index=dict(type='int'),
+                initialize_params=dict(type='dict', options=dict(
+                    disk_name=dict(type='str'),
+                    disk_size_gb=dict(type='int'),
+                    disk_type=dict(type='str'),
+                    source_image=dict(type='str'),
+                    source_image_encryption_key=dict(type='dict', options=dict(
+                        raw_key=dict(type='str'),
+                        sha256=dict(type='str')
+                    ))
+                )),
+                interface=dict(type='str', choices=['SCSI', 'NVME']),
+                mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
+                source=dict(),
+                type=dict(type='str', choices=['SCRATCH', 'PERSISTENT'])
+            )),
+            guest_accelerators=dict(type='list', elements='dict', options=dict(
+                accelerator_count=dict(type='int'),
+                accelerator_type=dict(type='str')
+            )),
             label_fingerprint=dict(type='str'),
             metadata=dict(type='dict'),
             machine_type=dict(type='str'),
@@ -926,7 +927,7 @@ def main():
             network_interfaces=dict(type='list', elements='dict', options=dict(
                 access_configs=dict(type='list', elements='dict', options=dict(
                     name=dict(required=True, type='str'),
-                    nat_ip=dict(type='dict'),
+                    nat_ip=dict(),
                     type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT'])
                 )),
                 alias_ip_ranges=dict(type='list', elements='dict', options=dict(
@@ -934,9 +935,9 @@ def main():
                     subnetwork_range_name=dict(type='str')
                 )),
                 name=dict(type='str'),
-                network=dict(type='dict'),
+                network=dict(),
                 network_ip=dict(type='str'),
-                subnetwork=dict(type='dict')
+                subnetwork=dict()
             )),
             scheduling=dict(type='dict', options=dict(
                 automatic_restart=dict(type='bool'),

@@ -117,7 +117,7 @@ items:
       description:
       - The network to which all instances in the instance group belong.
       returned: success
-      type: dict
+      type: str
     region:
       description:
       - The region where the instance group is located (for regional resources).
@@ -127,7 +127,7 @@ items:
       description:
       - The subnetwork to which all instances in the instance group belong.
       returned: success
-      type: dict
+      type: str
     zone:
       description:
       - A reference to the zone where the instance group resides.
