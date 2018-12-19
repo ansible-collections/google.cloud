@@ -86,7 +86,7 @@ options:
         description:
         - The availability status of the failover replica. A false status indicates
           that the failover replica is out of sync. The master can only failover to
-          the falover replica when the status is true.
+          the failover replica when the status is true.
         required: false
         type: bool
       name:
@@ -162,8 +162,8 @@ options:
             required: false
           client_key:
             description:
-            - PEM representation of the slave's private key. The corresponsing public
-              key is encoded in the client's asf asd certificate.
+            - PEM representation of the slave's private key. The corresponding public
+              key is encoded in the client's certificate.
             required: false
           connect_retry_interval:
             description:
@@ -319,7 +319,7 @@ failoverReplica:
       description:
       - The availability status of the failover replica. A false status indicates
         that the failover replica is out of sync. The master can only failover to
-        the falover replica when the status is true.
+        the failover replica when the status is true.
       returned: success
       type: bool
     name:
@@ -426,8 +426,8 @@ replicaConfiguration:
           type: str
         clientKey:
           description:
-          - PEM representation of the slave's private key. The corresponsing public
-            key is encoded in the client's asf asd certificate.
+          - PEM representation of the slave's private key. The corresponding public
+            key is encoded in the client's certificate.
           returned: success
           type: str
         connectRetryInterval:
