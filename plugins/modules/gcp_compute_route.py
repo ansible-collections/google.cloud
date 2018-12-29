@@ -124,6 +124,10 @@ options:
   next_hop_vpn_tunnel:
     description:
     - URL to a VpnTunnel that should handle matching packets.
+    - 'This field represents a link to a VpnTunnel resource in GCP. It can be specified
+      in two ways. First, you can place in the selfLink of the resource here as a
+      string Alternatively, you can add `register: name-of-resource` to a gcp_compute_vpn_tunnel
+      task and then set this next_hop_vpn_tunnel field to "{{ name-of-resource }}"'
     required: false
 extends_documentation_fragment: gcp
 notes:
@@ -260,7 +264,7 @@ def main():
             next_hop_gateway=dict(type='str'),
             next_hop_instance=dict(type='dict'),
             next_hop_ip=dict(type='str'),
-            next_hop_vpn_tunnel=dict(type='dict'),
+            next_hop_vpn_tunnel=dict()
         )
     )
 
@@ -321,7 +325,7 @@ def resource_to_request(module):
         u'nextHopGateway': module.params.get('next_hop_gateway'),
         u'nextHopInstance': replace_resource_dict(module.params.get(u'next_hop_instance', {}), 'selfLink'),
         u'nextHopIp': module.params.get('next_hop_ip'),
-        u'nextHopVpnTunnel': replace_resource_dict(module.params.get(u'next_hop_vpn_tunnel', {}), 'selfLink'),
+        u'nextHopVpnTunnel': replace_resource_dict(module.params.get(u'next_hop_vpn_tunnel', {}), 'selfLink')
     }
     return_vals = {}
     for k, v in request.items():
@@ -397,7 +401,7 @@ def response_to_hash(module, response):
         u'nextHopInstance': replace_resource_dict(module.params.get(u'next_hop_instance', {}), 'selfLink'),
         u'nextHopIp': module.params.get('next_hop_ip'),
         u'nextHopVpnTunnel': replace_resource_dict(module.params.get(u'next_hop_vpn_tunnel', {}), 'selfLink'),
-        u'nextHopNetwork': response.get(u'nextHopNetwork'),
+        u'nextHopNetwork': response.get(u'nextHopNetwork')
     }
 
 
