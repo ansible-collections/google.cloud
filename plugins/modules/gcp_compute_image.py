@@ -111,6 +111,11 @@ options:
         - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
           key that protects this resource.
         required: false
+  labels:
+    description:
+    - Labels to apply to this Image.
+    required: false
+    version_added: 2.8
   licenses:
     description:
     - Any applicable license URI.
@@ -146,7 +151,7 @@ options:
         description:
         - The full Google Cloud Storage URL where disk storage is stored You must
           provide either this property or the sourceDisk property but not both.
-        required: false
+        required: true
   source_disk:
     description:
     - Refers to a gcompute_disk object You must provide either this property or the
@@ -187,7 +192,7 @@ options:
     - RAW
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/images)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/images)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/images)'
 '''
 
@@ -331,6 +336,17 @@ imageEncryptionKey:
         key that protects this resource.
       returned: success
       type: str
+labels:
+  description:
+  - Labels to apply to this Image.
+  returned: success
+  type: dict
+labelFingerprint:
+  description:
+  - The fingerprint used for optimistic locking of this resource. Used internally
+    during updates.
+  returned: success
+  type: str
 licenses:
   description:
   - Any applicable license URI.
@@ -434,15 +450,20 @@ def main():
             description=dict(type='str'),
             disk_size_gb=dict(type='int'),
             family=dict(type='str'),
-            guest_os_features=dict(type='list', elements='dict', options=dict(type=dict(type='str', choices=['VIRTIO_SCSI_MULTIQUEUE']))),
-            image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
+            guest_os_features=dict(type='list', elements='dict', options=dict(
+                type=dict(type='str', choices=['VIRTIO_SCSI_MULTIQUEUE'])
+            )),
+            image_encryption_key=dict(type='dict', options=dict(
+                raw_key=dict(type='str'),
+                sha256=dict(type='str')
+            )),
             labels=dict(type='dict'),
             licenses=dict(type='list', elements='str'),
             name=dict(required=True, type='str'),
             raw_disk=dict(type='dict', options=dict(
                 container_type=dict(type='str', choices=['TAR']),
                 sha1_checksum=dict(type='str'),
-                source=dict(type='str')
+                source=dict(required=True, type='str')
             )),
             source_disk=dict(),
             source_disk_encryption_key=dict(type='dict', options=dict(
@@ -466,7 +487,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind)
+                update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -491,7 +512,8 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module),
+                  response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
@@ -503,8 +525,14 @@ def update_fields(module, request, response):
 def labels_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/images/{name}/setLabels"]).format(**module.params),
-        {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
+        ''.join([
+            "https://www.googleapis.com/compute/v1/",
+            "projects/{project}/global/images/{name}/setLabels"
+        ]).format(**module.params),
+        {
+            u'labels': module.params.get('labels'),
+            u'labelFingerprint': response.get('labelFingerprint')
+        }
     )
 
 
@@ -521,6 +549,7 @@ def resource_to_request(module):
         u'family': module.params.get('family'),
         u'guestOsFeatures': ImageGuestosfeaturesArray(module.params.get('guest_os_features', []), module).to_request(),
         u'imageEncryptionKey': ImageImageencryptionkey(module.params.get('image_encryption_key', {}), module).to_request(),
+        u'labels': module.params.get('labels'),
         u'licenses': module.params.get('licenses'),
         u'name': module.params.get('name'),
         u'rawDisk': ImageRawdisk(module.params.get('raw_disk', {}), module).to_request(),
@@ -602,6 +631,8 @@ def response_to_hash(module, response):
         u'guestOsFeatures': ImageGuestosfeaturesArray(response.get(u'guestOsFeatures', []), module).from_response(),
         u'id': response.get(u'id'),
         u'imageEncryptionKey': ImageImageencryptionkey(response.get(u'imageEncryptionKey', {}), module).from_response(),
+        u'labels': response.get(u'labels'),
+        u'labelFingerprint': response.get(u'labelFingerprint'),
         u'licenses': response.get(u'licenses'),
         u'name': response.get(u'name'),
         u'rawDisk': ImageRawdisk(response.get(u'rawDisk', {}), module).from_response(),
