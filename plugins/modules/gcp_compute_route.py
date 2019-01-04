@@ -116,6 +116,10 @@ options:
     - 'You can specify this as a full or partial URL. For example: * U(https://www.googleapis.com/compute/v1/projects/project/zones/zone/)
       instances/instance * projects/project/zones/zone/instances/instance * zones/zone/instances/instance
       .'
+    - 'This field represents a link to a Instance resource in GCP. It can be specified
+      in two ways. First, you can place in the selfLink of the resource here as a
+      string Alternatively, you can add `register: name-of-resource` to a gcp_compute_instance
+      task and then set this next_hop_instance field to "{{ name-of-resource }}"'
     required: false
   next_hop_ip:
     description:
@@ -262,7 +266,7 @@ def main():
             priority=dict(type='int'),
             tags=dict(type='list', elements='str'),
             next_hop_gateway=dict(type='str'),
-            next_hop_instance=dict(type='dict'),
+            next_hop_instance=dict(),
             next_hop_ip=dict(type='str'),
             next_hop_vpn_tunnel=dict()
         )
