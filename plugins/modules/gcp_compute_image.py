@@ -452,26 +452,17 @@ def main():
             description=dict(type='str'),
             disk_size_gb=dict(type='int'),
             family=dict(type='str'),
-            guest_os_features=dict(type='list', elements='dict', options=dict(
-                type=dict(type='str', choices=['VIRTIO_SCSI_MULTIQUEUE'])
-            )),
-            image_encryption_key=dict(type='dict', options=dict(
-                raw_key=dict(type='str'),
-                sha256=dict(type='str')
-            )),
+            guest_os_features=dict(type='list', elements='dict', options=dict(type=dict(type='str', choices=['VIRTIO_SCSI_MULTIQUEUE']))),
+            image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
             labels=dict(type='dict'),
             licenses=dict(type='list', elements='str'),
             name=dict(required=True, type='str'),
-            raw_disk=dict(type='dict', options=dict(
-                container_type=dict(type='str', choices=['TAR']),
-                sha1_checksum=dict(type='str'),
-                source=dict(required=True, type='str')
-            )),
+            raw_disk=dict(
+                type='dict',
+                options=dict(container_type=dict(type='str', choices=['TAR']), sha1_checksum=dict(type='str'), source=dict(required=True, type='str')),
+            ),
             source_disk=dict(),
-            source_disk_encryption_key=dict(type='dict', options=dict(
-                raw_key=dict(type='str'),
-                sha256=dict(type='str')
-            )),
+            source_disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
             source_disk_id=dict(type='str'),
             source_type=dict(type='str', choices=['RAW']),
         )
@@ -514,8 +505,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module),
-                  response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
@@ -527,14 +517,8 @@ def update_fields(module, request, response):
 def labels_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/global/images/{name}/setLabels"
-        ]).format(**module.params),
-        {
-            u'labels': module.params.get('labels'),
-            u'labelFingerprint': response.get('labelFingerprint')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/images/{name}/setLabels"]).format(**module.params),
+        {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
     )
 
 
@@ -756,10 +740,10 @@ class ImageImageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256')})
 
 
 class ImageRawdisk(object):
@@ -790,10 +774,10 @@ class ImageSourcediskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256')})
 
 
 if __name__ == '__main__':

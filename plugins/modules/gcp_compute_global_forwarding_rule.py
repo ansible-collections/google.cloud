@@ -430,7 +430,7 @@ def main():
             port_range=dict(type='str'),
             ports=dict(type='list', elements='str'),
             subnetwork=dict(),
-            target=dict(type='str')
+            target=dict(type='str'),
         )
     )
 
@@ -504,6 +504,8 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
         u'portRange': module.params.get('port_range'),
+        u'ports': module.params.get('ports'),
+        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
         u'target': module.params.get('target'),
     }
     return_vals = {}
@@ -580,6 +582,9 @@ def response_to_hash(module, response):
         u'name': response.get(u'name'),
         u'network': response.get(u'network'),
         u'portRange': response.get(u'portRange'),
+        u'ports': response.get(u'ports'),
+        u'subnetwork': response.get(u'subnetwork'),
+        u'region': response.get(u'region'),
         u'target': response.get(u'target'),
     }
 

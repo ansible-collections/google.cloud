@@ -259,16 +259,16 @@ def main():
             name=dict(required=True, type='str'),
             description=dict(type='str'),
             network=dict(required=True),
-            bgp=dict(type='dict', options=dict(
-                asn=dict(required=True, type='int'),
-                advertise_mode=dict(default='DEFAULT', type='str', choices=['DEFAULT', 'CUSTOM']),
-                advertised_groups=dict(type='list', elements='str'),
-                advertised_ip_ranges=dict(type='list', elements='dict', options=dict(
-                    range=dict(type='str'),
-                    description=dict(type='str')
-                ))
-            )),
-            region=dict(required=True, type='str')
+            bgp=dict(
+                type='dict',
+                options=dict(
+                    asn=dict(required=True, type='int'),
+                    advertise_mode=dict(default='DEFAULT', type='str', choices=['DEFAULT', 'CUSTOM']),
+                    advertised_groups=dict(type='list', elements='str'),
+                    advertised_ip_ranges=dict(type='list', elements='dict', options=dict(range=dict(type='str'), description=dict(type='str'))),
+                ),
+            ),
+            region=dict(required=True, type='str'),
         )
     )
 
@@ -444,20 +444,24 @@ class RouterBgp(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({
-            u'asn': self.request.get('asn'),
-            u'advertiseMode': self.request.get('advertise_mode'),
-            u'advertisedGroups': self.request.get('advertised_groups'),
-            u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get('advertised_ip_ranges', []), self.module).to_request()
-        })
+        return remove_nones_from_dict(
+            {
+                u'asn': self.request.get('asn'),
+                u'advertiseMode': self.request.get('advertise_mode'),
+                u'advertisedGroups': self.request.get('advertised_groups'),
+                u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get('advertised_ip_ranges', []), self.module).to_request(),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({
-            u'asn': self.request.get(u'asn'),
-            u'advertiseMode': self.request.get(u'advertiseMode'),
-            u'advertisedGroups': self.request.get(u'advertisedGroups'),
-            u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get(u'advertisedIpRanges', []), self.module).from_response()
-        })
+        return remove_nones_from_dict(
+            {
+                u'asn': self.request.get(u'asn'),
+                u'advertiseMode': self.request.get(u'advertiseMode'),
+                u'advertisedGroups': self.request.get(u'advertisedGroups'),
+                u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get(u'advertisedIpRanges', []), self.module).from_response(),
+            }
+        )
 
 
 class RouterAdvertisediprangesArray(object):

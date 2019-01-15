@@ -148,7 +148,7 @@ def main():
             host=dict(required=True, type='str'),
             name=dict(required=True, type='str'),
             instance=dict(required=True),
-            password=dict(type='str')
+            password=dict(type='str'),
         )
     )
 

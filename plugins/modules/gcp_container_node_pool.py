@@ -458,21 +458,17 @@ def main():
                 ),
             ),
             initial_node_count=dict(required=True, type='int'),
-            autoscaling=dict(type='dict', options=dict(
-                enabled=dict(type='bool'),
-                min_node_count=dict(type='int'),
-                max_node_count=dict(type='int')
-            )),
-            management=dict(type='dict', options=dict(
-                auto_upgrade=dict(type='bool'),
-                auto_repair=dict(type='bool'),
-                upgrade_options=dict(type='dict', options=dict(
-                    auto_upgrade_start_time=dict(type='str'),
-                    description=dict(type='str')
-                ))
-            )),
+            autoscaling=dict(type='dict', options=dict(enabled=dict(type='bool'), min_node_count=dict(type='int'), max_node_count=dict(type='int'))),
+            management=dict(
+                type='dict',
+                options=dict(
+                    auto_upgrade=dict(type='bool'),
+                    auto_repair=dict(type='bool'),
+                    upgrade_options=dict(type='dict', options=dict(auto_upgrade_start_time=dict(type='str'), description=dict(type='str'))),
+                ),
+            ),
             cluster=dict(required=True),
-            zone=dict(required=True, type='str')
+            zone=dict(required=True, type='str'),
         )
     )
 
@@ -555,8 +551,8 @@ def self_link(module):
 
 
 def collection(module):
-    res = {'project': module.params['project'], 'location': module.params['location'], 'cluster': replace_resource_dict(module.params['cluster'], 'name')}
-    return "https://container.googleapis.com/v1/projects/{project}/zones/{location}/clusters/{cluster}/nodePools".format(**res)
+    res = {'project': module.params['project'], 'zone': module.params['zone'], 'cluster': replace_resource_dict(module.params['cluster'], 'name')}
+    return "https://container.googleapis.com/v1/projects/{project}/zones/{zone}/clusters/{cluster}/nodePools".format(**res)
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -729,18 +725,22 @@ class NodePoolManagement(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({
-            u'autoUpgrade': self.request.get('auto_upgrade'),
-            u'autoRepair': self.request.get('auto_repair'),
-            u'upgradeOptions': NodePoolUpgradeoptions(self.request.get('upgrade_options', {}), self.module).to_request()
-        })
+        return remove_nones_from_dict(
+            {
+                u'autoUpgrade': self.request.get('auto_upgrade'),
+                u'autoRepair': self.request.get('auto_repair'),
+                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get('upgrade_options', {}), self.module).to_request(),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({
-            u'autoUpgrade': self.request.get(u'autoUpgrade'),
-            u'autoRepair': self.request.get(u'autoRepair'),
-            u'upgradeOptions': NodePoolUpgradeoptions(self.request.get(u'upgradeOptions', {}), self.module).from_response()
-        })
+        return remove_nones_from_dict(
+            {
+                u'autoUpgrade': self.request.get(u'autoUpgrade'),
+                u'autoRepair': self.request.get(u'autoRepair'),
+                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get(u'upgradeOptions', {}), self.module).from_response(),
+            }
+        )
 
 
 class NodePoolUpgradeoptions(object):
@@ -752,10 +752,10 @@ class NodePoolUpgradeoptions(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict({u'autoUpgradeStartTime': self.request.get('auto_upgrade_start_time'), u'description': self.request.get('description')})
 
     def from_response(self):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict({u'autoUpgradeStartTime': self.request.get(u'autoUpgradeStartTime'), u'description': self.request.get(u'description')})
 
 
 if __name__ == '__main__':

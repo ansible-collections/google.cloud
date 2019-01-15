@@ -180,7 +180,7 @@ def main():
             description=dict(type='str'),
             name=dict(required=True, type='str'),
             network=dict(required=True),
-            region=dict(required=True, type='str')
+            region=dict(required=True, type='str'),
         )
     )
 

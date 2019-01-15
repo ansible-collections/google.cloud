@@ -114,11 +114,7 @@ import json
 
 
 def main():
-    module = GcpModule(
-        argument_spec=dict(
-            filters=dict(type='list', elements='str')
-        )
-    )
+    module = GcpModule(argument_spec=dict(filters=dict(type='list', elements='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
@@ -128,7 +124,7 @@ def main():
         items = items.get('items')
     else:
         items = []
-    return_value = {'resources': items}
+    return_value = {'items': items}
     module.exit_json(**return_value)
 
 

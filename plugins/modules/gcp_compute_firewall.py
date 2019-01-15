@@ -426,14 +426,8 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            allowed=dict(type='list', elements='dict', options=dict(
-                ip_protocol=dict(required=True, type='str'),
-                ports=dict(type='list', elements='str')
-            )),
-            denied=dict(type='list', elements='dict', options=dict(
-                ip_protocol=dict(required=True, type='str'),
-                ports=dict(type='list', elements='str')
-            )),
+            allowed=dict(type='list', elements='dict', options=dict(ip_protocol=dict(required=True, type='str'), ports=dict(type='list', elements='str'))),
+            denied=dict(type='list', elements='dict', options=dict(ip_protocol=dict(required=True, type='str'), ports=dict(type='list', elements='str'))),
             description=dict(type='str'),
             destination_ranges=dict(type='list', elements='str'),
             direction=dict(type='str', choices=['INGRESS', 'EGRESS']),
@@ -445,15 +439,17 @@ def main():
             source_service_accounts=dict(type='list', elements='str'),
             source_tags=dict(type='list', elements='str'),
             target_service_accounts=dict(type='list', elements='str'),
-            target_tags=dict(type='list', elements='str')
+            target_tags=dict(type='list', elements='str'),
         ),
-        mutually_exclusive=[['allowed', 'denied'],
-                            ['destination_ranges', 'source_ranges', 'source_tags'],
-                            ['destination_ranges', 'source_ranges'],
-                            ['source_service_accounts', 'source_tags', 'target_tags'],
-                            ['destination_ranges', 'source_service_accounts', 'source_tags', 'target_service_accounts'],
-                            ['source_tags', 'target_service_accounts', 'target_tags'],
-                            ['source_service_accounts', 'target_service_accounts', 'target_tags']]
+        mutually_exclusive=[
+            ['allowed', 'denied'],
+            ['destination_ranges', 'source_ranges', 'source_tags'],
+            ['destination_ranges', 'source_ranges'],
+            ['source_service_accounts', 'source_tags', 'target_tags'],
+            ['destination_ranges', 'source_service_accounts', 'source_tags', 'target_service_accounts'],
+            ['source_tags', 'target_service_accounts', 'target_tags'],
+            ['source_service_accounts', 'target_service_accounts', 'target_tags'],
+        ],
     )
 
     if not module.params['scopes']:
@@ -518,7 +514,7 @@ def resource_to_request(module):
         u'sourceServiceAccounts': module.params.get('source_service_accounts'),
         u'sourceTags': module.params.get('source_tags'),
         u'targetServiceAccounts': module.params.get('target_service_accounts'),
-        u'targetTags': module.params.get('target_tags')
+        u'targetTags': module.params.get('target_tags'),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -600,7 +596,7 @@ def response_to_hash(module, response):
         u'sourceServiceAccounts': response.get(u'sourceServiceAccounts'),
         u'sourceTags': response.get(u'sourceTags'),
         u'targetServiceAccounts': response.get(u'targetServiceAccounts'),
-        u'targetTags': response.get(u'targetTags')
+        u'targetTags': response.get(u'targetTags'),
     }
 
 
@@ -642,8 +638,9 @@ def raise_if_errors(response, err_path, module):
 def encode_request(request, module):
     if 'network' in request and request['network'] is not None:
         if not re.match(r'https://www.googleapis.com/compute/v1/projects/.*', request['network']):
-            request['network'] = 'https://www.googleapis.com/compute/v1/projects/{project}/{network}'.format(project=module.params['project'],
-                                                                                                             network=request['network'])
+            request['network'] = 'https://www.googleapis.com/compute/v1/projects/{project}/{network}'.format(
+                project=module.params['project'], network=request['network']
+            )
 
     return request
 
@@ -672,7 +669,7 @@ class FirewallAllowedArray(object):
         return remove_nones_from_dict({u'IPProtocol': item.get('ip_protocol'), u'ports': item.get('ports')})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'IPProtocol': item.get(u'IPProtocol'), u'ports': item.get(u'ports')})
+        return remove_nones_from_dict({u'IPProtocol': item.get(u'ip_protocol'), u'ports': item.get(u'ports')})
 
 
 class FirewallDeniedArray(object):
@@ -699,40 +696,7 @@ class FirewallDeniedArray(object):
         return remove_nones_from_dict({u'IPProtocol': item.get('ip_protocol'), u'ports': item.get('ports')})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'IPProtocol': item.get(u'IPProtocol'), u'ports': item.get(u'ports')})
-
-
-class FirewallDeniedArray(object):
-    def __init__(self, request, module):
-        self.module = module
-        if request:
-            self.request = request
-        else:
-            self.request = []
-
-    def to_request(self):
-        items = []
-        for item in self.request:
-            items.append(self._request_for_item(item))
-        return items
-
-    def from_response(self):
-        items = []
-        for item in self.request:
-            items.append(self._response_from_item(item))
-        return items
-
-    def _request_for_item(self, item):
-        return remove_nones_from_dict({
-            u'IPProtocol': item.get('ip_protocol'),
-            u'ports': item.get('ports')
-        })
-
-    def _response_from_item(self, item):
-        return remove_nones_from_dict({
-            u'IPProtocol': item.get(u'ip_protocol'),
-            u'ports': item.get(u'ports')
-        })
+        return remove_nones_from_dict({u'IPProtocol': item.get(u'ip_protocol'), u'ports': item.get(u'ports')})
 
 
 if __name__ == '__main__':

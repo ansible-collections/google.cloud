@@ -267,7 +267,7 @@ def main():
             quic_override=dict(type='str', choices=['NONE', 'ENABLE', 'DISABLE']),
             ssl_certificates=dict(required=True, type='list'),
             ssl_policy=dict(),
-            url_map=dict(required=True)
+            url_map=dict(required=True),
         )
     )
 
@@ -308,8 +308,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module),
-                  response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
@@ -327,52 +326,32 @@ def update_fields(module, request, response):
 def quic_override_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/global/targetHttpsProxies/{name}/setQuicOverride"
-        ]).format(**module.params),
-        {
-            u'quicOverride': module.params.get('quic_override')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetHttpsProxies/{name}/setQuicOverride"]).format(**module.params),
+        {u'quicOverride': module.params.get('quic_override')},
     )
 
 
 def ssl_certificates_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/targetHttpsProxies/{name}/setSslCertificates"
-        ]).format(**module.params),
-        {
-            u'sslCertificates': replace_resource_dict(module.params.get('ssl_certificates', []), 'selfLink')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/targetHttpsProxies/{name}/setSslCertificates"]).format(**module.params),
+        {u'sslCertificates': replace_resource_dict(module.params.get('ssl_certificates', []), 'selfLink')},
     )
 
 
 def ssl_policy_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/global/targetHttpsProxies/{name}/setSslPolicy"
-        ]).format(**module.params),
-        {
-            u'sslPolicy': replace_resource_dict(module.params.get(u'ssl_policy', {}), 'selfLink')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetHttpsProxies/{name}/setSslPolicy"]).format(**module.params),
+        {u'sslPolicy': replace_resource_dict(module.params.get(u'ssl_policy', {}), 'selfLink')},
     )
 
 
 def url_map_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/targetHttpsProxies/{name}/setUrlMap"
-        ]).format(**module.params),
-        {
-            u'urlMap': replace_resource_dict(module.params.get(u'url_map', {}), 'selfLink')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/targetHttpsProxies/{name}/setUrlMap"]).format(**module.params),
+        {u'urlMap': replace_resource_dict(module.params.get(u'url_map', {}), 'selfLink')},
     )
 
 
@@ -389,7 +368,7 @@ def resource_to_request(module):
         u'quicOverride': module.params.get('quic_override'),
         u'sslCertificates': replace_resource_dict(module.params.get('ssl_certificates', []), 'selfLink'),
         u'sslPolicy': replace_resource_dict(module.params.get(u'ssl_policy', {}), 'selfLink'),
-        u'urlMap': replace_resource_dict(module.params.get(u'url_map', {}), 'selfLink')
+        u'urlMap': replace_resource_dict(module.params.get(u'url_map', {}), 'selfLink'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -462,7 +441,7 @@ def response_to_hash(module, response):
         u'quicOverride': response.get(u'quicOverride'),
         u'sslCertificates': response.get(u'sslCertificates'),
         u'sslPolicy': response.get(u'sslPolicy'),
-        u'urlMap': response.get(u'urlMap')
+        u'urlMap': response.get(u'urlMap'),
     }
 
 

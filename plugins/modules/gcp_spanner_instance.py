@@ -178,7 +178,7 @@ def main():
             name=dict(required=True, type='str'),
             config=dict(required=True, type='str'),
             display_name=dict(required=True, type='str'),
-            node_count=dict(default=1, type='int'),
+            node_count=dict(type='int'),
             labels=dict(type='dict'),
         )
     )

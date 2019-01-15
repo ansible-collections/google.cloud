@@ -145,7 +145,7 @@ def main():
             charset=dict(type='str'),
             collation=dict(type='str'),
             name=dict(type='str'),
-            instance=dict(required=True)
+            instance=dict(required=True),
         )
     )
 
@@ -217,11 +217,13 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/databases/{name}".format(**module.params)
+    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name'), 'name': module.params['name']}
+    return "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/databases/{name}".format(**res)
 
 
 def collection(module):
-    return "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/databases".format(**module.params)
+    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name')}
+    return "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/databases".format(**res)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -269,7 +271,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'charset': response.get(u'charset'), u'collation': response.get(u'collation'), u'name': module.params.get('name')}
+    return {u'charset': response.get(u'charset'), u'collation': response.get(u'collation'), u'name': response.get(u'name')}
 
 
 def async_op_url(module, extra_data=None):

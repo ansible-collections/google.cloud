@@ -237,15 +237,12 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             description=dict(type='str'),
             name=dict(type='str'),
-            named_ports=dict(type='list', elements='dict', options=dict(
-                name=dict(type='str'),
-                port=dict(type='int')
-            )),
+            named_ports=dict(type='list', elements='dict', options=dict(name=dict(type='str'), port=dict(type='int'))),
             network=dict(),
             region=dict(type='str'),
             subnetwork=dict(),
             zone=dict(required=True, type='str'),
-            instances=dict(type='list')
+            instances=dict(type='list'),
         )
     )
 
@@ -453,8 +450,7 @@ class InstanceLogic(object):
 
     def list_instances(self):
         auth = GcpSession(self.module, 'compute')
-        response = return_if_object(self.module, auth.post(self._list_instances_url(), {'instanceState': 'ALL'}),
-                                    'compute#instanceGroupsListInstances')
+        response = return_if_object(self.module, auth.post(self._list_instances_url(), {'instanceState': 'ALL'}), 'compute#instanceGroupsListInstances')
 
         # Transform instance list into a list of selfLinks for diffing with module parameters
         instances = []
@@ -480,9 +476,7 @@ class InstanceLogic(object):
         return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/addInstances".format(**self.module.params)
 
     def _build_request(self, instances):
-        request = {
-            'instances': []
-        }
+        request = {'instances': []}
         for instance in instances:
             request['instances'].append({'instance': instance})
         return request

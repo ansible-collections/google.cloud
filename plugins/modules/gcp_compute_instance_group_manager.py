@@ -341,10 +341,7 @@ def main():
             description=dict(type='str'),
             instance_template=dict(required=True),
             name=dict(required=True, type='str'),
-            named_ports=dict(type='list', elements='dict', options=dict(
-                name=dict(type='str'),
-                port=dict(type='int')
-            )),
+            named_ports=dict(type='list', elements='dict', options=dict(name=dict(type='str'), port=dict(type='int'))),
             target_pools=dict(type='list'),
             target_size=dict(type='int'),
             zone=dict(required=True, type='str'),
@@ -540,19 +537,32 @@ class InstanceGroupManagerCurrentactions(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict(
+            {
+                u'abandoning': self.request.get('abandoning'),
+                u'creating': self.request.get('creating'),
+                u'creatingWithoutRetries': self.request.get('creating_without_retries'),
+                u'deleting': self.request.get('deleting'),
+                u'none': self.request.get('none'),
+                u'recreating': self.request.get('recreating'),
+                u'refreshing': self.request.get('refreshing'),
+                u'restarting': self.request.get('restarting'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({
-            u'abandoning': self.request.get(u'abandoning'),
-            u'creating': self.request.get(u'creating'),
-            u'creatingWithoutRetries': self.request.get(u'creatingWithoutRetries'),
-            u'deleting': self.request.get(u'deleting'),
-            u'none': self.request.get(u'none'),
-            u'recreating': self.request.get(u'recreating'),
-            u'refreshing': self.request.get(u'refreshing'),
-            u'restarting': self.request.get(u'restarting')
-        })
+        return remove_nones_from_dict(
+            {
+                u'abandoning': self.request.get(u'abandoning'),
+                u'creating': self.request.get(u'creating'),
+                u'creatingWithoutRetries': self.request.get(u'creatingWithoutRetries'),
+                u'deleting': self.request.get(u'deleting'),
+                u'none': self.request.get(u'none'),
+                u'recreating': self.request.get(u'recreating'),
+                u'refreshing': self.request.get(u'refreshing'),
+                u'restarting': self.request.get(u'restarting'),
+            }
+        )
 
 
 class InstanceGroupManagerNamedportsArray(object):

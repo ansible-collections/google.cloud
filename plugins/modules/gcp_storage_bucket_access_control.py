@@ -267,7 +267,7 @@ def resource_to_request(module):
         u'entity': module.params.get('entity'),
         u'entityId': module.params.get('entity_id'),
         u'projectTeam': BucketAccessControlProjectteam(module.params.get('project_team', {}), module).to_request(),
-        u'role': module.params.get('role')
+        u'role': module.params.get('role'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -340,7 +340,7 @@ def response_to_hash(module, response):
         u'entityId': response.get(u'entityId'),
         u'id': response.get(u'id'),
         u'projectTeam': BucketAccessControlProjectteam(response.get(u'projectTeam', {}), module).from_response(),
-        u'role': response.get(u'role')
+        u'role': response.get(u'role'),
     }
 
 

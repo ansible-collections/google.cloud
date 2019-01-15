@@ -175,7 +175,7 @@ def main():
             certificate=dict(required=True, type='str'),
             description=dict(type='str'),
             name=dict(type='str'),
-            private_key=dict(required=True, type='str')
+            private_key=dict(required=True, type='str'),
         )
     )
 

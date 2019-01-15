@@ -220,7 +220,7 @@ def main():
             name=dict(required=True, type='str'),
             network_tier=dict(type='str', choices=['PREMIUM', 'STANDARD']),
             subnetwork=dict(),
-            region=dict(required=True, type='str')
+            region=dict(required=True, type='str'),
         )
     )
 
@@ -277,7 +277,7 @@ def resource_to_request(module):
         u'description': module.params.get('description'),
         u'name': module.params.get('name'),
         u'networkTier': module.params.get('network_tier'),
-        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink')
+        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
     }
     return_vals = {}
     for k, v in request.items():

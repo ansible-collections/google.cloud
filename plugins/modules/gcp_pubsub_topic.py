@@ -90,11 +90,7 @@ import json
 def main():
     """Main function"""
 
-    module = GcpModule(
-        argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'), name=dict(required=True, type='str'), labels=dict(type='dict')
-        )
-    )
+    module = GcpModule(argument_spec=dict(state=dict(default='present', choices=['present', 'absent'], type='str'), name=dict(type='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/pubsub']
@@ -142,7 +138,7 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {u'name': module.params.get('name'), u'labels': module.params.get('labels')}
+    request = {u'name': module.params.get('name')}
     request = encode_request(request, module)
     return_vals = {}
     for k, v in request.items():
@@ -210,7 +206,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': response.get(u'name'), u'labels': response.get(u'labels')}
+    return {u'name': response.get(u'name')}
 
 
 def decode_request(response, module):

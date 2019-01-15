@@ -173,7 +173,7 @@ def main():
             type=dict(required=True, type='str', choices=['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SPF', 'SRV', 'TLSA', 'TXT']),
             ttl=dict(type='int'),
             target=dict(type='list', elements='str'),
-            managed_zone=dict(required=True)
+            managed_zone=dict(required=True),
         )
     )
 
@@ -280,10 +280,7 @@ def self_link(module):
 
 
 def collection(module):
-    res = {
-        'project': module.params['project'],
-        'managed_zone': replace_resource_dict(module.params['managed_zone'], 'name')
-    }
+    res = {'project': module.params['project'], 'managed_zone': replace_resource_dict(module.params['managed_zone'], 'name')}
     return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/changes".format(**res)
 
 
@@ -329,7 +326,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': response.get(u'name'), u'type': response.get(u'type'), u'ttl': response.get(u'ttl'), u'rrdatas': response.get(u'rrdatas')}
+    return {u'name': response.get(u'name'), u'type': response.get(u'type'), u'ttl': response.get(u'ttl'), u'rrdatas': response.get(u'target')}
 
 
 def updated_record(module):
@@ -366,7 +363,7 @@ def prefetch_soa_resource(module):
         {
             'type': 'SOA',
             'managed_zone': module.params['managed_zone'],
-            'name': replace_resource_dict(module.params['managed_zone'], 'dnsName'),
+            'name': '.'.join(name),
             'project': module.params['project'],
             'scopes': module.params['scopes'],
             'service_account_file': module.params['service_account_file'],

@@ -142,7 +142,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
             extra_statements=dict(type='list', elements='str'),
-            instance=dict(required=True)
+            instance=dict(required=True),
         )
     )
 
@@ -192,11 +192,7 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {
-        u'instance': replace_resource_dict(module.params.get(u'instance', {}), 'name'),
-        u'name': module.params.get('name'),
-        u'extraStatements': module.params.get('extra_statements'),
-    }
+    request = {u'name': module.params.get('name'), u'extraStatements': module.params.get('extra_statements')}
     request = encode_request(request, module)
     return_vals = {}
     for k, v in request.items():
@@ -266,7 +262,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': module.params.get('name'), u'extraStatements': module.params.get('extra_statements')}
+    return {u'name': response.get(u'name'), u'extraStatements': module.params.get('extra_statements')}
 
 
 def decode_response(response, module):

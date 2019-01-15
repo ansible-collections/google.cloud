@@ -287,6 +287,7 @@ def main():
             ike_version=dict(default=2, type='int'),
             local_traffic_selector=dict(type='list', elements='str'),
             remote_traffic_selector=dict(type='list', elements='str'),
+            labels=dict(type='dict'),
             region=dict(required=True, type='str'),
         )
     )
@@ -329,8 +330,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module),
-                  response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
@@ -342,14 +342,8 @@ def update_fields(module, request, response):
 def labels_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/regions/{region}/vpnTunnels/{name}/setLabels"
-        ]).format(**module.params),
-        {
-            u'labels': module.params.get('labels'),
-            u'labelFingerprint': response.get('labelFingerprint')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/vpnTunnels/{name}/setLabels"]).format(**module.params),
+        {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
     )
 
 
@@ -370,6 +364,7 @@ def resource_to_request(module):
         u'ikeVersion': module.params.get('ike_version'),
         u'localTrafficSelector': module.params.get('local_traffic_selector'),
         u'remoteTrafficSelector': module.params.get('remote_traffic_selector'),
+        u'labels': module.params.get('labels'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -447,7 +442,7 @@ def response_to_hash(module, response):
         u'localTrafficSelector': response.get(u'localTrafficSelector'),
         u'remoteTrafficSelector': response.get(u'remoteTrafficSelector'),
         u'labels': response.get(u'labels'),
-        u'labelFingerprint': response.get(u'labelFingerprint')
+        u'labelFingerprint': response.get(u'labelFingerprint'),
     }
 
 

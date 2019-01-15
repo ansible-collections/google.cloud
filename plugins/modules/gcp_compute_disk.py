@@ -409,19 +409,10 @@ def main():
             type=dict(type='str'),
             source_image=dict(type='str'),
             zone=dict(required=True, type='str'),
-            source_image_encryption_key=dict(type='dict', options=dict(
-                raw_key=dict(type='str'),
-                sha256=dict(type='str')
-            )),
-            disk_encryption_key=dict(type='dict', options=dict(
-                raw_key=dict(type='str'),
-                sha256=dict(type='str')
-            )),
+            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
+            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
             source_snapshot=dict(),
-            source_snapshot_encryption_key=dict(type='dict', options=dict(
-                raw_key=dict(type='str'),
-                sha256=dict(type='str')
-            ))
+            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
         )
     )
 
@@ -462,8 +453,7 @@ def create(module, link, kind):
 
 
 def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module),
-                  response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module), kind)
 
 
@@ -477,27 +467,16 @@ def update_fields(module, request, response):
 def label_fingerprint_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/zones/{zone}/disks/{name}/setLabels"
-        ]).format(**module.params),
-        {
-            u'labelFingerprint': response.get('labelFingerprint'),
-            u'labels': module.params.get('labels')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/disks/{name}/setLabels"]).format(**module.params),
+        {u'labelFingerprint': response.get('labelFingerprint'), u'labels': module.params.get('labels')},
     )
 
 
 def size_gb_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join([
-            "https://www.googleapis.com/compute/v1/",
-            "projects/{project}/zones/{zone}/disks/{name}/resize"
-        ]).format(**module.params),
-        {
-            u'sizeGb': module.params.get('size_gb')
-        }
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/disks/{name}/resize"]).format(**module.params),
+        {u'sizeGb': module.params.get('size_gb')},
     )
 
 
@@ -597,7 +576,7 @@ def response_to_hash(module, response):
         u'sizeGb': response.get(u'sizeGb'),
         u'users': response.get(u'users'),
         u'type': response.get(u'type'),
-        u'sourceImage': module.params.get('source_image')
+        u'sourceImage': module.params.get('source_image'),
     }
 
 
@@ -654,10 +633,10 @@ class DiskSourceimageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256')})
 
 
 class DiskDiskencryptionkey(object):
@@ -669,10 +648,10 @@ class DiskDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256')})
 
 
 class DiskSourcesnapshotencryptionkey(object):
@@ -684,10 +663,10 @@ class DiskSourcesnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'sha256': self.request.get('sha256')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'sha256': self.request.get(u'sha256')})
 
 
 if __name__ == '__main__':

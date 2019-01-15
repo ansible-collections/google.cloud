@@ -536,38 +536,50 @@ def main():
             timeout_sec=dict(default=5, type='int', aliases=['timeout_seconds']),
             unhealthy_threshold=dict(default=2, type='int'),
             type=dict(type='str', choices=['TCP', 'SSL', 'HTTP', 'HTTPS']),
-            http_health_check=dict(type='dict', options=dict(
-                host=dict(type='str'),
-                request_path=dict(default='/', type='str'),
-                response=dict(type='str'),
-                port=dict(type='int'),
-                port_name=dict(type='str'),
-                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
-            )),
-            https_health_check=dict(type='dict', options=dict(
-                host=dict(type='str'),
-                request_path=dict(default='/', type='str'),
-                response=dict(type='str'),
-                port=dict(type='int'),
-                port_name=dict(type='str'),
-                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
-            )),
-            tcp_health_check=dict(type='dict', options=dict(
-                request=dict(type='str'),
-                response=dict(type='str'),
-                port=dict(type='int'),
-                port_name=dict(type='str'),
-                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
-            )),
-            ssl_health_check=dict(type='dict', options=dict(
-                request=dict(type='str'),
-                response=dict(type='str'),
-                port=dict(type='int'),
-                port_name=dict(type='str'),
-                proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1'])
-            ))
+            http_health_check=dict(
+                type='dict',
+                options=dict(
+                    host=dict(type='str'),
+                    request_path=dict(default='/', type='str'),
+                    response=dict(type='str'),
+                    port=dict(type='int'),
+                    port_name=dict(type='str'),
+                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                ),
+            ),
+            https_health_check=dict(
+                type='dict',
+                options=dict(
+                    host=dict(type='str'),
+                    request_path=dict(default='/', type='str'),
+                    response=dict(type='str'),
+                    port=dict(type='int'),
+                    port_name=dict(type='str'),
+                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                ),
+            ),
+            tcp_health_check=dict(
+                type='dict',
+                options=dict(
+                    request=dict(type='str'),
+                    response=dict(type='str'),
+                    port=dict(type='int'),
+                    port_name=dict(type='str'),
+                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                ),
+            ),
+            ssl_health_check=dict(
+                type='dict',
+                options=dict(
+                    request=dict(type='str'),
+                    response=dict(type='str'),
+                    port=dict(type='int'),
+                    port_name=dict(type='str'),
+                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                ),
+            ),
         ),
-        mutually_exclusive=[['http_health_check', 'https_health_check', 'ssl_health_check', 'tcp_health_check']]
+        mutually_exclusive=[['http_health_check', 'https_health_check', 'ssl_health_check', 'tcp_health_check']],
     )
 
     if not module.params['scopes']:
@@ -629,7 +641,7 @@ def resource_to_request(module):
         u'httpHealthCheck': HealthCheckHttphealthcheck(module.params.get('http_health_check', {}), module).to_request(),
         u'httpsHealthCheck': HealthCheckHttpshealthcheck(module.params.get('https_health_check', {}), module).to_request(),
         u'tcpHealthCheck': HealthCheckTcphealthcheck(module.params.get('tcp_health_check', {}), module).to_request(),
-        u'sslHealthCheck': HealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request()
+        u'sslHealthCheck': HealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -707,7 +719,7 @@ def response_to_hash(module, response):
         u'httpHealthCheck': HealthCheckHttphealthcheck(response.get(u'httpHealthCheck', {}), module).from_response(),
         u'httpsHealthCheck': HealthCheckHttpshealthcheck(response.get(u'httpsHealthCheck', {}), module).from_response(),
         u'tcpHealthCheck': HealthCheckTcphealthcheck(response.get(u'tcpHealthCheck', {}), module).from_response(),
-        u'sslHealthCheck': HealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response()
+        u'sslHealthCheck': HealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
     }
 
 
@@ -755,24 +767,28 @@ class HealthCheckHttphealthcheck(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({
-            u'host': self.request.get('host'),
-            u'requestPath': self.request.get('request_path'),
-            u'response': self.request.get('response'),
-            u'port': self.request.get('port'),
-            u'portName': self.request.get('port_name'),
-            u'proxyHeader': self.request.get('proxy_header')
-        })
+        return remove_nones_from_dict(
+            {
+                u'host': self.request.get('host'),
+                u'requestPath': self.request.get('request_path'),
+                u'response': self.request.get('response'),
+                u'port': self.request.get('port'),
+                u'portName': self.request.get('port_name'),
+                u'proxyHeader': self.request.get('proxy_header'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({
-            u'host': self.request.get(u'host'),
-            u'requestPath': self.request.get(u'requestPath'),
-            u'response': self.request.get(u'response'),
-            u'port': self.request.get(u'port'),
-            u'portName': self.request.get(u'portName'),
-            u'proxyHeader': self.request.get(u'proxyHeader')
-        })
+        return remove_nones_from_dict(
+            {
+                u'host': self.request.get(u'host'),
+                u'requestPath': self.request.get(u'requestPath'),
+                u'response': self.request.get(u'response'),
+                u'port': self.request.get(u'port'),
+                u'portName': self.request.get(u'portName'),
+                u'proxyHeader': self.request.get(u'proxyHeader'),
+            }
+        )
 
 
 class HealthCheckHttpshealthcheck(object):
@@ -784,24 +800,28 @@ class HealthCheckHttpshealthcheck(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({
-            u'host': self.request.get('host'),
-            u'requestPath': self.request.get('request_path'),
-            u'response': self.request.get('response'),
-            u'port': self.request.get('port'),
-            u'portName': self.request.get('port_name'),
-            u'proxyHeader': self.request.get('proxy_header')
-        })
+        return remove_nones_from_dict(
+            {
+                u'host': self.request.get('host'),
+                u'requestPath': self.request.get('request_path'),
+                u'response': self.request.get('response'),
+                u'port': self.request.get('port'),
+                u'portName': self.request.get('port_name'),
+                u'proxyHeader': self.request.get('proxy_header'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({
-            u'host': self.request.get(u'host'),
-            u'requestPath': self.request.get(u'requestPath'),
-            u'response': self.request.get(u'response'),
-            u'port': self.request.get(u'port'),
-            u'portName': self.request.get(u'portName'),
-            u'proxyHeader': self.request.get(u'proxyHeader')
-        })
+        return remove_nones_from_dict(
+            {
+                u'host': self.request.get(u'host'),
+                u'requestPath': self.request.get(u'requestPath'),
+                u'response': self.request.get(u'response'),
+                u'port': self.request.get(u'port'),
+                u'portName': self.request.get(u'portName'),
+                u'proxyHeader': self.request.get(u'proxyHeader'),
+            }
+        )
 
 
 class HealthCheckTcphealthcheck(object):
