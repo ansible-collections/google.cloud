@@ -73,7 +73,7 @@ def replace_resource_dict(item, value):
             return new_item
 
 
-# Handles all authentation and HTTP sessions for GCP API calls.
+# Handles all authentication and HTTP sessions for GCP API calls.
 class GcpSession(object):
     def __init__(self, module, product):
         self.module = module
