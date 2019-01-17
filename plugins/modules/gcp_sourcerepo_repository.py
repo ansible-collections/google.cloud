@@ -62,11 +62,11 @@ notes:
 EXAMPLES = '''
 - name: create a repository
   gcp_sourcerepo_repository:
-    name: projects/test_project/repos/test_object
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      name: projects/test_project/repos/test_object
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''
@@ -142,8 +142,7 @@ def create(module, link):
 
 
 def update(module, link):
-    delete(module, self_link(module))
-    create(module, collection(module))
+    module.fail_json(msg="Repository cannot be edited")
 
 
 def delete(module, link):
@@ -186,8 +185,8 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
-        module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
+    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+        module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
     if navigate_hash(result, ['error', 'errors']):
         module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
