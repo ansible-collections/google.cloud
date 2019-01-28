@@ -123,30 +123,30 @@ notes:
 EXAMPLES = '''
 - name: create a network
   gcp_compute_network:
-    name: network-instance
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-    state: present
+      name: "network-instance"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      state: present
   register: network
 
 - name: create a instance
   gcp_redis_instance:
-    name: instance37
-    tier: STANDARD_HA
-    memory_size_gb: 1
-    region: us-central1
-    location_id: us-central1-a
-    redis_version: REDIS_3_2
-    display_name: Ansible Test Instance
-    reserved_ip_range: 192.168.0.0/29
-    labels:
-      my_key: my_val
-      other_key: other_val
-    project: test_project
-    auth_kind: serviceaccount
-    service_account_file: "/tmp/auth.pem"
-    state: present
+      name: instance37
+      tier: STANDARD_HA
+      memory_size_gb: 1
+      region: us-central1
+      location_id: us-central1-a
+      redis_version: REDIS_3_2
+      display_name: Ansible Test Instance
+      reserved_ip_range: 192.168.0.0/29
+      labels:
+        my_key: my_val
+        other_key: other_val
+      project: "test_project"
+      auth_kind: "serviceaccount"
+      service_account_file: "/tmp/auth.pem"
+      state: present
 '''
 
 RETURN = '''
@@ -296,7 +296,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), fetch)
+                update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
         else:
@@ -320,25 +320,8 @@ def create(module, link):
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link, fetch):
-    auth = GcpSession(module, 'redis')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
-    request = resource_to_request(module)
-    del request['name']
-    return wait_for_operation(module, auth.patch(link, request, params=params))
-
-
-def updateMask(request, response):
-    update_mask = []
-    if request.get('displayName') != response.get('displayName'):
-        update_mask.append('displayName')
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('redisConfigs') != response.get('redisConfigs'):
-        update_mask.append('redisConfigs')
-    if request.get('memorySizeGb') != response.get('memorySizeGb'):
-        update_mask.append('memorySizeGb')
-    return ','.join(update_mask)
+def update(module, link):
+    module.fail_json(msg="Instance cannot be edited")
 
 
 def delete(module, link):
@@ -467,7 +450,7 @@ def wait_for_completion(status, op_result, module):
     while not status:
         raise_if_errors(op_result, ['error'], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, False)
+        op_result = fetch_resource(module, op_uri)
         status = navigate_hash(op_result, ['done'])
     return op_result
 
