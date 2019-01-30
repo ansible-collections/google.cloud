@@ -49,7 +49,7 @@ options:
     default: present
   name:
     description:
-    - The name of this cluster. The name must be unique within this project and zone,
+    - The name of this cluster. The name must be unique within this project and location,
       and can be up to 40 characters. Must be Lowercase letters, numbers, and hyphens
       only. Must start with a letter. Must end with a number or a letter.
     required: false
@@ -254,12 +254,7 @@ options:
     required: false
   location:
     description:
-    - The list of Google Compute Engine locations in which the cluster's nodes should
-      be located.
-    required: false
-  zone:
-    description:
-    - The zone where the cluster is deployed.
+    - The location where the cluster is deployed.
     required: true
 extends_documentation_fragment: gcp
 '''
@@ -275,7 +270,7 @@ EXAMPLES = '''
       node_config:
         machine_type: n1-standard-4
         disk_size_gb: 500
-      zone: us-central1-a
+      location: us-central1-a
       project: "test_project"
       auth_kind: "serviceaccount"
       service_account_file: "/tmp/auth.pem"
@@ -285,7 +280,7 @@ EXAMPLES = '''
 RETURN = '''
 name:
   description:
-  - The name of this cluster. The name must be unique within this project and zone,
+  - The name of this cluster. The name must be unique within this project and location,
     and can be up to 40 characters. Must be Lowercase letters, numbers, and hyphens
     only. Must start with a letter. Must end with a number or a letter.
   returned: success
@@ -508,12 +503,6 @@ subnetwork:
   - The name of the Google Compute Engine subnetwork to which the cluster is connected.
   returned: success
   type: str
-location:
-  description:
-  - The list of Google Compute Engine locations in which the cluster's nodes should
-    be located.
-  returned: success
-  type: list
 endpoint:
   description:
   - The IP address of this cluster's master endpoint.
@@ -567,9 +556,9 @@ expireTime:
   - The time the cluster will be automatically deleted in RFC3339 text format.
   returned: success
   type: str
-zone:
+location:
   description:
-  - The zone where the cluster is deployed.
+  - The location where the cluster is deployed.
   returned: success
   type: str
 '''
@@ -637,8 +626,7 @@ def main():
                 ),
             ),
             subnetwork=dict(type='str'),
-            location=dict(type='list', elements='str'),
-            zone=dict(required=True, type='str'),
+            location=dict(required=True, type='str'),
         )
     )
 
@@ -701,7 +689,6 @@ def resource_to_request(module):
         u'clusterIpv4Cidr': module.params.get('cluster_ipv4_cidr'),
         u'addonsConfig': ClusterAddonsconfig(module.params.get('addons_config', {}), module).to_request(),
         u'subnetwork': module.params.get('subnetwork'),
-        u'location': module.params.get('location'),
     }
     request = encode_request(request, module)
     return_vals = {}
