@@ -256,6 +256,9 @@ options:
     description:
     - The location where the cluster is deployed.
     required: true
+    aliases:
+    - zone
+    version_added: 2.8
 extends_documentation_fragment: gcp
 '''
 
@@ -626,7 +629,7 @@ def main():
                 ),
             ),
             subnetwork=dict(type='str'),
-            location=dict(required=True, type='str'),
+            location=dict(required=True, type='str', aliases=['zone']),
         )
     )
 
