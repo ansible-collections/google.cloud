@@ -71,6 +71,7 @@ options:
     - SOA
     - SPF
     - SRV
+    - TLSA
     - TXT
   ttl:
     description:
