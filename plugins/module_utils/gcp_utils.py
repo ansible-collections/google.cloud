@@ -280,22 +280,13 @@ class GcpRequest(object):
         # Have to convert each thing over to unicode.
         # Python doesn't handle equality checks between unicode + non-unicode well.
         difference = []
-        new_req_list = self._convert_value(req_list)
-        new_resp_list = self._convert_value(resp_list)
-
-        # We have to compare each thing in the request to every other thing
-        # in the response.
-        # This is because the request value will be a subset of the response value.
-        # The assumption is that these lists will be small enough that it won't
-        # be a performance burden.
-        for req_item in new_req_list:
-            found_item = False
-            for resp_item in new_resp_list:
-                # Looking for a None value here.
-                if not self._compare_value(req_item, resp_item):
-                    found_item = True
-            if not found_item:
-                difference.append(req_item)
+        list1.sort()
+        list2.sort()
+        for index in range(len(list1)):
+            value1 = list1[index]
+            if index < len(list2):
+                value2 = list2[index]
+                difference.append(self._compare_value(value1, value2))
 
         difference2 = []
         for value in difference:
