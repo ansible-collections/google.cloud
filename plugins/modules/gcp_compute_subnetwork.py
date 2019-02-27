@@ -150,14 +150,14 @@ EXAMPLES = '''
 
 - name: create a subnetwork
   gcp_compute_subnetwork:
-      name: ansiblenet
-      region: us-west1
-      network: "{{ network }}"
-      ip_cidr_range: 172.16.0.0/16
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: ansiblenet
+    region: us-west1
+    network: "{{ network }}"
+    ip_cidr_range: 172.16.0.0/16
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

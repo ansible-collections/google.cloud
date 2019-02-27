@@ -53,14 +53,15 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a region disk facts
+- name: " a region disk facts"
   gcp_compute_region_disk_facts:
-      region: us-central1
-      filters:
-      - name = test_object
-      project: test_project
-      auth_kind: serviceaccount
-      service_account_file: "/tmp/auth.pem"
+    region: us-central1
+    filters:
+    - name = test_object
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: facts
 '''
 
 RETURN = '''

@@ -210,12 +210,12 @@ EXAMPLES = '''
 
 - name: create a image
   gcp_compute_image:
-      name: "test_object"
-      source_disk: "{{ disk }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    source_disk: "{{ disk }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

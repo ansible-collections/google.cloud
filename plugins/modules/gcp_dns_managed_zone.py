@@ -82,13 +82,13 @@ notes:
 EXAMPLES = '''
 - name: create a managed zone
   gcp_dns_managed_zone:
-      name: "test_object"
-      dns_name: test.somewild2.example.com.
-      description: test zone
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    dns_name: test.somewild2.example.com.
+    description: test zone
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

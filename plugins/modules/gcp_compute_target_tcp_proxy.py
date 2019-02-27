@@ -128,13 +128,13 @@ EXAMPLES = '''
 
 - name: create a target tcp proxy
   gcp_compute_target_tcp_proxy:
-      name: "test_object"
-      proxy_header: PROXY_V1
-      service: "{{ backendservice }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    proxy_header: PROXY_V1
+    service: "{{ backendservice }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

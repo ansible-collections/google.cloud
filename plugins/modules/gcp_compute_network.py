@@ -113,12 +113,12 @@ notes:
 EXAMPLES = '''
 - name: create a network
   gcp_compute_network:
-      name: "test_object"
-      auto_create_subnetworks: true
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    auto_create_subnetworks: 'true'
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

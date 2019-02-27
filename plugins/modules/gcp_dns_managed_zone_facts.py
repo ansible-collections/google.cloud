@@ -47,12 +47,13 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name:  a managed zone facts
+- name: " a managed zone facts"
   gcp_dns_managed_zone_facts:
-      dns_name: test.somewild2.example.com.
-      project: test_project
-      auth_kind: serviceaccount
-      service_account_file: "/tmp/auth.pem"
+    dns_name: test.somewild2.example.com.
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: facts
 '''
 
 RETURN = '''

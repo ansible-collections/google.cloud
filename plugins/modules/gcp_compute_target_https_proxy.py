@@ -178,14 +178,14 @@ EXAMPLES = '''
 
 - name: create a target https proxy
   gcp_compute_target_https_proxy:
-      name: "test_object"
-      ssl_certificates:
-      - "{{ sslcert }}"
-      url_map: "{{ urlmap }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    ssl_certificates:
+    - "{{ sslcert }}"
+    url_map: "{{ urlmap }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

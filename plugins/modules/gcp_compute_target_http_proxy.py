@@ -126,12 +126,12 @@ EXAMPLES = '''
 
 - name: create a target http proxy
   gcp_compute_target_http_proxy:
-      name: "test_object"
-      url_map: "{{ urlmap }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    url_map: "{{ urlmap }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

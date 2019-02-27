@@ -254,15 +254,15 @@ EXAMPLES = '''
 
 - name: create a global forwarding rule
   gcp_compute_global_forwarding_rule:
-      name: "test_object"
-      ip_address: "{{ globaladdress.address }}"
-      ip_protocol: TCP
-      port_range: 80-80
-      target: "{{ httpproxy.selfLink }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    ip_address: "{{ globaladdress.address }}"
+    ip_protocol: TCP
+    port_range: 80-80
+    target: "{{ httpproxy.selfLink }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

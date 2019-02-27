@@ -184,23 +184,23 @@ notes:
 EXAMPLES = '''
 - name: create a repository
   gcp_sourcerepo_repository:
-      name: projects/{{ gcp_project }}/repos/{{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      state: present
+    name: projects/{{ gcp_project }}/repos/{{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
 
 - name: create a trigger
   gcp_cloudbuild_trigger:
-      trigger_template:
-        branch_name: master
-        project_id: "test_project"
-        repo_name: "test_object"
-      filename: cloudbuild.yaml
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    trigger_template:
+      branch_name: master
+      project_id: test_project
+      repo_name: test_object
+    filename: cloudbuild.yaml
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

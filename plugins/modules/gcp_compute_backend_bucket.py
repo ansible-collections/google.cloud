@@ -92,14 +92,14 @@ EXAMPLES = '''
 
 - name: create a backend bucket
   gcp_compute_backend_bucket:
-      name: "test_object"
-      bucket_name: "{{ bucket.name }}"
-      description: A BackendBucket to connect LNB w/ Storage Bucket
-      enable_cdn: true
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    bucket_name: "{{ bucket.name }}"
+    description: A BackendBucket to connect LNB w/ Storage Bucket
+    enable_cdn: 'true'
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

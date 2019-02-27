@@ -131,13 +131,13 @@ EXAMPLES = '''
 
 - name: create a subscription
   gcp_pubsub_subscription:
-      name: "test_object"
-      topic: "{{ topic }}"
-      ack_deadline_seconds: 300
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    topic: "{{ topic }}"
+    ack_deadline_seconds: 300
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

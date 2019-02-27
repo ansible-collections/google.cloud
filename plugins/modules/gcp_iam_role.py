@@ -81,17 +81,17 @@ extends_documentation_fragment: gcp
 EXAMPLES = '''
 - name: create a role
   gcp_iam_role:
-      name: myCustomRole2
-      title: My Custom Role
-      description: My custom role description
-      included_permissions:
-      - iam.roles.list
-      - iam.roles.create
-      - iam.roles.delete
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: myCustomRole2
+    title: My Custom Role
+    description: My custom role description
+    included_permissions:
+    - iam.roles.list
+    - iam.roles.create
+    - iam.roles.delete
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

@@ -207,12 +207,12 @@ EXAMPLES = '''
 
 - name: create a url map
   gcp_compute_url_map:
-      name: "test_object"
-      default_service: "{{ backendservice }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: test_object
+    default_service: "{{ backendservice }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

@@ -106,17 +106,17 @@ EXAMPLES = '''
 
 - name: create a resource record set
   gcp_dns_resource_record_set:
-      name: www.testzone-4.com.
-      managed_zone: "{{ managed_zone }}"
-      type: A
-      ttl: 600
-      target:
-      - 10.1.2.3
-      - 40.5.6.7
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: www.testzone-4.com.
+    managed_zone: "{{ managed_zone }}"
+    type: A
+    ttl: 600
+    target:
+    - 10.1.2.3
+    - 40.5.6.7
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''

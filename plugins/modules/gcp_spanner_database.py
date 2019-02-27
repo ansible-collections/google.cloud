@@ -90,12 +90,12 @@ EXAMPLES = '''
 
 - name: create a database
   gcp_spanner_database:
-      name: webstore
-      instance: "{{ instance }}"
-      project: "test_project"
-      auth_kind: "serviceaccount"
-      service_account_file: "/tmp/auth.pem"
-      state: present
+    name: webstore
+    instance: "{{ instance }}"
+    project: test_project
+    auth_kind: serviceaccount
+    service_account_file: "/tmp/auth.pem"
+    state: present
 '''
 
 RETURN = '''
