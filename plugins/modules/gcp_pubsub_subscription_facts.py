@@ -126,6 +126,24 @@ items:
         eventually redeliver the message.
       returned: success
       type: int
+    messageRetentionDuration:
+      description:
+      - How long to retain unacknowledged messages in the subscription's backlog,
+        from the moment a message is published. If retainAckedMessages is true, then
+        this also configures the retention of acknowledged messages, and thus configures
+        how far back in time a subscriptions.seek can be done. Defaults to 7 days.
+        Cannot be more than 7 days (`"604800s"`) or less than 10 minutes (`"600s"`).
+      - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
+        Example: `"600.5s"`.'
+      returned: success
+      type: str
+    retainAckedMessages:
+      description:
+      - Indicates whether to retain acknowledged messages. If `true`, then messages
+        are not expunged from the subscription's backlog, even if they are acknowledged,
+        until they fall out of the messageRetentionDuration window.
+      returned: success
+      type: bool
 '''
 
 ################################################################################
