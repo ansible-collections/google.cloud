@@ -144,6 +144,11 @@ options:
       resource quota is sufficient for this number of instances. You must also have
       available firewall and routes quota.
     required: true
+  version:
+    description:
+    - The version of the Kubernetes of this node.
+    required: false
+    version_added: 2.8
   autoscaling:
     description:
     - Autoscaler configuration for this NodePool. Autoscaler is enabled only if a
@@ -452,6 +457,7 @@ def main():
                 ),
             ),
             initial_node_count=dict(required=True, type='int'),
+            version=dict(type='str'),
             autoscaling=dict(type='dict', options=dict(enabled=dict(type='bool'), min_node_count=dict(type='int'), max_node_count=dict(type='int'))),
             management=dict(
                 type='dict', options=dict(auto_upgrade=dict(type='bool'), auto_repair=dict(type='bool'), upgrade_options=dict(type='dict', options=dict()))

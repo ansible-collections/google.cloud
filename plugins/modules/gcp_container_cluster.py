@@ -221,14 +221,6 @@ options:
           set of masters, as well as the ILB VIP. This range must not overlap with
           any other ranges in use within the cluster's network.
         required: false
-      private_endpoint:
-        description:
-        - The internal IP address of this cluster's master endpoint.
-        required: false
-      public_endpoint:
-        description:
-        - The external IP address of this cluster's master endpoint.
-        required: false
   cluster_ipv4_cidr:
     description:
     - The IP address range of the container pods in this cluster, in CIDR notation
@@ -664,13 +656,7 @@ def main():
             network=dict(type='str'),
             private_cluster_config=dict(
                 type='dict',
-                options=dict(
-                    enable_private_nodes=dict(type='bool'),
-                    enable_private_endpoint=dict(type='bool'),
-                    master_ipv4_cidr_block=dict(type='str'),
-                    private_endpoint=dict(type='str'),
-                    public_endpoint=dict(type='str'),
-                ),
+                options=dict(enable_private_nodes=dict(type='bool'), enable_private_endpoint=dict(type='bool'), master_ipv4_cidr_block=dict(type='str')),
             ),
             cluster_ipv4_cidr=dict(type='str'),
             addons_config=dict(
