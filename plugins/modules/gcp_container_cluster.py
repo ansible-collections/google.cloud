@@ -210,6 +210,39 @@ options:
     - The name of the Google Compute Engine network to which the cluster is connected.
       If left unspecified, the default network will be used.
     required: false
+  private_cluster_config:
+    description:
+    - Configuration for a private cluster.
+    required: false
+    version_added: 2.8
+    suboptions:
+      enable_private_nodes:
+        description:
+        - Whether nodes have internal IP addresses only. If enabled, all nodes are
+          given only RFC 1918 private addresses and communicate with the master via
+          private networking.
+        required: false
+        type: bool
+      enable_private_endpoint:
+        description:
+        - Whether the master's internal IP address is used as the cluster endpoint.
+        required: false
+        type: bool
+      master_ipv4_cidr_block:
+        description:
+        - The IP range in CIDR notation to use for the hosted master network. This
+          range will be used for assigning internal IP addresses to the master or
+          set of masters, as well as the ILB VIP. This range must not overlap with
+          any other ranges in use within the cluster's network.
+        required: false
+      private_endpoint:
+        description:
+        - The internal IP address of this cluster's master endpoint.
+        required: false
+      public_endpoint:
+        description:
+        - The external IP address of this cluster's master endpoint.
+        required: false
   cluster_ipv4_cidr:
     description:
     - The IP address range of the container pods in this cluster, in CIDR notation
@@ -459,6 +492,42 @@ network:
     If left unspecified, the default network will be used.
   returned: success
   type: str
+privateClusterConfig:
+  description:
+  - Configuration for a private cluster.
+  returned: success
+  type: complex
+  contains:
+    enablePrivateNodes:
+      description:
+      - Whether nodes have internal IP addresses only. If enabled, all nodes are given
+        only RFC 1918 private addresses and communicate with the master via private
+        networking.
+      returned: success
+      type: bool
+    enablePrivateEndpoint:
+      description:
+      - Whether the master's internal IP address is used as the cluster endpoint.
+      returned: success
+      type: bool
+    masterIpv4CidrBlock:
+      description:
+      - The IP range in CIDR notation to use for the hosted master network. This range
+        will be used for assigning internal IP addresses to the master or set of masters,
+        as well as the ILB VIP. This range must not overlap with any other ranges
+        in use within the cluster's network.
+      returned: success
+      type: str
+    privateEndpoint:
+      description:
+      - The internal IP address of this cluster's master endpoint.
+      returned: success
+      type: str
+    publicEndpoint:
+      description:
+      - The external IP address of this cluster's master endpoint.
+      returned: success
+      type: str
 clusterIpv4Cidr:
   description:
   - The IP address range of the container pods in this cluster, in CIDR notation (e.g.
@@ -618,7 +687,13 @@ def main():
             network=dict(type='str'),
             private_cluster_config=dict(
                 type='dict',
-                options=dict(enable_private_nodes=dict(type='bool'), enable_private_endpoint=dict(type='bool'), master_ipv4_cidr_block=dict(type='str')),
+                options=dict(
+                    enable_private_nodes=dict(type='bool'),
+                    enable_private_endpoint=dict(type='bool'),
+                    master_ipv4_cidr_block=dict(type='str'),
+                    private_endpoint=dict(type='str'),
+                    public_endpoint=dict(type='str'),
+                ),
             ),
             cluster_ipv4_cidr=dict(type='str'),
             addons_config=dict(
@@ -899,6 +974,37 @@ class ClusterMasterauth(object):
                 u'clusterCaCertificate': self.request.get(u'clusterCaCertificate'),
                 u'clientCertificate': self.request.get(u'clientCertificate'),
                 u'clientKey': self.request.get(u'clientKey'),
+            }
+        )
+
+
+class ClusterPrivateclusterconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'enablePrivateNodes': self.request.get('enable_private_nodes'),
+                u'enablePrivateEndpoint': self.request.get('enable_private_endpoint'),
+                u'masterIpv4CidrBlock': self.request.get('master_ipv4_cidr_block'),
+                u'privateEndpoint': self.request.get('private_endpoint'),
+                u'publicEndpoint': self.request.get('public_endpoint'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'enablePrivateNodes': self.request.get(u'enablePrivateNodes'),
+                u'enablePrivateEndpoint': self.request.get(u'enablePrivateEndpoint'),
+                u'masterIpv4CidrBlock': self.request.get(u'masterIpv4CidrBlock'),
+                u'privateEndpoint': self.request.get(u'privateEndpoint'),
+                u'publicEndpoint': self.request.get(u'publicEndpoint'),
             }
         )
 
