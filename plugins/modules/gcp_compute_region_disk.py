@@ -118,11 +118,6 @@ options:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.
         required: false
-      sha256:
-        description:
-        - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-          key that protects this resource.
-        required: false
   source_snapshot:
     description:
     - The source snapshot used to create this disk. You can provide this as a partial
@@ -142,11 +137,6 @@ options:
         description:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.
-        required: false
-      sha256:
-        description:
-        - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
-          key that protects this resource.
         required: false
 extends_documentation_fragment: gcp
 notes:
@@ -345,9 +335,9 @@ def main():
             replica_zones=dict(required=True, type='list', elements='str'),
             type=dict(type='str'),
             region=dict(required=True, type='str'),
-            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
+            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
             source_snapshot=dict(),
-            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), sha256=dict(type='str'))),
+            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
         )
     )
 

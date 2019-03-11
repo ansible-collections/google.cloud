@@ -188,17 +188,7 @@ options:
         description:
         - Specifies the Auto Upgrade knobs for the node pool.
         required: false
-        suboptions:
-          auto_upgrade_start_time:
-            description:
-            - This field is set when upgrades are about to commence with the approximate
-              start time for the upgrades, in RFC3339 text format.
-            required: false
-          description:
-            description:
-            - This field is set when upgrades are about to commence with the description
-              of the upgrade.
-            required: false
+        suboptions: {}
   cluster:
     description:
     - The cluster this node pool belongs to.
@@ -464,12 +454,7 @@ def main():
             initial_node_count=dict(required=True, type='int'),
             autoscaling=dict(type='dict', options=dict(enabled=dict(type='bool'), min_node_count=dict(type='int'), max_node_count=dict(type='int'))),
             management=dict(
-                type='dict',
-                options=dict(
-                    auto_upgrade=dict(type='bool'),
-                    auto_repair=dict(type='bool'),
-                    upgrade_options=dict(type='dict', options=dict(auto_upgrade_start_time=dict(type='str'), description=dict(type='str'))),
-                ),
+                type='dict', options=dict(auto_upgrade=dict(type='bool'), auto_repair=dict(type='bool'), upgrade_options=dict(type='dict', options=dict()))
             ),
             cluster=dict(required=True),
             location=dict(required=True, type='str', aliases=['region', 'zone']),

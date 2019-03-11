@@ -170,20 +170,6 @@ options:
           Because the master endpoint is open to the Internet, you should create a
           strong password.
         required: false
-      cluster_ca_certificate:
-        description:
-        - Base64-encoded public certificate that is the root of trust for the cluster.
-        required: false
-      client_certificate:
-        description:
-        - Base64-encoded public certificate used by clients to authenticate to the
-          cluster endpoint.
-        required: false
-      client_key:
-        description:
-        - Base64-encoded private key used by clients to authenticate to the cluster
-          endpoint.
-        required: false
   logging_service:
     description:
     - 'The logging service the cluster should use to write logs. Currently available
@@ -672,16 +658,7 @@ def main():
                     preemptible=dict(type='bool'),
                 ),
             ),
-            master_auth=dict(
-                type='dict',
-                options=dict(
-                    username=dict(type='str'),
-                    password=dict(type='str'),
-                    cluster_ca_certificate=dict(type='str'),
-                    client_certificate=dict(type='str'),
-                    client_key=dict(type='str'),
-                ),
-            ),
+            master_auth=dict(type='dict', options=dict(username=dict(type='str'), password=dict(type='str'))),
             logging_service=dict(type='str', choices=['logging.googleapis.com', 'none']),
             monitoring_service=dict(type='str', choices=['monitoring.googleapis.com', 'none']),
             network=dict(type='str'),

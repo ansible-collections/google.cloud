@@ -229,10 +229,6 @@ options:
         description:
         - OAuth2 Client Secret for IAP.
         required: false
-      oauth2_client_secret_sha256:
-        description:
-        - OAuth2 Client Secret SHA-256 for IAP.
-        required: false
   load_balancing_scheme:
     description:
     - Indicates whether the backend service will be used with internal or external
@@ -657,15 +653,7 @@ def main():
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             health_checks=dict(type='list', elements='str'),
-            iap=dict(
-                type='dict',
-                options=dict(
-                    enabled=dict(type='bool'),
-                    oauth2_client_id=dict(type='str'),
-                    oauth2_client_secret=dict(type='str'),
-                    oauth2_client_secret_sha256=dict(type='str'),
-                ),
-            ),
+            iap=dict(type='dict', options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(type='str'), oauth2_client_secret=dict(type='str'))),
             load_balancing_scheme=dict(type='str', choices=['INTERNAL', 'EXTERNAL']),
             name=dict(type='str'),
             port_name=dict(type='str'),
