@@ -80,7 +80,7 @@ options:
     required: true
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/targetTcpProxies)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/targetTcpProxies)'
 - 'Setting Up TCP proxy for Google Cloud Load Balancing: U(https://cloud.google.com/compute/docs/load-balancing/tcp-ssl/tcp-proxy)'
 '''
 

@@ -102,7 +102,7 @@ options:
     required: true
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/targetHttpsProxies)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/targetHttpsProxies)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/http/target-proxies)'
 '''
 

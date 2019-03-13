@@ -175,7 +175,7 @@ options:
         required: false
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/disks)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/disks)'
 - 'Adding a persistent disk: U(https://cloud.google.com/compute/docs/disks/add-persistent-disk)'
 '''
 

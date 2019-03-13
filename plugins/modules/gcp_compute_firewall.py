@@ -214,7 +214,7 @@ options:
     required: false
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/firewalls)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/firewalls)'
 - 'Official Documentation: U(https://cloud.google.com/vpc/docs/firewalls)'
 '''
 

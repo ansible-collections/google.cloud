@@ -97,7 +97,7 @@ options:
     version_added: 2.8
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/targetSslProxies)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/targetSslProxies)'
 - 'Setting Up SSL proxy for Google Cloud Load Balancing: U(https://cloud.google.com/compute/docs/load-balancing/tcp-ssl/)'
 '''
 

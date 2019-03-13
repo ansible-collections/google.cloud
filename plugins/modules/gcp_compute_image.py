@@ -183,7 +183,7 @@ options:
     - RAW
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/images)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/images)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/images)'
 '''
 

@@ -264,7 +264,7 @@ options:
         - PROXY_V1
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/latest/healthChecks)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)'
 - 'Official Documentation: U(https://cloud.google.com/load-balancing/docs/health-checks)'
 '''
 

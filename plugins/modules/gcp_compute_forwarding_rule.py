@@ -205,7 +205,7 @@ options:
     required: true
 extends_documentation_fragment: gcp
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/latest/forwardingRule)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/forwardingRule)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules)'
 '''
 
