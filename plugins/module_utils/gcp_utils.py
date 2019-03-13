@@ -283,19 +283,11 @@ class GcpRequest(object):
         # Have to convert each thing over to unicode.
         # Python doesn't handle equality checks between unicode + non-unicode well.
         difference = []
-        list1.sort()
-        list2.sort()
         for index in range(len(list1)):
             value1 = list1[index]
-            # If items are dicts or arrays, we're assuming the next value
-            # is the correct one.
-            if isinstance(value1, dict) or isinstance(value1, list):
-                if index < len(list2):
-                    value2 = list2[index]
-                    difference.append(self._compare_value(value1, value2))
-            else:
-                if value1 not in list2:
-                    difference.append(value1)
+            if index < len(list2):
+                value2 = list2[index]
+                difference.append(self._compare_value(value1, value2))
 
         difference2 = []
         for value in difference:
@@ -314,12 +306,12 @@ class GcpRequest(object):
 
         # Can assume non-None types at this point.
         try:
-            if isinstance(req_value, list):
-                diff = self._compare_lists(req_value, resp_value)
-            elif isinstance(req_value, dict):
-                diff = self._compare_dicts(req_value, resp_value)
-            elif isinstance(req_value, bool):
-                diff = self._compare_boolean(req_value, resp_value)
+            if isinstance(value1, list):
+                diff = self._compare_lists(value1, value2)
+            elif isinstance(value2, dict):
+                diff = self._compare_dicts(value1, value2)
+            elif isinstance(value1, bool):
+                diff = self._compare_boolean(value1, value2)
             # Always use to_text values to avoid unicode issues.
             elif to_text(req_value) != to_text(resp_value):
                 diff = req_value
@@ -330,43 +322,24 @@ class GcpRequest(object):
 
         return diff
 
-    # Compare two boolean values.
-    def _compare_boolean(self, req_value, resp_value):
+    def _compare_boolean(self, value1, value2):
         try:
             # Both True
-            if req_value and isinstance(resp_value, bool) and resp_value:
+            if value1 and value2 is True:
                 return None
-            # Value1 True, resp_value 'true'
-            elif req_value and to_text(resp_value) == 'true':
+            # Value1 True, value2 'true'
+            elif value1 and to_text(value2) == 'true':
                 return None
             # Both False
-            elif not req_value and isinstance(resp_value, bool) and not resp_value:
+            elif not value1 and not value2:
                 return None
-            # Value1 False, resp_value 'false'
-            elif not req_value and to_text(resp_value) == 'false':
+            # Value1 False, value2 'false'
+            elif not value1 and to_text(value2) == 'false':
                 return None
             else:
-                return resp_value
+                return value2
 
         # to_text may throw UnicodeErrors.
         # These errors shouldn't crash Ansible and should be hidden.
         except UnicodeError:
             return None
-
-    # Python (2 esp.) doesn't do comparisons between unicode + non-unicode well.
-    # This leads to a lot of false positives when diffing values.
-    # The Ansible to_text() function is meant to get all strings
-    # into a standard format.
-    def _convert_value(self, value):
-        if isinstance(value, list):
-            new_list = []
-            for item in value:
-                new_list.append(self._convert_value(item))
-            return new_list
-        elif isinstance(value, dict):
-            new_dict = {}
-            for key in value:
-                new_dict[key] = self._convert_value(value[key])
-            return new_dict
-        else:
-            return to_text(value)
