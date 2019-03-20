@@ -283,11 +283,22 @@ class GcpRequest(object):
         # Have to convert each thing over to unicode.
         # Python doesn't handle equality checks between unicode + non-unicode well.
         difference = []
-        for index in range(len(list1)):
-            value1 = list1[index]
-            if index < len(list2):
-                value2 = list2[index]
-                difference.append(self._compare_value(value1, value2))
+        new_req_list = self._convert_value(req_list)
+        new_resp_list = self._convert_value(resp_list)
+
+        # We have to compare each thing in the request to every other thing
+        # in the response.
+        # This is because the request value will be a subset of the response value.
+        # The assumption is that these lists will be small enough that it won't
+        # be a performance burden.
+        for req_item in new_req_list:
+            found_item = False
+            for resp_item in new_resp_list:
+                # Looking for a None value here.
+                if not self._compare_value(req_item, resp_item):
+                    found_item = True
+            if not found_item:
+                difference.append(req_item)
 
         difference2 = []
         for value in difference:
@@ -306,12 +317,12 @@ class GcpRequest(object):
 
         # Can assume non-None types at this point.
         try:
-            if isinstance(value1, list):
-                diff = self._compare_lists(value1, value2)
-            elif isinstance(value2, dict):
-                diff = self._compare_dicts(value1, value2)
-            elif isinstance(value1, bool):
-                diff = self._compare_boolean(value1, value2)
+            if isinstance(req_value, list):
+                diff = self._compare_lists(req_value, resp_value)
+            elif isinstance(req_value, dict):
+                diff = self._compare_dicts(req_value, resp_value)
+            elif isinstance(req_value, bool):
+                diff = self._compare_boolean(req_value, resp_value)
             # Always use to_text values to avoid unicode issues.
             elif to_text(req_value) != to_text(resp_value):
                 diff = req_value
@@ -322,24 +333,43 @@ class GcpRequest(object):
 
         return diff
 
-    def _compare_boolean(self, value1, value2):
+    # Compare two boolean values.
+    def _compare_boolean(self, req_value, resp_value):
         try:
             # Both True
-            if value1 and isinstance(value2, bool) and value2:
+            if req_value and isinstance(resp_value, bool) and resp_value:
                 return None
-            # Value1 True, value2 'true'
-            elif value1 and to_text(value2) == 'true':
+            # Value1 True, resp_value 'true'
+            elif req_value and to_text(resp_value) == 'true':
                 return None
             # Both False
-            elif not value1 and isinstance(value2, bool) and not value2:
+            elif not req_value and isinstance(resp_value, bool) and not resp_value:
                 return None
-            # Value1 False, value2 'false'
-            elif not value1 and to_text(value2) == 'false':
+            # Value1 False, resp_value 'false'
+            elif not req_value and to_text(resp_value) == 'false':
                 return None
             else:
-                return value2
+                return resp_value
 
         # to_text may throw UnicodeErrors.
         # These errors shouldn't crash Ansible and should be hidden.
         except UnicodeError:
             return None
+
+    # Python (2 esp.) doesn't do comparisons between unicode + non-unicode well.
+    # This leads to a lot of false positives when diffing values.
+    # The Ansible to_text() function is meant to get all strings
+    # into a standard format.
+    def _convert_value(self, value):
+        if isinstance(value, list):
+            new_list = []
+            for item in value:
+                new_list.append(self._convert_value(item))
+            return new_list
+        elif isinstance(value, dict):
+            new_dict = {}
+            for key in value:
+                new_dict[key] = self._convert_value(value[key])
+            return new_dict
+        else:
+            return to_text(value)
