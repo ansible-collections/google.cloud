@@ -55,6 +55,23 @@ options:
     description:
     - Cloud Storage bucket name.
     required: true
+  cdn_policy:
+    description:
+    - Cloud CDN configuration for this Backend Bucket.
+    required: false
+    version_added: 2.8
+    suboptions:
+      signed_url_cache_max_age_sec:
+        description:
+        - Maximum number of seconds the response to a signed URL request will be considered
+          fresh. Defaults to 1hr (3600s). After this time period, the response will
+          be revalidated before being served.
+        - 'When serving responses to signed URL requests, Cloud CDN will internally
+          behave as though all responses from this backend had a "Cache-Control: public,
+          max-age=[TTL]" header, regardless of any existing Cache-Control header.
+          The actual headers served in responses will not be altered.'
+        required: false
+        default: '3600'
   description:
     description:
     - An optional textual description of the resource; provided by the client when
@@ -108,6 +125,23 @@ bucketName:
   - Cloud Storage bucket name.
   returned: success
   type: str
+cdnPolicy:
+  description:
+  - Cloud CDN configuration for this Backend Bucket.
+  returned: success
+  type: complex
+  contains:
+    signedUrlCacheMaxAgeSec:
+      description:
+      - Maximum number of seconds the response to a signed URL request will be considered
+        fresh. Defaults to 1hr (3600s). After this time period, the response will
+        be revalidated before being served.
+      - 'When serving responses to signed URL requests, Cloud CDN will internally
+        behave as though all responses from this backend had a "Cache-Control: public,
+        max-age=[TTL]" header, regardless of any existing Cache-Control header. The
+        actual headers served in responses will not be altered.'
+      returned: success
+      type: int
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
