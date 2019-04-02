@@ -67,6 +67,7 @@ options:
           Valid values are UTILIZATION, RATE (for HTTP(S)) and CONNECTION (for TCP/SSL).
         - This cannot be used for internal load balancing.
         required: false
+        default: UTILIZATION
         choices:
         - UTILIZATION
         - RATE
@@ -81,6 +82,7 @@ options:
           [0.0,1.0].
         - This cannot be used for internal load balancing.
         required: false
+        default: '1.0'
       description:
         description:
         - An optional description of this resource.
@@ -140,6 +142,7 @@ options:
           target for the group. The default is 0.8. Valid range is [0.0, 1.0].
         - This cannot be used for internal load balancing.
         required: false
+        default: '0.8'
   cdn_policy:
     description:
     - Cloud CDN configuration for this BackendService.
@@ -196,7 +199,7 @@ options:
         version_added: 2.8
   connection_draining:
     description:
-    - Settings for connection draining.
+    - Settings for connection draining .
     required: false
     suboptions:
       draining_timeout_sec:
@@ -204,6 +207,7 @@ options:
         - Time for which instance will be drained (not accept new connections, but
           still work to finish started).
         required: false
+        default: '300'
   description:
     description:
     - An optional description of this resource.
@@ -221,7 +225,7 @@ options:
       and a health check is required.
     - For internal load balancing, a URL to a HealthCheck resource must be specified
       instead.
-    required: false
+    required: true
   iap:
     description:
     - Settings for enabling Cloud Identity Aware Proxy.
@@ -235,12 +239,12 @@ options:
         type: bool
       oauth2_client_id:
         description:
-        - OAuth2 Client ID for IAP.
-        required: false
+        - OAuth2 Client ID for IAP .
+        required: true
       oauth2_client_secret:
         description:
-        - OAuth2 Client Secret for IAP.
-        required: false
+        - OAuth2 Client Secret for IAP .
+        required: true
   load_balancing_scheme:
     description:
     - Indicates whether the backend service will be used with internal or external
@@ -259,7 +263,7 @@ options:
       which means the first character must be a lowercase letter, and all following
       characters must be a dash, lowercase letter, or digit, except the last character,
       which cannot be a dash.
-    required: false
+    required: true
   port_name:
     description:
     - Name of backend port. The same name should appear in the instance groups referenced
@@ -278,11 +282,11 @@ options:
     - HTTPS
     - TCP
     - SSL
-  region:
+  security_policy:
     description:
-    - The region where the regional backend service resides.
-    - This field is not applicable to global backend services.
+    - The security policy associated with this backend service.
     required: false
+    version_added: 2.8
   session_affinity:
     description:
     - Type of session affinity to use. The default is NONE.
@@ -501,7 +505,7 @@ cdnPolicy:
       type: int
 connectionDraining:
   description:
-  - Settings for connection draining.
+  - Settings for connection draining .
   returned: success
   type: complex
   contains:
@@ -514,6 +518,12 @@ connectionDraining:
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
+  returned: success
+  type: str
+fingerprint:
+  description:
+  - Fingerprint of this resource. A hash of the contents stored in this object. This
+    field is used in optimistic locking.
   returned: success
   type: str
 description:
@@ -554,17 +564,17 @@ iap:
       type: bool
     oauth2ClientId:
       description:
-      - OAuth2 Client ID for IAP.
+      - OAuth2 Client ID for IAP .
       returned: success
       type: str
     oauth2ClientSecret:
       description:
-      - OAuth2 Client Secret for IAP.
+      - OAuth2 Client Secret for IAP .
       returned: success
       type: str
     oauth2ClientSecretSha256:
       description:
-      - OAuth2 Client Secret SHA-256 for IAP.
+      - OAuth2 Client Secret SHA-256 for IAP .
       returned: success
       type: str
 loadBalancingScheme:
@@ -599,10 +609,9 @@ protocol:
     is TCP.
   returned: success
   type: str
-region:
+securityPolicy:
   description:
-  - The region where the regional backend service resides.
-  - This field is not applicable to global backend services.
+  - The security policy associated with this backend service.
   returned: success
   type: str
 sessionAffinity:
@@ -646,15 +655,15 @@ def main():
                 type='list',
                 elements='dict',
                 options=dict(
-                    balancing_mode=dict(type='str', choices=['UTILIZATION', 'RATE', 'CONNECTION']),
-                    capacity_scaler=dict(type='str'),
+                    balancing_mode=dict(default='UTILIZATION', type='str', choices=['UTILIZATION', 'RATE', 'CONNECTION']),
+                    capacity_scaler=dict(default=1.0, type='str'),
                     description=dict(type='str'),
                     group=dict(),
                     max_connections=dict(type='int'),
                     max_connections_per_instance=dict(type='int'),
                     max_rate=dict(type='int'),
                     max_rate_per_instance=dict(type='str'),
-                    max_utilization=dict(type='str'),
+                    max_utilization=dict(default=0.8, type='str'),
                 ),
             ),
             cdn_policy=dict(
@@ -673,16 +682,19 @@ def main():
                     signed_url_cache_max_age_sec=dict(default=3600, type='int'),
                 ),
             ),
-            connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(type='int'))),
+            connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
-            health_checks=dict(type='list', elements='str'),
-            iap=dict(type='dict', options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(type='str'), oauth2_client_secret=dict(type='str'))),
+            health_checks=dict(required=True, type='list', elements='str'),
+            iap=dict(
+                type='dict',
+                options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(required=True, type='str'), oauth2_client_secret=dict(required=True, type='str')),
+            ),
             load_balancing_scheme=dict(type='str', choices=['INTERNAL', 'EXTERNAL']),
-            name=dict(type='str'),
+            name=dict(required=True, type='str'),
             port_name=dict(type='str'),
             protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'TCP', 'SSL']),
-            region=dict(type='str'),
+            security_policy=dict(type='str'),
             session_affinity=dict(type='str', choices=['NONE', 'CLIENT_IP', 'GENERATED_COOKIE', 'CLIENT_IP_PROTO', 'CLIENT_IP_PORT_PROTO']),
             timeout_sec=dict(type='int', aliases=['timeout_seconds']),
         )
@@ -700,7 +712,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind)
+                update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -842,7 +854,7 @@ def response_to_hash(module, response):
         u'healthChecks': response.get(u'healthChecks'),
         u'id': response.get(u'id'),
         u'iap': BackendServiceIap(response.get(u'iap', {}), module).from_response(),
-        u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
+        u'loadBalancingScheme': response.get(u'loadBalancingScheme'),
         u'name': module.params.get('name'),
         u'portName': response.get(u'portName'),
         u'protocol': response.get(u'protocol'),
