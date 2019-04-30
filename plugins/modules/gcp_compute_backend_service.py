@@ -31,8 +31,9 @@ DOCUMENTATION = '''
 ---
 module: gcp_compute_backend_service
 description:
-- Creates a BackendService resource in the specified project using the data included
-  in the request.
+- A Backend Service defines a group of virtual machines that will serve traffic for
+  load balancing. This resource is a global backend service, appropriate for external
+  load balancing. For internal load balancing, use a regional backend service instead.
 short_description: Creates a GCP BackendService
 version_added: 2.6
 author: Google Inc. (@googlecloudplatform)
@@ -65,7 +66,6 @@ options:
         - Specifies the balancing mode for this backend.
         - For global HTTP(S) or TCP/SSL load balancing, the default is UTILIZATION.
           Valid values are UTILIZATION, RATE (for HTTP(S)) and CONNECTION (for TCP/SSL).
-        - This cannot be used for internal load balancing.
         required: false
         default: UTILIZATION
         choices:
@@ -80,7 +80,6 @@ options:
           capacity (depending on balancingMode). A setting of 0 means the group is
           completely drained, offering 0% of its available Capacity. Valid range is
           [0.0,1.0].
-        - This cannot be used for internal load balancing.
         required: false
         default: '1.0'
       description:
@@ -102,9 +101,6 @@ options:
           Group backends.
         - Note that you must specify an Instance Group or Network Endpoint Group resource
           using the fully-qualified URL, rather than a partial URL.
-        - When the BackendService has load balancing scheme INTERNAL, the instance
-          group must be within the same region as the BackendService. Network Endpoint
-          Groups are not supported for INTERNAL load balancing scheme.
         required: false
       max_connections:
         description:
@@ -112,7 +108,6 @@ options:
           either CONNECTION or UTILIZATION balancing modes.
         - For CONNECTION mode, either maxConnections or maxConnectionsPerInstance
           must be set.
-        - This cannot be used for internal load balancing.
         required: false
       max_connections_per_instance:
         description:
@@ -121,7 +116,6 @@ options:
           used in either CONNECTION or UTILIZATION balancing modes.
         - For CONNECTION mode, either maxConnections or maxConnectionsPerInstance
           must be set.
-        - This cannot be used for internal load balancing.
         required: false
       max_rate:
         description:
@@ -129,7 +123,6 @@ options:
         - Can be used with either RATE or UTILIZATION balancing modes, but required
           if RATE mode. For RATE mode, either maxRate or maxRatePerInstance must be
           set.
-        - This cannot be used for internal load balancing.
         required: false
       max_rate_per_instance:
         description:
@@ -137,13 +130,11 @@ options:
           This is used to calculate the capacity of the group. Can be used in either
           balancing mode. For RATE mode, either maxRate or maxRatePerInstance must
           be set.
-        - This cannot be used for internal load balancing.
         required: false
       max_utilization:
         description:
         - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
           target for the group. The default is 0.8. Valid range is [0.0, 1.0].
-        - This cannot be used for internal load balancing.
         required: false
         default: '0.8'
   cdn_policy:
@@ -218,7 +209,6 @@ options:
   enable_cdn:
     description:
     - If true, enable Cloud CDN for this BackendService.
-    - When the load balancing scheme is INTERNAL, this field is not used.
     required: false
     type: bool
   health_checks:
@@ -226,8 +216,6 @@ options:
     - The list of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
       checking this BackendService. Currently at most one health check can be specified,
       and a health check is required.
-    - For internal load balancing, a URL to a HealthCheck resource must be specified
-      instead.
     required: true
   iap:
     description:
@@ -252,12 +240,12 @@ options:
     description:
     - Indicates whether the backend service will be used with internal or external
       load balancing. A backend service created for one type of load balancing cannot
-      be used with the other. One of `INTERNAL` or `EXTERNAL`. Defaults to `EXTERNAL`.
+      be used with the other. Must be `EXTERNAL` for a global backend service. Defaults
+      to `EXTERNAL`.
     required: false
     default: EXTERNAL
     version_added: 2.7
     choices:
-    - INTERNAL
     - EXTERNAL
   name:
     description:
@@ -272,14 +260,11 @@ options:
     description:
     - Name of backend port. The same name should appear in the instance groups referenced
       by this service. Required when the load balancing scheme is EXTERNAL.
-    - When the load balancing scheme is INTERNAL, this field is not used.
     required: false
   protocol:
     description:
     - The protocol this BackendService uses to communicate with backends.
     - Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
-    - For internal load balancing, the possible values are TCP and UDP, and the default
-      is TCP.
     required: false
     choices:
     - HTTP
@@ -295,16 +280,12 @@ options:
     description:
     - Type of session affinity to use. The default is NONE.
     - When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or GENERATED_COOKIE.
-    - When the load balancing scheme is INTERNAL, can be NONE, CLIENT_IP, CLIENT_IP_PROTO,
-      or CLIENT_IP_PORT_PROTO.
     - When the protocol is UDP, this field is not used.
     required: false
     choices:
     - NONE
     - CLIENT_IP
     - GENERATED_COOKIE
-    - CLIENT_IP_PROTO
-    - CLIENT_IP_PORT_PROTO
   timeout_sec:
     description:
     - How many seconds to wait for the backend before considering it a failed request.
@@ -376,7 +357,6 @@ backends:
       - Specifies the balancing mode for this backend.
       - For global HTTP(S) or TCP/SSL load balancing, the default is UTILIZATION.
         Valid values are UTILIZATION, RATE (for HTTP(S)) and CONNECTION (for TCP/SSL).
-      - This cannot be used for internal load balancing.
       returned: success
       type: str
     capacityScaler:
@@ -386,7 +366,6 @@ backends:
       - Default value is 1, which means the group will serve up to 100% of its configured
         capacity (depending on balancingMode). A setting of 0 means the group is completely
         drained, offering 0% of its available Capacity. Valid range is [0.0,1.0].
-      - This cannot be used for internal load balancing.
       returned: success
       type: str
     description:
@@ -409,9 +388,6 @@ backends:
         Group backends.
       - Note that you must specify an Instance Group or Network Endpoint Group resource
         using the fully-qualified URL, rather than a partial URL.
-      - When the BackendService has load balancing scheme INTERNAL, the instance group
-        must be within the same region as the BackendService. Network Endpoint Groups
-        are not supported for INTERNAL load balancing scheme.
       returned: success
       type: str
     maxConnections:
@@ -420,7 +396,6 @@ backends:
         either CONNECTION or UTILIZATION balancing modes.
       - For CONNECTION mode, either maxConnections or maxConnectionsPerInstance must
         be set.
-      - This cannot be used for internal load balancing.
       returned: success
       type: int
     maxConnectionsPerInstance:
@@ -430,7 +405,6 @@ backends:
         in either CONNECTION or UTILIZATION balancing modes.
       - For CONNECTION mode, either maxConnections or maxConnectionsPerInstance must
         be set.
-      - This cannot be used for internal load balancing.
       returned: success
       type: int
     maxRate:
@@ -439,7 +413,6 @@ backends:
       - Can be used with either RATE or UTILIZATION balancing modes, but required
         if RATE mode. For RATE mode, either maxRate or maxRatePerInstance must be
         set.
-      - This cannot be used for internal load balancing.
       returned: success
       type: int
     maxRatePerInstance:
@@ -448,14 +421,12 @@ backends:
         This is used to calculate the capacity of the group. Can be used in either
         balancing mode. For RATE mode, either maxRate or maxRatePerInstance must be
         set.
-      - This cannot be used for internal load balancing.
       returned: success
       type: str
     maxUtilization:
       description:
       - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
         target for the group. The default is 0.8. Valid range is [0.0, 1.0].
-      - This cannot be used for internal load balancing.
       returned: success
       type: str
 cdnPolicy:
@@ -546,7 +517,6 @@ description:
 enableCDN:
   description:
   - If true, enable Cloud CDN for this BackendService.
-  - When the load balancing scheme is INTERNAL, this field is not used.
   returned: success
   type: bool
 healthChecks:
@@ -554,8 +524,6 @@ healthChecks:
   - The list of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
     checking this BackendService. Currently at most one health check can be specified,
     and a health check is required.
-  - For internal load balancing, a URL to a HealthCheck resource must be specified
-    instead.
   returned: success
   type: list
 id:
@@ -593,7 +561,8 @@ loadBalancingScheme:
   description:
   - Indicates whether the backend service will be used with internal or external load
     balancing. A backend service created for one type of load balancing cannot be
-    used with the other. One of `INTERNAL` or `EXTERNAL`. Defaults to `EXTERNAL`.
+    used with the other. Must be `EXTERNAL` for a global backend service. Defaults
+    to `EXTERNAL`.
   returned: success
   type: str
 name:
@@ -610,15 +579,12 @@ portName:
   description:
   - Name of backend port. The same name should appear in the instance groups referenced
     by this service. Required when the load balancing scheme is EXTERNAL.
-  - When the load balancing scheme is INTERNAL, this field is not used.
   returned: success
   type: str
 protocol:
   description:
   - The protocol this BackendService uses to communicate with backends.
   - Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
-  - For internal load balancing, the possible values are TCP and UDP, and the default
-    is TCP.
   returned: success
   type: str
 securityPolicy:
@@ -630,8 +596,6 @@ sessionAffinity:
   description:
   - Type of session affinity to use. The default is NONE.
   - When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or GENERATED_COOKIE.
-  - When the load balancing scheme is INTERNAL, can be NONE, CLIENT_IP, CLIENT_IP_PROTO,
-    or CLIENT_IP_PORT_PROTO.
   - When the protocol is UDP, this field is not used.
   returned: success
   type: str
@@ -702,12 +666,12 @@ def main():
                 type='dict',
                 options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(required=True, type='str'), oauth2_client_secret=dict(required=True, type='str')),
             ),
-            load_balancing_scheme=dict(default='EXTERNAL', type='str', choices=['INTERNAL', 'EXTERNAL']),
+            load_balancing_scheme=dict(default='EXTERNAL', type='str', choices=['EXTERNAL']),
             name=dict(required=True, type='str'),
             port_name=dict(type='str'),
             protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'TCP', 'SSL']),
             security_policy=dict(type='str'),
-            session_affinity=dict(type='str', choices=['NONE', 'CLIENT_IP', 'GENERATED_COOKIE', 'CLIENT_IP_PROTO', 'CLIENT_IP_PORT_PROTO']),
+            session_affinity=dict(type='str', choices=['NONE', 'CLIENT_IP', 'GENERATED_COOKIE']),
             timeout_sec=dict(type='int', aliases=['timeout_seconds']),
         )
     )
@@ -866,7 +830,7 @@ def response_to_hash(module, response):
         u'healthChecks': response.get(u'healthChecks'),
         u'id': response.get(u'id'),
         u'iap': BackendServiceIap(response.get(u'iap', {}), module).from_response(),
-        u'loadBalancingScheme': response.get(u'loadBalancingScheme'),
+        u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
         u'name': module.params.get('name'),
         u'portName': response.get(u'portName'),
         u'protocol': response.get(u'protocol'),
