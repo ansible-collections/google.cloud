@@ -189,7 +189,8 @@ resources:
       type: list
     vlanTag8021q:
       description:
-      - The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094.
+      - The IEEE 802.1Q VLAN tag for this attachment, in the range 2-4094. When using
+        PARTNER type this will be managed upstream.
       returned: success
       type: int
     region:
