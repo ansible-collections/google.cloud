@@ -313,7 +313,9 @@ resources:
     protocol:
       description:
       - The protocol this BackendService uses to communicate with backends.
-      - Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
+      - 'Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is HTTP.
+        **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and may
+        result in errors if used with the GA API.'
       returned: success
       type: str
     securityPolicy:

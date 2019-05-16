@@ -264,11 +264,14 @@ options:
   protocol:
     description:
     - The protocol this BackendService uses to communicate with backends.
-    - Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
+    - 'Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is HTTP.
+      **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and may result
+      in errors if used with the GA API.'
     required: false
     choices:
     - HTTP
     - HTTPS
+    - HTTP2
     - TCP
     - SSL
   security_policy:
@@ -584,7 +587,9 @@ portName:
 protocol:
   description:
   - The protocol this BackendService uses to communicate with backends.
-  - Possible values are HTTP, HTTPS, TCP, and SSL. The default is HTTP.
+  - 'Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is HTTP. **NOTE**:
+    HTTP2 is only valid for beta HTTP/2 load balancer types and may result in errors
+    if used with the GA API.'
   returned: success
   type: str
 securityPolicy:
@@ -669,7 +674,7 @@ def main():
             load_balancing_scheme=dict(default='EXTERNAL', type='str', choices=['EXTERNAL']),
             name=dict(required=True, type='str'),
             port_name=dict(type='str'),
-            protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'TCP', 'SSL']),
+            protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'HTTP2', 'TCP', 'SSL']),
             security_policy=dict(type='str'),
             session_affinity=dict(type='str', choices=['NONE', 'CLIENT_IP', 'GENERATED_COOKIE']),
             timeout_sec=dict(type='int', aliases=['timeout_seconds']),
