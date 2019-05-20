@@ -305,7 +305,7 @@ def main():
             changed = True
     else:
         if state == 'present':
-            fetch = create(module, collection(module))
+            fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
@@ -378,6 +378,10 @@ def self_link(module):
 
 
 def collection(module):
+    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances".format(**module.params)
+
+
+def create_link(module):
     return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances?instanceId={name}".format(**module.params)
 
 
