@@ -202,14 +202,11 @@ options:
         description:
         - Full or partial URL of the accelerator type resource to expose to this instance.
         required: false
-  label_fingerprint:
+  labels:
     description:
-    - A fingerprint for this request, which is essentially a hash of the metadata's
-      contents and used for optimistic locking. The fingerprint is initially generated
-      by Compute Engine and changes after every request to modify or update metadata.
-      You must always provide an up-to-date fingerprint hash in order to update or
-      change metadata.
+    - Labels to apply to this instance. A list of key->value pairs.
     required: false
+    version_added: 2.9
   metadata:
     description:
     - The metadata key/value pairs to assign to instances that are created from this
@@ -451,6 +448,8 @@ EXAMPLES = '''
     metadata:
       startup-script-url: gs:://graphite-playground/bootstrap.sh
       cost-center: '12345'
+    labels:
+      environment: production
     network_interfaces:
     - network: "{{ network }}"
       access_configs:
@@ -649,13 +648,15 @@ id:
   type: int
 labelFingerprint:
   description:
-  - A fingerprint for this request, which is essentially a hash of the metadata's
-    contents and used for optimistic locking. The fingerprint is initially generated
-    by Compute Engine and changes after every request to modify or update metadata.
-    You must always provide an up-to-date fingerprint hash in order to update or change
-    metadata.
+  - The fingerprint used for optimistic locking of this resource. Used internally
+    during updates.
   returned: success
   type: str
+labels:
+  description:
+  - Labels to apply to this instance. A list of key->value pairs.
+  returned: success
+  type: dict
 metadata:
   description:
   - The metadata key/value pairs to assign to instances that are created from this
@@ -908,7 +909,7 @@ def main():
                 ),
             ),
             guest_accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
-            label_fingerprint=dict(type='str'),
+            labels=dict(type='dict'),
             metadata=dict(type='dict'),
             machine_type=dict(type='str'),
             min_cpu_platform=dict(type='str'),
@@ -987,8 +988,18 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
+    if response.get('labels') != request.get('labels'):
+        label_fingerprint_update(module, request, response)
     if response.get('machineType') != request.get('machineType'):
         machine_type_update(module, request, response)
+
+
+def label_fingerprint_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    auth.post(
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/instances/{name}/setLabels"]).format(**module.params),
+        {u'labelFingerprint': response.get('labelFingerprint'), u'labels': module.params.get('labels')},
+    )
 
 
 def machine_type_update(module, request, response):
@@ -1010,7 +1021,7 @@ def resource_to_request(module):
         u'canIpForward': module.params.get('can_ip_forward'),
         u'disks': InstanceDisksArray(module.params.get('disks', []), module).to_request(),
         u'guestAccelerators': InstanceGuestacceleratorsArray(module.params.get('guest_accelerators', []), module).to_request(),
-        u'labelFingerprint': module.params.get('label_fingerprint'),
+        u'labels': module.params.get('labels'),
         u'metadata': module.params.get('metadata'),
         u'machineType': machine_type_selflink(module.params.get('machine_type'), module.params),
         u'minCpuPlatform': module.params.get('min_cpu_platform'),
@@ -1096,6 +1107,7 @@ def response_to_hash(module, response):
         u'guestAccelerators': InstanceGuestacceleratorsArray(response.get(u'guestAccelerators', []), module).from_response(),
         u'id': response.get(u'id'),
         u'labelFingerprint': response.get(u'labelFingerprint'),
+        u'labels': response.get(u'labels'),
         u'metadata': response.get(u'metadata'),
         u'machineType': response.get(u'machineType'),
         u'minCpuPlatform': response.get(u'minCpuPlatform'),
