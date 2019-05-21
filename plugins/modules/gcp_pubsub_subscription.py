@@ -142,7 +142,7 @@ options:
       If expirationPolicy is not set, a default policy with ttl of 31 days will be
       used. The minimum allowed value for expirationPolicy.ttl is 1 day.
     required: false
-    version_added: 2.8
+    version_added: 2.9
     suboptions:
       ttl:
         description:
