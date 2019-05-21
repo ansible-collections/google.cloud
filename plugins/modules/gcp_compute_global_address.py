@@ -175,8 +175,8 @@ def main():
             address=dict(type='str'),
             description=dict(type='str'),
             name=dict(required=True, type='str'),
-            ip_version=dict(type='str', choices=['IPV4', 'IPV6']),
-            address_type=dict(default='EXTERNAL', type='str', choices=['EXTERNAL', 'INTERNAL']),
+            ip_version=dict(type='str'),
+            address_type=dict(default='EXTERNAL', type='str'),
         )
     )
 

@@ -431,7 +431,7 @@ def main():
             denied=dict(type='list', elements='dict', options=dict(ip_protocol=dict(required=True, type='str'), ports=dict(type='list', elements='str'))),
             description=dict(type='str'),
             destination_ranges=dict(type='list', elements='str'),
-            direction=dict(type='str', choices=['INGRESS', 'EGRESS']),
+            direction=dict(type='str'),
             disabled=dict(type='bool'),
             name=dict(required=True, type='str'),
             network=dict(default=dict(selfLink='global/networks/default'), type='dict'),

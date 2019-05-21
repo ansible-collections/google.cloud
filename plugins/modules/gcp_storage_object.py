@@ -140,7 +140,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            action=dict(type='str', choices=['download', 'upload']),
+            action=dict(type='str'),
             overwrite=dict(type='bool'),
             src=dict(type='path'),
             dest=dict(type='path'),

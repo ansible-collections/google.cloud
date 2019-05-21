@@ -535,7 +535,7 @@ def main():
             name=dict(required=True, type='str'),
             timeout_sec=dict(default=5, type='int', aliases=['timeout_seconds']),
             unhealthy_threshold=dict(default=2, type='int'),
-            type=dict(type='str', choices=['TCP', 'SSL', 'HTTP', 'HTTPS']),
+            type=dict(type='str'),
             http_health_check=dict(
                 type='dict',
                 options=dict(
@@ -544,7 +544,7 @@ def main():
                     response=dict(type='str'),
                     port=dict(type='int'),
                     port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                    proxy_header=dict(default='NONE', type='str'),
                 ),
             ),
             https_health_check=dict(
@@ -555,7 +555,7 @@ def main():
                     response=dict(type='str'),
                     port=dict(type='int'),
                     port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                    proxy_header=dict(default='NONE', type='str'),
                 ),
             ),
             tcp_health_check=dict(
@@ -565,7 +565,7 @@ def main():
                     response=dict(type='str'),
                     port=dict(type='int'),
                     port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                    proxy_header=dict(default='NONE', type='str'),
                 ),
             ),
             ssl_health_check=dict(
@@ -575,7 +575,7 @@ def main():
                     response=dict(type='str'),
                     port=dict(type='int'),
                     port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str', choices=['NONE', 'PROXY_V1']),
+                    proxy_header=dict(default='NONE', type='str'),
                 ),
             ),
         ),

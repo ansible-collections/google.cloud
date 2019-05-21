@@ -213,7 +213,7 @@ def main():
             ipv4_range=dict(type='str'),
             name=dict(required=True, type='str'),
             auto_create_subnetworks=dict(type='bool'),
-            routing_config=dict(type='dict', options=dict(routing_mode=dict(required=True, type='str', choices=['REGIONAL', 'GLOBAL']))),
+            routing_config=dict(type='dict', options=dict(routing_mode=dict(required=True, type='str'))),
         ),
         mutually_exclusive=[['auto_create_subnetworks', 'ipv4_range']],
     )

@@ -197,7 +197,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             description=dict(type='str'),
             name=dict(required=True, type='str'),
-            proxy_header=dict(type='str', choices=['NONE', 'PROXY_V1']),
+            proxy_header=dict(type='str'),
             service=dict(required=True, type='dict'),
         )
     )

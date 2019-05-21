@@ -917,7 +917,7 @@ def main():
                     ),
                 ),
             ),
-            time_partitioning=dict(type='dict', options=dict(expiration_ms=dict(type='int'), type=dict(type='str', choices=['DAY']))),
+            time_partitioning=dict(type='dict', options=dict(expiration_ms=dict(type='int'), type=dict(type='str'))),
             schema=dict(
                 type='dict',
                 options=dict(
@@ -927,9 +927,9 @@ def main():
                         options=dict(
                             description=dict(type='str'),
                             fields=dict(type='list', elements='str'),
-                            mode=dict(type='str', choices=['NULLABLE', 'REQUIRED', 'REPEATED']),
+                            mode=dict(type='str'),
                             name=dict(type='str'),
-                            type=dict(type='str', choices=['STRING', 'BYTES', 'INTEGER', 'FLOAT', 'TIMESTAMP', 'DATE', 'TIME', 'DATETIME', 'RECORD']),
+                            type=dict(type='str'),
                         ),
                     )
                 ),
@@ -940,10 +940,10 @@ def main():
                 type='dict',
                 options=dict(
                     autodetect=dict(type='bool'),
-                    compression=dict(type='str', choices=['GZIP', 'NONE']),
+                    compression=dict(type='str'),
                     ignore_unknown_values=dict(type='bool'),
                     max_bad_records=dict(default=0, type='int'),
-                    source_format=dict(type='str', choices=['CSV', 'GOOGLE_SHEETS', 'NEWLINE_DELIMITED_JSON', 'AVRO', 'DATASTORE_BACKUP', 'BIGTABLE']),
+                    source_format=dict(type='str'),
                     source_uris=dict(type='list', elements='str'),
                     schema=dict(
                         type='dict',
@@ -954,9 +954,9 @@ def main():
                                 options=dict(
                                     description=dict(type='str'),
                                     fields=dict(type='list', elements='str'),
-                                    mode=dict(type='str', choices=['NULLABLE', 'REQUIRED', 'REPEATED']),
+                                    mode=dict(type='str'),
                                     name=dict(type='str'),
-                                    type=dict(type='str', choices=['STRING', 'BYTES', 'INTEGER', 'FLOAT', 'TIMESTAMP', 'DATE', 'TIME', 'DATETIME', 'RECORD']),
+                                    type=dict(type='str'),
                                 ),
                             )
                         ),
@@ -967,7 +967,7 @@ def main():
                         options=dict(
                             allow_jagged_rows=dict(type='bool'),
                             allow_quoted_newlines=dict(type='bool'),
-                            encoding=dict(type='str', choices=['UTF-8', 'ISO-8859-1']),
+                            encoding=dict(type='str'),
                             field_delimiter=dict(type='str'),
                             quote=dict(type='str'),
                             skip_leading_rows=dict(default=0, type='int'),
@@ -986,17 +986,17 @@ def main():
                                         type='list',
                                         elements='dict',
                                         options=dict(
-                                            encoding=dict(type='str', choices=['TEXT', 'BINARY']),
+                                            encoding=dict(type='str'),
                                             field_name=dict(type='str'),
                                             only_read_latest=dict(type='bool'),
                                             qualifier_string=dict(required=True, type='str'),
-                                            type=dict(type='str', choices=['BYTES', 'STRING', 'INTEGER', 'FLOAT', 'BOOLEAN']),
+                                            type=dict(type='str'),
                                         ),
                                     ),
-                                    encoding=dict(type='str', choices=['TEXT', 'BINARY']),
+                                    encoding=dict(type='str'),
                                     family_id=dict(type='str'),
                                     only_read_latest=dict(type='bool'),
-                                    type=dict(type='str', choices=['BYTES', 'STRING', 'INTEGER', 'FLOAT', 'BOOLEAN']),
+                                    type=dict(type='str'),
                                 ),
                             ),
                         ),

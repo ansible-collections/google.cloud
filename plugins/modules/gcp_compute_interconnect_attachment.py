@@ -284,7 +284,7 @@ def main():
             interconnect=dict(type='str'),
             description=dict(type='str'),
             edge_availability_domain=dict(type='str'),
-            type=dict(type='str', choices=['DEDICATED', 'PARTNER', 'PARTNER_PROVIDER']),
+            type=dict(type='str'),
             router=dict(required=True, type='dict'),
             name=dict(required=True, type='str'),
             candidate_subnets=dict(type='list', elements='str'),

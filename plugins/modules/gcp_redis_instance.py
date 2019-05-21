@@ -280,7 +280,7 @@ def main():
             memory_size_gb=dict(required=True, type='int'),
             redis_version=dict(type='str'),
             reserved_ip_range=dict(type='str'),
-            tier=dict(default='BASIC', type='str', choices=['BASIC', 'STANDARD_HA']),
+            tier=dict(default='BASIC', type='str'),
             region=dict(required=True, type='str'),
         )
     )

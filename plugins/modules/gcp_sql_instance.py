@@ -607,11 +607,11 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            backend_type=dict(type='str', choices=['FIRST_GEN', 'SECOND_GEN', 'EXTERNAL']),
+            backend_type=dict(type='str'),
             connection_name=dict(type='str'),
-            database_version=dict(type='str', choices=['MYSQL_5_5', 'MYSQL_5_6', 'MYSQL_5_7', 'POSTGRES_9_6']),
+            database_version=dict(type='str'),
             failover_replica=dict(type='dict', options=dict(name=dict(type='str'))),
-            instance_type=dict(type='str', choices=['CLOUD_SQL_INSTANCE', 'ON_PREMISES_INSTANCE', 'READ_REPLICA_INSTANCE']),
+            instance_type=dict(type='str'),
             ipv6_address=dict(type='str'),
             master_instance_name=dict(type='str'),
             max_disk_size=dict(type='int'),
@@ -654,7 +654,7 @@ def main():
                         ),
                     ),
                     tier=dict(type='str'),
-                    availability_type=dict(type='str', choices=['ZONAL', 'REGIONAL']),
+                    availability_type=dict(type='str'),
                     backup_configuration=dict(
                         type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'))
                     ),

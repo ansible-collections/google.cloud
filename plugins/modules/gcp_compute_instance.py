@@ -902,10 +902,10 @@ def main():
                             source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
                         ),
                     ),
-                    interface=dict(type='str', choices=['SCSI', 'NVME']),
-                    mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
+                    interface=dict(type='str'),
+                    mode=dict(type='str'),
                     source=dict(type='dict'),
-                    type=dict(type='str', choices=['SCRATCH', 'PERSISTENT']),
+                    type=dict(type='str'),
                 ),
             ),
             guest_accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
@@ -921,9 +921,7 @@ def main():
                     access_configs=dict(
                         type='list',
                         elements='dict',
-                        options=dict(
-                            name=dict(required=True, type='str'), nat_ip=dict(type='dict'), type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT'])
-                        ),
+                        options=dict(name=dict(required=True, type='str'), nat_ip=dict(type='dict'), type=dict(required=True, type='str')),
                     ),
                     alias_ip_ranges=dict(type='list', elements='dict', options=dict(ip_cidr_range=dict(type='str'), subnetwork_range_name=dict(type='str'))),
                     network=dict(type='dict'),
@@ -935,7 +933,7 @@ def main():
                 type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
             ),
             service_accounts=dict(type='list', elements='dict', options=dict(email=dict(type='str'), scopes=dict(type='list', elements='str'))),
-            status=dict(type='str', choices=['PROVISIONING', 'STAGING', 'RUNNING', 'STOPPING', 'SUSPENDING', 'SUSPENDED', 'TERMINATED']),
+            status=dict(type='str'),
             tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
             zone=dict(required=True, type='str'),
         )

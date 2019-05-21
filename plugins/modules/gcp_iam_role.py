@@ -149,7 +149,7 @@ def main():
             title=dict(type='str'),
             description=dict(type='str'),
             included_permissions=dict(type='list', elements='str'),
-            stage=dict(type='str', choices=['ALPHA', 'BETA', 'GA', 'DEPRECATED', 'DISABLED', 'EAP']),
+            stage=dict(type='str'),
         )
     )
 

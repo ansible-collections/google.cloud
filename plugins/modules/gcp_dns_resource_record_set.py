@@ -170,7 +170,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
-            type=dict(required=True, type='str', choices=['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SPF', 'SRV', 'TLSA', 'TXT']),
+            type=dict(required=True, type='str'),
             ttl=dict(type='int'),
             target=dict(type='list', elements='str'),
             managed_zone=dict(required=True, type='dict'),

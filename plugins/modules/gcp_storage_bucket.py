@@ -745,10 +745,8 @@ def main():
                     bucket=dict(required=True, type='dict'),
                     entity=dict(required=True, type='str'),
                     entity_id=dict(type='str'),
-                    project_team=dict(
-                        type='dict', options=dict(project_number=dict(type='str'), team=dict(type='str', choices=['editors', 'owners', 'viewers']))
-                    ),
-                    role=dict(type='str', choices=['OWNER', 'READER', 'WRITER']),
+                    project_team=dict(type='dict', options=dict(project_number=dict(type='str'), team=dict(type='str'))),
+                    role=dict(type='str'),
                 ),
             ),
             cors=dict(
@@ -768,7 +766,7 @@ def main():
                     bucket=dict(required=True, type='dict'),
                     entity=dict(required=True, type='str'),
                     object=dict(type='str'),
-                    role=dict(required=True, type='str', choices=['OWNER', 'READER']),
+                    role=dict(required=True, type='str'),
                 ),
             ),
             lifecycle=dict(
@@ -778,9 +776,7 @@ def main():
                         type='list',
                         elements='dict',
                         options=dict(
-                            action=dict(
-                                type='dict', options=dict(storage_class=dict(type='str'), type=dict(type='str', choices=['Delete', 'SetStorageClass']))
-                            ),
+                            action=dict(type='dict', options=dict(storage_class=dict(type='str'), type=dict(type='str'))),
                             condition=dict(
                                 type='dict',
                                 options=dict(
@@ -800,13 +796,11 @@ def main():
             metageneration=dict(type='int'),
             name=dict(type='str'),
             owner=dict(type='dict', options=dict(entity=dict(type='str'))),
-            storage_class=dict(type='str', choices=['MULTI_REGIONAL', 'REGIONAL', 'STANDARD', 'NEARLINE', 'COLDLINE', 'DURABLE_REDUCED_AVAILABILITY']),
+            storage_class=dict(type='str'),
             versioning=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             website=dict(type='dict', options=dict(main_page_suffix=dict(type='str'), not_found_page=dict(type='str'))),
             project=dict(type='str'),
-            predefined_default_object_acl=dict(
-                type='str', choices=['authenticatedRead', 'bucketOwnerFullControl', 'bucketOwnerRead', 'private', 'projectPrivate', 'publicRead']
-            ),
+            predefined_default_object_acl=dict(type='str'),
         )
     )
 

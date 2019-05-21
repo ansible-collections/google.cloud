@@ -175,8 +175,8 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            private_key_type=dict(type='str', choices=['TYPE_UNSPECIFIED', 'TYPE_PKCS12_FILE', 'TYPE_GOOGLE_CREDENTIALS_FILE']),
-            key_algorithm=dict(type='str', choices=['KEY_ALG_UNSPECIFIED', 'KEY_ALG_RSA_1024', 'KEY_ALG_RSA_2048']),
+            private_key_type=dict(type='str'),
+            key_algorithm=dict(type='str'),
             service_account=dict(type='dict'),
             path=dict(type='path'),
         )

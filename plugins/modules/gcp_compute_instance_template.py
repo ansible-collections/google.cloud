@@ -875,10 +875,10 @@ def main():
                                     source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
                                 ),
                             ),
-                            interface=dict(type='str', choices=['SCSI', 'NVME']),
-                            mode=dict(type='str', choices=['READ_WRITE', 'READ_ONLY']),
+                            interface=dict(type='str'),
+                            mode=dict(type='str'),
                             source=dict(type='dict'),
-                            type=dict(type='str', choices=['SCRATCH', 'PERSISTENT']),
+                            type=dict(type='str'),
                         ),
                     ),
                     machine_type=dict(required=True, type='str'),
@@ -892,11 +892,7 @@ def main():
                             access_configs=dict(
                                 type='list',
                                 elements='dict',
-                                options=dict(
-                                    name=dict(required=True, type='str'),
-                                    nat_ip=dict(type='dict'),
-                                    type=dict(required=True, type='str', choices=['ONE_TO_ONE_NAT']),
-                                ),
+                                options=dict(name=dict(required=True, type='str'), nat_ip=dict(type='dict'), type=dict(required=True, type='str')),
                             ),
                             alias_ip_ranges=dict(
                                 type='list', elements='dict', options=dict(ip_cidr_range=dict(type='str'), subnetwork_range_name=dict(type='str'))

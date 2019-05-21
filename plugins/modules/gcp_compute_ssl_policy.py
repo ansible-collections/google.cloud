@@ -209,8 +209,8 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             description=dict(type='str'),
             name=dict(required=True, type='str'),
-            profile=dict(type='str', choices=['COMPATIBLE', 'MODERN', 'RESTRICTED', 'CUSTOM']),
-            min_tls_version=dict(type='str', choices=['TLS_1_0', 'TLS_1_1', 'TLS_1_2']),
+            profile=dict(type='str'),
+            min_tls_version=dict(type='str'),
             custom_features=dict(type='list', elements='str'),
         )
     )

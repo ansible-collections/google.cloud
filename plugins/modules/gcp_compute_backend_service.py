@@ -636,7 +636,7 @@ def main():
                 type='list',
                 elements='dict',
                 options=dict(
-                    balancing_mode=dict(default='UTILIZATION', type='str', choices=['UTILIZATION', 'RATE', 'CONNECTION']),
+                    balancing_mode=dict(default='UTILIZATION', type='str'),
                     capacity_scaler=dict(default=1.0, type='str'),
                     description=dict(type='str'),
                     group=dict(type='str'),
@@ -671,12 +671,12 @@ def main():
                 type='dict',
                 options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(required=True, type='str'), oauth2_client_secret=dict(required=True, type='str')),
             ),
-            load_balancing_scheme=dict(default='EXTERNAL', type='str', choices=['EXTERNAL']),
+            load_balancing_scheme=dict(default='EXTERNAL', type='str'),
             name=dict(required=True, type='str'),
             port_name=dict(type='str'),
-            protocol=dict(type='str', choices=['HTTP', 'HTTPS', 'HTTP2', 'TCP', 'SSL']),
+            protocol=dict(type='str'),
             security_policy=dict(type='str'),
-            session_affinity=dict(type='str', choices=['NONE', 'CLIENT_IP', 'GENERATED_COOKIE']),
+            session_affinity=dict(type='str'),
             timeout_sec=dict(type='int', aliases=['timeout_seconds']),
         )
     )

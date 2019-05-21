@@ -219,7 +219,7 @@ def main():
             name=dict(required=True, type='str'),
             name_server_set=dict(type='str'),
             labels=dict(type='dict'),
-            visibility=dict(default='public', type='str', choices=['private', 'public']),
+            visibility=dict(default='public', type='str'),
             private_visibility_config=dict(type='dict', options=dict(networks=dict(type='list', elements='dict', options=dict(network_url=dict(type='str'))))),
         )
     )

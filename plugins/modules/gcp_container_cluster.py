@@ -651,8 +651,8 @@ def main():
                 ),
             ),
             master_auth=dict(type='dict', options=dict(username=dict(type='str'), password=dict(type='str'))),
-            logging_service=dict(type='str', choices=['logging.googleapis.com', 'none']),
-            monitoring_service=dict(type='str', choices=['monitoring.googleapis.com', 'none']),
+            logging_service=dict(type='str'),
+            monitoring_service=dict(type='str'),
             network=dict(type='str'),
             private_cluster_config=dict(
                 type='dict',
