@@ -53,7 +53,7 @@ options:
     default: present
   name:
     description:
-    - For example, U(www.example.com.)
+    - For example, U(www.example.com).
     required: true
   type:
     description:
@@ -111,7 +111,7 @@ EXAMPLES = '''
 RETURN = '''
 name:
   description:
-  - For example, U(www.example.com.)
+  - For example, U(www.example.com).
   returned: success
   type: str
 type:

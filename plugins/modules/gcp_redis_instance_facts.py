@@ -109,7 +109,7 @@ resources:
       type: dict
     redisConfigs:
       description:
-      - Redis configuration parameters, according to U(http://redis.io/topics/config.)
+      - Redis configuration parameters, according to U(http://redis.io/topics/config).
       - 'Please check Memorystore documentation for the list of supported parameters:
         U(https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances#Instance.FIELDS.redis_configs)
         .'

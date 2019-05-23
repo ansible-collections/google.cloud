@@ -76,7 +76,7 @@ options:
       push_endpoint:
         description:
         - A URL locating the endpoint to which messages should be pushed.
-        - For example, a Webhook endpoint might use "U(https://example.com/push".)
+        - For example, a Webhook endpoint might use "U(https://example.com/push").
         required: true
       attributes:
         description:
@@ -208,7 +208,7 @@ pushConfig:
     pushEndpoint:
       description:
       - A URL locating the endpoint to which messages should be pushed.
-      - For example, a Webhook endpoint might use "U(https://example.com/push".)
+      - For example, a Webhook endpoint might use "U(https://example.com/push").
       returned: success
       type: str
     attributes:
