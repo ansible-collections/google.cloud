@@ -118,9 +118,8 @@ options:
       type:
         description:
         - The only type supported is DAY, which will generate one partition per day.
+        - 'Some valid choices include: "DAY"'
         required: false
-        choices:
-        - DAY
   schema:
     description:
     - Describes the schema of this table.
@@ -142,11 +141,8 @@ options:
           mode:
             description:
             - The field mode.
+            - 'Some valid choices include: "NULLABLE", "REQUIRED", "REPEATED"'
             required: false
-            choices:
-            - NULLABLE
-            - REQUIRED
-            - REPEATED
           name:
             description:
             - The field name.
@@ -154,17 +150,9 @@ options:
           type:
             description:
             - The field data type.
+            - 'Some valid choices include: "STRING", "BYTES", "INTEGER", "FLOAT",
+              "TIMESTAMP", "DATE", "TIME", "DATETIME", "RECORD"'
             required: false
-            choices:
-            - STRING
-            - BYTES
-            - INTEGER
-            - FLOAT
-            - TIMESTAMP
-            - DATE
-            - TIME
-            - DATETIME
-            - RECORD
   encryption_configuration:
     description:
     - Custom encryption configuration.
@@ -197,10 +185,8 @@ options:
       compression:
         description:
         - The compression type of the data source.
+        - 'Some valid choices include: "GZIP", "NONE"'
         required: false
-        choices:
-        - GZIP
-        - NONE
       ignore_unknown_values:
         description:
         - Indicates if BigQuery should allow extra values that are not represented
@@ -216,14 +202,9 @@ options:
       source_format:
         description:
         - The data format.
+        - 'Some valid choices include: "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON",
+          "AVRO", "DATASTORE_BACKUP", "BIGTABLE"'
         required: false
-        choices:
-        - CSV
-        - GOOGLE_SHEETS
-        - NEWLINE_DELIMITED_JSON
-        - AVRO
-        - DATASTORE_BACKUP
-        - BIGTABLE
       source_uris:
         description:
         - 'The fully-qualified URIs that point to your data in Google Cloud. For Google
@@ -257,11 +238,8 @@ options:
               mode:
                 description:
                 - Field mode.
+                - 'Some valid choices include: "NULLABLE", "REQUIRED", "REPEATED"'
                 required: false
-                choices:
-                - NULLABLE
-                - REQUIRED
-                - REPEATED
               name:
                 description:
                 - Field name.
@@ -269,17 +247,9 @@ options:
               type:
                 description:
                 - Field data type.
+                - 'Some valid choices include: "STRING", "BYTES", "INTEGER", "FLOAT",
+                  "TIMESTAMP", "DATE", "TIME", "DATETIME", "RECORD"'
                 required: false
-                choices:
-                - STRING
-                - BYTES
-                - INTEGER
-                - FLOAT
-                - TIMESTAMP
-                - DATE
-                - TIME
-                - DATETIME
-                - RECORD
       google_sheets_options:
         description:
         - Additional options if sourceFormat is set to GOOGLE_SHEETS.
@@ -311,10 +281,8 @@ options:
           encoding:
             description:
             - The character encoding of the data.
+            - 'Some valid choices include: "UTF-8", "ISO-8859-1"'
             required: false
-            choices:
-            - UTF-8
-            - ISO-8859-1
           field_delimiter:
             description:
             - The separator for fields in a CSV file.
@@ -361,10 +329,8 @@ options:
                   encoding:
                     description:
                     - The encoding of the values when the type is not STRING.
+                    - 'Some valid choices include: "TEXT", "BINARY"'
                     required: false
-                    choices:
-                    - TEXT
-                    - BINARY
                   field_name:
                     description:
                     - If the qualifier is not a valid BigQuery field identifier, a
@@ -384,20 +350,14 @@ options:
                   type:
                     description:
                     - The type to convert the value in cells of this column.
+                    - 'Some valid choices include: "BYTES", "STRING", "INTEGER", "FLOAT",
+                      "BOOLEAN"'
                     required: false
-                    choices:
-                    - BYTES
-                    - STRING
-                    - INTEGER
-                    - FLOAT
-                    - BOOLEAN
               encoding:
                 description:
                 - The encoding of the values when the type is not STRING.
+                - 'Some valid choices include: "TEXT", "BINARY"'
                 required: false
-                choices:
-                - TEXT
-                - BINARY
               family_id:
                 description:
                 - Identifier of the column family.
@@ -411,13 +371,9 @@ options:
               type:
                 description:
                 - The type to convert the value in cells of this column family.
+                - 'Some valid choices include: "BYTES", "STRING", "INTEGER", "FLOAT",
+                  "BOOLEAN"'
                 required: false
-                choices:
-                - BYTES
-                - STRING
-                - INTEGER
-                - FLOAT
-                - BOOLEAN
   dataset:
     description:
     - Name of the dataset.

@@ -67,14 +67,9 @@ options:
   stage:
     description:
     - The current launch stage of the role.
+    - 'Some valid choices include: "ALPHA", "BETA", "GA", "DEPRECATED", "DISABLED",
+      "EAP"'
     required: false
-    choices:
-    - ALPHA
-    - BETA
-    - GA
-    - DEPRECATED
-    - DISABLED
-    - EAP
 extends_documentation_fragment: gcp
 '''
 

@@ -105,11 +105,9 @@ options:
     description:
     - 'The service tier of the instance. Must be one of these values: - BASIC: standalone
       instance - STANDARD_HA: highly available primary/replica instances .'
+    - 'Some valid choices include: "BASIC", "STANDARD_HA"'
     required: false
     default: BASIC
-    choices:
-    - BASIC
-    - STANDARD_HA
   region:
     description:
     - The name of the Redis region of the instance.

@@ -50,10 +50,8 @@ options:
   action:
     description:
     - Upload or download from the bucket.
+    - 'Some valid choices include: "download", "upload"'
     required: false
-    choices:
-    - download
-    - upload
   overwrite:
     description:
     - "'Overwrite the file on the bucket/local machine. If overwrite is false and

@@ -81,14 +81,8 @@ options:
     - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP,
       AH, SCTP or ICMP.
     - When the load balancing scheme is INTERNAL, only TCP and UDP are valid.
+    - 'Some valid choices include: "TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"'
     required: false
-    choices:
-    - TCP
-    - UDP
-    - ESP
-    - AH
-    - SCTP
-    - ICMP
   backend_service:
     description:
     - A BackendService to receive the matched traffic. This is used only for INTERNAL
@@ -102,10 +96,8 @@ options:
   ip_version:
     description:
     - ipVersion is not a valid field for regional forwarding rules.
+    - 'Some valid choices include: "IPV4", "IPV6"'
     required: false
-    choices:
-    - IPV4
-    - IPV6
   load_balancing_scheme:
     description:
     - 'This signifies what the ForwardingRule will be used for and can only take the
@@ -113,10 +105,8 @@ options:
       be used for Internal Network Load Balancing (TCP, UDP). The value of EXTERNAL
       means that this will be used for External Load Balancing (HTTP(S) LB, External
       TCP/UDP LB, SSL Proxy) .'
+    - 'Some valid choices include: "INTERNAL", "EXTERNAL"'
     required: false
-    choices:
-    - INTERNAL
-    - EXTERNAL
   name:
     description:
     - Name of the resource; provided by the client when the resource is created. The
@@ -199,11 +189,9 @@ options:
     - 'The networking tier used for configuring this address. This field can take
       the following values: PREMIUM or STANDARD. If this field is not specified, it
       is assumed to be PREMIUM.'
+    - 'Some valid choices include: "PREMIUM", "STANDARD"'
     required: false
     version_added: 2.8
-    choices:
-    - PREMIUM
-    - STANDARD
   service_label:
     description:
     - An optional prefix to the service name for this Forwarding Rule.

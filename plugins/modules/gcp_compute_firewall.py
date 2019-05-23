@@ -114,11 +114,9 @@ options:
     - 'Direction of traffic to which this firewall applies; default is INGRESS. Note:
       For INGRESS traffic, it is NOT supported to specify destinationRanges; For EGRESS
       traffic, it is NOT supported to specify sourceRanges OR sourceTags.'
+    - 'Some valid choices include: "INGRESS", "EGRESS"'
     required: false
     version_added: 2.8
-    choices:
-    - INGRESS
-    - EGRESS
   disabled:
     description:
     - Denotes whether the firewall rule is disabled, i.e not applied to the network

@@ -65,10 +65,8 @@ options:
     description:
     - Specifies the type of proxy header to append before sending data to the backend,
       either NONE or PROXY_V1. The default is NONE.
+    - 'Some valid choices include: "NONE", "PROXY_V1"'
     required: false
-    choices:
-    - NONE
-    - PROXY_V1
   service:
     description:
     - A reference to the BackendService resource.

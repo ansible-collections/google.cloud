@@ -50,19 +50,13 @@ options:
   private_key_type:
     description:
     - Output format for the service account key.
+    - 'Some valid choices include: "TYPE_UNSPECIFIED", "TYPE_PKCS12_FILE", "TYPE_GOOGLE_CREDENTIALS_FILE"'
     required: false
-    choices:
-    - TYPE_UNSPECIFIED
-    - TYPE_PKCS12_FILE
-    - TYPE_GOOGLE_CREDENTIALS_FILE
   key_algorithm:
     description:
     - Specifies the algorithm for the key.
+    - 'Some valid choices include: "KEY_ALG_UNSPECIFIED", "KEY_ALG_RSA_1024", "KEY_ALG_RSA_2048"'
     required: false
-    choices:
-    - KEY_ALG_UNSPECIFIED
-    - KEY_ALG_RSA_1024
-    - KEY_ALG_RSA_2048
   service_account:
     description:
     - The name of the serviceAccount.

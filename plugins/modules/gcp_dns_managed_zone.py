@@ -141,12 +141,10 @@ options:
     - 'The zone''s visibility: public zones are exposed to the Internet, while private
       zones are visible only to Virtual Private Cloud resources.'
     - 'Must be one of: `public`, `private`.'
+    - 'Some valid choices include: "private", "public"'
     required: false
     default: public
     version_added: 2.8
-    choices:
-    - private
-    - public
   private_visibility_config:
     description:
     - For privately visible zones, the set of Virtual Private Cloud resources that

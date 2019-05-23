@@ -58,21 +58,9 @@ options:
   type:
     description:
     - One of valid DNS resource types.
+    - 'Some valid choices include: "A", "AAAA", "CAA", "CNAME", "MX", "NAPTR", "NS",
+      "PTR", "SOA", "SPF", "SRV", "TLSA", "TXT"'
     required: true
-    choices:
-    - A
-    - AAAA
-    - CAA
-    - CNAME
-    - MX
-    - NAPTR
-    - NS
-    - PTR
-    - SOA
-    - SPF
-    - SRV
-    - TLSA
-    - TXT
   ttl:
     description:
     - Number of seconds that this ResourceRecordSet can be cached by resolvers.

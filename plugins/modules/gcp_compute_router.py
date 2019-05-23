@@ -83,11 +83,9 @@ options:
         description:
         - User-specified flag to indicate which mode to use for advertisement.
         - 'Valid values of this enum field are: DEFAULT, CUSTOM .'
+        - 'Some valid choices include: "DEFAULT", "CUSTOM"'
         required: false
         default: DEFAULT
-        choices:
-        - DEFAULT
-        - CUSTOM
       advertised_groups:
         description:
         - User-specified list of prefix groups to advertise in custom mode.

@@ -92,19 +92,13 @@ options:
           team:
             description:
             - The team.
+            - 'Some valid choices include: "editors", "owners", "viewers"'
             required: false
-            choices:
-            - editors
-            - owners
-            - viewers
       role:
         description:
         - The access permission for the entity.
+        - 'Some valid choices include: "OWNER", "READER", "WRITER"'
         required: false
-        choices:
-        - OWNER
-        - READER
-        - WRITER
   cors:
     description:
     - The bucket's Cross-Origin Resource Sharing (CORS) configuration.
@@ -161,10 +155,8 @@ options:
       role:
         description:
         - The access permission for the entity.
+        - 'Some valid choices include: "OWNER", "READER"'
         required: true
-        choices:
-        - OWNER
-        - READER
   lifecycle:
     description:
     - The bucket's lifecycle configuration.
@@ -190,10 +182,8 @@ options:
                 description:
                 - Type of the action. Currently, only Delete and SetStorageClass are
                   supported.
+                - 'Some valid choices include: "Delete", "SetStorageClass"'
                 required: false
-                choices:
-                - Delete
-                - SetStorageClass
           condition:
             description:
             - The condition(s) under which the action will be taken.
@@ -274,14 +264,9 @@ options:
     - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, and DURABLE_REDUCED_AVAILABILITY.
       If this value is not specified when the bucket is created, it will default to
       STANDARD. For more information, see storage classes.
+    - 'Some valid choices include: "MULTI_REGIONAL", "REGIONAL", "STANDARD", "NEARLINE",
+      "COLDLINE", "DURABLE_REDUCED_AVAILABILITY"'
     required: false
-    choices:
-    - MULTI_REGIONAL
-    - REGIONAL
-    - STANDARD
-    - NEARLINE
-    - COLDLINE
-    - DURABLE_REDUCED_AVAILABILITY
   versioning:
     description:
     - The bucket's versioning configuration.
@@ -329,14 +314,9 @@ options:
     - '- "projectPrivate": Object owner gets OWNER access, and project team members
       get access according to their roles.'
     - '- "publicRead": Object owner gets OWNER access, and allUsers get READER access.'
+    - 'Some valid choices include: "authenticatedRead", "bucketOwnerFullControl",
+      "bucketOwnerRead", "private", "projectPrivate", "publicRead"'
     required: false
-    choices:
-    - authenticatedRead
-    - bucketOwnerFullControl
-    - bucketOwnerRead
-    - private
-    - projectPrivate
-    - publicRead
 extends_documentation_fragment: gcp
 '''
 

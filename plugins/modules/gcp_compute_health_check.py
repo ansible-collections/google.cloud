@@ -100,12 +100,8 @@ options:
     - Specifies the type of the healthCheck, either TCP, SSL, HTTP or HTTPS. If not
       specified, the default is TCP. Exactly one of the protocol-specific health check
       field must be specified, which must match type field.
+    - 'Some valid choices include: "TCP", "SSL", "HTTP", "HTTPS"'
     required: false
-    choices:
-    - TCP
-    - SSL
-    - HTTP
-    - HTTPS
   http_health_check:
     description:
     - A nested object resource.
@@ -143,11 +139,9 @@ options:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
+        - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
   https_health_check:
     description:
     - A nested object resource.
@@ -185,11 +179,9 @@ options:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
+        - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
   tcp_health_check:
     description:
     - A nested object resource.
@@ -221,11 +213,9 @@ options:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
+        - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
   ssl_health_check:
     description:
     - A nested object resource.
@@ -257,11 +247,9 @@ options:
         description:
         - Specifies the type of proxy header to append before sending data to the
           backend, either NONE or PROXY_V1. The default is NONE.
+        - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
-        choices:
-        - NONE
-        - PROXY_V1
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)'

@@ -90,19 +90,13 @@ options:
       team:
         description:
         - The team.
+        - 'Some valid choices include: "editors", "owners", "viewers"'
         required: false
-        choices:
-        - editors
-        - owners
-        - viewers
   role:
     description:
     - The access permission for the entity.
+    - 'Some valid choices include: "OWNER", "READER", "WRITER"'
     required: false
-    choices:
-    - OWNER
-    - READER
-    - WRITER
 extends_documentation_fragment: gcp
 '''
 

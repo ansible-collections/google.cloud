@@ -176,10 +176,8 @@ options:
       options: logging.googleapis.com - the Google Cloud Logging service.'
     - none - no logs will be exported from the cluster.
     - if left as an empty string,logging.googleapis.com will be used.
+    - 'Some valid choices include: "logging.googleapis.com", "none"'
     required: false
-    choices:
-    - logging.googleapis.com
-    - none
   monitoring_service:
     description:
     - The monitoring service the cluster should use to write metrics.
@@ -187,10 +185,8 @@ options:
       service.'
     - none - no metrics will be exported from the cluster.
     - if left as an empty string, monitoring.googleapis.com will be used.
+    - 'Some valid choices include: "monitoring.googleapis.com", "none"'
     required: false
-    choices:
-    - monitoring.googleapis.com
-    - none
   network:
     description:
     - The name of the Google Compute Engine network to which the cluster is connected.

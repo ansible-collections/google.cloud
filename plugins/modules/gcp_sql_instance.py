@@ -54,11 +54,8 @@ options:
     - "* FIRST_GEN: First Generation instance. MySQL only."
     - "* SECOND_GEN: Second Generation instance or PostgreSQL instance."
     - "* EXTERNAL: A database server that is not managed by Google."
+    - 'Some valid choices include: "FIRST_GEN", "SECOND_GEN", "EXTERNAL"'
     required: false
-    choices:
-    - FIRST_GEN
-    - SECOND_GEN
-    - EXTERNAL
   connection_name:
     description:
     - Connection name of the Cloud SQL instance used in connection strings.
@@ -70,12 +67,8 @@ options:
       MYSQL_5_7. Defaults to MYSQL_5_6.
     - 'PostgreSQL instances: POSTGRES_9_6 The databaseVersion property can not be
       changed after instance creation.'
+    - 'Some valid choices include: "MYSQL_5_5", "MYSQL_5_6", "MYSQL_5_7", "POSTGRES_9_6"'
     required: false
-    choices:
-    - MYSQL_5_5
-    - MYSQL_5_6
-    - MYSQL_5_7
-    - POSTGRES_9_6
   failover_replica:
     description:
     - The name and status of the failover replica. This property is applicable only
@@ -94,11 +87,8 @@ options:
     - "* CLOUD_SQL_INSTANCE: A Cloud SQL instance that is not replicating from a master."
     - "* ON_PREMISES_INSTANCE: An instance running on the customer's premises."
     - "* READ_REPLICA_INSTANCE: A Cloud SQL instance configured as a read-replica."
+    - 'Some valid choices include: "CLOUD_SQL_INSTANCE", "ON_PREMISES_INSTANCE", "READ_REPLICA_INSTANCE"'
     required: false
-    choices:
-    - CLOUD_SQL_INSTANCE
-    - ON_PREMISES_INSTANCE
-    - READ_REPLICA_INSTANCE
   ipv6_address:
     description:
     - The IPv6 address assigned to the instance. This property is applicable only
@@ -255,10 +245,8 @@ options:
       availability_type:
         description:
         - The availabilityType define if your postgres instance is run zonal or regional.
+        - 'Some valid choices include: "ZONAL", "REGIONAL"'
         required: false
-        choices:
-        - ZONAL
-        - REGIONAL
       backup_configuration:
         description:
         - The daily backup configuration for the instance.

@@ -118,11 +118,8 @@ options:
       in the pool while that instance remains healthy."
     - "- CLIENT_IP_PROTO: Connections from the same client IP with the same IP protocol
       will go to the same instance in the pool while that instance remains healthy."
+    - 'Some valid choices include: "NONE", "CLIENT_IP", "CLIENT_IP_PROTO"'
     required: false
-    choices:
-    - NONE
-    - CLIENT_IP
-    - CLIENT_IP_PROTO
   region:
     description:
     - The region where the target pool resides.

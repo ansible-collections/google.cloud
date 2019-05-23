@@ -68,12 +68,9 @@ options:
       one of NONE, ENABLE, or DISABLE. If NONE is specified, uses the QUIC policy
       with no user overrides, which is equivalent to DISABLE. Not specifying this
       field is equivalent to specifying NONE.
+    - 'Some valid choices include: "NONE", "ENABLE", "DISABLE"'
     required: false
     version_added: 2.7
-    choices:
-    - NONE
-    - ENABLE
-    - DISABLE
   ssl_certificates:
     description:
     - A list of SslCertificate resources that are used to authenticate connections

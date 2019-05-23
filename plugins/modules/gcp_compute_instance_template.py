@@ -180,18 +180,14 @@ options:
               either SCSI or NVME. The default is SCSI.
             - Persistent disks must always use SCSI and the request will fail if you
               attempt to attach a persistent disk in any other format than SCSI.
+            - 'Some valid choices include: "SCSI", "NVME"'
             required: false
-            choices:
-            - SCSI
-            - NVME
           mode:
             description:
             - The mode in which to attach this disk, either READ_WRITE or READ_ONLY.
               If not specified, the default is to attach the disk in READ_WRITE mode.
+            - 'Some valid choices include: "READ_WRITE", "READ_ONLY"'
             required: false
-            choices:
-            - READ_WRITE
-            - READ_ONLY
           source:
             description:
             - Reference to a disk. When creating a new instance, one of initializeParams.sourceImage
@@ -210,10 +206,8 @@ options:
             description:
             - Specifies the type of the disk, either SCRATCH or PERSISTENT. If not
               specified, the default is PERSISTENT.
+            - 'Some valid choices include: "SCRATCH", "PERSISTENT"'
             required: false
-            choices:
-            - SCRATCH
-            - PERSISTENT
       machine_type:
         description:
         - The machine type to use in the VM instance template.
@@ -281,9 +275,8 @@ options:
               type:
                 description:
                 - The type of configuration. The default and only option is ONE_TO_ONE_NAT.
+                - 'Some valid choices include: "ONE_TO_ONE_NAT"'
                 required: true
-                choices:
-                - ONE_TO_ONE_NAT
           alias_ip_ranges:
             description:
             - An array of alias IP ranges for this network interface. Can only be
