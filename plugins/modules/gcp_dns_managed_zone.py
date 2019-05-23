@@ -72,18 +72,13 @@ options:
         description:
         - Specifies the mechanism used to provide authenticated denial-of-existence
           responses. Output only while state is not OFF. .
+        - 'Some valid choices include: "nsec", "nsec3"'
         required: false
-        choices:
-        - nsec
-        - nsec3
       state:
         description:
         - Specifies whether DNSSEC is enabled, and what mode it is in.
+        - 'Some valid choices include: "off", "on", "transfer"'
         required: false
-        choices:
-        - 'off'
-        - 'on'
-        - transfer
       default_key_specs:
         description:
         - Specifies parameters that will be used for generating initial DnsKeys for
@@ -93,13 +88,9 @@ options:
           algorithm:
             description:
             - String mnemonic specifying the DNSSEC algorithm of this key.
+            - 'Some valid choices include: "ecdsap256sha256", "ecdsap384sha384", "rsasha1",
+              "rsasha256", "rsasha512"'
             required: false
-            choices:
-            - ecdsap256sha256
-            - ecdsap384sha384
-            - rsasha1
-            - rsasha256
-            - rsasha512
           key_length:
             description:
             - Length of the keys in bits.
@@ -111,10 +102,8 @@ options:
               when active, will only be used to sign resource record sets of type
               DNSKEY. Zone signing keys do not have the Secure Entry Point flag set
               and will be used to sign all other types of resource record sets. .
+            - 'Some valid choices include: "keySigning", "zoneSigning"'
             required: false
-            choices:
-            - keySigning
-            - zoneSigning
           kind:
             description:
             - Identifies what kind of resource this is.
