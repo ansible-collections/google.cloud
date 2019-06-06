@@ -33,8 +33,8 @@ module: gcp_compute_backend_service
 description:
 - A Backend Service defines a group of virtual machines that will serve traffic for
   load balancing. This resource is a global backend service, appropriate for external
-  load balancing or self-managed internal load balancing. For managed internal load
-  balancing, use a regional backend service instead.
+  load balancing or self-managed internal load balancing.
+- For managed internal load balancing, use a regional backend service instead.
 - Currently self-managed internal load balancing is only available in beta.
 short_description: Creates a GCP BackendService
 version_added: 2.6
