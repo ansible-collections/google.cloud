@@ -33,7 +33,7 @@ module: gcp_tpu_node
 description:
 - A Cloud TPU instance.
 short_description: Creates a GCP Node
-version_added: 2.8
+version_added: 2.9
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6

@@ -33,7 +33,7 @@ module: gcp_tpu_node_facts
 description:
 - Gather facts for GCP Node
 short_description: Gather facts for GCP Node
-version_added: 2.8
+version_added: 2.9
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
