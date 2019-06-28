@@ -53,7 +53,7 @@ options:
     - The file will not be created if this path is unset.
     - Any existing file at this path will be completely overwritten.
     - This requires the PyYaml library.
-    required: true
+    required: false
     version_added: 2.9
   kubectl_context:
     description:
@@ -973,7 +973,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            kubectl_path=dict(required=True, type='str'),
+            kubectl_path=dict(type='str'),
             kubectl_context=dict(type='str'),
             name=dict(type='str'),
             description=dict(type='str'),
