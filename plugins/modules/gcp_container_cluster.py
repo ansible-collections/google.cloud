@@ -47,20 +47,6 @@ options:
     - present
     - absent
     default: present
-  kubectl_path:
-    description:
-    - The path that the kubectl config file will be written to.
-    - The file will not be created if this path is unset.
-    - Any existing file at this path will be completely overwritten.
-    - This requires the PyYaml library.
-    required: false
-    version_added: 2.9
-  kubectl_context:
-    description:
-    - The name of the context for the kubectl config file. Will default to the cluster
-      name.
-    required: false
-    version_added: 2.9
   name:
     description:
     - The name of this cluster. The name must be unique within this project and location,
@@ -423,6 +409,20 @@ options:
     aliases:
     - zone
     version_added: 2.8
+  kubectl_path:
+    description:
+    - The path that the kubectl config file will be written to.
+    - The file will not be created if this path is unset.
+    - Any existing file at this path will be completely overwritten.
+    - This requires the PyYaml library.
+    required: false
+    version_added: 2.9
+  kubectl_context:
+    description:
+    - The name of the context for the kubectl config file. Will default to the cluster
+      name.
+    required: false
+    version_added: 2.9
 extends_documentation_fragment: gcp
 '''
 
@@ -445,20 +445,6 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-kubectlPath:
-  description:
-  - The path that the kubectl config file will be written to.
-  - The file will not be created if this path is unset.
-  - Any existing file at this path will be completely overwritten.
-  - This requires the PyYaml library.
-  returned: success
-  type: str
-kubectlContext:
-  description:
-  - The name of the context for the kubectl config file. Will default to the cluster
-    name.
-  returned: success
-  type: str
 name:
   description:
   - The name of this cluster. The name must be unique within this project and location,
@@ -952,6 +938,20 @@ location:
   - The location where the cluster is deployed.
   returned: success
   type: str
+kubectlPath:
+  description:
+  - The path that the kubectl config file will be written to.
+  - The file will not be created if this path is unset.
+  - Any existing file at this path will be completely overwritten.
+  - This requires the PyYaml library.
+  returned: success
+  type: str
+kubectlContext:
+  description:
+  - The name of the context for the kubectl config file. Will default to the cluster
+    name.
+  returned: success
+  type: str
 '''
 
 ################################################################################
@@ -973,8 +973,6 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            kubectl_path=dict(type='str'),
-            kubectl_context=dict(type='str'),
             name=dict(type='str'),
             description=dict(type='str'),
             initial_node_count=dict(type='int'),
@@ -1030,6 +1028,8 @@ def main():
             enable_tpu=dict(type='bool'),
             tpu_ipv4_cidr_block=dict(type='str'),
             location=dict(required=True, type='str', aliases=['zone']),
+            kubectl_path=dict(type='str'),
+            kubectl_context=dict(type='str'),
         )
     )
 
@@ -1083,8 +1083,6 @@ def delete(module, link):
 
 def resource_to_request(module):
     request = {
-        u'kubectlPath': module.params.get('kubectl_path'),
-        u'kubectlContext': module.params.get('kubectl_context'),
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
         u'initialNodeCount': module.params.get('initial_node_count'),
@@ -1170,8 +1168,6 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'kubectlPath': response.get(u'kubectlPath'),
-        u'kubectlContext': response.get(u'kubectlContext'),
         u'name': response.get(u'name'),
         u'description': response.get(u'description'),
         u'initialNodeCount': module.params.get('initial_node_count'),
