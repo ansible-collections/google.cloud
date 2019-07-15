@@ -1139,7 +1139,7 @@ def wait_for_operation(module, response):
         return {}
     status = navigate_hash(op_result, ['status'])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#instance')
+    return decode_response(fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#instance'), module)
 
 
 def wait_for_completion(status, op_result, module):

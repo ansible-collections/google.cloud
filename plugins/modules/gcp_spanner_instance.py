@@ -202,7 +202,7 @@ def update(module, link):
 
 def delete(module, link):
     auth = GcpSession(module, 'spanner')
-    return wait_for_operation(module, auth.delete(link))
+    return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
