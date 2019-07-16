@@ -52,6 +52,7 @@ options:
     - A unique identifier for the database, which cannot be changed after the instance
       is created. Values are of the form [a-z][-a-z0-9]*[a-z0-9].
     required: true
+    type: str
   extra_statements:
     description:
     - 'An optional list of DDL statements to run inside the newly created database.
@@ -59,6 +60,7 @@ options:
       with the creation of the database: if there is an error in any statement, the
       database is not created.'
     required: false
+    type: list
   instance:
     description:
     - The instance to create the database on.
@@ -68,6 +70,7 @@ options:
       to a gcp_spanner_instance task and then set this instance field to "{{ name-of-resource
       }}"'
     required: true
+    type: dict
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/spanner/docs/reference/rest/v1/projects.instances.databases)'

@@ -66,10 +66,12 @@ options:
       to a gcp_compute_target_pool task and then set this backup_pool field to "{{
       name-of-resource }}"'
     required: false
+    type: dict
   description:
     description:
     - An optional description of this resource.
     required: false
+    type: str
   failover_ratio:
     description:
     - This field is applicable only when the containing target pool is serving a forwarding
@@ -84,6 +86,7 @@ options:
       "force" mode, where traffic will be spread to the healthy instances with the
       best effort, or to all instances when no instance is healthy.
     required: false
+    type: str
   health_check:
     description:
     - A reference to a HttpHealthCheck resource.
@@ -96,11 +99,13 @@ options:
       name-of-resource` to a gcp_compute_http_health_check task and then set this
       health_check field to "{{ name-of-resource }}"'
     required: false
+    type: dict
   instances:
     description:
     - A list of virtual machine instances serving this pool.
     - They must live in zones contained in the same region as this pool.
     required: false
+    type: list
   name:
     description:
     - Name of the resource. Provided by the client when the resource is created. The
@@ -110,6 +115,7 @@ options:
       characters must be a dash, lowercase letter, or digit, except the last character,
       which cannot be a dash.
     required: true
+    type: str
   session_affinity:
     description:
     - 'Session affinity option. Must be one of these values: - NONE: Connections from
@@ -120,10 +126,12 @@ options:
       will go to the same instance in the pool while that instance remains healthy."
     - 'Some valid choices include: "NONE", "CLIENT_IP", "CLIENT_IP_PROTO"'
     required: false
+    type: str
   region:
     description:
     - The region where the target pool resides.
     required: true
+    type: str
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/targetPools)'

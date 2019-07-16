@@ -52,16 +52,19 @@ options:
     description:
     - An optional string description of this rule.
     required: false
+    type: str
   source_range:
     description:
     - IP address or range, defined using CIDR notation, of requests that this rule
       applies to.
     required: true
+    type: str
   action:
     description:
     - The action to take if this rule matches.
     - 'Some valid choices include: "UNSPECIFIED_ACTION", "ALLOW", "DENY"'
     required: true
+    type: str
   priority:
     description:
     - A positive integer that defines the order of rule evaluation.
@@ -70,6 +73,7 @@ options:
       when no previous rule matches. Only the action of this rule can be modified
       by the user.
     required: false
+    type: int
 extends_documentation_fragment: gcp
 notes:
 - 'API Reference: U(https://cloud.google.com/appengine/docs/admin-api/reference/rest/v1/apps.firewall.ingressRules)'
