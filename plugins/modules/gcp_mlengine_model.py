@@ -162,6 +162,7 @@ labels:
 
 from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, remove_nones_from_dict, replace_resource_dict
 import json
+import time
 
 ################################################################################
 # Main
@@ -226,7 +227,7 @@ def update(module, link):
 
 def delete(module, link):
     auth = GcpSession(module, 'mlengine')
-    return return_if_object(module, auth.delete(link))
+    return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
@@ -316,10 +317,47 @@ def response_to_hash(module, response):
     }
 
 
+def async_op_url(module, extra_data=None):
+    if extra_data is None:
+        extra_data = {}
+    url = "https://ml.googleapis.com/v1/{op_id}"
+    combined = extra_data.copy()
+    combined.update(module.params)
+    return url.format(**combined)
+
+
+def wait_for_operation(module, response):
+    op_result = return_if_object(module, response)
+    if op_result is None:
+        return {}
+    status = navigate_hash(op_result, ['done'])
+    wait_done = wait_for_completion(status, op_result, module)
+    raise_if_errors(wait_done, ['error'], module)
+    return navigate_hash(wait_done, ['response'])
+
+
+def wait_for_completion(status, op_result, module):
+    op_id = navigate_hash(op_result, ['name'])
+    op_uri = async_op_url(module, {'op_id': op_id})
+    while not status:
+        raise_if_errors(op_result, ['error'], module)
+        time.sleep(1.0)
+        op_result = fetch_resource(module, op_uri, False)
+        status = navigate_hash(op_result, ['done'])
+    return op_result
+
+
+def raise_if_errors(response, err_path, module):
+    errors = navigate_hash(response, err_path)
+    if errors is not None:
+        module.fail_json(msg=errors)
+
+
 # Short names are given (and expected) by the API
 # but are returned as full names.
 def decode_response(response, module):
-    response['name'] = response['name'].split('/')[-1]
+    if 'name' in response and 'metadata' not in response:
+        response['name'] = response['name'].split('/')[-1]
     return response
 
 
