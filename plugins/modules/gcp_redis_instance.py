@@ -471,7 +471,7 @@ def wait_for_operation(module, response):
         return {}
     status = navigate_hash(op_result, ['done'])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(op_result, ['error'], module)
+    raise_if_errors(wait_done, ['error'], module)
     return navigate_hash(wait_done, ['response'])
 
 
