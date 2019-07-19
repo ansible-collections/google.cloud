@@ -62,6 +62,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   dest_range:
     description:
     - The destination range of outgoing packets that this route applies to.

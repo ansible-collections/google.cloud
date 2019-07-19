@@ -47,6 +47,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   backup_pool:
     description:
     - This field is applicable only when the containing target pool is serving a forwarding
@@ -360,7 +361,7 @@ def return_if_object(module, response, kind, allow_not_found=False):
     except getattr(json.decoder, 'JSONDecodeError', ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    result = decode_request(result, module)
+    result = decode_response(result, module)
 
     if navigate_hash(result, ['error', 'errors']):
         module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
@@ -371,7 +372,7 @@ def return_if_object(module, response, kind, allow_not_found=False):
 def is_different(module, response):
     request = resource_to_request(module)
     response = response_to_hash(module, response)
-    request = decode_request(request, module)
+    request = decode_response(request, module)
 
     # Remove all output-only from response.
     response_vals = {}
@@ -453,7 +454,7 @@ def encode_request(request, module):
 
 # Mask healthChecks into a single element.
 # @see encode_request for details
-def decode_request(response, module):
+def decode_response(response, module):
     if response['kind'] != 'compute#targetPool':
         return response
 

@@ -49,6 +49,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   certificate:
     description:
     - The certificate in PEM format.

@@ -48,6 +48,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   description:
     description:
     - An optional description of this resource.

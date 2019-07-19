@@ -48,6 +48,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   description:
     description:
     - An optional string description of this rule.

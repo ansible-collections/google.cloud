@@ -48,6 +48,7 @@ options:
     - present
     - absent
     default: present
+    type: str
   name:
     description:
     - The name specified for the version when it was created.
