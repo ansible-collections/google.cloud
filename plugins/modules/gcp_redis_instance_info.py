@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_redis_instance_info
 description:
 - Gather info for GCP Instance
-- This module was previously called gcp_redis_instance_facts before Ansible 2.9. The
-  usage has not changed
+- This module was called C(gcp_redis_instance_facts) before Ansible 2.9. The usage
+  has not changed.
 short_description: Gather info for GCP Instance
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -51,7 +51,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a instance info"
+- name: get info on a instance
   gcp_redis_instance_info:
     region: us-central1
     project: test_project

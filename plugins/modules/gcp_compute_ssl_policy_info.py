@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_compute_ssl_policy_info
 description:
 - Gather info for GCP SslPolicy
-- This module was previously called gcp_compute_ssl_policy_facts before Ansible 2.9.
-  The usage has not changed
+- This module was called C(gcp_compute_ssl_policy_facts) before Ansible 2.9. The usage
+  has not changed.
 short_description: Gather info for GCP SslPolicy
 version_added: 2.7
 author: Google Inc. (@googlecloudplatform)
@@ -52,7 +52,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a ssl policy info"
+- name: get info on a ssl policy
   gcp_compute_ssl_policy_info:
     filters:
     - name = test_object

@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_compute_target_vpn_gateway_info
 description:
 - Gather info for GCP TargetVpnGateway
-- This module was previously called gcp_compute_target_vpn_gateway_facts before Ansible
-  2.9. The usage has not changed
+- This module was called C(gcp_compute_target_vpn_gateway_facts) before Ansible 2.9.
+  The usage has not changed.
 short_description: Gather info for GCP TargetVpnGateway
 version_added: 2.7
 author: Google Inc. (@googlecloudplatform)
@@ -57,7 +57,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a target vpn gateway info"
+- name: get info on a target vpn gateway
   gcp_compute_target_vpn_gateway_info:
     region: us-west1
     filters:

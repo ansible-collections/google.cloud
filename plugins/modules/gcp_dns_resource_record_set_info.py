@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_dns_resource_record_set_info
 description:
 - Gather info for GCP ResourceRecordSet
-- This module was previously called gcp_dns_resource_record_set_facts before Ansible
-  2.9. The usage has not changed
+- This module was called C(gcp_dns_resource_record_set_facts) before Ansible 2.9.
+  The usage has not changed.
 short_description: Gather info for GCP ResourceRecordSet
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -56,7 +56,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a resource record set info"
+- name: get info on a resource record set
   gcp_dns_resource_record_set_info:
     managed_zone: "{{ managed_zone }}"
     project: test_project

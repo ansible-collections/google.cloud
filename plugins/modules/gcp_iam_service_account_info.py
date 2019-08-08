@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_iam_service_account_info
 description:
 - Gather info for GCP ServiceAccount
-- This module was previously called gcp_iam_service_account_facts before Ansible 2.9.
-  The usage has not changed
+- This module was called C(gcp_iam_service_account_facts) before Ansible 2.9. The
+  usage has not changed.
 short_description: Gather info for GCP ServiceAccount
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -46,7 +46,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a service account info"
+- name: get info on a service account
   gcp_iam_service_account_info:
     project: test_project
     auth_kind: serviceaccount

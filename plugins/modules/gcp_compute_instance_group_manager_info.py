@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_compute_instance_group_manager_info
 description:
 - Gather info for GCP InstanceGroupManager
-- This module was previously called gcp_compute_instance_group_manager_facts before
-  Ansible 2.9. The usage has not changed
+- This module was called C(gcp_compute_instance_group_manager_facts) before Ansible
+  2.9. The usage has not changed.
 short_description: Gather info for GCP InstanceGroupManager
 version_added: 2.7
 author: Google Inc. (@googlecloudplatform)
@@ -57,7 +57,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a instance group manager info"
+- name: get info on a instance group manager
   gcp_compute_instance_group_manager_info:
     zone: us-west1-a
     filters:

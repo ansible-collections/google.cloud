@@ -50,7 +50,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a snapshot info"
+- name: get info on a snapshot
   gcp_compute_snapshot_info:
     filters:
     - name = test_object

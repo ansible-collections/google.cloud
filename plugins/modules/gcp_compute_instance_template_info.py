@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_compute_instance_template_info
 description:
 - Gather info for GCP InstanceTemplate
-- This module was previously called gcp_compute_instance_template_facts before Ansible
-  2.9. The usage has not changed
+- This module was called C(gcp_compute_instance_template_facts) before Ansible 2.9.
+  The usage has not changed.
 short_description: Gather info for GCP InstanceTemplate
 version_added: 2.7
 author: Google Inc. (@googlecloudplatform)
@@ -52,7 +52,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a instance template info"
+- name: get info on a instance template
   gcp_compute_instance_template_info:
     filters:
     - name = test_object

@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_container_cluster_info
 description:
 - Gather info for GCP Cluster
-- This module was previously called gcp_container_cluster_facts before Ansible 2.9.
-  The usage has not changed
+- This module was called C(gcp_container_cluster_facts) before Ansible 2.9. The usage
+  has not changed.
 short_description: Gather info for GCP Cluster
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -55,7 +55,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a cluster info"
+- name: get info on a cluster
   gcp_container_cluster_info:
     location: us-central1-a
     project: test_project

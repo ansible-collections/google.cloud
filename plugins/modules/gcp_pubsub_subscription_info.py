@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_pubsub_subscription_info
 description:
 - Gather info for GCP Subscription
-- This module was previously called gcp_pubsub_subscription_facts before Ansible 2.9.
-  The usage has not changed
+- This module was called C(gcp_pubsub_subscription_facts) before Ansible 2.9. The
+  usage has not changed.
 short_description: Gather info for GCP Subscription
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -46,7 +46,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a subscription info"
+- name: get info on a subscription
   gcp_pubsub_subscription_info:
     project: test_project
     auth_kind: serviceaccount

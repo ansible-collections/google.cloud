@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_resourcemanager_project_info
 description:
 - Gather info for GCP Project
-- This module was previously called gcp_resourcemanager_project_facts before Ansible
-  2.9. The usage has not changed
+- This module was called C(gcp_resourcemanager_project_facts) before Ansible 2.9.
+  The usage has not changed.
 short_description: Gather info for GCP Project
 version_added: 2.8
 author: Google Inc. (@googlecloudplatform)
@@ -46,7 +46,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a project info"
+- name: get info on a project
   gcp_resourcemanager_project_info:
     project: test_project
     auth_kind: serviceaccount

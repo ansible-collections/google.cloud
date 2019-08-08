@@ -32,8 +32,8 @@ DOCUMENTATION = '''
 module: gcp_compute_https_health_check_info
 description:
 - Gather info for GCP HttpsHealthCheck
-- This module was previously called gcp_compute_https_health_check_facts before Ansible
-  2.9. The usage has not changed
+- This module was called C(gcp_compute_https_health_check_facts) before Ansible 2.9.
+  The usage has not changed.
 short_description: Gather info for GCP HttpsHealthCheck
 version_added: 2.7
 author: Google Inc. (@googlecloudplatform)
@@ -52,7 +52,7 @@ extends_documentation_fragment: gcp
 '''
 
 EXAMPLES = '''
-- name: " a https health check info"
+- name: get info on a https health check
   gcp_compute_https_health_check_info:
     filters:
     - name = test_object
