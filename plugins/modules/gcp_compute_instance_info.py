@@ -258,6 +258,14 @@ resources:
             instance.
           returned: success
           type: str
+    hostname:
+      description:
+      - The hostname of the instance to be created. The specified hostname must be
+        RFC1035 compliant. If hostname is not specified, the default hostname is [INSTANCE_NAME].c.[PROJECT_ID].internal
+        when using the global DNS, and [INSTANCE_NAME].[ZONE].c.[PROJECT_ID].internal
+        when using zonal DNS.
+      returned: success
+      type: str
     id:
       description:
       - The unique identifier for the resource. This identifier is defined by the
