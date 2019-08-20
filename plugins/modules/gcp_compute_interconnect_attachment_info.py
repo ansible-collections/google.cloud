@@ -73,6 +73,12 @@ resources:
   returned: always
   type: complex
   contains:
+    adminEnabled:
+      description:
+      - Whether the VLAN attachment is enabled or disabled. When using PARTNER type
+        this will Pre-Activate the interconnect attachment .
+      returned: success
+      type: bool
     cloudRouterIpAddress:
       description:
       - IPv4 address + prefix length to be configured on Cloud Router Interface for

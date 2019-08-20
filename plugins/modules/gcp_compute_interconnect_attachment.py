@@ -49,6 +49,13 @@ options:
     - absent
     default: present
     type: str
+  admin_enabled:
+    description:
+    - Whether the VLAN attachment is enabled or disabled. When using PARTNER type
+      this will Pre-Activate the interconnect attachment .
+    required: false
+    type: bool
+    version_added: 2.9
   interconnect:
     description:
     - URL of the underlying Interconnect object that this attachment's traffic will
@@ -154,6 +161,12 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
+adminEnabled:
+  description:
+  - Whether the VLAN attachment is enabled or disabled. When using PARTNER type this
+    will Pre-Activate the interconnect attachment .
+  returned: success
+  type: bool
 cloudRouterIpAddress:
   description:
   - IPv4 address + prefix length to be configured on Cloud Router Interface for this
@@ -312,6 +325,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
+            admin_enabled=dict(type='bool'),
             interconnect=dict(type='str'),
             description=dict(type='str'),
             bandwidth=dict(type='str'),
@@ -374,6 +388,7 @@ def delete(module, link, kind):
 def resource_to_request(module):
     request = {
         u'kind': 'compute#interconnectAttachment',
+        u'adminEnabled': module.params.get('admin_enabled'),
         u'interconnect': module.params.get('interconnect'),
         u'description': module.params.get('description'),
         u'bandwidth': module.params.get('bandwidth'),
@@ -448,6 +463,7 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
+        u'adminEnabled': response.get(u'adminEnabled'),
         u'cloudRouterIpAddress': response.get(u'cloudRouterIpAddress'),
         u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
         u'interconnect': response.get(u'interconnect'),
