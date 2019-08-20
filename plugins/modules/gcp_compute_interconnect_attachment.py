@@ -61,6 +61,20 @@ options:
     - An optional description of this resource.
     required: false
     type: str
+  bandwidth:
+    description:
+    - Provisioned bandwidth capacity for the interconnect attachment.
+    - For attachments of type DEDICATED, the user can set the bandwidth.
+    - For attachments of type PARTNER, the Google Partner that is operating the interconnect
+      must set the bandwidth.
+    - Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED, Defaults
+      to BPS_10G .
+    - 'Some valid choices include: "BPS_50M", "BPS_100M", "BPS_200M", "BPS_300M",
+      "BPS_400M", "BPS_500M", "BPS_1G", "BPS_2G", "BPS_5G", "BPS_10G", "BPS_20G",
+      "BPS_50G"'
+    required: false
+    type: str
+    version_added: 2.9
   edge_availability_domain:
     description:
     - Desired availability domain for the attachment. Only available for type PARTNER,
@@ -161,6 +175,16 @@ interconnect:
 description:
   description:
   - An optional description of this resource.
+  returned: success
+  type: str
+bandwidth:
+  description:
+  - Provisioned bandwidth capacity for the interconnect attachment.
+  - For attachments of type DEDICATED, the user can set the bandwidth.
+  - For attachments of type PARTNER, the Google Partner that is operating the interconnect
+    must set the bandwidth.
+  - Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED, Defaults
+    to BPS_10G .
   returned: success
   type: str
 edgeAvailabilityDomain:
@@ -290,6 +314,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             interconnect=dict(type='str'),
             description=dict(type='str'),
+            bandwidth=dict(type='str'),
             edge_availability_domain=dict(type='str'),
             type=dict(type='str'),
             router=dict(required=True, type='dict'),
@@ -351,6 +376,7 @@ def resource_to_request(module):
         u'kind': 'compute#interconnectAttachment',
         u'interconnect': module.params.get('interconnect'),
         u'description': module.params.get('description'),
+        u'bandwidth': module.params.get('bandwidth'),
         u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
         u'type': module.params.get('type'),
         u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
@@ -426,6 +452,7 @@ def response_to_hash(module, response):
         u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
         u'interconnect': response.get(u'interconnect'),
         u'description': response.get(u'description'),
+        u'bandwidth': response.get(u'bandwidth'),
         u'edgeAvailabilityDomain': response.get(u'edgeAvailabilityDomain'),
         u'pairingKey': response.get(u'pairingKey'),
         u'partnerAsn': response.get(u'partnerAsn'),

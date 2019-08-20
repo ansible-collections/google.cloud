@@ -97,6 +97,16 @@ resources:
       - An optional description of this resource.
       returned: success
       type: str
+    bandwidth:
+      description:
+      - Provisioned bandwidth capacity for the interconnect attachment.
+      - For attachments of type DEDICATED, the user can set the bandwidth.
+      - For attachments of type PARTNER, the Google Partner that is operating the
+        interconnect must set the bandwidth.
+      - Output only for PARTNER type, mutable for PARTNER_PROVIDER and DEDICATED,
+        Defaults to BPS_10G .
+      returned: success
+      type: str
     edgeAvailabilityDomain:
       description:
       - Desired availability domain for the attachment. Only available for type PARTNER,
