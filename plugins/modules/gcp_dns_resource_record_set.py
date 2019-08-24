@@ -359,7 +359,7 @@ def prefetch_soa_resource(module):
         {
             'type': 'SOA',
             'managed_zone': module.params['managed_zone'],
-            'name': replace_resource_dict(module.params['managed_zone'], 'name'),
+            'name': replace_resource_dict(module.params['managed_zone'], 'dnsName'),
             'project': module.params['project'],
             'scopes': module.params['scopes'],
             'service_account_file': module.params['service_account_file'],
