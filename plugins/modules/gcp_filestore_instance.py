@@ -83,7 +83,8 @@ options:
         type: str
       capacity_gb:
         description:
-        - File share capacity in GB.
+        - File share capacity in GiB. This must be at least 1024 GiB for the standard
+          tier, or 2560 GiB for the premium tier.
         required: true
         type: int
   networks:
@@ -181,7 +182,8 @@ fileShares:
       type: str
     capacityGb:
       description:
-      - File share capacity in GB.
+      - File share capacity in GiB. This must be at least 1024 GiB for the standard
+        tier, or 2560 GiB for the premium tier.
       returned: success
       type: int
 networks:
