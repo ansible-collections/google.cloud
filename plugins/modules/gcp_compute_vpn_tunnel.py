@@ -182,6 +182,11 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
+id:
+  description:
+  - The unique identifier for the resource. This identifier is defined by the server.
+  returned: success
+  type: str
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -411,6 +416,7 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
+        u'id': response.get(u'id'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'name': response.get(u'name'),
         u'description': module.params.get('description'),

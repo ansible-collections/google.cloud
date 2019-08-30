@@ -73,6 +73,12 @@ resources:
   returned: always
   type: complex
   contains:
+    id:
+      description:
+      - The unique identifier for the resource. This identifier is defined by the
+        server.
+      returned: success
+      type: str
     creationTimestamp:
       description:
       - Creation timestamp in RFC3339 text format.
