@@ -324,10 +324,10 @@ options:
     version_added: '2.8'
   session_affinity:
     description:
-    - Type of session affinity to use. The default is NONE.
-    - When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or GENERATED_COOKIE.
-    - When the protocol is UDP, this field is not used.
-    - 'Some valid choices include: "NONE", "CLIENT_IP", "GENERATED_COOKIE"'
+    - Type of session affinity to use. The default is NONE. Session affinity is not
+      applicable if the protocol is UDP.
+    - 'Some valid choices include: "NONE", "CLIENT_IP", "CLIENT_IP_PORT_PROTO", "CLIENT_IP_PROTO",
+      "GENERATED_COOKIE", "HEADER_FIELD", "HTTP_COOKIE"'
     required: false
     type: str
   timeout_sec:
@@ -706,9 +706,8 @@ securityPolicy:
   type: str
 sessionAffinity:
   description:
-  - Type of session affinity to use. The default is NONE.
-  - When the load balancing scheme is EXTERNAL, can be NONE, CLIENT_IP, or GENERATED_COOKIE.
-  - When the protocol is UDP, this field is not used.
+  - Type of session affinity to use. The default is NONE. Session affinity is not
+    applicable if the protocol is UDP.
   returned: success
   type: str
 timeoutSec:
