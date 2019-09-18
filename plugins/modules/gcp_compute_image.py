@@ -79,24 +79,17 @@ options:
     type: str
   guest_os_features:
     description:
-    - A list of features to enable on the guest OS. Applicable for bootable images
-      only. Currently, only one feature can be enabled, VIRTIO_SCSI_MULTIQUEUE, which
-      allows each virtual CPU to have its own queue. For Windows images, you can only
-      enable VIRTIO_SCSI_MULTIQUEUE on images with driver version 1.2.0.1621 or higher.
-      Linux images with kernel versions 3.17 and higher will support VIRTIO_SCSI_MULTIQUEUE.
-    - For new Windows images, the server might also populate this field with the value
-      WINDOWS, to indicate that this is a Windows image.
-    - This value is purely informational and does not enable or disable any features.
+    - A list of features to enable on the guest operating system.
+    - Applicable only for bootable images.
     required: false
     type: list
     suboptions:
       type:
         description:
-        - The type of supported feature. Currently only VIRTIO_SCSI_MULTIQUEUE is
-          supported. For newer Windows images, the server might also populate this
-          property with the value WINDOWS to indicate that this is a Windows image.
-          This value is purely informational and does not enable or disable any features.
-        - 'Some valid choices include: "VIRTIO_SCSI_MULTIQUEUE"'
+        - The type of supported feature. Read [Enabling guest operating system features](U(https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features))
+          to see a list of available options.
+        - 'Some valid choices include: "MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE",
+          "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"'
         required: false
         type: str
   image_encryption_key:
@@ -347,23 +340,15 @@ family:
   type: str
 guestOsFeatures:
   description:
-  - A list of features to enable on the guest OS. Applicable for bootable images only.
-    Currently, only one feature can be enabled, VIRTIO_SCSI_MULTIQUEUE, which allows
-    each virtual CPU to have its own queue. For Windows images, you can only enable
-    VIRTIO_SCSI_MULTIQUEUE on images with driver version 1.2.0.1621 or higher. Linux
-    images with kernel versions 3.17 and higher will support VIRTIO_SCSI_MULTIQUEUE.
-  - For new Windows images, the server might also populate this field with the value
-    WINDOWS, to indicate that this is a Windows image.
-  - This value is purely informational and does not enable or disable any features.
+  - A list of features to enable on the guest operating system.
+  - Applicable only for bootable images.
   returned: success
   type: complex
   contains:
     type:
       description:
-      - The type of supported feature. Currently only VIRTIO_SCSI_MULTIQUEUE is supported.
-        For newer Windows images, the server might also populate this property with
-        the value WINDOWS to indicate that this is a Windows image. This value is
-        purely informational and does not enable or disable any features.
+      - The type of supported feature. Read [Enabling guest operating system features](U(https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features))
+        to see a list of available options.
       returned: success
       type: str
 id:
