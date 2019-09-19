@@ -175,6 +175,54 @@ resources:
         NOTE: Currently global forwarding rules cannot be used for INTERNAL load balancing.'
       returned: success
       type: str
+    metadataFilters:
+      description:
+      - Opaque filter criteria used by Loadbalancer to restrict routing configuration
+        to a limited set xDS compliant clients. In their xDS requests to Loadbalancer,
+        xDS clients present node metadata. If a match takes place, the relevant routing
+        configuration is made available to those proxies.
+      - For each metadataFilter in this list, if its filterMatchCriteria is set to
+        MATCH_ANY, at least one of the filterLabels must match the corresponding label
+        provided in the metadata. If its filterMatchCriteria is set to MATCH_ALL,
+        then all of its filterLabels must match with corresponding labels in the provided
+        metadata.
+      - metadataFilters specified here can be overridden by those specified in the
+        UrlMap that this ForwardingRule references.
+      - metadataFilters only applies to Loadbalancers that have their loadBalancingScheme
+        set to INTERNAL_SELF_MANAGED.
+      returned: success
+      type: complex
+      contains:
+        filterMatchCriteria:
+          description:
+          - Specifies how individual filterLabel matches within the list of filterLabels
+            contribute towards the overall metadataFilter match.
+          - MATCH_ANY - At least one of the filterLabels must have a matching label
+            in the provided metadata.
+          - MATCH_ALL - All filterLabels must have matching labels in the provided
+            metadata.
+          returned: success
+          type: str
+        filterLabels:
+          description:
+          - The list of label value pairs that must match labels in the provided metadata
+            based on filterMatchCriteria This list must not be empty and can have
+            at the most 64 entries.
+          returned: success
+          type: complex
+          contains:
+            name:
+              description:
+              - Name of the metadata label. The length must be between 1 and 1024
+                characters, inclusive.
+              returned: success
+              type: str
+            value:
+              description:
+              - The value that the label must match. The value has a maximum length
+                of 1024 characters.
+              returned: success
+              type: str
     name:
       description:
       - Name of the resource; provided by the client when the resource is created.
@@ -212,6 +260,8 @@ resources:
       description:
       - The URL of the target resource to receive the matched traffic.
       - The forwarded traffic must be of a type appropriate to the target object.
+      - For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets are
+        valid.
       returned: success
       type: str
 '''
