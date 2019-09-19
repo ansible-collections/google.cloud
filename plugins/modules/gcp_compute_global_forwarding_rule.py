@@ -107,6 +107,54 @@ options:
     required: false
     default: EXTERNAL
     type: str
+  metadata_filters:
+    description:
+    - Opaque filter criteria used by Loadbalancer to restrict routing configuration
+      to a limited set xDS compliant clients. In their xDS requests to Loadbalancer,
+      xDS clients present node metadata. If a match takes place, the relevant routing
+      configuration is made available to those proxies.
+    - For each metadataFilter in this list, if its filterMatchCriteria is set to MATCH_ANY,
+      at least one of the filterLabels must match the corresponding label provided
+      in the metadata. If its filterMatchCriteria is set to MATCH_ALL, then all of
+      its filterLabels must match with corresponding labels in the provided metadata.
+    - metadataFilters specified here can be overridden by those specified in the UrlMap
+      that this ForwardingRule references.
+    - metadataFilters only applies to Loadbalancers that have their loadBalancingScheme
+      set to INTERNAL_SELF_MANAGED.
+    required: false
+    type: list
+    version_added: '2.10'
+    suboptions:
+      filter_match_criteria:
+        description:
+        - Specifies how individual filterLabel matches within the list of filterLabels
+          contribute towards the overall metadataFilter match.
+        - MATCH_ANY - At least one of the filterLabels must have a matching label
+          in the provided metadata.
+        - MATCH_ALL - All filterLabels must have matching labels in the provided metadata.
+        - 'Some valid choices include: "MATCH_ANY", "MATCH_ALL"'
+        required: true
+        type: str
+      filter_labels:
+        description:
+        - The list of label value pairs that must match labels in the provided metadata
+          based on filterMatchCriteria This list must not be empty and can have at
+          the most 64 entries.
+        required: true
+        type: list
+        suboptions:
+          name:
+            description:
+            - Name of the metadata label. The length must be between 1 and 1024 characters,
+              inclusive.
+            required: true
+            type: str
+          value:
+            description:
+            - The value that the label must match. The value has a maximum length
+              of 1024 characters.
+            required: true
+            type: str
   name:
     description:
     - Name of the resource; provided by the client when the resource is created. The
@@ -149,6 +197,7 @@ options:
     description:
     - The URL of the target resource to receive the matched traffic.
     - The forwarded traffic must be of a type appropriate to the target object.
+    - For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets are valid.
     required: true
     type: str
   project:
@@ -332,6 +381,52 @@ loadBalancingScheme:
     global forwarding rules cannot be used for INTERNAL load balancing.'
   returned: success
   type: str
+metadataFilters:
+  description:
+  - Opaque filter criteria used by Loadbalancer to restrict routing configuration
+    to a limited set xDS compliant clients. In their xDS requests to Loadbalancer,
+    xDS clients present node metadata. If a match takes place, the relevant routing
+    configuration is made available to those proxies.
+  - For each metadataFilter in this list, if its filterMatchCriteria is set to MATCH_ANY,
+    at least one of the filterLabels must match the corresponding label provided in
+    the metadata. If its filterMatchCriteria is set to MATCH_ALL, then all of its
+    filterLabels must match with corresponding labels in the provided metadata.
+  - metadataFilters specified here can be overridden by those specified in the UrlMap
+    that this ForwardingRule references.
+  - metadataFilters only applies to Loadbalancers that have their loadBalancingScheme
+    set to INTERNAL_SELF_MANAGED.
+  returned: success
+  type: complex
+  contains:
+    filterMatchCriteria:
+      description:
+      - Specifies how individual filterLabel matches within the list of filterLabels
+        contribute towards the overall metadataFilter match.
+      - MATCH_ANY - At least one of the filterLabels must have a matching label in
+        the provided metadata.
+      - MATCH_ALL - All filterLabels must have matching labels in the provided metadata.
+      returned: success
+      type: str
+    filterLabels:
+      description:
+      - The list of label value pairs that must match labels in the provided metadata
+        based on filterMatchCriteria This list must not be empty and can have at the
+        most 64 entries.
+      returned: success
+      type: complex
+      contains:
+        name:
+          description:
+          - Name of the metadata label. The length must be between 1 and 1024 characters,
+            inclusive.
+          returned: success
+          type: str
+        value:
+          description:
+          - The value that the label must match. The value has a maximum length of
+            1024 characters.
+          returned: success
+          type: str
 name:
   description:
   - Name of the resource; provided by the client when the resource is created. The
@@ -368,6 +463,7 @@ target:
   description:
   - The URL of the target resource to receive the matched traffic.
   - The forwarded traffic must be of a type appropriate to the target object.
+  - For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets are valid.
   returned: success
   type: str
 '''
@@ -376,7 +472,7 @@ target:
 # Imports
 ################################################################################
 
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, remove_nones_from_dict, replace_resource_dict
 import json
 import time
 
@@ -396,6 +492,16 @@ def main():
             ip_protocol=dict(type='str'),
             ip_version=dict(type='str'),
             load_balancing_scheme=dict(default='EXTERNAL', type='str'),
+            metadata_filters=dict(
+                type='list',
+                elements='dict',
+                options=dict(
+                    filter_match_criteria=dict(required=True, type='str'),
+                    filter_labels=dict(
+                        required=True, type='list', elements='dict', options=dict(name=dict(required=True, type='str'), value=dict(required=True, type='str'))
+                    ),
+                ),
+            ),
             name=dict(required=True, type='str'),
             network=dict(type='dict'),
             port_range=dict(type='str'),
@@ -470,6 +576,7 @@ def resource_to_request(module):
         u'IPProtocol': module.params.get('ip_protocol'),
         u'ipVersion': module.params.get('ip_version'),
         u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
+        u'metadataFilters': GlobalForwardingRuleMetadatafiltersArray(module.params.get('metadata_filters', []), module).to_request(),
         u'name': module.params.get('name'),
         u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
         u'portRange': module.params.get('port_range'),
@@ -546,6 +653,7 @@ def response_to_hash(module, response):
         u'IPProtocol': response.get(u'IPProtocol'),
         u'ipVersion': response.get(u'ipVersion'),
         u'loadBalancingScheme': response.get(u'loadBalancingScheme'),
+        u'metadataFilters': GlobalForwardingRuleMetadatafiltersArray(response.get(u'metadataFilters', []), module).from_response(),
         u'name': response.get(u'name'),
         u'network': response.get(u'network'),
         u'portRange': response.get(u'portRange'),
@@ -586,6 +694,70 @@ def raise_if_errors(response, err_path, module):
     errors = navigate_hash(response, err_path)
     if errors is not None:
         module.fail_json(msg=errors)
+
+
+class GlobalForwardingRuleMetadatafiltersArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'filterMatchCriteria': item.get('filter_match_criteria'),
+                u'filterLabels': GlobalForwardingRuleFilterlabelsArray(item.get('filter_labels', []), self.module).to_request(),
+            }
+        )
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'filterMatchCriteria': item.get(u'filterMatchCriteria'),
+                u'filterLabels': GlobalForwardingRuleFilterlabelsArray(item.get(u'filterLabels', []), self.module).from_response(),
+            }
+        )
+
+
+class GlobalForwardingRuleFilterlabelsArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'name': item.get('name'), u'value': item.get('value')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'name': item.get(u'name'), u'value': item.get(u'value')})
 
 
 if __name__ == '__main__':
