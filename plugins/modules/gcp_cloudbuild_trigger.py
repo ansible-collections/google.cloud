@@ -103,7 +103,7 @@ options:
     - Branch and tag names in trigger templates are interpreted as regular expressions.
       Any branch or tag change that matches that regular expression will trigger a
       build.
-    required: false
+    required: true
     type: dict
     suboptions:
       project_id:
@@ -632,6 +632,7 @@ def main():
             ignored_files=dict(type='list', elements='str'),
             included_files=dict(type='list', elements='str'),
             trigger_template=dict(
+                required=True,
                 type='dict',
                 options=dict(
                     project_id=dict(type='str'),
