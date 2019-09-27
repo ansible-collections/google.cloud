@@ -35,7 +35,7 @@ description:
   balancing.
 - An HTTP(S) load balancer can direct traffic to specified URLs to a backend bucket
   rather than a backend service. It can send requests for static content to a Cloud
-  Storage bucket and requests for dynamic content a virtual machine instance.
+  Storage bucket and requests for dynamic content to a virtual machine instance.
 short_description: Creates a GCP BackendBucket
 version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
