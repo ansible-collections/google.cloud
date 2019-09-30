@@ -129,7 +129,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-targethttpproxy
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -139,7 +139,7 @@ EXAMPLES = '''
   register: instancegroup
 
 - name: create a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: httphealthcheck-targethttpproxy
     healthy_threshold: 10
     port: 8080
@@ -152,7 +152,7 @@ EXAMPLES = '''
   register: healthcheck
 
 - name: create a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: backendservice-targethttpproxy
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -166,7 +166,7 @@ EXAMPLES = '''
   register: backendservice
 
 - name: create a URL map
-  gcp_compute_url_map:
+  google.cloud.gcp_compute_url_map:
     name: urlmap-targethttpproxy
     default_service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
@@ -176,7 +176,7 @@ EXAMPLES = '''
   register: urlmap
 
 - name: create a target HTTP proxy
-  gcp_compute_target_http_proxy:
+  google.cloud.gcp_compute_target_http_proxy:
     name: test_object
     url_map: "{{ urlmap }}"
     project: test_project

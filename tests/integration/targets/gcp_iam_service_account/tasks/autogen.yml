@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a service account
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a service account
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
@@ -49,7 +49,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a service account that already exists
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
@@ -63,7 +63,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a service account
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
@@ -89,7 +89,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a service account that does not exist
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"

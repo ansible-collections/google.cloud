@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-route
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -22,7 +22,7 @@
     state: present
   register: network
 - name: delete a route
-  gcp_compute_route:
+  google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
@@ -36,7 +36,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a route
-  gcp_compute_route:
+  google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
@@ -69,7 +69,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a route that already exists
-  gcp_compute_route:
+  google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
@@ -88,7 +88,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a route
-  gcp_compute_route:
+  google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
@@ -121,7 +121,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a route that does not exist
-  gcp_compute_route:
+  google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
@@ -142,7 +142,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-route
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

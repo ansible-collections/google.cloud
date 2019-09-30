@@ -199,7 +199,7 @@ options:
 
 EXAMPLES = '''
 - name: create a model
-  gcp_mlengine_model:
+  google.cloud.gcp_mlengine_model:
     name: model_version
     description: My model
     regions:
@@ -213,7 +213,7 @@ EXAMPLES = '''
   register: model
 
 - name: create a version
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13

@@ -124,7 +124,7 @@ options:
 
 EXAMPLES = '''
 - name: create a bucket
-  gcp_storage_bucket:
+  google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -133,7 +133,7 @@ EXAMPLES = '''
   register: bucket
 
 - name: create a bucket access control
-  gcp_storage_bucket_access_control:
+  google.cloud.gcp_storage_bucket_access_control:
     bucket: "{{ bucket }}"
     entity: user-alexstephen@google.com
     role: WRITER

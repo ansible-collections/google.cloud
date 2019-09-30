@@ -136,7 +136,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_spanner_instance:
+  google.cloud.gcp_spanner_instance:
     name: testinstance
     display_name: My Spanner Instance
     node_count: 2

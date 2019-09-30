@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instancetemplate
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -22,7 +22,7 @@
     state: present
   register: network
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-instancetemplate
     region: us-central1
     project: "{{ gcp_project }}"
@@ -31,7 +31,7 @@
     state: present
   register: address
 - name: create a instance template
-  gcp_compute_instance_template:
+  google.cloud.gcp_compute_instance_template:
     name: "{{ resource_name }}"
     properties:
       disks:
@@ -52,7 +52,7 @@
     state: present
   register: instancetemplate
 - name: create a instance group manager
-  gcp_compute_instance_group_manager:
+  google.cloud.gcp_compute_instance_group_manager:
     name: "{{ resource_name }}"
     base_instance_name: test1-child
     instance_template: "{{ instancetemplate }}"
@@ -64,7 +64,7 @@
     state: present
   register: igm
 - name: delete a autoscaler
-  gcp_compute_autoscaler:
+  google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
     target: "{{ igm }}"
@@ -80,7 +80,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a autoscaler
-  gcp_compute_autoscaler:
+  google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
     target: "{{ igm }}"
@@ -116,7 +116,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a autoscaler that already exists
-  gcp_compute_autoscaler:
+  google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
     target: "{{ igm }}"
@@ -137,7 +137,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a autoscaler
-  gcp_compute_autoscaler:
+  google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
     target: "{{ igm }}"
@@ -173,7 +173,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a autoscaler that does not exist
-  gcp_compute_autoscaler:
+  google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
     target: "{{ igm }}"
@@ -196,7 +196,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a instance group manager
-  gcp_compute_instance_group_manager:
+  google.cloud.gcp_compute_instance_group_manager:
     name: "{{ resource_name }}"
     base_instance_name: test1-child
     instance_template: "{{ instancetemplate }}"
@@ -209,7 +209,7 @@
   register: igm
   ignore_errors: true
 - name: delete a instance template
-  gcp_compute_instance_template:
+  google.cloud.gcp_compute_instance_template:
     name: "{{ resource_name }}"
     properties:
       disks:
@@ -231,7 +231,7 @@
   register: instancetemplate
   ignore_errors: true
 - name: delete a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-instancetemplate
     region: us-central1
     project: "{{ gcp_project }}"
@@ -241,7 +241,7 @@
   register: address
   ignore_errors: true
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instancetemplate
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a job
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"
@@ -33,7 +33,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a job
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"
@@ -70,7 +70,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*job.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a job that already exists
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"
@@ -94,7 +94,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a job
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"
@@ -131,7 +131,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*job.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a job that does not exist
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"

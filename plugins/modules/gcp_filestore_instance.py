@@ -171,7 +171,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: test_object
     zone: us-central1-b
     tier: PREMIUM

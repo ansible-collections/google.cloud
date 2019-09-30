@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: disk-image
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: disk
 - name: delete a image
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: "{{ resource_name }}"
     source_disk: "{{ disk }}"
     project: "{{ gcp_project }}"
@@ -32,7 +32,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a image
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: "{{ resource_name }}"
     source_disk: "{{ disk }}"
     project: "{{ gcp_project }}"
@@ -60,7 +60,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a image that already exists
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: "{{ resource_name }}"
     source_disk: "{{ disk }}"
     project: "{{ gcp_project }}"
@@ -74,7 +74,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a image
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: "{{ resource_name }}"
     source_disk: "{{ disk }}"
     project: "{{ gcp_project }}"
@@ -102,7 +102,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a image that does not exist
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: "{{ resource_name }}"
     source_disk: "{{ disk }}"
     project: "{{ gcp_project }}"
@@ -118,7 +118,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: disk-image
     zone: us-central1-a
     project: "{{ gcp_project }}"

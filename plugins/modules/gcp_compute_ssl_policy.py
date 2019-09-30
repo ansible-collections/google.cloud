@@ -142,7 +142,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a SSL policy
-  gcp_compute_ssl_policy:
+  google.cloud.gcp_compute_ssl_policy:
     name: test_object
     profile: CUSTOM
     min_tls_version: TLS_1_2

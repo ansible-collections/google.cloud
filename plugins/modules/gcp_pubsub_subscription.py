@@ -219,7 +219,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a topic
-  gcp_pubsub_topic:
+  google.cloud.gcp_pubsub_topic:
     name: topic-subscription
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -228,7 +228,7 @@ EXAMPLES = '''
   register: topic
 
 - name: create a subscription
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: test_object
     topic: "{{ topic }}"
     ack_deadline_seconds: 300

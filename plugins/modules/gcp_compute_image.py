@@ -246,7 +246,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: disk-image
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -256,7 +256,7 @@ EXAMPLES = '''
   register: disk
 
 - name: create a image
-  gcp_compute_image:
+  google.cloud.gcp_compute_image:
     name: test_object
     source_disk: "{{ disk }}"
     project: test_project

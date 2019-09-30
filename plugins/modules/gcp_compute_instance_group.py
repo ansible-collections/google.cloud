@@ -166,7 +166,7 @@ options:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instancegroup
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -175,7 +175,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: test_object
     named_ports:
     - name: ansible

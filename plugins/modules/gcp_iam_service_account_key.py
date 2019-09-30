@@ -118,7 +118,7 @@ options:
 
 EXAMPLES = '''
 - name: create a service account
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: test-ansible@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
@@ -128,7 +128,7 @@ EXAMPLES = '''
   register: serviceaccount
 
 - name: create a service account key
-  gcp_iam_service_account_key:
+  google.cloud.gcp_iam_service_account_key:
     service_account: "{{ serviceaccount }}"
     private_key_type: TYPE_GOOGLE_CREDENTIALS_FILE
     path: "~/test_account.json"

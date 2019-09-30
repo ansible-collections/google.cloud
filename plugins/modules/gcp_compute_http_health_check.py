@@ -167,7 +167,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: test_object
     healthy_threshold: 10
     port: 8080

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-vpngateway
     region: us-west1
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: address
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-vpngateway
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -31,7 +31,7 @@
     state: present
   register: network
 - name: delete a target vpn gateway
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: "{{ resource_name }}"
     region: us-west1
     network: "{{ network }}"
@@ -41,7 +41,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a target vpn gateway
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: "{{ resource_name }}"
     region: us-west1
     network: "{{ network }}"
@@ -71,7 +71,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a target vpn gateway that already exists
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: "{{ resource_name }}"
     region: us-west1
     network: "{{ network }}"
@@ -86,7 +86,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a target vpn gateway
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: "{{ resource_name }}"
     region: us-west1
     network: "{{ network }}"
@@ -116,7 +116,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a target vpn gateway that does not exist
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: "{{ resource_name }}"
     region: us-west1
     network: "{{ network }}"
@@ -133,7 +133,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-vpngateway
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -142,7 +142,7 @@
   register: network
   ignore_errors: true
 - name: delete a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-vpngateway
     region: us-west1
     project: "{{ gcp_project }}"

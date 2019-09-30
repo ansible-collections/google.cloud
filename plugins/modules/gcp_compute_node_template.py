@@ -148,7 +148,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a node template
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: test_object
     region: us-central1
     node_type: n1-node-96-624

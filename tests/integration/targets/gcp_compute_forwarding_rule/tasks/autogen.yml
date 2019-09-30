@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: address
 - name: create a target pool
-  gcp_compute_target_pool:
+  google.cloud.gcp_compute_target_pool:
     name: targetpool-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"
@@ -32,7 +32,7 @@
     state: present
   register: targetpool
 - name: delete a forwarding rule
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
     target: "{{ targetpool }}"
@@ -45,7 +45,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a forwarding rule
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
     target: "{{ targetpool }}"
@@ -78,7 +78,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a forwarding rule that already exists
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
     target: "{{ targetpool }}"
@@ -96,7 +96,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a forwarding rule
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
     target: "{{ targetpool }}"
@@ -129,7 +129,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a forwarding rule that does not exist
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
     target: "{{ targetpool }}"
@@ -149,7 +149,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a target pool
-  gcp_compute_target_pool:
+  google.cloud.gcp_compute_target_pool:
     name: targetpool-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"
@@ -159,7 +159,7 @@
   register: targetpool
   ignore_errors: true
 - name: delete a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"

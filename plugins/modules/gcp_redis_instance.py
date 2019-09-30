@@ -179,7 +179,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instance
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -188,7 +188,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a instance
-  gcp_redis_instance:
+  google.cloud.gcp_redis_instance:
     name: instance37
     tier: STANDARD_HA
     memory_size_gb: 1

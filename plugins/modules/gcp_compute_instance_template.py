@@ -484,7 +484,7 @@ options:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instancetemplate
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -493,7 +493,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-instancetemplate
     region: us-west1
     project: "{{ gcp_project }}"
@@ -503,7 +503,7 @@ EXAMPLES = '''
   register: address
 
 - name: create a instance template
-  gcp_compute_instance_template:
+  google.cloud.gcp_compute_instance_template:
     name: test_object
     properties:
       disks:

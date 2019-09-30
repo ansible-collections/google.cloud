@@ -283,7 +283,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a firewall
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: test_object
     allowed:
     - ip_protocol: tcp

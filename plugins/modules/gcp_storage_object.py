@@ -116,7 +116,7 @@ options:
 
 EXAMPLES = '''
 - name: create a object
-  gcp_storage_object:
+  google.cloud.gcp_storage_object:
     action: download
     bucket: ansible-bucket
     src: modules.zip

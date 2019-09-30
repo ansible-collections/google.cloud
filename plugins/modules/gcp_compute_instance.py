@@ -513,7 +513,7 @@ options:
 
 EXAMPLES = '''
 - name: create a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: disk-instance
     size_gb: 50
     source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
@@ -525,7 +525,7 @@ EXAMPLES = '''
   register: disk
 
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-instance
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -534,7 +534,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-instance
     region: us-central1
     project: "{{ gcp_project }}"
@@ -544,7 +544,7 @@ EXAMPLES = '''
   register: address
 
 - name: create a instance
-  gcp_compute_instance:
+  google.cloud.gcp_compute_instance:
     name: test_object
     machine_type: n1-standard-1
     disks:

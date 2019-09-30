@@ -363,7 +363,7 @@ options:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_sql_instance:
+  google.cloud.gcp_sql_instance:
     name: "{{resource_name}}-2"
     settings:
       ip_configuration:

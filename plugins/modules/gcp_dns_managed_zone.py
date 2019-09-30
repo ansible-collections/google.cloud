@@ -226,7 +226,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: test_object
     dns_name: test.somewild2.example.com.
     description: test zone

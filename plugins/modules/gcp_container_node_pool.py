@@ -353,7 +353,7 @@ options:
 
 EXAMPLES = '''
 - name: create a cluster
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: cluster-nodepool
     initial_node_count: 4
     location: us-central1-a
@@ -364,7 +364,7 @@ EXAMPLES = '''
   register: cluster
 
 - name: create a node pool
-  gcp_container_node_pool:
+  google.cloud.gcp_container_node_pool:
     name: my-pool
     initial_node_count: 4
     cluster: "{{ cluster }}"

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-targettcpproxy
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: instancegroup
 - name: create a health check
-  gcp_compute_health_check:
+  google.cloud.gcp_compute_health_check:
     name: healthcheck-targettcpproxy
     type: TCP
     tcp_health_check:
@@ -39,7 +39,7 @@
     state: present
   register: healthcheck
 - name: create a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: backendservice-targettcpproxy
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -52,7 +52,7 @@
     state: present
   register: backendservice
 - name: delete a target TCP proxy
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: "{{ resource_name }}"
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"
@@ -62,7 +62,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a target TCP proxy
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: "{{ resource_name }}"
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"
@@ -91,7 +91,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a target TCP proxy that already exists
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: "{{ resource_name }}"
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"
@@ -106,7 +106,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a target TCP proxy
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: "{{ resource_name }}"
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"
@@ -135,7 +135,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a target TCP proxy that does not exist
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: "{{ resource_name }}"
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"
@@ -152,7 +152,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: backendservice-targettcpproxy
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -166,7 +166,7 @@
   register: backendservice
   ignore_errors: true
 - name: delete a health check
-  gcp_compute_health_check:
+  google.cloud.gcp_compute_health_check:
     name: healthcheck-targettcpproxy
     type: TCP
     tcp_health_check:
@@ -183,7 +183,7 @@
   register: healthcheck
   ignore_errors: true
 - name: delete a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-targettcpproxy
     zone: us-central1-a
     project: "{{ gcp_project }}"

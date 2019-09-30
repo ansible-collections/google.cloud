@@ -163,7 +163,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a node
-  gcp_tpu_node:
+  google.cloud.gcp_tpu_node:
     name: test_object
     zone: us-central1-b
     accelerator_type: v3-8

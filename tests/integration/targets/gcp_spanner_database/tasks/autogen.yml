@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a instance
-  gcp_spanner_instance:
+  google.cloud.gcp_spanner_instance:
     name: instance-database
     display_name: My Spanner Instance
     node_count: 2
@@ -27,7 +27,7 @@
     state: present
   register: instance
 - name: delete a database
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: "{{ gcp_project }}"
@@ -36,7 +36,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a database
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: "{{ gcp_project }}"
@@ -63,7 +63,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*webstore.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a database that already exists
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: "{{ gcp_project }}"
@@ -77,7 +77,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a database
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: "{{ gcp_project }}"
@@ -104,7 +104,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*webstore.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a database that does not exist
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: "{{ gcp_project }}"
@@ -120,7 +120,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a instance
-  gcp_spanner_instance:
+  google.cloud.gcp_spanner_instance:
     name: instance-database
     display_name: My Spanner Instance
     node_count: 2

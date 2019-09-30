@@ -126,7 +126,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_spanner_instance:
+  google.cloud.gcp_spanner_instance:
     name: instance-database
     display_name: My Spanner Instance
     node_count: 2
@@ -140,7 +140,7 @@ EXAMPLES = '''
   register: instance
 
 - name: create a database
-  gcp_spanner_database:
+  google.cloud.gcp_spanner_database:
     name: webstore
     instance: "{{ instance }}"
     project: test_project

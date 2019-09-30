@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: example_dataset
     dataset_reference:
       dataset_id: example_dataset
@@ -24,7 +24,7 @@
     state: present
   register: dataset
 - name: delete a table
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:
@@ -37,7 +37,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a table
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:
@@ -68,7 +68,7 @@
       - results['resources'] | map(attribute='tableReference') | map(attribute='tableId') | select("match", ".*example_table.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a table that already exists
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:
@@ -86,7 +86,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a table
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:
@@ -117,7 +117,7 @@
       - results['resources'] | map(attribute='tableReference') | map(attribute='tableId') | select("match", ".*example_table.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a table that does not exist
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:
@@ -137,7 +137,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: example_dataset
     dataset_reference:
       dataset_id: example_dataset

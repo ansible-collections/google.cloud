@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a cluster
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
     master_auth:
@@ -30,7 +30,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a cluster
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
     master_auth:
@@ -64,7 +64,7 @@
       - "'my-cluster' in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: create a cluster that already exists
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
     master_auth:
@@ -85,7 +85,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a cluster
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
     master_auth:
@@ -119,7 +119,7 @@
       - "'my-cluster' not in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: delete a cluster that does not exist
-  gcp_container_cluster:
+  google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
     master_auth:

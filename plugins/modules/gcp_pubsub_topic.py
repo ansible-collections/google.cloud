@@ -140,7 +140,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a topic
-  gcp_pubsub_topic:
+  google.cloud.gcp_pubsub_topic:
     name: test-topic1
     project: test_project
     auth_kind: serviceaccount

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a model
-  gcp_mlengine_model:
+  google.cloud.gcp_mlengine_model:
     name: model_version
     description: My model
     regions:
@@ -27,7 +27,7 @@
     state: present
   register: model
 - name: delete a version
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13
@@ -40,7 +40,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a version
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13
@@ -71,7 +71,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name | replace('-', '_') }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a version that already exists
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13
@@ -89,7 +89,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a version
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13
@@ -120,7 +120,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name | replace('-', '_') }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a version that does not exist
-  gcp_mlengine_version:
+  google.cloud.gcp_mlengine_version:
     name: "{{ resource_name | replace('-', '_') }}"
     model: "{{ model }}"
     runtime_version: 1.13
@@ -140,7 +140,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a model
-  gcp_mlengine_model:
+  google.cloud.gcp_mlengine_model:
     name: model_version
     description: My model
     regions:
