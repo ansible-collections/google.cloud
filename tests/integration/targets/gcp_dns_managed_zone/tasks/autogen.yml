@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: "{{ resource_name }}"
     dns_name: test.somewild2.example.com.
     description: test zone
@@ -24,7 +24,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: "{{ resource_name }}"
     dns_name: test.somewild2.example.com.
     description: test zone
@@ -52,7 +52,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a managed zone that already exists
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: "{{ resource_name }}"
     dns_name: test.somewild2.example.com.
     description: test zone
@@ -67,7 +67,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: "{{ resource_name }}"
     dns_name: test.somewild2.example.com.
     description: test zone
@@ -95,7 +95,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a managed zone that does not exist
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: "{{ resource_name }}"
     dns_name: test.somewild2.example.com.
     description: test zone

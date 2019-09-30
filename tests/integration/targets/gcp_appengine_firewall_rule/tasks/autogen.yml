@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a firewall rule
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW
@@ -24,7 +24,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a firewall rule
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW
@@ -51,7 +51,7 @@
       - results['resources'] | length >= 1
 # ----------------------------------------------------------------------------
 - name: create a firewall rule that already exists
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW
@@ -66,7 +66,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a firewall rule
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW
@@ -93,7 +93,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a firewall rule that does not exist
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW

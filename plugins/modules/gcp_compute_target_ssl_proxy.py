@@ -155,7 +155,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-targetsslproxy
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -165,7 +165,7 @@ EXAMPLES = '''
   register: instancegroup
 
 - name: create a health check
-  gcp_compute_health_check:
+  google.cloud.gcp_compute_health_check:
     name: healthcheck-targetsslproxy
     type: TCP
     tcp_health_check:
@@ -182,7 +182,7 @@ EXAMPLES = '''
   register: healthcheck
 
 - name: create a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: backendservice-targetsslproxy
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -196,7 +196,7 @@ EXAMPLES = '''
   register: backendservice
 
 - name: create a SSL certificate
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: sslcert-targetsslproxy
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
@@ -230,7 +230,7 @@ EXAMPLES = '''
   register: sslcert
 
 - name: create a target SSL proxy
-  gcp_compute_target_ssl_proxy:
+  google.cloud.gcp_compute_target_ssl_proxy:
     name: test_object
     ssl_certificates:
     - "{{ sslcert }}"

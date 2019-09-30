@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a SSL certificate
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
@@ -47,7 +47,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a SSL certificate
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
@@ -99,7 +99,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a SSL certificate that already exists
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
@@ -137,7 +137,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a SSL certificate
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
@@ -189,7 +189,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a SSL certificate that does not exist
-  gcp_compute_ssl_certificate:
+  google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-

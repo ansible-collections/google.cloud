@@ -187,7 +187,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a target pool
-  gcp_compute_target_pool:
+  google.cloud.gcp_compute_target_pool:
     name: test_object
     region: us-west1
     project: test_project

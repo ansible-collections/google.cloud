@@ -117,7 +117,7 @@ options:
 
 EXAMPLES = '''
 - name: create a role
-  gcp_iam_role:
+  google.cloud.gcp_iam_role:
     name: myCustomRole2
     title: My Custom Role
     description: My custom role description

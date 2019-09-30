@@ -501,7 +501,7 @@ options:
 
 EXAMPLES = '''
 - name: create a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: example_dataset
     dataset_reference:
       dataset_id: example_dataset
@@ -512,7 +512,7 @@ EXAMPLES = '''
   register: dataset
 
 - name: create a table
-  gcp_bigquery_table:
+  google.cloud.gcp_bigquery_table:
     name: example_table
     dataset: example_dataset
     table_reference:

@@ -216,7 +216,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a region disk
-  gcp_compute_region_disk:
+  google.cloud.gcp_compute_region_disk:
     name: test_object
     size_gb: 500
     disk_encryption_key:

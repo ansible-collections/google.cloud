@@ -116,7 +116,7 @@ options:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_sql_instance:
+  google.cloud.gcp_sql_instance:
     name: "{{resource_name}}-1"
     settings:
       ip_configuration:
@@ -132,7 +132,7 @@ EXAMPLES = '''
   register: instance
 
 - name: create a user
-  gcp_sql_user:
+  google.cloud.gcp_sql_user:
     name: test-user
     host: 10.1.2.3
     password: secret-password

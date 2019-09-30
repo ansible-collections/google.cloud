@@ -156,7 +156,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: test_object
     auto_create_subnetworks: 'true'
     project: test_project

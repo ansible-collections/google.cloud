@@ -129,7 +129,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a firewall rule
-  gcp_appengine_firewall_rule:
+  google.cloud.gcp_appengine_firewall_rule:
     priority: 1000
     source_range: 10.0.0.0
     action: ALLOW

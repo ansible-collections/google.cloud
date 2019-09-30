@@ -181,7 +181,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: disk-snapshot
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -191,7 +191,7 @@ EXAMPLES = '''
   register: disk
 
 - name: create a snapshot
-  gcp_compute_snapshot:
+  google.cloud.gcp_compute_snapshot:
     name: test_object
     source_disk: "{{ disk }}"
     zone: us-central1-a

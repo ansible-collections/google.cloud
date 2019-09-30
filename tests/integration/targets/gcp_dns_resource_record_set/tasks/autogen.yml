@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: managedzone-rrs
     dns_name: testzone-4.com.
     description: test zone
@@ -24,7 +24,7 @@
     state: present
   register: managed_zone
 - name: delete a resource record set
-  gcp_dns_resource_record_set:
+  google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
     managed_zone: "{{ managed_zone }}"
     type: A
@@ -38,7 +38,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a resource record set
-  gcp_dns_resource_record_set:
+  google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
     managed_zone: "{{ managed_zone }}"
     type: A
@@ -70,7 +70,7 @@
       - "'www.testzone-4.com.'in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: create a resource record set that already exists
-  gcp_dns_resource_record_set:
+  google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
     managed_zone: "{{ managed_zone }}"
     type: A
@@ -89,7 +89,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a resource record set
-  gcp_dns_resource_record_set:
+  google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
     managed_zone: "{{ managed_zone }}"
     type: A
@@ -121,7 +121,7 @@
       - "'www.testzone-4.com.'not in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: delete a resource record set that does not exist
-  gcp_dns_resource_record_set:
+  google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
     managed_zone: "{{ managed_zone }}"
     type: A
@@ -142,7 +142,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a managed zone
-  gcp_dns_managed_zone:
+  google.cloud.gcp_dns_managed_zone:
     name: managedzone-rrs
     dns_name: testzone-4.com.
     description: test zone

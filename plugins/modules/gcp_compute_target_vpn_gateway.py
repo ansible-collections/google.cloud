@@ -132,7 +132,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-vpngateway
     region: us-west1
     project: "{{ gcp_project }}"
@@ -142,7 +142,7 @@ EXAMPLES = '''
   register: address
 
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-vpngateway
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -151,7 +151,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a target vpn gateway
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: test_object
     region: us-west1
     network: "{{ network }}"

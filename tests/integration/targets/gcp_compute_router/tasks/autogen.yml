@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-router
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -22,7 +22,7 @@
     state: present
   register: network
 - name: delete a router
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: "{{ resource_name }}"
     network: "{{ network }}"
     bgp:
@@ -40,7 +40,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a router
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: "{{ resource_name }}"
     network: "{{ network }}"
     bgp:
@@ -78,7 +78,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a router that already exists
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: "{{ resource_name }}"
     network: "{{ network }}"
     bgp:
@@ -101,7 +101,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a router
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: "{{ resource_name }}"
     network: "{{ network }}"
     bgp:
@@ -139,7 +139,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a router that does not exist
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: "{{ resource_name }}"
     network: "{{ network }}"
     bgp:
@@ -164,7 +164,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-router
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

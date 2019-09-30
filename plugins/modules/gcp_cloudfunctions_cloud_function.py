@@ -199,7 +199,7 @@ options:
 
 EXAMPLES = '''
 - name: create a cloud function
-  gcp_cloudfunctions_cloud_function:
+  google.cloud.gcp_cloudfunctions_cloud_function:
     name: test_object
     location: us-central1
     entry_point: helloGET

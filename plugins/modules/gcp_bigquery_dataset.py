@@ -241,7 +241,7 @@ options:
 
 EXAMPLES = '''
 - name: create a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset

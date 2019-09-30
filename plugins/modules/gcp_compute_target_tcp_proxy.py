@@ -135,7 +135,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-targettcpproxy
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -145,7 +145,7 @@ EXAMPLES = '''
   register: instancegroup
 
 - name: create a health check
-  gcp_compute_health_check:
+  google.cloud.gcp_compute_health_check:
     name: healthcheck-targettcpproxy
     type: TCP
     tcp_health_check:
@@ -162,7 +162,7 @@ EXAMPLES = '''
   register: healthcheck
 
 - name: create a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: backendservice-targettcpproxy
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -176,7 +176,7 @@ EXAMPLES = '''
   register: backendservice
 
 - name: create a target TCP proxy
-  gcp_compute_target_tcp_proxy:
+  google.cloud.gcp_compute_target_tcp_proxy:
     name: test_object
     proxy_header: PROXY_V1
     service: "{{ backendservice }}"

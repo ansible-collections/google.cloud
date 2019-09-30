@@ -342,7 +342,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a repository
-  gcp_sourcerepo_repository:
+  google.cloud.gcp_sourcerepo_repository:
     name: projects/{{ gcp_project }}/repos/{{ resource_name }}
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -350,7 +350,7 @@ EXAMPLES = '''
     state: present
 
 - name: create a trigger
-  gcp_cloudbuild_trigger:
+  google.cloud.gcp_cloudbuild_trigger:
     trigger_template:
       branch_name: master
       project_id: test_project

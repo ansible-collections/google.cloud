@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -51,7 +51,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a network that already exists
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -65,7 +65,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -93,7 +93,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a network that does not exist
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"

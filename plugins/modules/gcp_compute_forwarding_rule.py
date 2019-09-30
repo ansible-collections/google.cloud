@@ -279,7 +279,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: address-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"
@@ -289,7 +289,7 @@ EXAMPLES = '''
   register: address
 
 - name: create a target pool
-  gcp_compute_target_pool:
+  google.cloud.gcp_compute_target_pool:
     name: targetpool-forwardingrule
     region: us-west1
     project: "{{ gcp_project }}"
@@ -299,7 +299,7 @@ EXAMPLES = '''
   register: targetpool
 
 - name: create a forwarding rule
-  gcp_compute_forwarding_rule:
+  google.cloud.gcp_compute_forwarding_rule:
     name: test_object
     region: us-west1
     target: "{{ targetpool }}"

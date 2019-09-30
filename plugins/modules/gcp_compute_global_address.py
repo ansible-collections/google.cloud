@@ -171,7 +171,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a global address
-  gcp_compute_global_address:
+  google.cloud.gcp_compute_global_address:
     name: test_object
     project: test_project
     auth_kind: serviceaccount

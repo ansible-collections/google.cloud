@@ -397,7 +397,7 @@ options:
 
 EXAMPLES = '''
 - name: create a bucket
-  gcp_storage_bucket:
+  google.cloud.gcp_storage_bucket:
     name: ansible-storage-module
     project: test_project
     auth_kind: serviceaccount

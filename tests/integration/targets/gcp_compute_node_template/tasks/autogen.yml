@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a node template
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
     region: us-central1
     node_type: n1-node-96-624
@@ -24,7 +24,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a node template
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
     region: us-central1
     node_type: n1-node-96-624
@@ -54,7 +54,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a node template that already exists
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
     region: us-central1
     node_type: n1-node-96-624
@@ -69,7 +69,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a node template
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
     region: us-central1
     node_type: n1-node-96-624
@@ -99,7 +99,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a node template that does not exist
-  gcp_compute_node_template:
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
     region: us-central1
     node_type: n1-node-96-624

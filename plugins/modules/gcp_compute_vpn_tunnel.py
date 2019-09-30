@@ -176,7 +176,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-vpn-tunnel
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -185,7 +185,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a router
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: router-vpn-tunnel
     network: "{{ network }}"
     bgp:
@@ -204,7 +204,7 @@ EXAMPLES = '''
   register: router
 
 - name: create a target vpn gateway
-  gcp_compute_target_vpn_gateway:
+  google.cloud.gcp_compute_target_vpn_gateway:
     name: gateway-vpn-tunnel
     region: us-west1
     network: "{{ network }}"
@@ -215,7 +215,7 @@ EXAMPLES = '''
   register: gateway
 
 - name: create a vpn tunnel
-  gcp_compute_vpn_tunnel:
+  google.cloud.gcp_compute_vpn_tunnel:
     name: test_object
     region: us-west1
     target_vpn_gateway: "{{ gateway }}"

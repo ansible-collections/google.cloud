@@ -99,7 +99,7 @@ options:
 
 EXAMPLES = '''
 - name: create a service account
-  gcp_iam_service_account:
+  google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: test_project

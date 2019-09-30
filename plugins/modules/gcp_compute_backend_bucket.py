@@ -151,7 +151,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a bucket
-  gcp_storage_bucket:
+  google.cloud.gcp_storage_bucket:
     name: bucket-backendbucket
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -160,7 +160,7 @@ EXAMPLES = '''
   register: bucket
 
 - name: create a backend bucket
-  gcp_compute_backend_bucket:
+  google.cloud.gcp_compute_backend_bucket:
     name: test_object
     bucket_name: "{{ bucket.name }}"
     description: A BackendBucket to connect LNB w/ Storage Bucket

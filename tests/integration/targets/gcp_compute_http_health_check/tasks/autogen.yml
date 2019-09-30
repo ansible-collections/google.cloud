@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: "{{ resource_name }}"
     healthy_threshold: 10
     port: 8080
@@ -26,7 +26,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: "{{ resource_name }}"
     healthy_threshold: 10
     port: 8080
@@ -57,7 +57,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a HTTP health check that already exists
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: "{{ resource_name }}"
     healthy_threshold: 10
     port: 8080
@@ -74,7 +74,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: "{{ resource_name }}"
     healthy_threshold: 10
     port: 8080
@@ -105,7 +105,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a HTTP health check that does not exist
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: "{{ resource_name }}"
     healthy_threshold: 10
     port: 8080

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a instance
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: "{{ resource_name }}"
     zone: us-central1-b
     tier: PREMIUM
@@ -31,7 +31,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a instance
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: "{{ resource_name }}"
     zone: us-central1-b
     tier: PREMIUM
@@ -66,7 +66,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a instance that already exists
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: "{{ resource_name }}"
     zone: us-central1-b
     tier: PREMIUM
@@ -88,7 +88,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a instance
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: "{{ resource_name }}"
     zone: us-central1-b
     tier: PREMIUM
@@ -123,7 +123,7 @@
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a instance that does not exist
-  gcp_filestore_instance:
+  google.cloud.gcp_filestore_instance:
     name: "{{ resource_name }}"
     zone: us-central1-b
     tier: PREMIUM

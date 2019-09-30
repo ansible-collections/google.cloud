@@ -109,7 +109,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a repository
-  gcp_sourcerepo_repository:
+  google.cloud.gcp_sourcerepo_repository:
     name: test_object
     project: test_project
     auth_kind: serviceaccount

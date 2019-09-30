@@ -132,7 +132,7 @@ options:
 
 EXAMPLES = '''
 - name: create a project
-  gcp_resourcemanager_project:
+  google.cloud.gcp_resourcemanager_project:
     name: My Sample Project
     id: alextest-{{ 10000000000 | random }}
     auth_kind: serviceaccount

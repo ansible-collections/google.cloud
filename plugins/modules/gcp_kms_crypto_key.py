@@ -154,7 +154,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a key ring
-  gcp_kms_key_ring:
+  google.cloud.gcp_kms_key_ring:
     name: key-key-ring
     location: us-central1
     project: "{{ gcp_project }}"
@@ -164,7 +164,7 @@ EXAMPLES = '''
   register: keyring
 
 - name: create a crypto key
-  gcp_kms_crypto_key:
+  google.cloud.gcp_kms_crypto_key:
     name: test_object
     key_ring: projects/{{ gcp_project }}/locations/us-central1/keyRings/key-key-ring
     project: test_project

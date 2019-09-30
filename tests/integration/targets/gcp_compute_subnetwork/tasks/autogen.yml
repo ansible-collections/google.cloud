@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-subnetwork
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: network
 - name: delete a subnetwork
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"
@@ -34,7 +34,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a subnetwork
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"
@@ -65,7 +65,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a subnetwork that already exists
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"
@@ -81,7 +81,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a subnetwork
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"
@@ -112,7 +112,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a subnetwork that does not exist
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"
@@ -130,7 +130,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-subnetwork
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"

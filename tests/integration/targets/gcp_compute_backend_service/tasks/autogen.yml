@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-backendservice
     zone: us-central1-a
     project: "{{ gcp_project }}"
@@ -23,7 +23,7 @@
     state: present
   register: instancegroup
 - name: create a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: httphealthcheck-backendservice
     healthy_threshold: 10
     port: 8080
@@ -35,7 +35,7 @@
     state: present
   register: healthcheck
 - name: delete a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: "{{ resource_name }}"
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -48,7 +48,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: "{{ resource_name }}"
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -80,7 +80,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a backend service that already exists
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: "{{ resource_name }}"
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -98,7 +98,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a backend service
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: "{{ resource_name }}"
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -130,7 +130,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a backend service that does not exist
-  gcp_compute_backend_service:
+  google.cloud.gcp_compute_backend_service:
     name: "{{ resource_name }}"
     backends:
     - group: "{{ instancegroup.selfLink }}"
@@ -150,7 +150,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a HTTP health check
-  gcp_compute_http_health_check:
+  google.cloud.gcp_compute_http_health_check:
     name: httphealthcheck-backendservice
     healthy_threshold: 10
     port: 8080
@@ -163,7 +163,7 @@
   register: healthcheck
   ignore_errors: true
 - name: delete a instance group
-  gcp_compute_instance_group:
+  google.cloud.gcp_compute_instance_group:
     name: instancegroup-backendservice
     zone: us-central1-a
     project: "{{ gcp_project }}"

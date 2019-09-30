@@ -114,7 +114,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a key ring
-  gcp_kms_key_ring:
+  google.cloud.gcp_kms_key_ring:
     name: test_object
     location: us-central1
     project: test_project

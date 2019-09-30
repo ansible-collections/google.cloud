@@ -116,7 +116,7 @@ options:
 
 EXAMPLES = '''
 - name: create a instance
-  gcp_sql_instance:
+  google.cloud.gcp_sql_instance:
     name: "{{resource_name}}-3"
     settings:
       ip_configuration:
@@ -132,7 +132,7 @@ EXAMPLES = '''
   register: instance
 
 - name: create a database
-  gcp_sql_database:
+  google.cloud.gcp_sql_database:
     name: test_object
     charset: utf8
     instance: "{{ instance.name }}"

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: create a topic
-  gcp_pubsub_topic:
+  google.cloud.gcp_pubsub_topic:
     name: topic-subscription
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -22,7 +22,7 @@
     state: present
   register: topic
 - name: delete a subscription
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
     ack_deadline_seconds: 300
@@ -32,7 +32,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a subscription
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
     ack_deadline_seconds: 300
@@ -59,7 +59,7 @@
       - "\"{{resource_name}}\" in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: create a subscription that already exists
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
     ack_deadline_seconds: 300
@@ -74,7 +74,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a subscription
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
     ack_deadline_seconds: 300
@@ -101,7 +101,7 @@
       - "\"{{resource_name}}\" not in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
 - name: delete a subscription that does not exist
-  gcp_pubsub_subscription:
+  google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
     ack_deadline_seconds: 300
@@ -118,7 +118,7 @@
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: delete a topic
-  gcp_pubsub_topic:
+  google.cloud.gcp_pubsub_topic:
     name: topic-subscription
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

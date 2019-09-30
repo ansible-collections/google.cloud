@@ -257,7 +257,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a disk
-  gcp_compute_disk:
+  google.cloud.gcp_compute_disk:
     name: test_object
     size_gb: 50
     disk_encryption_key:

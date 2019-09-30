@@ -195,7 +195,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-subnetwork
     auto_create_subnetworks: 'true'
     project: "{{ gcp_project }}"
@@ -205,7 +205,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a subnetwork
-  gcp_compute_subnetwork:
+  google.cloud.gcp_compute_subnetwork:
     name: ansiblenet
     region: us-west1
     network: "{{ network }}"

@@ -460,7 +460,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a health check
-  gcp_compute_health_check:
+  google.cloud.gcp_compute_health_check:
     name: test_object
     type: TCP
     tcp_health_check:

@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a firewall
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
     - ip_protocol: tcp
@@ -31,7 +31,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a firewall
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
     - ip_protocol: tcp
@@ -67,7 +67,7 @@
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: create a firewall that already exists
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
     - ip_protocol: tcp
@@ -89,7 +89,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a firewall
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
     - ip_protocol: tcp
@@ -125,7 +125,7 @@
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a firewall that does not exist
-  gcp_compute_firewall:
+  google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
     - ip_protocol: tcp

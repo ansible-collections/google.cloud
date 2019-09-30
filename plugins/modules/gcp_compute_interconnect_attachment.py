@@ -184,7 +184,7 @@ options:
 
 EXAMPLES = '''
 - name: create a interconnect attachment
-  gcp_compute_interconnect_attachment:
+  google.cloud.gcp_compute_interconnect_attachment:
     name: test_object
     region: us-central1
     project: test_project

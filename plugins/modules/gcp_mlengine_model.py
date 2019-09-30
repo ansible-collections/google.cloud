@@ -135,7 +135,7 @@ options:
 
 EXAMPLES = '''
 - name: create a model
-  gcp_mlengine_model:
+  google.cloud.gcp_mlengine_model:
     name: "{{ resource_name | replace('-', '_') }}"
     description: My model
     regions:

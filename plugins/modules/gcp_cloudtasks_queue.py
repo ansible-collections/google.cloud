@@ -203,7 +203,7 @@ options:
 
 EXAMPLES = '''
 - name: create a queue
-  gcp_cloudtasks_queue:
+  google.cloud.gcp_cloudtasks_queue:
     name: test_object
     location: us-central1
     project: test_project

@@ -182,7 +182,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a network
-  gcp_compute_network:
+  google.cloud.gcp_compute_network:
     name: network-router
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -191,7 +191,7 @@ EXAMPLES = '''
   register: network
 
 - name: create a router
-  gcp_compute_router:
+  google.cloud.gcp_compute_router:
     name: test_object
     network: "{{ network }}"
     bgp:

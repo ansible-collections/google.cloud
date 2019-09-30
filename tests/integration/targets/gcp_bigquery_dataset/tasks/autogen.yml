@@ -14,7 +14,7 @@
 # ----------------------------------------------------------------------------
 # Pre-test setup
 - name: delete a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset
@@ -24,7 +24,7 @@
     state: absent
 #----------------------------------------------------------
 - name: create a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset
@@ -51,7 +51,7 @@
       - results['resources'] | map(attribute='datasetReference') | map(attribute='datasetId') | select("match", ".*my_example_dataset.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a dataset that already exists
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset
@@ -66,7 +66,7 @@
       - result.changed == false
 #----------------------------------------------------------
 - name: delete a dataset
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset
@@ -93,7 +93,7 @@
       - results['resources'] | map(attribute='datasetReference') | map(attribute='datasetId') | select("match", ".*my_example_dataset.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a dataset that does not exist
-  gcp_bigquery_dataset:
+  google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
     dataset_reference:
       dataset_id: my_example_dataset

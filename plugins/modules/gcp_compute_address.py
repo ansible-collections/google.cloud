@@ -181,7 +181,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a address
-  gcp_compute_address:
+  google.cloud.gcp_compute_address:
     name: test-address1
     region: us-west1
     project: test_project

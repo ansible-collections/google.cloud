@@ -333,7 +333,7 @@ notes:
 
 EXAMPLES = '''
 - name: create a job
-  gcp_cloudscheduler_job:
+  google.cloud.gcp_cloudscheduler_job:
     name: job
     region: us-central1
     schedule: "*/4 * * * *"
