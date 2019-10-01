@@ -86,8 +86,7 @@ options:
     suboptions:
       type:
         description:
-        - The type of supported feature. Read [Enabling guest operating system features](U(https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features))
-          to see a list of available options.
+        - The type of supported feature.
         - 'Some valid choices include: "MULTI_IP_SUBNET", "SECURE_BOOT", "UEFI_COMPATIBLE",
           "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"'
         required: false
@@ -347,8 +346,7 @@ guestOsFeatures:
   contains:
     type:
       description:
-      - The type of supported feature. Read [Enabling guest operating system features](U(https://cloud.google.com/compute/docs/images/create-delete-deprecate-private-images#guest-os-features))
-        to see a list of available options.
+      - The type of supported feature.
       returned: success
       type: str
 id:
