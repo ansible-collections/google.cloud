@@ -13,25 +13,35 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a disk
-  google.cloud.gcp_compute_disk:
+- name: create a node template
+  google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
-    size_gb: 50
-    disk_encryption_key:
-      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
+    region: us-central1
+    node_type: n1-node-96-624
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: node_template
+- name: delete a node group
+  google.cloud.gcp_compute_node_group:
+    name: "{{ resource_name }}"
     zone: us-central1-a
+    description: example group for ansible
+    size: 1
+    node_template: "{{ node_template }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
     state: absent
 #----------------------------------------------------------
-- name: create a disk
-  google.cloud.gcp_compute_disk:
+- name: create a node group
+  google.cloud.gcp_compute_node_group:
     name: "{{ resource_name }}"
-    size_gb: 50
-    disk_encryption_key:
-      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
     zone: us-central1-a
+    description: example group for ansible
+    size: 1
+    node_template: "{{ node_template }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -41,8 +51,8 @@
   assert:
     that:
       - result.changed == true
-- name: verify that disk was created
-  google.cloud.gcp_compute_disk_info:
+- name: verify that node_group was created
+  google.cloud.gcp_compute_node_group_info:
       filters:
          - name = {{ resource_name }}
       zone: us-central1-a
@@ -57,13 +67,13 @@
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a disk that already exists
-  google.cloud.gcp_compute_disk:
+- name: create a node group that already exists
+  google.cloud.gcp_compute_node_group:
     name: "{{ resource_name }}"
-    size_gb: 50
-    disk_encryption_key:
-      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
     zone: us-central1-a
+    description: example group for ansible
+    size: 1
+    node_template: "{{ node_template }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -74,13 +84,13 @@
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a disk
-  google.cloud.gcp_compute_disk:
+- name: delete a node group
+  google.cloud.gcp_compute_node_group:
     name: "{{ resource_name }}"
-    size_gb: 50
-    disk_encryption_key:
-      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
     zone: us-central1-a
+    description: example group for ansible
+    size: 1
+    node_template: "{{ node_template }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -90,8 +100,8 @@
   assert:
     that:
       - result.changed == true
-- name: verify that disk was deleted
-  google.cloud.gcp_compute_disk_info:
+- name: verify that node_group was deleted
+  google.cloud.gcp_compute_node_group_info:
       filters:
          - name = {{ resource_name }}
       zone: us-central1-a
@@ -106,13 +116,13 @@
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a disk that does not exist
-  google.cloud.gcp_compute_disk:
+- name: delete a node group that does not exist
+  google.cloud.gcp_compute_node_group:
     name: "{{ resource_name }}"
-    size_gb: 50
-    disk_encryption_key:
-      raw_key: SGVsbG8gZnJvbSBHb29nbGUgQ2xvdWQgUGxhdGZvcm0=
     zone: us-central1-a
+    description: example group for ansible
+    size: 1
+    node_template: "{{ node_template }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -122,3 +132,17 @@
   assert:
     that:
       - result.changed == false
+#---------------------------------------------------------
+# Post-test teardown
+# If errors happen, don't crash the playbook!
+- name: delete a node template
+  google.cloud.gcp_compute_node_template:
+    name: "{{ resource_name }}"
+    region: us-central1
+    node_type: n1-node-96-624
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  register: node_template
+  ignore_errors: true

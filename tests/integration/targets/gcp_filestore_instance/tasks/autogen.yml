@@ -52,7 +52,7 @@
     that:
       - result.changed == true
 - name: verify that instance was created
-  gcp_filestore_instance_info:
+  google.cloud.gcp_filestore_instance_info:
       zone: us-central1-b
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
@@ -109,7 +109,7 @@
     that:
       - result.changed == true
 - name: verify that instance was deleted
-  gcp_filestore_instance_info:
+  google.cloud.gcp_filestore_instance_info:
       zone: us-central1-b
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"

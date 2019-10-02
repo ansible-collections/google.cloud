@@ -35,6 +35,7 @@ ansible-galaxy collection install google.cloud
   * Compute Engine InstanceGroupManager (gcp_compute_instance_group_manager, gcp_compute_instance_group_manager_facts)
   * Compute Engine InterconnectAttachment (gcp_compute_interconnect_attachment, gcp_compute_interconnect_attachment_facts)
   * Compute Engine Network (gcp_compute_network, gcp_compute_network_facts)
+  * Compute Engine NodeGroup (gcp_compute_node_group, gcp_compute_node_group_facts)
   * Compute Engine NodeTemplate (gcp_compute_node_template, gcp_compute_node_template_facts)
   * Compute Engine RegionDisk (gcp_compute_region_disk, gcp_compute_region_disk_facts)
   * Compute Engine Route (gcp_compute_route, gcp_compute_route_facts)
