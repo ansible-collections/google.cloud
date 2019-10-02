@@ -42,7 +42,7 @@
     that:
       - result.changed == true
 - name: verify that cloud_function was created
-  gcp_cloudfunctions_cloud_function_info:
+  google.cloud.gcp_cloudfunctions_cloud_function_info:
       location: us-central1
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
@@ -89,7 +89,7 @@
     that:
       - result.changed == true
 - name: verify that cloud_function was deleted
-  gcp_cloudfunctions_cloud_function_info:
+  google.cloud.gcp_cloudfunctions_cloud_function_info:
       location: us-central1
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"

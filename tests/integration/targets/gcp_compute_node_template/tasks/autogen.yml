@@ -38,7 +38,7 @@
     that:
       - result.changed == true
 - name: verify that node_template was created
-  gcp_compute_node_template_info:
+  google.cloud.gcp_compute_node_template_info:
       filters:
          - name = {{ resource_name }}
       region: us-central1
@@ -83,7 +83,7 @@
     that:
       - result.changed == true
 - name: verify that node_template was deleted
-  gcp_compute_node_template_info:
+  google.cloud.gcp_compute_node_template_info:
       filters:
          - name = {{ resource_name }}
       region: us-central1
