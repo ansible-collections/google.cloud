@@ -20,6 +20,7 @@ ansible-galaxy collection install google.cloud
   * Compute Engine Autoscaler (gcp_compute_autoscaler, gcp_compute_autoscaler_facts)
   * Compute Engine BackendBucket (gcp_compute_backend_bucket, gcp_compute_backend_bucket_facts)
   * Compute Engine BackendService (gcp_compute_backend_service, gcp_compute_backend_service_facts)
+  * Compute Engine RegionBackendService (gcp_compute_region_backend_service, gcp_compute_region_backend_service_facts)
   * Compute Engine Disk (gcp_compute_disk, gcp_compute_disk_facts)
   * Compute Engine Firewall (gcp_compute_firewall, gcp_compute_firewall_facts)
   * Compute Engine ForwardingRule (gcp_compute_forwarding_rule, gcp_compute_forwarding_rule_facts)
