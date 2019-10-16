@@ -32,6 +32,8 @@ DOCUMENTATION = '''
 module: gcp_sql_instance_info
 description:
 - Gather info for GCP Instance
+- This module was called C(gcp_sql_instance_facts) before Ansible 2.9. The usage has
+  not changed.
 short_description: Gather info for GCP Instance
 version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
@@ -429,6 +431,9 @@ import json
 
 def main():
     module = GcpModule(argument_spec=dict())
+
+    if module._name == 'gcp_sql_instance_facts':
+        module.deprecate("The 'gcp_sql_instance_facts' module has been renamed to 'gcp_sql_instance_info'", version='2.13')
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/sqlservice.admin']

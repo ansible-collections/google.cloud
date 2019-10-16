@@ -32,6 +32,8 @@ DOCUMENTATION = '''
 module: gcp_container_node_pool_info
 description:
 - Gather info for GCP NodePool
+- This module was called C(gcp_container_node_pool_facts) before Ansible 2.9. The
+  usage has not changed.
 short_description: Gather info for GCP NodePool
 version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
@@ -409,6 +411,9 @@ import json
 
 def main():
     module = GcpModule(argument_spec=dict(location=dict(required=True, type='str', aliases=['region', 'zone']), cluster=dict(required=True, type='dict')))
+
+    if module._name == 'gcp_container_node_pool_facts':
+        module.deprecate("The 'gcp_container_node_pool_facts' module has been renamed to 'gcp_container_node_pool_info'", version='2.13')
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
