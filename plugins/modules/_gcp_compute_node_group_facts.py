@@ -1,1 +1,0 @@
-gcp_compute_node_group_info.py
