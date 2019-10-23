@@ -70,6 +70,7 @@ ansible-galaxy collection install google.cloud
   * Cloud Pub/Sub Subscription (gcp_pubsub_subscription, gcp_pubsub_subscription_facts)
   * Cloud Memorystore Instance (gcp_redis_instance, gcp_redis_instance_facts)
   * Resource Manager Project (gcp_resourcemanager_project, gcp_resourcemanager_project_facts)
+  * Cloud Runtime Configuration Config (gcp_runtimeconfig_config, gcp_runtimeconfig_config_facts)
   * Cloud Source Repositories Repository (gcp_sourcerepo_repository, gcp_sourcerepo_repository_facts)
   * Cloud Spanner Instance (gcp_spanner_instance, gcp_spanner_instance_facts)
   * Cloud Spanner Database (gcp_spanner_database, gcp_spanner_database_facts)
