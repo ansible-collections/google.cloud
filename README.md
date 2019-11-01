@@ -66,6 +66,7 @@ ansible-galaxy collection install google.cloud
   * Cloud IAM ServiceAccountKey (gcp_iam_service_account_key, gcp_iam_service_account_key_facts)
   * Cloud KMS KeyRing (gcp_kms_key_ring, gcp_kms_key_ring_facts)
   * Cloud KMS CryptoKey (gcp_kms_crypto_key, gcp_kms_crypto_key_facts)
+  * Stackdriver Logging Metric (gcp_logging_metric, gcp_logging_metric_facts)
   * ML Engine Model (gcp_mlengine_model, gcp_mlengine_model_facts)
   * ML Engine Version (gcp_mlengine_version, gcp_mlengine_version_facts)
   * Cloud Pub/Sub Topic (gcp_pubsub_topic, gcp_pubsub_topic_facts)
