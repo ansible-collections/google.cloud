@@ -231,8 +231,8 @@ def main():
 def download_file(module):
     auth = GcpSession(module, 'storage')
     data = auth.get(media_link(module))
-    with open(module.params['dest'], 'w') as f:
-        f.write(data.text.encode('utf8'))
+    with open(module.params['dest'], 'wb') as f:
+        f.write(data.content)
     return fetch_resource(module, self_link(module))
 
 
