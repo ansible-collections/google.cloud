@@ -1,4 +1,4 @@
-gcp-http-lb
+gcp_http_lb
 =========
 
 This role helps you set up a Google Cloud Load Balancer.
@@ -25,12 +25,12 @@ Example Playbook
       vars:
         gcp_http_lb_backend: projects/project/zones/us-central1-c/instanceGroups/my-instance-group
       roles:
-         - role: gcp-http-lb
+         - role: gcp_http_lb
 
 License
 -------
 
-Apache2
+GPLv3
 
 Author Information
 ------------------
