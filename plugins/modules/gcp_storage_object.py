@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_storage_object
 description:
@@ -103,9 +107,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a object
   google.cloud.gcp_storage_object:
     action: download
@@ -116,9 +120,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 acl:
   description:
   - The ACL on the object
@@ -160,13 +164,19 @@ bucket:
   - The name of the bucket.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 import os
 import mimetypes
@@ -177,6 +187,7 @@ try:
     from google.cloud import storage
     from google.api_core.client_info import ClientInfo
     from google.cloud.storage import Blob
+
     HAS_GOOGLE_STORAGE_LIBRARY = True
 except ImportError:
     HAS_GOOGLE_STORAGE_LIBRARY = False
@@ -190,92 +201,106 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            action=dict(type='str', choices['download', 'upload', 'delete']),
-            src=dict(type='path'),
-            dest=dict(type='path'),
-            bucket=dict(type='str'),
+            action=dict(type="str", choices=["download", "upload", "delete"]),
+            src=dict(type="path"),
+            dest=dict(type="path"),
+            bucket=dict(type="str"),
         )
     )
 
     if not HAS_GOOGLE_STORAGE_LIBRARY:
         module.fail_json(msg="Please install the google-cloud-storage Python library")
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/devstorage.full_control']
+    if not module.params["scopes"]:
+        module.params["scopes"] = [
+            "https://www.googleapis.com/auth/devstorage.full_control"
+        ]
 
-    creds = GcpSession(module, 'storage')._credentials()
-    client = storage.Client(credentials=creds,
-                            client_info=ClientInfo(user_agent="Google-Ansible-MM-object"))
+    creds = GcpSession(module, "storage")._credentials()
+    client = storage.Client(
+        credentials=creds, client_info=ClientInfo(user_agent="Google-Ansible-MM-object")
+    )
 
-    remote_file_exists = Blob(remote_file_path(module), module.params['bucket']).exists()
+    remote_file_exists = Blob(
+        remote_file_path(module), module.params["bucket"]
+    ).exists()
     local_file_exists = os.path.isfile(local_file_path(module))
 
     # Check if files exist.
     results = {}
-    if module.params['action'] == 'delete' and not remote_file_exists:
+    if module.params["action"] == "delete" and not remote_file_exists:
         module.fail_json(msg="File does not exist in bucket")
 
-    if module.params['action'] == 'download' and not remote_file_exists:
+    if module.params["action"] == "download" and not remote_file_exists:
         module.fail_json(msg="File does not exist in bucket")
 
-    if module.params['action'] == 'upload' and not local_file_exists:
+    if module.params["action"] == "upload" and not local_file_exists:
         module.fail_json(msg="File does not exist on disk")
 
-    if module.params['action'] == 'delete':
+    if module.params["action"] == "delete":
         if remote_file_exists:
-            results = delete_file(module, client, module.params['src'])
-            results['changed'] = True
-            module.params['changed'] = True
+            results = delete_file(module, client, module.params["src"])
+            results["changed"] = True
+            module.params["changed"] = True
 
-    elif module.params['action'] == 'download':
-        results = download_file(module, client, module.params['src'], module.params['dest'])
-        results['changed'] = True
+    elif module.params["action"] == "download":
+        results = download_file(
+            module, client, module.params["src"], module.params["dest"]
+        )
+        results["changed"] = True
 
     # Upload
     else:
-        results = upload_file(module, client, module.params['src'], module.params['dest'])
-        results['changed'] = True
+        results = upload_file(
+            module, client, module.params["src"], module.params["dest"]
+        )
+        results["changed"] = True
 
     module.exit_json(**results)
-            
+
 
 def download_file(module, client, name, dest):
     try:
-        blob = Blob(name, module.params['bucket'])
+        blob = Blob(name, module.params["bucket"])
         with open(dest, "wb") as file_obj:
             blob.download_to_file(file_obj)
         return blob.__dict__
     except google.cloud.exceptions.NotFound as e:
         module.fail_json(msg=str(e))
 
+
 def upload_file(module, client, src, dest):
     try:
-        blob = Blob(dest, module.params['bucket'])
+        blob = Blob(dest, module.params["bucket"])
         with open(src, "wb") as file_obj:
             blob.upload_from_file(file_obj)
         return blob.__dict__
     except GoogleCloudError as e:
         module.fail_json(msg=str(e))
 
+
 def delete_file(module, client, name):
     try:
-        blob = Blob(name, module.params['bucket'])
+        blob = Blob(name, module.params["bucket"])
         blob.delete()
         return {}
     except google.cloud.exceptions.NotFound as e:
         module.fail_json(msg=str(e))
 
+
 def local_file_path(module):
-    if module.params['action'] == 'download':
-        return module.params['dest']
+    if module.params["action"] == "download":
+        return module.params["dest"]
     else:
-        return module.params['src']
+        return module.params["src"]
+
 
 def remote_file_path(module):
-    if module.params['action'] == 'download':
-        return module.params['src']
+    if module.params["action"] == "download":
+        return module.params["src"]
     else:
-        return module.params['dest']
+        return module.params["dest"]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
