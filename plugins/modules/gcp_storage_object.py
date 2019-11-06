@@ -184,6 +184,7 @@ import hashlib
 import base64
 
 try:
+    import google.cloud
     from google.cloud import storage
     from google.api_core.client_info import ClientInfo
     from google.cloud.storage import Blob
@@ -218,12 +219,13 @@ def main():
 
     creds = GcpSession(module, "storage")._credentials()
     client = storage.Client(
+        project=module.params['project'],
         credentials=creds, client_info=ClientInfo(user_agent="Google-Ansible-MM-object")
     )
 
-    remote_file_exists = Blob(
-        remote_file_path(module), module.params["bucket"]
-    ).exists()
+    bucket = client.get_bucket(module.params['bucket'])
+
+    remote_file_exists = Blob(remote_file_path(module), bucket).exists()
     local_file_exists = os.path.isfile(local_file_path(module))
 
     # Check if files exist.
@@ -261,27 +263,30 @@ def main():
 
 def download_file(module, client, name, dest):
     try:
-        blob = Blob(name, module.params["bucket"])
+        bucket = client.get_bucket(module.params['bucket'])
+        blob = Blob(name, bucket)
         with open(dest, "wb") as file_obj:
             blob.download_to_file(file_obj)
-        return blob.__dict__
+        return {}
     except google.cloud.exceptions.NotFound as e:
         module.fail_json(msg=str(e))
 
 
 def upload_file(module, client, src, dest):
     try:
-        blob = Blob(dest, module.params["bucket"])
-        with open(src, "wb") as file_obj:
+        bucket = client.get_bucket(module.params['bucket'])
+        blob = Blob(dest, bucket)
+        with open(src, "r") as file_obj:
             blob.upload_from_file(file_obj)
-        return blob.__dict__
-    except GoogleCloudError as e:
+        return {}
+    except google.cloud.exceptions.GoogleCloudError as e:
         module.fail_json(msg=str(e))
 
 
 def delete_file(module, client, name):
     try:
-        blob = Blob(name, module.params["bucket"])
+        bucket = client.get_bucket(module.params['bucket'])
+        blob = Blob(name, bucket)
         blob.delete()
         return {}
     except google.cloud.exceptions.NotFound as e:
@@ -297,6 +302,8 @@ def local_file_path(module):
 
 def remote_file_path(module):
     if module.params["action"] == "download":
+        return module.params["src"]
+    elif module.params["action"] == "delete":
         return module.params["src"]
     else:
         return module.params["dest"]
