@@ -51,13 +51,19 @@ options:
     type: str
   default_service:
     description:
-    - A reference to BackendService resource if none of the hostRules match.
+    - The BackendService resource to which traffic is directed if none of the hostRules
+      match. If defaultRouteAction is additionally specified, advanced routing actions
+      like URL Rewrites, etc. take effect prior to sending the request to the backend.
+      However, if defaultService is specified, defaultRouteAction cannot contain any
+      weightedBackendServices. Conversely, if routeAction specifies any weightedBackendServices,
+      service must not be specified. Only one of defaultService, defaultUrlRedirect
+      or defaultRouteAction.weightedBackendService must be set.
     - 'This field represents a link to a BackendService resource in GCP. It can be
       specified in two ways. First, you can place a dictionary with key ''selfLink''
       and value of your resource''s selfLink Alternatively, you can add `register:
       name-of-resource` to a gcp_compute_backend_service task and then set this default_service
       field to "{{ name-of-resource }}"'
-    required: true
+    required: false
     type: dict
   description:
     description:
@@ -73,7 +79,7 @@ options:
     suboptions:
       description:
         description:
-        - An optional description of this HostRule. Provide this property when you
+        - An optional description of this resource. Provide this property when you
           create the resource.
         required: false
         type: str
@@ -108,18 +114,31 @@ options:
     suboptions:
       default_service:
         description:
-        - A reference to a BackendService resource. This will be used if none of the
-          pathRules defined by this PathMatcher is matched by the URL's path portion.
+        - 'The BackendService resource. This will be used if none of the pathRules
+          or routeRules defined by this PathMatcher are matched. For example, the
+          following are all valid URLs to a BackendService resource: - http s://U(www.googleapis.com/compute/v1/projects/project/global/backendServices/backen)
+          dService - compute/v1/projects/project/global/backendServices/backendService
+          - global/backendServices/backendService If defaultRouteAction is additionally
+          specified, advanced routing actions like URL Rewrites, etc. take effect
+          prior to sending the request to the backend. However, if defaultService
+          is specified, defaultRouteAction cannot contain any weightedBackendServices.
+          Conversely, if defaultRouteAction specifies any weightedBackendServices,
+          defaultService must not be specified. Only one of defaultService, defaultUrlRedirect
+          or defaultRouteAction.weightedBackendService must be set. Authorization
+          requires one or more of the following Google IAM permissions on the specified
+          resource default_service: - compute.backendBuckets.use - compute.backendServices.use
+          .'
         - 'This field represents a link to a BackendService resource in GCP. It can
           be specified in two ways. First, you can place a dictionary with key ''selfLink''
           and value of your resource''s selfLink Alternatively, you can add `register:
           name-of-resource` to a gcp_compute_backend_service task and then set this
           default_service field to "{{ name-of-resource }}"'
-        required: true
+        required: false
         type: dict
       description:
         description:
-        - An optional description of this resource.
+        - An optional description of this resource. Provide this property when you
+          create the resource.
         required: false
         type: str
       name:
@@ -129,10 +148,33 @@ options:
         type: str
       path_rules:
         description:
-        - The list of path rules.
+        - 'The list of path rules. Use this list instead of routeRules when routing
+          based on simple path matching is all that''s required. The order by which
+          path rules are specified does not matter. Matches are always done on the
+          longest-path-first basis. For example: a pathRule with a path /a/b/c/* will
+          match before /a/b/* irrespective of the order in which those paths appear
+          in this list. Within a given pathMatcher, only one of pathRules or routeRules
+          must be set.'
         required: false
         type: list
         suboptions:
+          service:
+            description:
+            - The backend service resource to which traffic is directed if this rule
+              is matched. If routeAction is additionally specified, advanced routing
+              actions like URL Rewrites, etc. take effect prior to sending the request
+              to the backend. However, if service is specified, routeAction cannot
+              contain any weightedBackendService s. Conversely, if routeAction specifies
+              any weightedBackendServices, service must not be specified. Only one
+              of urlRedirect, service or routeAction.weightedBackendService must be
+              set.
+            - 'This field represents a link to a BackendService resource in GCP. It
+              can be specified in two ways. First, you can place a dictionary with
+              key ''selfLink'' and value of your resource''s selfLink Alternatively,
+              you can add `register: name-of-resource` to a gcp_compute_backend_service
+              task and then set this service field to "{{ name-of-resource }}"'
+            required: false
+            type: dict
           paths:
             description:
             - 'The list of path patterns to match. Each must start with / and the
@@ -141,20 +183,11 @@ options:
               and those chars are not allowed here.'
             required: true
             type: list
-          service:
-            description:
-            - A reference to the BackendService resource if this rule is matched.
-            - 'This field represents a link to a BackendService resource in GCP. It
-              can be specified in two ways. First, you can place a dictionary with
-              key ''selfLink'' and value of your resource''s selfLink Alternatively,
-              you can add `register: name-of-resource` to a gcp_compute_backend_service
-              task and then set this service field to "{{ name-of-resource }}"'
-            required: true
-            type: dict
   tests:
     description:
-    - The list of expected URL mappings. Requests to update this UrlMap will succeed
-      only if all of the test cases pass.
+    - The list of expected URL mapping tests. Request to update this UrlMap will succeed
+      only if all of the test cases pass. You can specify a maximum of 100 tests per
+      UrlMap.
     required: false
     type: list
     suboptions:
@@ -175,8 +208,7 @@ options:
         type: str
       service:
         description:
-        - A reference to expected BackendService resource the given URL should be
-          mapped to.
+        - Expected BackendService resource the given URL should be mapped to.
         - 'This field represents a link to a BackendService resource in GCP. It can
           be specified in two ways. First, you can place a dictionary with key ''selfLink''
           and value of your resource''s selfLink Alternatively, you can add `register:
@@ -272,6 +304,11 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
+id:
+  description:
+  - The unique identifier for the resource.
+  returned: success
+  type: int
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -279,13 +316,25 @@ creationTimestamp:
   type: str
 defaultService:
   description:
-  - A reference to BackendService resource if none of the hostRules match.
+  - The BackendService resource to which traffic is directed if none of the hostRules
+    match. If defaultRouteAction is additionally specified, advanced routing actions
+    like URL Rewrites, etc. take effect prior to sending the request to the backend.
+    However, if defaultService is specified, defaultRouteAction cannot contain any
+    weightedBackendServices. Conversely, if routeAction specifies any weightedBackendServices,
+    service must not be specified. Only one of defaultService, defaultUrlRedirect
+    or defaultRouteAction.weightedBackendService must be set.
   returned: success
   type: dict
 description:
   description:
   - An optional description of this resource. Provide this property when you create
     the resource.
+  returned: success
+  type: str
+fingerprint:
+  description:
+  - Fingerprint of this resource. A hash of the contents stored in this object. This
+    field is used in optimistic locking.
   returned: success
   type: str
 hostRules:
@@ -296,7 +345,7 @@ hostRules:
   contains:
     description:
       description:
-      - An optional description of this HostRule. Provide this property when you create
+      - An optional description of this resource. Provide this property when you create
         the resource.
       returned: success
       type: str
@@ -313,17 +362,6 @@ hostRules:
         the hostRule matches the URL's host portion.
       returned: success
       type: str
-id:
-  description:
-  - The unique identifier for the resource.
-  returned: success
-  type: int
-fingerprint:
-  description:
-  - Fingerprint of this resource. This field is used internally during updates of
-    this resource.
-  returned: success
-  type: str
 name:
   description:
   - Name of the resource. Provided by the client when the resource is created. The
@@ -342,13 +380,25 @@ pathMatchers:
   contains:
     defaultService:
       description:
-      - A reference to a BackendService resource. This will be used if none of the
-        pathRules defined by this PathMatcher is matched by the URL's path portion.
+      - 'The BackendService resource. This will be used if none of the pathRules or
+        routeRules defined by this PathMatcher are matched. For example, the following
+        are all valid URLs to a BackendService resource: - http s://U(www.googleapis.com/compute/v1/projects/project/global/backendServices/backen)
+        dService - compute/v1/projects/project/global/backendServices/backendService
+        - global/backendServices/backendService If defaultRouteAction is additionally
+        specified, advanced routing actions like URL Rewrites, etc. take effect prior
+        to sending the request to the backend. However, if defaultService is specified,
+        defaultRouteAction cannot contain any weightedBackendServices. Conversely,
+        if defaultRouteAction specifies any weightedBackendServices, defaultService
+        must not be specified. Only one of defaultService, defaultUrlRedirect or defaultRouteAction.weightedBackendService
+        must be set. Authorization requires one or more of the following Google IAM
+        permissions on the specified resource default_service: - compute.backendBuckets.use
+        - compute.backendServices.use .'
       returned: success
       type: dict
     description:
       description:
-      - An optional description of this resource.
+      - An optional description of this resource. Provide this property when you create
+        the resource.
       returned: success
       type: str
     name:
@@ -358,10 +408,26 @@ pathMatchers:
       type: str
     pathRules:
       description:
-      - The list of path rules.
+      - 'The list of path rules. Use this list instead of routeRules when routing
+        based on simple path matching is all that''s required. The order by which
+        path rules are specified does not matter. Matches are always done on the longest-path-first
+        basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
+        irrespective of the order in which those paths appear in this list. Within
+        a given pathMatcher, only one of pathRules or routeRules must be set.'
       returned: success
       type: complex
       contains:
+        service:
+          description:
+          - The backend service resource to which traffic is directed if this rule
+            is matched. If routeAction is additionally specified, advanced routing
+            actions like URL Rewrites, etc. take effect prior to sending the request
+            to the backend. However, if service is specified, routeAction cannot contain
+            any weightedBackendService s. Conversely, if routeAction specifies any
+            weightedBackendServices, service must not be specified. Only one of urlRedirect,
+            service or routeAction.weightedBackendService must be set.
+          returned: success
+          type: dict
         paths:
           description:
           - 'The list of path patterns to match. Each must start with / and the only
@@ -370,15 +436,11 @@ pathMatchers:
             chars are not allowed here.'
           returned: success
           type: list
-        service:
-          description:
-          - A reference to the BackendService resource if this rule is matched.
-          returned: success
-          type: dict
 tests:
   description:
-  - The list of expected URL mappings. Requests to update this UrlMap will succeed
-    only if all of the test cases pass.
+  - The list of expected URL mapping tests. Request to update this UrlMap will succeed
+    only if all of the test cases pass. You can specify a maximum of 100 tests per
+    UrlMap.
   returned: success
   type: complex
   contains:
@@ -399,8 +461,7 @@ tests:
       type: str
     service:
       description:
-      - A reference to expected BackendService resource the given URL should be mapped
-        to.
+      - Expected BackendService resource the given URL should be mapped to.
       returned: success
       type: dict
 '''
@@ -431,7 +492,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            default_service=dict(required=True, type='dict'),
+            default_service=dict(type='dict'),
             description=dict(type='str'),
             host_rules=dict(
                 type='list',
@@ -445,13 +506,11 @@ def main():
                 type='list',
                 elements='dict',
                 options=dict(
-                    default_service=dict(required=True, type='dict'),
+                    default_service=dict(type='dict'),
                     description=dict(type='str'),
                     name=dict(required=True, type='str'),
                     path_rules=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(paths=dict(required=True, type='list', elements='str'), service=dict(required=True, type='dict')),
+                        type='list', elements='dict', options=dict(service=dict(type='dict'), paths=dict(required=True, type='list', elements='str'))
                     ),
                 ),
             ),
@@ -588,12 +647,12 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
+        u'id': response.get(u'id'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'defaultService': response.get(u'defaultService'),
         u'description': response.get(u'description'),
-        u'hostRules': UrlMapHostrulesArray(response.get(u'hostRules', []), module).from_response(),
-        u'id': response.get(u'id'),
         u'fingerprint': response.get(u'fingerprint'),
+        u'hostRules': UrlMapHostrulesArray(response.get(u'hostRules', []), module).from_response(),
         u'name': module.params.get('name'),
         u'pathMatchers': UrlMapPathmatchersArray(response.get(u'pathMatchers', []), module).from_response(),
         u'tests': UrlMapTestsArray(response.get(u'tests', []), module).from_response(),
@@ -724,10 +783,10 @@ class UrlMapPathrulesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'paths': item.get('paths'), u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink')})
+        return remove_nones_from_dict({u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'), u'paths': item.get('paths')})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'paths': item.get(u'paths'), u'service': item.get(u'service')})
+        return remove_nones_from_dict({u'service': item.get(u'service'), u'paths': item.get(u'paths')})
 
 
 class UrlMapTestsArray(object):
