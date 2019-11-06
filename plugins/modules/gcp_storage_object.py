@@ -123,11 +123,6 @@ EXAMPLES = """
 """
 
 RETURN = """
-acl:
-  description:
-  - The ACL on the object
-  returned: download, upload
-  type: str
 bucket:
   description:
   - The bucket where the object is contained.
@@ -143,26 +138,20 @@ chunk_size:
   - Get the blob’s default chunk size
   returned: download, upload
   type: str
-overwrite:
-  description:
-  - "'Overwrite the file on the bucket/local machine. If overwrite is false and a
-    difference exists between GCS + local, module will fail with error' ."
-  returned: success
-  type: bool
-src:
-  description:
-  - Source location of file (may be local machine or cloud depending on action).
-  returned: success
+media_link:
+  descrpition:
+  - The link for the media
+  returned: download, upload
   type: str
-dest:
-  description:
-  - Destination location of file (may be local machine or cloud depending on action).
-  returned: success
+self_link:
+  descrpition:
+  - The self_link for the media.
+  returned: download, upload
   type: str
-bucket:
-  description:
-  - The name of the bucket.
-  returned: success
+storage_class:
+  descrpition:
+  - The storage class for the object.
+  returned: download, upload
   type: str
 """
 
@@ -267,7 +256,7 @@ def download_file(module, client, name, dest):
         blob = Blob(name, bucket)
         with open(dest, "wb") as file_obj:
             blob.download_to_file(file_obj)
-        return {}
+        return blob_to_dict(blob)
     except google.cloud.exceptions.NotFound as e:
         module.fail_json(msg=str(e))
 
@@ -278,7 +267,7 @@ def upload_file(module, client, src, dest):
         blob = Blob(dest, bucket)
         with open(src, "r") as file_obj:
             blob.upload_from_file(file_obj)
-        return {}
+        return blob_to_dict(blob)
     except google.cloud.exceptions.GoogleCloudError as e:
         module.fail_json(msg=str(e))
 
@@ -308,6 +297,17 @@ def remote_file_path(module):
     else:
         return module.params["dest"]
 
+def blob_to_dict(blob):
+    return {
+        'bucket': {
+            'name': blob.bucket.path
+        },
+        'cache_control': blob.cache_control,
+        'chunk_size': blob.chunk_size,
+        'media_link': blob.media_link,
+        'self_link': blob.self_link,
+        'storage_class': blob.storage_class
+    }
 
 if __name__ == "__main__":
     main()
