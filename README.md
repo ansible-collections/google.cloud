@@ -81,7 +81,6 @@ ansible-galaxy collection install google.cloud
   * Cloud SQL Instance (gcp_sql_instance, gcp_sql_instance_facts)
   * Cloud SQL Database (gcp_sql_database, gcp_sql_database_facts)
   * Cloud SQL User (gcp_sql_user, gcp_sql_user_facts)
-  * Cloud Storage Object (gcp_storage_object, gcp_storage_object_facts)
   * Cloud Storage Bucket (gcp_storage_bucket, gcp_storage_bucket_facts)
   * Cloud Storage BucketAccessControl (gcp_storage_bucket_access_control, gcp_storage_bucket_access_control_facts)
   * Cloud TPU Node (gcp_tpu_node, gcp_tpu_node_facts)
