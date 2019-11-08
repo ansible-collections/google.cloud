@@ -105,7 +105,7 @@ options:
         - Backend services cannot mix Instance Group and Network Endpoint Group backends.
         - Note that you must specify an Instance Group or Network Endpoint Group resource
           using the fully-qualified URL, rather than a partial URL.
-        required: false
+        required: true
         type: str
       max_connections:
         description:
@@ -750,7 +750,7 @@ def main():
                     balancing_mode=dict(default='UTILIZATION', type='str'),
                     capacity_scaler=dict(default=1.0, type='str'),
                     description=dict(type='str'),
-                    group=dict(type='str'),
+                    group=dict(required=True, type='str'),
                     max_connections=dict(type='int'),
                     max_connections_per_instance=dict(type='int'),
                     max_connections_per_endpoint=dict(type='int'),

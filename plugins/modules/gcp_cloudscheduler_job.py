@@ -246,7 +246,7 @@ options:
             description:
             - Service account email to be used for generating OAuth token.
             - The service account must be within the same project as the job.
-            required: false
+            required: true
             type: str
           scope:
             description:
@@ -266,7 +266,7 @@ options:
             description:
             - Service account email to be used for generating OAuth token.
             - The service account must be within the same project as the job.
-            required: false
+            required: true
             type: str
           audience:
             description:
@@ -636,8 +636,8 @@ def main():
                     http_method=dict(type='str'),
                     body=dict(type='str'),
                     headers=dict(type='dict'),
-                    oauth_token=dict(type='dict', options=dict(service_account_email=dict(type='str'), scope=dict(type='str'))),
-                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(type='str'), audience=dict(type='str'))),
+                    oauth_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), scope=dict(type='str'))),
+                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
                 ),
             ),
             region=dict(required=True, type='str'),

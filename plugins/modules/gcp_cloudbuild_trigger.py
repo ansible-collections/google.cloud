@@ -109,7 +109,7 @@ options:
     - Branch and tag names in trigger templates are interpreted as regular expressions.
       Any branch or tag change that matches that regular expression will trigger a
       build.
-    required: false
+    required: true
     type: dict
     suboptions:
       project_id:
@@ -176,7 +176,7 @@ options:
       steps:
         description:
         - The operations to be performed on the workspace.
-        required: false
+        required: true
         type: list
         suboptions:
           name:
@@ -194,7 +194,7 @@ options:
             - If you built an image in a previous build step, it will be stored in
               the host's Docker daemon's cache and is available to use as the name
               for a later build step.
-            required: false
+            required: true
             type: str
           args:
             description:
@@ -274,14 +274,14 @@ options:
                 - Volume names must be unique per build step and must be valid names
                   for Docker volumes. Each named volume must be used by at least two
                   build steps.
-                required: false
+                required: true
                 type: str
               path:
                 description:
                 - Path at which to mount the volume.
                 - Paths must be absolute and cannot conflict with other volume paths
                   on the same build step or with certain reserved volume paths.
-                required: false
+                required: true
                 type: str
           wait_for:
             description:
@@ -648,6 +648,7 @@ def main():
             ignored_files=dict(type='list', elements='str'),
             included_files=dict(type='list', elements='str'),
             trigger_template=dict(
+                required=True,
                 type='dict',
                 options=dict(
                     project_id=dict(type='str'),
@@ -664,10 +665,11 @@ def main():
                     tags=dict(type='list', elements='str'),
                     images=dict(type='list', elements='str'),
                     steps=dict(
+                        required=True,
                         type='list',
                         elements='dict',
                         options=dict(
-                            name=dict(type='str'),
+                            name=dict(required=True, type='str'),
                             args=dict(type='list', elements='str'),
                             env=dict(type='list', elements='str'),
                             id=dict(type='str'),
@@ -676,7 +678,9 @@ def main():
                             secret_env=dict(type='list', elements='str'),
                             timeout=dict(type='str'),
                             timing=dict(type='str'),
-                            volumes=dict(type='list', elements='dict', options=dict(name=dict(type='str'), path=dict(type='str'))),
+                            volumes=dict(
+                                type='list', elements='dict', options=dict(name=dict(required=True, type='str'), path=dict(required=True, type='str'))
+                            ),
                             wait_for=dict(type='list', elements='str'),
                         ),
                     ),
