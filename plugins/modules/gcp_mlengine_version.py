@@ -496,7 +496,7 @@ def return_if_object(module, response, allow_not_found=False):
     except getattr(json.decoder, 'JSONDecodeError', ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    result = decode_response(result, module)
+    result = full_name_to_short(result, module)
 
     if navigate_hash(result, ['error', 'errors']):
         module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
@@ -507,7 +507,7 @@ def return_if_object(module, response, allow_not_found=False):
 def is_different(module, response):
     request = resource_to_request(module)
     response = response_to_hash(module, response)
-    request = decode_response(request, module)
+    request = full_name_to_short(request, module)
 
     # Remove all output-only from response.
     response_vals = {}
@@ -583,14 +583,6 @@ def raise_if_errors(response, err_path, module):
         module.fail_json(msg=errors)
 
 
-# Short names are given (and expected) by the API
-# but are returned as full names.
-def decode_response(response, module):
-    if 'name' in response and 'metadata' not in response:
-        response['name'] = response['name'].split('/')[-1]
-    return response
-
-
 # Sets this version as default.
 def set_default(module):
     res = {'project': module.params['project'], 'model': replace_resource_dict(module.params['model'], 'name'), 'name': module.params['name']}
@@ -598,6 +590,12 @@ def set_default(module):
 
     auth = GcpSession(module, 'mlengine')
     return_if_object(module, auth.post(link))
+
+
+def full_name_to_short(response, module):
+    if 'name' in response:
+        response['name'] = response['name'].split('/')[-1]
+    return response
 
 
 class VersionAutoscaling(object):

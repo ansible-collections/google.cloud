@@ -300,8 +300,6 @@ def return_if_object(module, response, allow_not_found=False):
     except getattr(json.decoder, 'JSONDecodeError', ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    result = decode_response(result, module)
-
     if navigate_hash(result, ['error', 'errors']):
         module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
 
@@ -311,7 +309,6 @@ def return_if_object(module, response, allow_not_found=False):
 def is_different(module, response):
     request = resource_to_request(module)
     response = response_to_hash(module, response)
-    request = decode_response(request, module)
 
     # Remove all output-only from response.
     response_vals = {}
