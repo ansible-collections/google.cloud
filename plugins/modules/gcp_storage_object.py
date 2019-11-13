@@ -116,26 +116,26 @@ bucket:
   type: str
 cache_control:
   description:
-  - HTTP ‘Cache-Control’ header for this object
+  - HTTP 'Cache-Control' header for this object
   returned: download, upload
   type: str
 chunk_size:
   description:
-  - Get the blob’s default chunk size
+  - Get the blob's default chunk size
   returned: download, upload
   type: str
 media_link:
-  descrpition:
+  description:
   - The link for the media
   returned: download, upload
   type: str
 self_link:
-  descrpition:
+  description:
   - The self_link for the media.
   returned: download, upload
   type: str
 storage_class:
-  descrpition:
+  description:
   - The storage class for the object.
   returned: download, upload
   type: str
@@ -283,6 +283,7 @@ def remote_file_path(module):
     else:
         return module.params["dest"]
 
+
 def blob_to_dict(blob):
     return {
         'bucket': {
@@ -294,6 +295,7 @@ def blob_to_dict(blob):
         'self_link': blob.self_link,
         'storage_class': blob.storage_class
     }
+
 
 if __name__ == "__main__":
     main()
