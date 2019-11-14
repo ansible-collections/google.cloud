@@ -252,6 +252,7 @@ options:
         - The maximum number of bad records that BigQuery can ignore when reading
           data .
         required: false
+        default: '0'
         type: int
       source_format:
         description:
@@ -324,6 +325,7 @@ options:
             - The number of rows at the top of a Google Sheet that BigQuery will skip
               when reading the data.
             required: false
+            default: '0'
             type: int
       csv_options:
         description:
@@ -364,6 +366,7 @@ options:
             - The number of rows at the top of a CSV file that BigQuery will skip
               when reading the data.
             required: false
+            default: '0'
             type: int
       bigtable_options:
         description:
