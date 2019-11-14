@@ -77,7 +77,7 @@ options:
           Predefined roles that have equivalent primitive roles are swapped by the
           API to their Primitive counterparts, and will show a diff post-create. See
           [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
-        required: true
+        required: false
         type: str
       special_group:
         description:
@@ -489,7 +489,7 @@ def main():
                 options=dict(
                     domain=dict(type='str'),
                     group_by_email=dict(type='str'),
-                    role=dict(required=True, type='str'),
+                    role=dict(type='str'),
                     special_group=dict(type='str'),
                     user_by_email=dict(type='str'),
                     view=dict(
