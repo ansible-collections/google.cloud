@@ -402,7 +402,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module))
+                update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
         else:
@@ -431,9 +431,25 @@ def create(module, link):
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link):
+def update(module, link, fetch):
     auth = GcpSession(module, 'cloudtasks')
-    return return_if_object(module, auth.put(link, resource_to_request(module)))
+    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    request = resource_to_request(module)
+    del request['name']
+    return return_if_object(module, auth.patch(link, request, params=params))
+
+
+def updateMask(request, response):
+    update_mask = []
+    if request.get('appEngineRoutingOverride') != response.get('appEngineRoutingOverride'):
+        update_mask.append('appEngineRoutingOverride')
+    if request.get('rateLimits') != response.get('rateLimits'):
+        update_mask.append('rateLimits')
+    if request.get('retryConfig') != response.get('retryConfig'):
+        update_mask.append('retryConfig')
+    if request.get('status') != response.get('status'):
+        update_mask.append('status')
+    return ','.join(update_mask)
 
 
 def delete(module, link):
@@ -443,6 +459,7 @@ def delete(module, link):
 
 def resource_to_request(module):
     request = {
+        u'location': module.params.get('location'),
         u'name': name_pattern(module.params.get('name'), module),
         u'appEngineRoutingOverride': QueueAppengineroutingoverride(module.params.get('app_engine_routing_override', {}), module).to_request(),
         u'rateLimits': QueueRatelimits(module.params.get('rate_limits', {}), module).to_request(),
@@ -512,7 +529,7 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
+        u'name': name_pattern(module.params.get('name'), module),
         u'appEngineRoutingOverride': QueueAppengineroutingoverride(response.get(u'appEngineRoutingOverride', {}), module).from_response(),
         u'rateLimits': QueueRatelimits(response.get(u'rateLimits', {}), module).from_response(),
         u'retryConfig': QueueRetryconfig(response.get(u'retryConfig', {}), module).from_response(),
