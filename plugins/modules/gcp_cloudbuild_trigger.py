@@ -173,6 +173,19 @@ options:
         - If any of the images fail to be pushed, the build status is marked FAILURE.
         required: false
         type: list
+      timeout:
+        description:
+        - Amount of time that this build should be allowed to run, to second granularity.
+          If this amount of time elapses, work on the build will cease and the build
+          status will be TIMEOUT.
+        - This timeout must be equal to or greater than the sum of the timeouts for
+          build steps within the build.
+        - The expected format is the number of seconds followed by s.
+        - Default time is ten minutes (600s).
+        required: false
+        default: 600s
+        type: str
+        version_added: '2.10'
       steps:
         description:
         - The operations to be performed on the workspace.
@@ -497,6 +510,17 @@ build:
       - If any of the images fail to be pushed, the build status is marked FAILURE.
       returned: success
       type: list
+    timeout:
+      description:
+      - Amount of time that this build should be allowed to run, to second granularity.
+        If this amount of time elapses, work on the build will cease and the build
+        status will be TIMEOUT.
+      - This timeout must be equal to or greater than the sum of the timeouts for
+        build steps within the build.
+      - The expected format is the number of seconds followed by s.
+      - Default time is ten minutes (600s).
+      returned: success
+      type: str
     steps:
       description:
       - The operations to be performed on the workspace.
@@ -663,6 +687,7 @@ def main():
                 options=dict(
                     tags=dict(type='list', elements='str'),
                     images=dict(type='list', elements='str'),
+                    timeout=dict(default='600s', type='str'),
                     steps=dict(
                         required=True,
                         type='list',
@@ -870,6 +895,7 @@ class TriggerBuild(object):
             {
                 u'tags': self.request.get('tags'),
                 u'images': self.request.get('images'),
+                u'timeout': self.request.get('timeout'),
                 u'steps': TriggerStepsArray(self.request.get('steps', []), self.module).to_request(),
             }
         )
@@ -879,6 +905,7 @@ class TriggerBuild(object):
             {
                 u'tags': self.request.get(u'tags'),
                 u'images': self.request.get(u'images'),
+                u'timeout': self.request.get(u'timeout'),
                 u'steps': TriggerStepsArray(self.request.get(u'steps', []), self.module).from_response(),
             }
         )
