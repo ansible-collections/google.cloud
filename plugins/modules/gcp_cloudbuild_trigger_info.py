@@ -234,6 +234,17 @@ resources:
           - If any of the images fail to be pushed, the build status is marked FAILURE.
           returned: success
           type: list
+        timeout:
+          description:
+          - Amount of time that this build should be allowed to run, to second granularity.
+            If this amount of time elapses, work on the build will cease and the build
+            status will be TIMEOUT.
+          - This timeout must be equal to or greater than the sum of the timeouts
+            for build steps within the build.
+          - The expected format is the number of seconds followed by s.
+          - Default time is ten minutes (600s).
+          returned: success
+          type: str
         steps:
           description:
           - The operations to be performed on the workspace.
