@@ -81,8 +81,8 @@ options:
         type: str
       special_group:
         description:
-        - A special group to grant access to.
-        - 'Possible values include: * `projectOwners`: Owners of the enclosing project.'
+        - 'A special group to grant access to. Possible values include: * `projectOwners`:
+          Owners of the enclosing project.'
         - "* `projectReaders`: Readers of the enclosing project."
         - "* `projectWriters`: Writers of the enclosing project."
         - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
@@ -301,8 +301,8 @@ access:
       type: str
     specialGroup:
       description:
-      - A special group to grant access to.
-      - 'Possible values include: * `projectOwners`: Owners of the enclosing project.'
+      - 'A special group to grant access to. Possible values include: * `projectOwners`:
+        Owners of the enclosing project.'
       - "* `projectReaders`: Readers of the enclosing project."
       - "* `projectWriters`: Writers of the enclosing project."
       - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
