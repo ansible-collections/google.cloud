@@ -209,30 +209,6 @@ options:
           create the resource.
         required: false
         type: str
-      path_rules:
-        description:
-        - The list of path rules.
-        required: false
-        type: list
-        suboptions:
-          paths:
-            description:
-            - 'The list of path patterns to match. Each must start with / and the
-              only place a * is allowed is at the end following a /. The string fed
-              to the path matcher does not include any text after the first ? or #,
-              and those chars are not allowed here.'
-            required: true
-            type: list
-          service:
-            description:
-            - A reference to the BackendService resource if this rule is matched.
-            - 'This field represents a link to a BackendService resource in GCP. It
-              can be specified in two ways. First, you can place a dictionary with
-              key ''selfLink'' and value of your resource''s selfLink Alternatively,
-              you can add `register: name-of-resource` to a gcp_compute_backend_service
-              task and then set this service field to "{{ name-of-resource }}"'
-            required: true
-            type: dict
       header_action:
         description:
         - Specifies changes to request and response headers that need to take effect
@@ -308,6 +284,479 @@ options:
         - The name to which this PathMatcher is referred by the HostRule.
         required: true
         type: str
+      path_rules:
+        description:
+        - 'The list of path rules. Use this list instead of routeRules when routing
+          based on simple path matching is all that''s required. The order by which
+          path rules are specified does not matter. Matches are always done on the
+          longest-path-first basis. For example: a pathRule with a path /a/b/c/* will
+          match before /a/b/* irrespective of the order in which those paths appear
+          in this list. Within a given pathMatcher, only one of pathRules or routeRules
+          must be set.'
+        required: false
+        type: list
+        suboptions:
+          service:
+            description:
+            - The backend service resource to which traffic is directed if this rule
+              is matched. If routeAction is additionally specified, advanced routing
+              actions like URL Rewrites, etc. take effect prior to sending the request
+              to the backend. However, if service is specified, routeAction cannot
+              contain any weightedBackendService s. Conversely, if routeAction specifies
+              any weightedBackendServices, service must not be specified. Only one
+              of urlRedirect, service or routeAction.weightedBackendService must be
+              set.
+            - 'This field represents a link to a BackendService resource in GCP. It
+              can be specified in two ways. First, you can place a dictionary with
+              key ''selfLink'' and value of your resource''s selfLink Alternatively,
+              you can add `register: name-of-resource` to a gcp_compute_backend_service
+              task and then set this service field to "{{ name-of-resource }}"'
+            required: false
+            type: dict
+          paths:
+            description:
+            - 'The list of path patterns to match. Each must start with / and the
+              only place a * is allowed is at the end following a /. The string fed
+              to the path matcher does not include any text after the first ? or #,
+              and those chars are not allowed here.'
+            required: true
+            type: list
+          route_action:
+            description:
+            - In response to a matching path, the load balancer performs advanced
+              routing actions like URL rewrites, header transformations, etc. prior
+              to forwarding the request to the selected backend. If routeAction specifies
+              any weightedBackendServices, service must not be set. Conversely if
+              service is set, routeAction cannot contain any weightedBackendServices.
+              Only one of routeAction or urlRedirect must be set.
+            required: false
+            type: dict
+            version_added: '2.10'
+            suboptions:
+              cors_policy:
+                description:
+                - The specification for allowing client side cross-origin requests.
+                  Please see W3C Recommendation for Cross Origin Resource Sharing
+                  .
+                required: false
+                type: dict
+                suboptions:
+                  allow_credentials:
+                    description:
+                    - In response to a preflight request, setting this to true indicates
+                      that the actual request can include user credentials. This translates
+                      to the Access- Control-Allow-Credentials header. Defaults to
+                      false.
+                    required: false
+                    default: 'false'
+                    type: bool
+                  allow_headers:
+                    description:
+                    - Specifies the content for the Access-Control-Allow-Headers header.
+                    required: false
+                    type: list
+                  allow_methods:
+                    description:
+                    - Specifies the content for the Access-Control-Allow-Methods header.
+                    required: false
+                    type: list
+                  allow_origin_regexes:
+                    description:
+                    - Specifies the regualar expression patterns that match allowed
+                      origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                      An origin is allowed if it matches either allow_origins or allow_origin_regex.
+                    required: false
+                    type: list
+                  allow_origins:
+                    description:
+                    - Specifies the list of origins that will be allowed to do CORS
+                      requests. An origin is allowed if it matches either allow_origins
+                      or allow_origin_regex.
+                    required: false
+                    type: list
+                  disabled:
+                    description:
+                    - If true, specifies the CORS policy is disabled.
+                    required: true
+                    type: bool
+                  expose_headers:
+                    description:
+                    - Specifies the content for the Access-Control-Expose-Headers
+                      header.
+                    required: false
+                    type: list
+                  max_age:
+                    description:
+                    - Specifies how long the results of a preflight request can be
+                      cached. This translates to the content for the Access-Control-Max-Age
+                      header.
+                    required: false
+                    type: int
+              fault_injection_policy:
+                description:
+                - The specification for fault injection introduced into traffic to
+                  test the resiliency of clients to backend service failure. As part
+                  of fault injection, when clients send requests to a backend service,
+                  delays can be introduced by Loadbalancer on a percentage of requests
+                  before sending those request to the backend service. Similarly requests
+                  from clients can be aborted by the Loadbalancer for a percentage
+                  of requests. timeout and retry_policy will be ignored by clients
+                  that are configured with a fault_injection_policy.
+                required: false
+                type: dict
+                suboptions:
+                  abort:
+                    description:
+                    - The specification for how client requests are aborted as part
+                      of fault injection.
+                    required: false
+                    type: dict
+                    suboptions:
+                      http_status:
+                        description:
+                        - The HTTP status code used to abort the request. The value
+                          must be between 200 and 599 inclusive.
+                        required: true
+                        type: int
+                      percentage:
+                        description:
+                        - The percentage of traffic (connections/operations/requests)
+                          which will be aborted as part of fault injection. The value
+                          must be between 0.0 and 100.0 inclusive.
+                        required: true
+                        type: str
+                  delay:
+                    description:
+                    - The specification for how client requests are delayed as part
+                      of fault injection, before being sent to a backend service.
+                    required: false
+                    type: dict
+                    suboptions:
+                      fixed_delay:
+                        description:
+                        - Specifies the value of the fixed delay interval.
+                        required: true
+                        type: dict
+                        suboptions:
+                          nanos:
+                            description:
+                            - Span of time that's a fraction of a second at nanosecond
+                              resolution. Durations less than one second are represented
+                              with a 0 `seconds` field and a positive `nanos` field.
+                              Must be from 0 to 999,999,999 inclusive.
+                            required: false
+                            type: int
+                          seconds:
+                            description:
+                            - Span of time at a resolution of a second. Must be from
+                              0 to 315,576,000,000 inclusive.
+                            required: true
+                            type: str
+                      percentage:
+                        description:
+                        - The percentage of traffic (connections/operations/requests)
+                          on which delay will be introduced as part of fault injection.
+                          The value must be between 0.0 and 100.0 inclusive.
+                        required: true
+                        type: str
+              request_mirror_policy:
+                description:
+                - Specifies the policy on how requests intended for the route's backends
+                  are shadowed to a separate mirrored backend service. Loadbalancer
+                  does not wait for responses from the shadow service. Prior to sending
+                  traffic to the shadow service, the host / authority header is suffixed
+                  with -shadow.
+                required: false
+                type: dict
+                suboptions:
+                  backend_service:
+                    description:
+                    - The BackendService resource being mirrored to.
+                    - 'This field represents a link to a BackendService resource in
+                      GCP. It can be specified in two ways. First, you can place a
+                      dictionary with key ''selfLink'' and value of your resource''s
+                      selfLink Alternatively, you can add `register: name-of-resource`
+                      to a gcp_compute_backend_service task and then set this backend_service
+                      field to "{{ name-of-resource }}"'
+                    required: true
+                    type: dict
+              retry_policy:
+                description:
+                - Specifies the retry policy associated with this route.
+                required: false
+                type: dict
+                suboptions:
+                  num_retries:
+                    description:
+                    - Specifies the allowed number retries. This number must be >
+                      0.
+                    required: false
+                    type: int
+                  per_try_timeout:
+                    description:
+                    - Specifies a non-zero timeout per retry attempt.
+                    required: false
+                    type: dict
+                    suboptions:
+                      nanos:
+                        description:
+                        - Span of time that's a fraction of a second at nanosecond
+                          resolution. Durations less than one second are represented
+                          with a 0 `seconds` field and a positive `nanos` field. Must
+                          be from 0 to 999,999,999 inclusive.
+                        required: false
+                        type: int
+                      seconds:
+                        description:
+                        - Span of time at a resolution of a second. Must be from 0
+                          to 315,576,000,000 inclusive.
+                        required: true
+                        type: str
+                  retry_conditions:
+                    description:
+                    - 'Specfies one or more conditions when this retry rule applies.
+                      Valid values are: - 5xx: Loadbalancer will attempt a retry if
+                      the backend service responds with any 5xx response code, or
+                      if the backend service does not respond at all, example: disconnects,
+                      reset, read timeout, connection failure, and refused streams.'
+                    - "- gateway-error: Similar to 5xx, but only applies to response
+                      codes 502, 503 or 504."
+                    - "- connect-failure: Loadbalancer will retry on failures connecting
+                      to backend services, for example due to connection timeouts."
+                    - "- retriable-4xx: Loadbalancer will retry for retriable 4xx
+                      response codes."
+                    - Currently the only retriable error supported is 409.
+                    - "- refused-stream: Loadbalancer will retry if the backend service
+                      resets the stream with a REFUSED_STREAM error code. This reset
+                      type indicates that it is safe to retry."
+                    - "- cancelled: Loadbalancer will retry if the gRPC status code
+                      in the response header is set to cancelled - deadline-exceeded:
+                      Loadbalancer will retry if the gRPC status code in the response
+                      header is set to deadline-exceeded - resource-exhausted: Loadbalancer
+                      will retry if the gRPC status code in the response header is
+                      set to resource-exhausted - unavailable: Loadbalancer will retry
+                      if the gRPC status code in the response header is set to unavailable
+                      ."
+                    required: false
+                    type: list
+              timeout:
+                description:
+                - Specifies the timeout for the selected route. Timeout is computed
+                  from the time the request is has been fully processed (i.e. end-of-stream)
+                  up until the response has been completely processed. Timeout includes
+                  all retries. If not specified, the default value is 15 seconds.
+                required: false
+                type: dict
+                suboptions:
+                  nanos:
+                    description:
+                    - Span of time that's a fraction of a second at nanosecond resolution.
+                      Durations less than one second are represented with a 0 `seconds`
+                      field and a positive `nanos` field. Must be from 0 to 999,999,999
+                      inclusive.
+                    required: false
+                    type: int
+                  seconds:
+                    description:
+                    - Span of time at a resolution of a second. Must be from 0 to
+                      315,576,000,000 inclusive.
+                    required: true
+                    type: str
+              url_rewrite:
+                description:
+                - The spec to modify the URL of the request, prior to forwarding the
+                  request to the matched service .
+                required: false
+                type: dict
+                suboptions:
+                  host_rewrite:
+                    description:
+                    - Prior to forwarding the request to the selected service, the
+                      request's host header is replaced with contents of hostRewrite.
+                      The value must be between 1 and 255 characters.
+                    required: false
+                    type: str
+                  path_prefix_rewrite:
+                    description:
+                    - Prior to forwarding the request to the selected backend service,
+                      the matching portion of the request's path is replaced by pathPrefixRewrite.
+                      The value must be between 1 and 1024 characters.
+                    required: false
+                    type: str
+              weighted_backend_services:
+                description:
+                - A list of weighted backend services to send traffic to when a route
+                  match occurs. The weights determine the fraction of traffic that
+                  flows to their corresponding backend service. If all traffic needs
+                  to go to a single backend service, there must be one weightedBackendService
+                  with weight set to a non 0 number. Once a backendService is identified
+                  and before forwarding the request to the backend service, advanced
+                  routing actions like Url rewrites and header transformations are
+                  applied depending on additional settings specified in this HttpRouteAction.
+                required: false
+                type: list
+                suboptions:
+                  backend_service:
+                    description:
+                    - The default BackendService resource. Before forwarding the request
+                      to backendService, the loadbalancer applies any relevant headerActions
+                      specified as part of this backendServiceWeight.
+                    - 'This field represents a link to a BackendService resource in
+                      GCP. It can be specified in two ways. First, you can place a
+                      dictionary with key ''selfLink'' and value of your resource''s
+                      selfLink Alternatively, you can add `register: name-of-resource`
+                      to a gcp_compute_backend_service task and then set this backend_service
+                      field to "{{ name-of-resource }}"'
+                    required: true
+                    type: dict
+                  header_action:
+                    description:
+                    - Specifies changes to request and response headers that need
+                      to take effect for the selected backendService. headerAction
+                      specified here take effect before headerAction in the enclosing
+                      HttpRouteRule, PathMatcher and UrlMap.
+                    required: false
+                    type: dict
+                    suboptions:
+                      request_headers_to_add:
+                        description:
+                        - Headers to add to a matching request prior to forwarding
+                          the request to the backendService.
+                        required: false
+                        type: list
+                        suboptions:
+                          header_name:
+                            description:
+                            - The name of the header.
+                            required: true
+                            type: str
+                          header_value:
+                            description:
+                            - The value of the header to add.
+                            required: true
+                            type: str
+                          replace:
+                            description:
+                            - If false, headerValue is appended to any values that
+                              already exist for the header. If true, headerValue is
+                              set for the header, discarding any values that were
+                              set for that header.
+                            required: true
+                            type: bool
+                      request_headers_to_remove:
+                        description:
+                        - A list of header names for headers that need to be removed
+                          from the request prior to forwarding the request to the
+                          backendService.
+                        required: false
+                        type: list
+                      response_headers_to_add:
+                        description:
+                        - Headers to add the response prior to sending the response
+                          back to the client.
+                        required: false
+                        type: list
+                        suboptions:
+                          header_name:
+                            description:
+                            - The name of the header.
+                            required: true
+                            type: str
+                          header_value:
+                            description:
+                            - The value of the header to add.
+                            required: true
+                            type: str
+                          replace:
+                            description:
+                            - If false, headerValue is appended to any values that
+                              already exist for the header. If true, headerValue is
+                              set for the header, discarding any values that were
+                              set for that header.
+                            required: true
+                            type: bool
+                      response_headers_to_remove:
+                        description:
+                        - A list of header names for headers that need to be removed
+                          from the response prior to sending the response back to
+                          the client.
+                        required: false
+                        type: list
+                  weight:
+                    description:
+                    - Specifies the fraction of traffic sent to backendService, computed
+                      as weight / (sum of all weightedBackendService weights in routeAction)
+                      . The selection of a backend service is determined only for
+                      new traffic. Once a user's request has been directed to a backendService,
+                      subsequent requests will be sent to the same backendService
+                      as determined by the BackendService's session affinity policy.
+                    - The value must be between 0 and 1000 .
+                    required: false
+                    type: int
+          url_redirect:
+            description:
+            - When a path pattern is matched, the request is redirected to a URL specified
+              by urlRedirect. If urlRedirect is specified, service or routeAction
+              must not be set.
+            required: false
+            type: dict
+            version_added: '2.10'
+            suboptions:
+              host_redirect:
+                description:
+                - The host that will be used in the redirect response instead of the
+                  one that was supplied in the request. The value must be between
+                  1 and 255 characters.
+                required: false
+                type: str
+              https_redirect:
+                description:
+                - If set to true, the URL scheme in the redirected request is set
+                  to https. If set to false, the URL scheme of the redirected request
+                  will remain the same as that of the request. This must only be set
+                  for UrlMaps used in TargetHttpProxys.
+                - Setting this true for TargetHttpsProxy is not permitted. Defaults
+                  to false.
+                required: false
+                default: 'false'
+                type: bool
+              path_redirect:
+                description:
+                - The path that will be used in the redirect response instead of the
+                  one that was supplied in the request. Only one of pathRedirect or
+                  prefixRedirect must be specified. The value must be between 1 and
+                  1024 characters.
+                required: false
+                type: str
+              prefix_redirect:
+                description:
+                - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+                  retaining the remaining portion of the URL before redirecting the
+                  request.
+                required: false
+                type: str
+              redirect_response_code:
+                description:
+                - 'The HTTP Status code to use for this RedirectAction. Supported
+                  values are: - MOVED_PERMANENTLY_DEFAULT, which is the default value
+                  and corresponds to 301.'
+                - "- FOUND, which corresponds to 302."
+                - "- SEE_OTHER which corresponds to 303."
+                - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                  request method will be retained."
+                - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                  request method will be retained."
+                - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT",
+                  "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"'
+                required: false
+                type: str
+              strip_query:
+                description:
+                - If set to true, any accompanying query portion of the original URL
+                  is removed prior to redirecting the request. If set to false, the
+                  query portion of the original URL is retained.
+                required: true
+                type: bool
       route_rules:
         description:
         - 'The list of ordered HTTP route rules. Use this list instead of pathRules
@@ -1356,25 +1805,6 @@ pathMatchers:
         the resource.
       returned: success
       type: str
-    pathRules:
-      description:
-      - The list of path rules.
-      returned: success
-      type: complex
-      contains:
-        paths:
-          description:
-          - 'The list of path patterns to match. Each must start with / and the only
-            place a * is allowed is at the end following a /. The string fed to the
-            path matcher does not include any text after the first ? or #, and those
-            chars are not allowed here.'
-          returned: success
-          type: list
-        service:
-          description:
-          - A reference to the BackendService resource if this rule is matched.
-          returned: success
-          type: dict
     headerAction:
       description:
       - Specifies changes to request and response headers that need to take effect
@@ -1449,6 +1879,449 @@ pathMatchers:
       - The name to which this PathMatcher is referred by the HostRule.
       returned: success
       type: str
+    pathRules:
+      description:
+      - 'The list of path rules. Use this list instead of routeRules when routing
+        based on simple path matching is all that''s required. The order by which
+        path rules are specified does not matter. Matches are always done on the longest-path-first
+        basis. For example: a pathRule with a path /a/b/c/* will match before /a/b/*
+        irrespective of the order in which those paths appear in this list. Within
+        a given pathMatcher, only one of pathRules or routeRules must be set.'
+      returned: success
+      type: complex
+      contains:
+        service:
+          description:
+          - The backend service resource to which traffic is directed if this rule
+            is matched. If routeAction is additionally specified, advanced routing
+            actions like URL Rewrites, etc. take effect prior to sending the request
+            to the backend. However, if service is specified, routeAction cannot contain
+            any weightedBackendService s. Conversely, if routeAction specifies any
+            weightedBackendServices, service must not be specified. Only one of urlRedirect,
+            service or routeAction.weightedBackendService must be set.
+          returned: success
+          type: dict
+        paths:
+          description:
+          - 'The list of path patterns to match. Each must start with / and the only
+            place a * is allowed is at the end following a /. The string fed to the
+            path matcher does not include any text after the first ? or #, and those
+            chars are not allowed here.'
+          returned: success
+          type: list
+        routeAction:
+          description:
+          - In response to a matching path, the load balancer performs advanced routing
+            actions like URL rewrites, header transformations, etc. prior to forwarding
+            the request to the selected backend. If routeAction specifies any weightedBackendServices,
+            service must not be set. Conversely if service is set, routeAction cannot
+            contain any weightedBackendServices. Only one of routeAction or urlRedirect
+            must be set.
+          returned: success
+          type: complex
+          contains:
+            corsPolicy:
+              description:
+              - The specification for allowing client side cross-origin requests.
+                Please see W3C Recommendation for Cross Origin Resource Sharing .
+              returned: success
+              type: complex
+              contains:
+                allowCredentials:
+                  description:
+                  - In response to a preflight request, setting this to true indicates
+                    that the actual request can include user credentials. This translates
+                    to the Access- Control-Allow-Credentials header. Defaults to false.
+                  returned: success
+                  type: bool
+                allowHeaders:
+                  description:
+                  - Specifies the content for the Access-Control-Allow-Headers header.
+                  returned: success
+                  type: list
+                allowMethods:
+                  description:
+                  - Specifies the content for the Access-Control-Allow-Methods header.
+                  returned: success
+                  type: list
+                allowOriginRegexes:
+                  description:
+                  - Specifies the regualar expression patterns that match allowed
+                    origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                    An origin is allowed if it matches either allow_origins or allow_origin_regex.
+                  returned: success
+                  type: list
+                allowOrigins:
+                  description:
+                  - Specifies the list of origins that will be allowed to do CORS
+                    requests. An origin is allowed if it matches either allow_origins
+                    or allow_origin_regex.
+                  returned: success
+                  type: list
+                disabled:
+                  description:
+                  - If true, specifies the CORS policy is disabled.
+                  returned: success
+                  type: bool
+                exposeHeaders:
+                  description:
+                  - Specifies the content for the Access-Control-Expose-Headers header.
+                  returned: success
+                  type: list
+                maxAge:
+                  description:
+                  - Specifies how long the results of a preflight request can be cached.
+                    This translates to the content for the Access-Control-Max-Age
+                    header.
+                  returned: success
+                  type: int
+            faultInjectionPolicy:
+              description:
+              - The specification for fault injection introduced into traffic to test
+                the resiliency of clients to backend service failure. As part of fault
+                injection, when clients send requests to a backend service, delays
+                can be introduced by Loadbalancer on a percentage of requests before
+                sending those request to the backend service. Similarly requests from
+                clients can be aborted by the Loadbalancer for a percentage of requests.
+                timeout and retry_policy will be ignored by clients that are configured
+                with a fault_injection_policy.
+              returned: success
+              type: complex
+              contains:
+                abort:
+                  description:
+                  - The specification for how client requests are aborted as part
+                    of fault injection.
+                  returned: success
+                  type: complex
+                  contains:
+                    httpStatus:
+                      description:
+                      - The HTTP status code used to abort the request. The value
+                        must be between 200 and 599 inclusive.
+                      returned: success
+                      type: int
+                    percentage:
+                      description:
+                      - The percentage of traffic (connections/operations/requests)
+                        which will be aborted as part of fault injection. The value
+                        must be between 0.0 and 100.0 inclusive.
+                      returned: success
+                      type: str
+                delay:
+                  description:
+                  - The specification for how client requests are delayed as part
+                    of fault injection, before being sent to a backend service.
+                  returned: success
+                  type: complex
+                  contains:
+                    fixedDelay:
+                      description:
+                      - Specifies the value of the fixed delay interval.
+                      returned: success
+                      type: complex
+                      contains:
+                        nanos:
+                          description:
+                          - Span of time that's a fraction of a second at nanosecond
+                            resolution. Durations less than one second are represented
+                            with a 0 `seconds` field and a positive `nanos` field.
+                            Must be from 0 to 999,999,999 inclusive.
+                          returned: success
+                          type: int
+                        seconds:
+                          description:
+                          - Span of time at a resolution of a second. Must be from
+                            0 to 315,576,000,000 inclusive.
+                          returned: success
+                          type: str
+                    percentage:
+                      description:
+                      - The percentage of traffic (connections/operations/requests)
+                        on which delay will be introduced as part of fault injection.
+                        The value must be between 0.0 and 100.0 inclusive.
+                      returned: success
+                      type: str
+            requestMirrorPolicy:
+              description:
+              - Specifies the policy on how requests intended for the route's backends
+                are shadowed to a separate mirrored backend service. Loadbalancer
+                does not wait for responses from the shadow service. Prior to sending
+                traffic to the shadow service, the host / authority header is suffixed
+                with -shadow.
+              returned: success
+              type: complex
+              contains:
+                backendService:
+                  description:
+                  - The BackendService resource being mirrored to.
+                  returned: success
+                  type: dict
+            retryPolicy:
+              description:
+              - Specifies the retry policy associated with this route.
+              returned: success
+              type: complex
+              contains:
+                numRetries:
+                  description:
+                  - Specifies the allowed number retries. This number must be > 0.
+                  returned: success
+                  type: int
+                perTryTimeout:
+                  description:
+                  - Specifies a non-zero timeout per retry attempt.
+                  returned: success
+                  type: complex
+                  contains:
+                    nanos:
+                      description:
+                      - Span of time that's a fraction of a second at nanosecond resolution.
+                        Durations less than one second are represented with a 0 `seconds`
+                        field and a positive `nanos` field. Must be from 0 to 999,999,999
+                        inclusive.
+                      returned: success
+                      type: int
+                    seconds:
+                      description:
+                      - Span of time at a resolution of a second. Must be from 0 to
+                        315,576,000,000 inclusive.
+                      returned: success
+                      type: str
+                retryConditions:
+                  description:
+                  - 'Specfies one or more conditions when this retry rule applies.
+                    Valid values are: - 5xx: Loadbalancer will attempt a retry if
+                    the backend service responds with any 5xx response code, or if
+                    the backend service does not respond at all, example: disconnects,
+                    reset, read timeout, connection failure, and refused streams.'
+                  - "- gateway-error: Similar to 5xx, but only applies to response
+                    codes 502, 503 or 504."
+                  - "- connect-failure: Loadbalancer will retry on failures connecting
+                    to backend services, for example due to connection timeouts."
+                  - "- retriable-4xx: Loadbalancer will retry for retriable 4xx response
+                    codes."
+                  - Currently the only retriable error supported is 409.
+                  - "- refused-stream: Loadbalancer will retry if the backend service
+                    resets the stream with a REFUSED_STREAM error code. This reset
+                    type indicates that it is safe to retry."
+                  - "- cancelled: Loadbalancer will retry if the gRPC status code
+                    in the response header is set to cancelled - deadline-exceeded:
+                    Loadbalancer will retry if the gRPC status code in the response
+                    header is set to deadline-exceeded - resource-exhausted: Loadbalancer
+                    will retry if the gRPC status code in the response header is set
+                    to resource-exhausted - unavailable: Loadbalancer will retry if
+                    the gRPC status code in the response header is set to unavailable
+                    ."
+                  returned: success
+                  type: list
+            timeout:
+              description:
+              - Specifies the timeout for the selected route. Timeout is computed
+                from the time the request is has been fully processed (i.e. end-of-stream)
+                up until the response has been completely processed. Timeout includes
+                all retries. If not specified, the default value is 15 seconds.
+              returned: success
+              type: complex
+              contains:
+                nanos:
+                  description:
+                  - Span of time that's a fraction of a second at nanosecond resolution.
+                    Durations less than one second are represented with a 0 `seconds`
+                    field and a positive `nanos` field. Must be from 0 to 999,999,999
+                    inclusive.
+                  returned: success
+                  type: int
+                seconds:
+                  description:
+                  - Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+                    inclusive.
+                  returned: success
+                  type: str
+            urlRewrite:
+              description:
+              - The spec to modify the URL of the request, prior to forwarding the
+                request to the matched service .
+              returned: success
+              type: complex
+              contains:
+                hostRewrite:
+                  description:
+                  - Prior to forwarding the request to the selected service, the request's
+                    host header is replaced with contents of hostRewrite. The value
+                    must be between 1 and 255 characters.
+                  returned: success
+                  type: str
+                pathPrefixRewrite:
+                  description:
+                  - Prior to forwarding the request to the selected backend service,
+                    the matching portion of the request's path is replaced by pathPrefixRewrite.
+                    The value must be between 1 and 1024 characters.
+                  returned: success
+                  type: str
+            weightedBackendServices:
+              description:
+              - A list of weighted backend services to send traffic to when a route
+                match occurs. The weights determine the fraction of traffic that flows
+                to their corresponding backend service. If all traffic needs to go
+                to a single backend service, there must be one weightedBackendService
+                with weight set to a non 0 number. Once a backendService is identified
+                and before forwarding the request to the backend service, advanced
+                routing actions like Url rewrites and header transformations are applied
+                depending on additional settings specified in this HttpRouteAction.
+              returned: success
+              type: complex
+              contains:
+                backendService:
+                  description:
+                  - The default BackendService resource. Before forwarding the request
+                    to backendService, the loadbalancer applies any relevant headerActions
+                    specified as part of this backendServiceWeight.
+                  returned: success
+                  type: dict
+                headerAction:
+                  description:
+                  - Specifies changes to request and response headers that need to
+                    take effect for the selected backendService. headerAction specified
+                    here take effect before headerAction in the enclosing HttpRouteRule,
+                    PathMatcher and UrlMap.
+                  returned: success
+                  type: complex
+                  contains:
+                    requestHeadersToAdd:
+                      description:
+                      - Headers to add to a matching request prior to forwarding the
+                        request to the backendService.
+                      returned: success
+                      type: complex
+                      contains:
+                        headerName:
+                          description:
+                          - The name of the header.
+                          returned: success
+                          type: str
+                        headerValue:
+                          description:
+                          - The value of the header to add.
+                          returned: success
+                          type: str
+                        replace:
+                          description:
+                          - If false, headerValue is appended to any values that already
+                            exist for the header. If true, headerValue is set for
+                            the header, discarding any values that were set for that
+                            header.
+                          returned: success
+                          type: bool
+                    requestHeadersToRemove:
+                      description:
+                      - A list of header names for headers that need to be removed
+                        from the request prior to forwarding the request to the backendService.
+                      returned: success
+                      type: list
+                    responseHeadersToAdd:
+                      description:
+                      - Headers to add the response prior to sending the response
+                        back to the client.
+                      returned: success
+                      type: complex
+                      contains:
+                        headerName:
+                          description:
+                          - The name of the header.
+                          returned: success
+                          type: str
+                        headerValue:
+                          description:
+                          - The value of the header to add.
+                          returned: success
+                          type: str
+                        replace:
+                          description:
+                          - If false, headerValue is appended to any values that already
+                            exist for the header. If true, headerValue is set for
+                            the header, discarding any values that were set for that
+                            header.
+                          returned: success
+                          type: bool
+                    responseHeadersToRemove:
+                      description:
+                      - A list of header names for headers that need to be removed
+                        from the response prior to sending the response back to the
+                        client.
+                      returned: success
+                      type: list
+                weight:
+                  description:
+                  - Specifies the fraction of traffic sent to backendService, computed
+                    as weight / (sum of all weightedBackendService weights in routeAction)
+                    . The selection of a backend service is determined only for new
+                    traffic. Once a user's request has been directed to a backendService,
+                    subsequent requests will be sent to the same backendService as
+                    determined by the BackendService's session affinity policy.
+                  - The value must be between 0 and 1000 .
+                  returned: success
+                  type: int
+        urlRedirect:
+          description:
+          - When a path pattern is matched, the request is redirected to a URL specified
+            by urlRedirect. If urlRedirect is specified, service or routeAction must
+            not be set.
+          returned: success
+          type: complex
+          contains:
+            hostRedirect:
+              description:
+              - The host that will be used in the redirect response instead of the
+                one that was supplied in the request. The value must be between 1
+                and 255 characters.
+              returned: success
+              type: str
+            httpsRedirect:
+              description:
+              - If set to true, the URL scheme in the redirected request is set to
+                https. If set to false, the URL scheme of the redirected request will
+                remain the same as that of the request. This must only be set for
+                UrlMaps used in TargetHttpProxys.
+              - Setting this true for TargetHttpsProxy is not permitted. Defaults
+                to false.
+              returned: success
+              type: bool
+            pathRedirect:
+              description:
+              - The path that will be used in the redirect response instead of the
+                one that was supplied in the request. Only one of pathRedirect or
+                prefixRedirect must be specified. The value must be between 1 and
+                1024 characters.
+              returned: success
+              type: str
+            prefixRedirect:
+              description:
+              - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+                retaining the remaining portion of the URL before redirecting the
+                request.
+              returned: success
+              type: str
+            redirectResponseCode:
+              description:
+              - 'The HTTP Status code to use for this RedirectAction. Supported values
+                are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+                to 301.'
+              - "- FOUND, which corresponds to 302."
+              - "- SEE_OTHER which corresponds to 303."
+              - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                request method will be retained."
+              - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                request method will be retained."
+              returned: success
+              type: str
+            stripQuery:
+              description:
+              - If set to true, any accompanying query portion of the original URL
+                is removed prior to redirecting the request. If set to false, the
+                query portion of the original URL is retained.
+              returned: success
+              type: bool
     routeRules:
       description:
       - 'The list of ordered HTTP route rules. Use this list instead of pathRules
@@ -2262,11 +3135,6 @@ def main():
                 options=dict(
                     default_service=dict(type='dict'),
                     description=dict(type='str'),
-                    path_rules=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(paths=dict(required=True, type='list', elements='str'), service=dict(required=True, type='dict')),
-                    ),
                     header_action=dict(
                         type='dict',
                         options=dict(
@@ -2293,6 +3161,107 @@ def main():
                         ),
                     ),
                     name=dict(required=True, type='str'),
+                    path_rules=dict(
+                        type='list',
+                        elements='dict',
+                        options=dict(
+                            service=dict(type='dict'),
+                            paths=dict(required=True, type='list', elements='str'),
+                            route_action=dict(
+                                type='dict',
+                                options=dict(
+                                    cors_policy=dict(
+                                        type='dict',
+                                        options=dict(
+                                            allow_credentials=dict(type='bool'),
+                                            allow_headers=dict(type='list', elements='str'),
+                                            allow_methods=dict(type='list', elements='str'),
+                                            allow_origin_regexes=dict(type='list', elements='str'),
+                                            allow_origins=dict(type='list', elements='str'),
+                                            disabled=dict(required=True, type='bool'),
+                                            expose_headers=dict(type='list', elements='str'),
+                                            max_age=dict(type='int'),
+                                        ),
+                                    ),
+                                    fault_injection_policy=dict(
+                                        type='dict',
+                                        options=dict(
+                                            abort=dict(
+                                                type='dict',
+                                                options=dict(http_status=dict(required=True, type='int'), percentage=dict(required=True, type='str')),
+                                            ),
+                                            delay=dict(
+                                                type='dict',
+                                                options=dict(
+                                                    fixed_delay=dict(
+                                                        required=True,
+                                                        type='dict',
+                                                        options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str')),
+                                                    ),
+                                                    percentage=dict(required=True, type='str'),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                    request_mirror_policy=dict(type='dict', options=dict(backend_service=dict(required=True, type='dict'))),
+                                    retry_policy=dict(
+                                        type='dict',
+                                        options=dict(
+                                            num_retries=dict(type='int'),
+                                            per_try_timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
+                                            retry_conditions=dict(type='list', elements='str'),
+                                        ),
+                                    ),
+                                    timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
+                                    url_rewrite=dict(type='dict', options=dict(host_rewrite=dict(type='str'), path_prefix_rewrite=dict(type='str'))),
+                                    weighted_backend_services=dict(
+                                        type='list',
+                                        elements='dict',
+                                        options=dict(
+                                            backend_service=dict(required=True, type='dict'),
+                                            header_action=dict(
+                                                type='dict',
+                                                options=dict(
+                                                    request_headers_to_add=dict(
+                                                        type='list',
+                                                        elements='dict',
+                                                        options=dict(
+                                                            header_name=dict(required=True, type='str'),
+                                                            header_value=dict(required=True, type='str'),
+                                                            replace=dict(required=True, type='bool'),
+                                                        ),
+                                                    ),
+                                                    request_headers_to_remove=dict(type='list', elements='str'),
+                                                    response_headers_to_add=dict(
+                                                        type='list',
+                                                        elements='dict',
+                                                        options=dict(
+                                                            header_name=dict(required=True, type='str'),
+                                                            header_value=dict(required=True, type='str'),
+                                                            replace=dict(required=True, type='bool'),
+                                                        ),
+                                                    ),
+                                                    response_headers_to_remove=dict(type='list', elements='str'),
+                                                ),
+                                            ),
+                                            weight=dict(type='int'),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            url_redirect=dict(
+                                type='dict',
+                                options=dict(
+                                    host_redirect=dict(type='str'),
+                                    https_redirect=dict(type='bool'),
+                                    path_redirect=dict(type='str'),
+                                    prefix_redirect=dict(type='str'),
+                                    redirect_response_code=dict(type='str'),
+                                    strip_query=dict(required=True, type='bool'),
+                                ),
+                            ),
+                        ),
+                    ),
                     route_rules=dict(
                         type='list',
                         elements='dict',
@@ -2782,9 +3751,9 @@ class UrlMapPathmatchersArray(object):
             {
                 u'defaultService': replace_resource_dict(item.get(u'default_service', {}), 'selfLink'),
                 u'description': item.get('description'),
-                u'pathRules': UrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request(),
                 u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
                 u'name': item.get('name'),
+                u'pathRules': UrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request(),
                 u'routeRules': UrlMapRouterulesArray(item.get('route_rules', []), self.module).to_request(),
             }
         )
@@ -2794,39 +3763,12 @@ class UrlMapPathmatchersArray(object):
             {
                 u'defaultService': item.get(u'defaultService'),
                 u'description': item.get(u'description'),
-                u'pathRules': UrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response(),
                 u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
                 u'name': item.get(u'name'),
+                u'pathRules': UrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response(),
                 u'routeRules': UrlMapRouterulesArray(item.get(u'routeRules', []), self.module).from_response(),
             }
         )
-
-
-class UrlMapPathrulesArray(object):
-    def __init__(self, request, module):
-        self.module = module
-        if request:
-            self.request = request
-        else:
-            self.request = []
-
-    def to_request(self):
-        items = []
-        for item in self.request:
-            items.append(self._request_for_item(item))
-        return items
-
-    def from_response(self):
-        items = []
-        for item in self.request:
-            items.append(self._response_from_item(item))
-        return items
-
-    def _request_for_item(self, item):
-        return remove_nones_from_dict({u'paths': item.get('paths'), u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink')})
-
-    def _response_from_item(self, item):
-        return remove_nones_from_dict({u'paths': item.get(u'paths'), u'service': item.get(u'service')})
 
 
 class UrlMapHeaderaction(object):
@@ -2910,6 +3852,435 @@ class UrlMapResponseheaderstoaddArray(object):
 
     def _response_from_item(self, item):
         return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+
+
+class UrlMapPathrulesArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'),
+                u'paths': item.get('paths'),
+                u'routeAction': UrlMapRouteaction(item.get('route_action', {}), self.module).to_request(),
+                u'urlRedirect': UrlMapUrlredirect(item.get('url_redirect', {}), self.module).to_request(),
+            }
+        )
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'service': item.get(u'service'),
+                u'paths': item.get(u'paths'),
+                u'routeAction': UrlMapRouteaction(item.get(u'routeAction', {}), self.module).from_response(),
+                u'urlRedirect': UrlMapUrlredirect(item.get(u'urlRedirect', {}), self.module).from_response(),
+            }
+        )
+
+
+class UrlMapRouteaction(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'corsPolicy': UrlMapCorspolicy(self.request.get('cors_policy', {}), self.module).to_request(),
+                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get('fault_injection_policy', {}), self.module).to_request(),
+                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get('request_mirror_policy', {}), self.module).to_request(),
+                u'retryPolicy': UrlMapRetrypolicy(self.request.get('retry_policy', {}), self.module).to_request(),
+                u'timeout': UrlMapTimeout(self.request.get('timeout', {}), self.module).to_request(),
+                u'urlRewrite': UrlMapUrlrewrite(self.request.get('url_rewrite', {}), self.module).to_request(),
+                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get('weighted_backend_services', []), self.module).to_request(),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'corsPolicy': UrlMapCorspolicy(self.request.get(u'corsPolicy', {}), self.module).from_response(),
+                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get(u'faultInjectionPolicy', {}), self.module).from_response(),
+                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get(u'requestMirrorPolicy', {}), self.module).from_response(),
+                u'retryPolicy': UrlMapRetrypolicy(self.request.get(u'retryPolicy', {}), self.module).from_response(),
+                u'timeout': UrlMapTimeout(self.request.get(u'timeout', {}), self.module).from_response(),
+                u'urlRewrite': UrlMapUrlrewrite(self.request.get(u'urlRewrite', {}), self.module).from_response(),
+                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get(u'weightedBackendServices', []), self.module).from_response(),
+            }
+        )
+
+
+class UrlMapCorspolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'allowCredentials': self.request.get('allow_credentials'),
+                u'allowHeaders': self.request.get('allow_headers'),
+                u'allowMethods': self.request.get('allow_methods'),
+                u'allowOriginRegexes': self.request.get('allow_origin_regexes'),
+                u'allowOrigins': self.request.get('allow_origins'),
+                u'disabled': self.request.get('disabled'),
+                u'exposeHeaders': self.request.get('expose_headers'),
+                u'maxAge': self.request.get('max_age'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'allowCredentials': self.request.get(u'allowCredentials'),
+                u'allowHeaders': self.request.get(u'allowHeaders'),
+                u'allowMethods': self.request.get(u'allowMethods'),
+                u'allowOriginRegexes': self.request.get(u'allowOriginRegexes'),
+                u'allowOrigins': self.request.get(u'allowOrigins'),
+                u'disabled': self.request.get(u'disabled'),
+                u'exposeHeaders': self.request.get(u'exposeHeaders'),
+                u'maxAge': self.request.get(u'maxAge'),
+            }
+        )
+
+
+class UrlMapFaultinjectionpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'abort': UrlMapAbort(self.request.get('abort', {}), self.module).to_request(),
+                u'delay': UrlMapDelay(self.request.get('delay', {}), self.module).to_request(),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'abort': UrlMapAbort(self.request.get(u'abort', {}), self.module).from_response(),
+                u'delay': UrlMapDelay(self.request.get(u'delay', {}), self.module).from_response(),
+            }
+        )
+
+
+class UrlMapAbort(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'httpStatus': self.request.get('http_status'), u'percentage': self.request.get('percentage')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'httpStatus': self.request.get(u'httpStatus'), u'percentage': self.request.get(u'percentage')})
+
+
+class UrlMapDelay(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'fixedDelay': UrlMapFixeddelay(self.request.get('fixed_delay', {}), self.module).to_request(), u'percentage': self.request.get('percentage')}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'fixedDelay': UrlMapFixeddelay(self.request.get(u'fixedDelay', {}), self.module).from_response(), u'percentage': self.request.get(u'percentage')}
+        )
+
+
+class UrlMapFixeddelay(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+
+
+class UrlMapRequestmirrorpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'backendService': replace_resource_dict(self.request.get(u'backend_service', {}), 'selfLink')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'backendService': self.request.get(u'backendService')})
+
+
+class UrlMapRetrypolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'numRetries': self.request.get('num_retries'),
+                u'perTryTimeout': UrlMapPertrytimeout(self.request.get('per_try_timeout', {}), self.module).to_request(),
+                u'retryConditions': self.request.get('retry_conditions'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'numRetries': self.request.get(u'numRetries'),
+                u'perTryTimeout': UrlMapPertrytimeout(self.request.get(u'perTryTimeout', {}), self.module).from_response(),
+                u'retryConditions': self.request.get(u'retryConditions'),
+            }
+        )
+
+
+class UrlMapPertrytimeout(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+
+
+class UrlMapTimeout(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+
+
+class UrlMapUrlrewrite(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'hostRewrite': self.request.get('host_rewrite'), u'pathPrefixRewrite': self.request.get('path_prefix_rewrite')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'hostRewrite': self.request.get(u'hostRewrite'), u'pathPrefixRewrite': self.request.get(u'pathPrefixRewrite')})
+
+
+class UrlMapWeightedbackendservicesArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'backendService': replace_resource_dict(item.get(u'backend_service', {}), 'selfLink'),
+                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
+                u'weight': item.get('weight'),
+            }
+        )
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict(
+            {
+                u'backendService': item.get(u'backendService'),
+                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
+                u'weight': item.get(u'weight'),
+            }
+        )
+
+
+class UrlMapHeaderaction(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
+                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
+                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
+                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
+                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
+                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
+                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+            }
+        )
+
+
+class UrlMapRequestheaderstoaddArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+
+
+class UrlMapResponseheaderstoaddArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+
+
+class UrlMapUrlredirect(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get('host_redirect'),
+                u'httpsRedirect': self.request.get('https_redirect'),
+                u'pathRedirect': self.request.get('path_redirect'),
+                u'prefixRedirect': self.request.get('prefix_redirect'),
+                u'redirectResponseCode': self.request.get('redirect_response_code'),
+                u'stripQuery': self.request.get('strip_query'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get(u'hostRedirect'),
+                u'httpsRedirect': self.request.get(u'httpsRedirect'),
+                u'pathRedirect': self.request.get(u'pathRedirect'),
+                u'prefixRedirect': self.request.get(u'prefixRedirect'),
+                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
+                u'stripQuery': self.request.get(u'stripQuery'),
+            }
+        )
 
 
 class UrlMapRouterulesArray(object):
