@@ -514,7 +514,7 @@ options:
                         type: str
                   retry_conditions:
                     description:
-                    - 'Specfies one or more conditions when this retry rule applies.
+                    - 'Specifies one or more conditions when this retry rule applies.
                       Valid values are: - 5xx: Loadbalancer will attempt a retry if
                       the backend service responds with any 5xx response code, or
                       if the backend service does not respond at all, example: disconnects,
@@ -691,7 +691,7 @@ options:
                       subsequent requests will be sent to the same backendService
                       as determined by the BackendService's session affinity policy.
                     - The value must be between 0 and 1000 .
-                    required: false
+                    required: true
                     type: int
           url_redirect:
             description:
@@ -2090,7 +2090,7 @@ pathMatchers:
                       type: str
                 retryConditions:
                   description:
-                  - 'Specfies one or more conditions when this retry rule applies.
+                  - 'Specifies one or more conditions when this retry rule applies.
                     Valid values are: - 5xx: Loadbalancer will attempt a retry if
                     the backend service responds with any 5xx response code, or if
                     the backend service does not respond at all, example: disconnects,
@@ -3244,7 +3244,7 @@ def main():
                                                     response_headers_to_remove=dict(type='list', elements='str'),
                                                 ),
                                             ),
-                                            weight=dict(type='int'),
+                                            weight=dict(required=True, type='int'),
                                         ),
                                     ),
                                 ),
