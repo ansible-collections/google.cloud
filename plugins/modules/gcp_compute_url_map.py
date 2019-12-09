@@ -691,7 +691,7 @@ options:
                       subsequent requests will be sent to the same backendService
                       as determined by the BackendService's session affinity policy.
                     - The value must be between 0 and 1000 .
-                    required: false
+                    required: true
                     type: int
           url_redirect:
             description:
@@ -3244,7 +3244,7 @@ def main():
                                                     response_headers_to_remove=dict(type='list', elements='str'),
                                                 ),
                                             ),
-                                            weight=dict(type='int'),
+                                            weight=dict(required=True, type='int'),
                                         ),
                                     ),
                                 ),
