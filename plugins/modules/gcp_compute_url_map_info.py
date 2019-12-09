@@ -572,7 +572,7 @@ resources:
                           type: str
                     retryConditions:
                       description:
-                      - 'Specfies one or more conditions when this retry rule applies.
+                      - 'Specifies one or more conditions when this retry rule applies.
                         Valid values are: - 5xx: Loadbalancer will attempt a retry
                         if the backend service responds with any 5xx response code,
                         or if the backend service does not respond at all, example:
