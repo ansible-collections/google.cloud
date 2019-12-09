@@ -172,6 +172,8 @@ options:
       kms_key_name:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
+        - Your project's Compute Engine System service account (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`)
+          must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
         required: false
         type: str
   source_snapshot:
@@ -434,6 +436,8 @@ diskEncryptionKey:
     kmsKeyName:
       description:
       - The name of the encryption key that is stored in Google Cloud KMS.
+      - Your project's Compute Engine System service account (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`)
+        must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
       returned: success
       type: str
 sourceSnapshot:
