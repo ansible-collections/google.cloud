@@ -786,6 +786,23 @@ options:
               the future without any impact on existing rules.
             required: true
             type: int
+          service:
+            description:
+            - The backend service resource to which traffic is directed if this rule
+              is matched. If routeAction is additionally specified, advanced routing
+              actions like URL Rewrites, etc. take effect prior to sending the request
+              to the backend. However, if service is specified, routeAction cannot
+              contain any weightedBackendService s. Conversely, if routeAction specifies
+              any weightedBackendServices, service must not be specified. Only one
+              of urlRedirect, service or routeAction.weightedBackendService must be
+              set.
+            - 'This field represents a link to a BackendService resource in GCP. It
+              can be specified in two ways. First, you can place a dictionary with
+              key ''selfLink'' and value of your resource''s selfLink Alternatively,
+              you can add `register: name-of-resource` to a gcp_compute_backend_service
+              task and then set this service field to "{{ name-of-resource }}"'
+            required: false
+            type: dict
           header_action:
             description:
             - Specifies changes to request and response headers that need to take
@@ -1444,7 +1461,7 @@ options:
                       subsequent requests will be sent to the same backendService
                       as determined by the BackendService's session affinity policy.
                     - The value must be between 0 and 1000 .
-                    required: false
+                    required: true
                     type: int
           url_redirect:
             description:
@@ -2350,6 +2367,17 @@ pathMatchers:
             without any impact on existing rules.
           returned: success
           type: int
+        service:
+          description:
+          - The backend service resource to which traffic is directed if this rule
+            is matched. If routeAction is additionally specified, advanced routing
+            actions like URL Rewrites, etc. take effect prior to sending the request
+            to the backend. However, if service is specified, routeAction cannot contain
+            any weightedBackendService s. Conversely, if routeAction specifies any
+            weightedBackendServices, service must not be specified. Only one of urlRedirect,
+            service or routeAction.weightedBackendService must be set.
+          returned: success
+          type: dict
         headerAction:
           description:
           - Specifies changes to request and response headers that need to take effect
@@ -3267,6 +3295,7 @@ def main():
                         elements='dict',
                         options=dict(
                             priority=dict(required=True, type='int'),
+                            service=dict(type='dict'),
                             header_action=dict(
                                 type='dict',
                                 options=dict(
@@ -3414,7 +3443,7 @@ def main():
                                                     response_headers_to_remove=dict(type='list', elements='str'),
                                                 ),
                                             ),
-                                            weight=dict(type='int'),
+                                            weight=dict(required=True, type='int'),
                                         ),
                                     ),
                                 ),
@@ -4307,6 +4336,7 @@ class UrlMapRouterulesArray(object):
         return remove_nones_from_dict(
             {
                 u'priority': item.get('priority'),
+                u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'),
                 u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
                 u'matchRules': UrlMapMatchrulesArray(item.get('match_rules', []), self.module).to_request(),
                 u'routeAction': UrlMapRouteaction(item.get('route_action', {}), self.module).to_request(),
@@ -4318,6 +4348,7 @@ class UrlMapRouterulesArray(object):
         return remove_nones_from_dict(
             {
                 u'priority': item.get(u'priority'),
+                u'service': item.get(u'service'),
                 u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
                 u'matchRules': UrlMapMatchrulesArray(item.get(u'matchRules', []), self.module).from_response(),
                 u'routeAction': UrlMapRouteaction(item.get(u'routeAction', {}), self.module).from_response(),
