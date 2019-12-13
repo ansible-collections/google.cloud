@@ -1618,7 +1618,7 @@ class Kubectl(object):
         return {
             'apiVersion': 'v1',
             'clusters': [
-                {'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate']), 'server': endpoint}}
+                {'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate']), 'server': endpoint,}}
             ],
             'contexts': [{'name': context, 'context': {'cluster': context, 'user': context}}],
             'current-context': context,
