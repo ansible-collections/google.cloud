@@ -609,7 +609,10 @@ def topic_pattern(name, module):
     regex = r"projects/.*/topics/.*"
 
     if not re.match(regex, name):
-        formatted_params = {'project': module.params['project'], 'topic': replace_resource_dict(module.params['topic'], 'name')}
+        formatted_params = {
+            'project': module.params['project'],
+            'topic': replace_resource_dict(module.params['topic'], 'name'),
+        }
         name = "projects/{project}/topics/{topic}".format(**formatted_params)
 
     return name
