@@ -319,6 +319,14 @@ options:
       a /14 block in 10.0.0.0/8.
     required: false
     type: str
+  enable_tpu:
+    description:
+    - "(Optional) Whether to enable Cloud TPU resources in this cluster."
+    - See the official documentation - U(https://cloud.google.com/tpu/docs/kubernetes-engine-setup)
+      .
+    required: false
+    type: bool
+    version_added: '2.9'
   addons_config:
     description:
     - Configurations for the various addons available to run in the cluster.
@@ -510,18 +518,6 @@ options:
         - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
         required: false
         type: str
-  enable_tpu:
-    description:
-    - Enable the ability to use Cloud TPUs in this cluster.
-    required: false
-    type: bool
-    version_added: '2.9'
-  tpu_ipv4_cidr_block:
-    description:
-    - The IP address range of the Cloud TPUs in this cluster, in CIDR notation.
-    required: false
-    type: str
-    version_added: '2.9'
   master_authorized_networks_config:
     description:
     - Configuration for controlling how IPs are allocated in the cluster.
@@ -919,6 +915,19 @@ clusterIpv4Cidr:
     in 10.0.0.0/8.
   returned: success
   type: str
+enableTpu:
+  description:
+  - "(Optional) Whether to enable Cloud TPU resources in this cluster."
+  - See the official documentation - U(https://cloud.google.com/tpu/docs/kubernetes-engine-setup)
+    .
+  returned: success
+  type: bool
+tpuIpv4CidrBlock:
+  description:
+  - The IP address range of the Cloud TPUs in this cluster, in [CIDR](http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing)
+    notation (e.g. `1.2.3.4/29`).
+  returned: success
+  type: str
 addonsConfig:
   description:
   - Configurations for the various addons available to run in the cluster.
@@ -1168,16 +1177,6 @@ expireTime:
   - The time the cluster will be automatically deleted in RFC3339 text format.
   returned: success
   type: str
-enableTpu:
-  description:
-  - Enable the ability to use Cloud TPUs in this cluster.
-  returned: success
-  type: bool
-tpuIpv4CidrBlock:
-  description:
-  - The IP address range of the Cloud TPUs in this cluster, in CIDR notation.
-  returned: success
-  type: str
 conditions:
   description:
   - Which conditions caused the current cluster state.
@@ -1307,6 +1306,7 @@ def main():
                 options=dict(enable_private_nodes=dict(type='bool'), enable_private_endpoint=dict(type='bool'), master_ipv4_cidr_block=dict(type='str')),
             ),
             cluster_ipv4_cidr=dict(type='str'),
+            enable_tpu=dict(type='bool'),
             addons_config=dict(
                 type='dict',
                 options=dict(
@@ -1335,8 +1335,6 @@ def main():
                     tpu_ipv4_cidr_block=dict(type='str'),
                 ),
             ),
-            enable_tpu=dict(type='bool'),
-            tpu_ipv4_cidr_block=dict(type='str'),
             master_authorized_networks_config=dict(
                 type='dict',
                 options=dict(
@@ -1410,6 +1408,7 @@ def resource_to_request(module):
         u'network': module.params.get('network'),
         u'privateClusterConfig': ClusterPrivateclusterconfig(module.params.get('private_cluster_config', {}), module).to_request(),
         u'clusterIpv4Cidr': module.params.get('cluster_ipv4_cidr'),
+        u'enableTpu': module.params.get('enable_tpu'),
         u'addonsConfig': ClusterAddonsconfig(module.params.get('addons_config', {}), module).to_request(),
         u'subnetwork': module.params.get('subnetwork'),
         u'locations': module.params.get('locations'),
@@ -1418,8 +1417,6 @@ def resource_to_request(module):
         u'networkPolicy': ClusterNetworkpolicy(module.params.get('network_policy', {}), module).to_request(),
         u'defaultMaxPodsConstraint': ClusterDefaultmaxpodsconstraint(module.params.get('default_max_pods_constraint', {}), module).to_request(),
         u'ipAllocationPolicy': ClusterIpallocationpolicy(module.params.get('ip_allocation_policy', {}), module).to_request(),
-        u'enableTpu': module.params.get('enable_tpu'),
-        u'tpuIpv4CidrBlock': module.params.get('tpu_ipv4_cidr_block'),
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(
             module.params.get('master_authorized_networks_config', {}), module
         ).to_request(),
@@ -1499,6 +1496,8 @@ def response_to_hash(module, response):
         u'network': response.get(u'network'),
         u'privateClusterConfig': ClusterPrivateclusterconfig(response.get(u'privateClusterConfig', {}), module).from_response(),
         u'clusterIpv4Cidr': response.get(u'clusterIpv4Cidr'),
+        u'enableTpu': response.get(u'enableTpu'),
+        u'tpuIpv4CidrBlock': response.get(u'tpuIpv4CidrBlock'),
         u'addonsConfig': ClusterAddonsconfig(response.get(u'addonsConfig', {}), module).from_response(),
         u'subnetwork': response.get(u'subnetwork'),
         u'locations': response.get(u'locations'),
@@ -1519,8 +1518,6 @@ def response_to_hash(module, response):
         u'servicesIpv4Cidr': response.get(u'servicesIpv4Cidr'),
         u'currentNodeCount': response.get(u'currentNodeCount'),
         u'expireTime': response.get(u'expireTime'),
-        u'enableTpu': response.get(u'enableTpu'),
-        u'tpuIpv4CidrBlock': response.get(u'tpuIpv4CidrBlock'),
         u'conditions': ClusterConditionsArray(response.get(u'conditions', []), module).from_response(),
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(response.get(u'masterAuthorizedNetworksConfig', {}), module).from_response(),
     }
