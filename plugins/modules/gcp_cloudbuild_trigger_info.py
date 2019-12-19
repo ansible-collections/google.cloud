@@ -212,6 +212,60 @@ resources:
             SHA must be provided.
           returned: success
           type: str
+    github:
+      description:
+      - Describes the configuration of a trigger that creates a build whenever a GitHub
+        event is received.
+      returned: success
+      type: complex
+      contains:
+        owner:
+          description:
+          - 'Owner of the repository. For example: The owner for U(https://github.com/googlecloudplatform/cloud-builders)
+            is "googlecloudplatform".'
+          returned: success
+          type: str
+        name:
+          description:
+          - 'Name of the repository. For example: The name for U(https://github.com/googlecloudplatform/cloud-builders)
+            is "cloud-builders".'
+          returned: success
+          type: str
+        pullRequest:
+          description:
+          - filter to match changes in pull requests. Specify only one of pullRequest
+            or push.
+          returned: success
+          type: complex
+          contains:
+            branch:
+              description:
+              - Regex of branches to match.
+              returned: success
+              type: str
+            commentControl:
+              description:
+              - Whether to block builds on a "/gcbrun" comment from a repository owner
+                or collaborator.
+              returned: success
+              type: str
+        push:
+          description:
+          - filter to match changes in refs, like branches or tags. Specify only one
+            of pullRequest or push.
+          returned: success
+          type: complex
+          contains:
+            branch:
+              description:
+              - Regex of branches to match. Specify only one of branch or tag.
+              returned: success
+              type: str
+            tag:
+              description:
+              - Regex of tags to match. Specify only one of branch or tag.
+              returned: success
+              type: str
     build:
       description:
       - Contents of the build template. Either a filename or build template must be

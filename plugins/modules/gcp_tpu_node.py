@@ -18,14 +18,15 @@
 # ----------------------------------------------------------------------------
 
 from __future__ import absolute_import, division, print_function
-
 __metaclass__ = type
 
 ################################################################################
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ["preview"],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -265,14 +266,7 @@ zone:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
-    navigate_hash,
-    GcpSession,
-    GcpModule,
-    GcpRequest,
-    remove_nones_from_dict,
-    replace_resource_dict,
-)
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, remove_nones_from_dict, replace_resource_dict
 import json
 import time
 
@@ -285,19 +279,7 @@ def main():
     """Main function"""
 
     module = GcpModule(
-        argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            accelerator_type=dict(required=True, type='str'),
-            tensorflow_version=dict(required=True, type='str'),
-            network=dict(type='str'),
-            cidr_block=dict(required=True, type='str'),
-            scheduling_config=dict(type='dict', options=dict(preemptible=dict(required=True, type='bool'))),
-            labels=dict(type='dict'),
-            zone=dict(required=True, type='str'),
-        )
-    )
+        argument_spec=dict(state=dict(default='present', choices=['present', 'absent'], type='str'), name=dict(required=True, type='str'), description=dict(type='str'), accelerator_type=dict(required=True, type='str'), tensorflow_version=dict(required=True, type='str'), network=dict(type='str'), cidr_block=dict(required=True, type='str'), scheduling_config=dict(type='dict', options=dict(preemptible=dict(required=True, type='bool'))), labels=dict(type='dict'), zone=dict(required=True, type='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
@@ -335,7 +317,8 @@ def create(module, link):
 
 
 def update(module, link, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
+    update_fields(module, resource_to_request(module),
+                  response_to_hash(module, fetch))
     return fetch_resource(module, self_link(module))
 
 
@@ -347,10 +330,12 @@ def update_fields(module, request, response):
 def tensorflow_version_update(module, request, response):
     auth = GcpSession(module, 'tpu')
     auth.post(
-        ''.join(["https://tpu.googleapis.com/v1/", "projects/{project}/locations/{zone}/nodes/{name}:reimage"]).format(**module.params),
-        {u'tensorflowVersion': module.params.get('tensorflow_version')},
+        ''.join([
+            "https://tpu.googleapis.com/v1/",
+            "projects/{project}/locations/{zone}/nodes/{name}:reimage"
+        ]).format(**module.params),
+{ u'tensorflowVersion': module.params.get('tensorflow_version') }
     )
-
 
 def delete(module, link):
     auth = GcpSession(module, 'tpu')
@@ -358,16 +343,7 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'acceleratorType': module.params.get('accelerator_type'),
-        u'tensorflowVersion': module.params.get('tensorflow_version'),
-        u'network': module.params.get('network'),
-        u'cidrBlock': module.params.get('cidr_block'),
-        u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
-        u'labels': module.params.get('labels'),
-    }
+    request = { u'name': module.params.get('name'),u'description': module.params.get('description'),u'acceleratorType': module.params.get('accelerator_type'),u'tensorflowVersion': module.params.get('tensorflow_version'),u'network': module.params.get('network'),u'cidrBlock': module.params.get('cidr_block'),u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),u'labels': module.params.get('labels') }
     return_vals = {}
     for k, v in request.items():
         if v or v is False:
@@ -435,18 +411,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'acceleratorType': module.params.get('accelerator_type'),
-        u'tensorflowVersion': response.get(u'tensorflowVersion'),
-        u'network': module.params.get('network'),
-        u'cidrBlock': module.params.get('cidr_block'),
-        u'serviceAccount': response.get(u'serviceAccount'),
-        u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
-        u'networkEndpoints': NodeNetworkendpointsArray(response.get(u'networkEndpoints', []), module).from_response(),
-        u'labels': module.params.get('labels'),
-    }
+    return { u'name': module.params.get('name'),u'description': module.params.get('description'),u'acceleratorType': module.params.get('accelerator_type'),u'tensorflowVersion': response.get(u'tensorflowVersion'),u'network': module.params.get('network'),u'cidrBlock': module.params.get('cidr_block'),u'serviceAccount': response.get(u'serviceAccount'),u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),u'networkEndpoints': NodeNetworkendpointsArray(response.get(u'networkEndpoints', []), module).from_response(),u'labels': module.params.get('labels') }
 
 
 def async_op_url(module, extra_data=None):
@@ -494,10 +459,12 @@ class NodeSchedulingconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'preemptible': self.request.get('preemptible')})
+        return remove_nones_from_dict({ u'preemptible': self.request.get('preemptible') }
+)
 
     def from_response(self):
-        return remove_nones_from_dict({u'preemptible': self.request.get(u'preemptible')})
+        return remove_nones_from_dict({ u'preemptible': self.request.get(u'preemptible') }
+)
 
 
 class NodeNetworkendpointsArray(object):
@@ -521,10 +488,12 @@ class NodeNetworkendpointsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict({  }
+)
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({})
+        return remove_nones_from_dict({  }
+)
 
 
 if __name__ == '__main__':

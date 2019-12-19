@@ -223,6 +223,11 @@ resources:
             key that protects this resource.
           returned: success
           type: str
+        kmsKeyName:
+          description:
+          - The name of the encryption key that is stored in Google Cloud KMS.
+          returned: success
+          type: str
     labels:
       description:
       - Labels to apply to this Image.
@@ -298,6 +303,11 @@ resources:
           description:
           - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
             key that protects this resource.
+          returned: success
+          type: str
+        kmsKeyName:
+          description:
+          - The name of the encryption key that is stored in Google Cloud KMS.
           returned: success
           type: str
     sourceDiskId:

@@ -402,6 +402,16 @@ resources:
         a /14 block in 10.0.0.0/8.
       returned: success
       type: str
+    enableTpu:
+      description:
+      - Enable the ability to use Cloud TPUs in this cluster.
+      returned: success
+      type: bool
+    tpuIpv4CidrBlock:
+      description:
+      - The IP address range of the Cloud TPUs in this cluster, in CIDR notation.
+      returned: success
+      type: str
     addonsConfig:
       description:
       - Configurations for the various addons available to run in the cluster.
@@ -649,16 +659,6 @@ resources:
     expireTime:
       description:
       - The time the cluster will be automatically deleted in RFC3339 text format.
-      returned: success
-      type: str
-    enableTpu:
-      description:
-      - Enable the ability to use Cloud TPUs in this cluster.
-      returned: success
-      type: bool
-    tpuIpv4CidrBlock:
-      description:
-      - The IP address range of the Cloud TPUs in this cluster, in CIDR notation.
       returned: success
       type: str
     conditions:

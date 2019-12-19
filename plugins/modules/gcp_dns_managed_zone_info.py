@@ -237,6 +237,46 @@ resources:
                 .
               returned: success
               type: str
+    forwardingConfig:
+      description:
+      - The presence for this field indicates that outbound forwarding is enabled
+        for this zone. The value of this field contains the set of destinations to
+        forward to.
+      returned: success
+      type: complex
+      contains:
+        targetNameServers:
+          description:
+          - List of target name servers to forward to. Cloud DNS will select the best
+            available name server if more than one target is given.
+          returned: success
+          type: complex
+          contains:
+            ipv4Address:
+              description:
+              - IPv4 address of a target name server.
+              returned: success
+              type: str
+    peeringConfig:
+      description:
+      - The presence of this field indicates that DNS Peering is enabled for this
+        zone. The value of this field contains the network to peer with.
+      returned: success
+      type: complex
+      contains:
+        targetNetwork:
+          description:
+          - The network with which to peer.
+          returned: success
+          type: complex
+          contains:
+            networkUrl:
+              description:
+              - The fully qualified URL of the VPC network to forward queries to.
+              - This should be formatted like `U(https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`)
+                .
+              returned: success
+              type: str
 '''
 
 ################################################################################
