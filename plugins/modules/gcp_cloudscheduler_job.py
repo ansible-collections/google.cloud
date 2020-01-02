@@ -127,9 +127,9 @@ options:
     suboptions:
       topic_name:
         description:
-        - The name of the Cloud Pub/Sub topic to which messages will be published
-          when a job is delivered. The topic name must be in the same format as required
-          by PubSub's PublishRequest.name, for example projects/PROJECT_ID/topics/TOPIC_ID.
+        - 'The full resource name for the Cloud Pub/Sub topic to which messages will
+          be published when a job is delivered. ~>**NOTE**: The topic name must be
+          in the same format as required by PubSub''s PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.'
         required: true
         type: str
       data:
@@ -427,9 +427,9 @@ pubsubTarget:
   contains:
     topicName:
       description:
-      - The name of the Cloud Pub/Sub topic to which messages will be published when
-        a job is delivered. The topic name must be in the same format as required
-        by PubSub's PublishRequest.name, for example projects/PROJECT_ID/topics/TOPIC_ID.
+      - 'The full resource name for the Cloud Pub/Sub topic to which messages will
+        be published when a job is delivered. ~>**NOTE**: The topic name must be in
+        the same format as required by PubSub''s PublishRequest.name, e.g. `projects/my-project/topics/my-topic`.'
       returned: success
       type: str
     data:
