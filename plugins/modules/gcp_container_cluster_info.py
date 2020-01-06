@@ -708,6 +708,17 @@ resources:
               - Block specified in CIDR notation.
               returned: success
               type: str
+    nodePools:
+      description:
+      - Node pools belonging to this cluster.
+      returned: success
+      type: complex
+      contains:
+        name:
+          description:
+          - Name of the node pool.
+          returned: success
+          type: str
     location:
       description:
       - The location where the cluster is deployed.
