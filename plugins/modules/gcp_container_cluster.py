@@ -1221,6 +1221,17 @@ masterAuthorizedNetworksConfig:
           - Block specified in CIDR notation.
           returned: success
           type: str
+nodePools:
+  description:
+  - Node pools belonging to this cluster.
+  returned: success
+  type: complex
+  contains:
+    name:
+      description:
+      - Name of the node pool.
+      returned: success
+      type: str
 location:
   description:
   - The location where the cluster is deployed.
@@ -1520,6 +1531,7 @@ def response_to_hash(module, response):
         u'expireTime': response.get(u'expireTime'),
         u'conditions': ClusterConditionsArray(response.get(u'conditions', []), module).from_response(),
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(response.get(u'masterAuthorizedNetworksConfig', {}), module).from_response(),
+        u'nodePools': ClusterNodepoolsArray(response.get(u'nodePools', []), module).from_response(),
     }
 
 
@@ -2053,6 +2065,33 @@ class ClusterCidrblocksArray(object):
 
     def _response_from_item(self, item):
         return remove_nones_from_dict({u'displayName': item.get(u'displayName'), u'cidrBlock': item.get(u'cidrBlock')})
+
+
+class ClusterNodepoolsArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'name': item.get('name')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'name': item.get(u'name')})
 
 
 if __name__ == '__main__':
