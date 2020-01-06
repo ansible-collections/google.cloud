@@ -28,13 +28,13 @@ jobs:
       env:
         SERVICE_ACCOUNT_FILE: ${{ secrets.SERVICE_ACCOUNT_FILE }}
       run: |
-        echo $SERVICE_ACCOUNT_FILE > /tmp/service_account.json
+        echo "$SERVICE_ACCOUNT_FILE" > /tmp/service_account.json
     - name: Add test template
       env:
         TEST_SETTINGS_TEMPLATE: ${{ secrets.TEST_SETTINGS_TEMPLATE }}
       run: |
         pushd ~/.ansible/collections/ansible_collections/google/cloud
-        echo $TEST_SETTINGS_TEMPLATE > tests/integration/cloud-config-gcp.ini
+        echo "$TEST_SETTINGS_TEMPLATE" > tests/integration/cloud-config-gcp.ini
     - name: Run the tests
       run: |
         pushd ~/.ansible/collections/ansible_collections/google/cloud
