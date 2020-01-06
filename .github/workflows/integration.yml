@@ -23,7 +23,7 @@ jobs:
     - name: Build and install collection
       run: |
         ansible-galaxy collection build .
-        ansible-collection install *.gz
+        ansible-galaxy collection install *.gz
     - name: Add service account file
       env:
         SERVICE_ACCOUNT_FILE: ${{ secrets.SERVICE_ACCOUNT_FILE }}
