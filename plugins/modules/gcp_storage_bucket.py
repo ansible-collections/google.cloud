@@ -699,7 +699,7 @@ projectNumber:
   description:
   - The project number of the project the bucket belongs to.
   returned: success
-  type: str
+  type: int
 storageClass:
   description:
   - The bucket's default storage class, used whenever no storageClass is specified
