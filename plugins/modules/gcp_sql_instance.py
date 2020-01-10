@@ -684,6 +684,18 @@ settings:
         this value.
       returned: success
       type: int
+gceZone:
+  description:
+  - The Compute Engine zone that the instance is currently serving from. This value
+    could be different from the zone that was specified when the instance was created
+    if the instance has failed over to its secondary zone.
+  returned: success
+  type: str
+state:
+  description:
+  - The current serving state of the database instance.
+  returned: success
+  type: str
 '''
 
 ################################################################################
@@ -910,6 +922,8 @@ def response_to_hash(module, response):
         u'region': response.get(u'region'),
         u'replicaConfiguration': InstanceReplicaconfiguration(response.get(u'replicaConfiguration', {}), module).from_response(),
         u'settings': InstanceSettings(response.get(u'settings', {}), module).from_response(),
+        u'gceZone': response.get(u'gceZone'),
+        u'state': response.get(u'state'),
     }
 
 
