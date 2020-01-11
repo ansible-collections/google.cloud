@@ -172,17 +172,11 @@ options:
     type: dict
   target:
     description:
-    - This field is only used for EXTERNAL load balancing.
-    - A reference to a TargetPool resource to receive the matched traffic.
-    - This target must live in the same region as the forwarding rule.
+    - The URL of the target resource to receive the matched traffic.
+    - The target must live in the same region as the forwarding rule.
     - The forwarded traffic must be of a type appropriate to the target object.
-    - 'This field represents a link to a TargetPool resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''selfLink'' and value
-      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
-      to a gcp_compute_target_pool task and then set this target field to "{{ name-of-resource
-      }}"'
     required: false
-    type: dict
+    type: str
     version_added: '2.7'
   all_ports:
     description:
@@ -423,12 +417,11 @@ subnetwork:
   type: dict
 target:
   description:
-  - This field is only used for EXTERNAL load balancing.
-  - A reference to a TargetPool resource to receive the matched traffic.
-  - This target must live in the same region as the forwarding rule.
+  - The URL of the target resource to receive the matched traffic.
+  - The target must live in the same region as the forwarding rule.
   - The forwarded traffic must be of a type appropriate to the target object.
   returned: success
-  type: dict
+  type: str
 allPorts:
   description:
   - For internal TCP/UDP load balancing (i.e. load balancing scheme is INTERNAL and
@@ -499,7 +492,7 @@ def main():
             port_range=dict(type='str'),
             ports=dict(type='list', elements='str'),
             subnetwork=dict(type='dict'),
-            target=dict(type='dict'),
+            target=dict(type='str'),
             all_ports=dict(type='bool'),
             network_tier=dict(type='str'),
             service_label=dict(type='str'),
@@ -557,7 +550,7 @@ def target_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
         ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/forwardingRules/{name}/setTarget"]).format(**module.params),
-        {u'target': replace_resource_dict(module.params.get(u'target', {}), 'selfLink')},
+        {u'target': module.params.get('target')},
     )
 
 
@@ -579,7 +572,7 @@ def resource_to_request(module):
         u'portRange': module.params.get('port_range'),
         u'ports': module.params.get('ports'),
         u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
-        u'target': replace_resource_dict(module.params.get(u'target', {}), 'selfLink'),
+        u'target': module.params.get('target'),
         u'allPorts': module.params.get('all_ports'),
         u'networkTier': module.params.get('network_tier'),
         u'serviceLabel': module.params.get('service_label'),
