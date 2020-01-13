@@ -83,9 +83,10 @@ options:
         type: str
   rate_limits:
     description:
-    - 'Rate limits for task dispatches. The queue''s actual dispatch rate is the result
-      of: * Number of tasks in the queue * User-specified throttling: rateLimits,
-      retryConfig, and the queue''s state.'
+    - Rate limits for task dispatches.
+    - 'The queue''s actual dispatch rate is the result of: * Number of tasks in the
+      queue * User-specified throttling: rateLimits, retryConfig, and the queue''s
+      state.'
     - "* System throttling due to 429 (Too Many Requests) or 503 (Service Unavailable)
       responses from the worker, high error rates, or to smooth sudden large traffic
       spikes."
@@ -97,7 +98,7 @@ options:
         - The maximum rate at which tasks are dispatched from this queue.
         - If unspecified when the queue is created, Cloud Tasks will pick the default.
         required: false
-        type: int
+        type: str
       max_concurrent_dispatches:
         description:
         - The maximum number of concurrent tasks that Cloud Tasks allows to be dispatched
@@ -253,9 +254,9 @@ appEngineRoutingOverride:
       type: str
 rateLimits:
   description:
-  - 'Rate limits for task dispatches. The queue''s actual dispatch rate is the result
-    of: * Number of tasks in the queue * User-specified throttling: rateLimits, retryConfig,
-    and the queue''s state.'
+  - Rate limits for task dispatches.
+  - 'The queue''s actual dispatch rate is the result of: * Number of tasks in the
+    queue * User-specified throttling: rateLimits, retryConfig, and the queue''s state.'
   - "* System throttling due to 429 (Too Many Requests) or 503 (Service Unavailable)
     responses from the worker, high error rates, or to smooth sudden large traffic
     spikes."
@@ -267,7 +268,7 @@ rateLimits:
       - The maximum rate at which tasks are dispatched from this queue.
       - If unspecified when the queue is created, Cloud Tasks will pick the default.
       returned: success
-      type: int
+      type: str
     maxConcurrentDispatches:
       description:
       - The maximum number of concurrent tasks that Cloud Tasks allows to be dispatched
@@ -375,7 +376,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(type='str'),
             app_engine_routing_override=dict(type='dict', options=dict(service=dict(type='str'), version=dict(type='str'), instance=dict(type='str'))),
-            rate_limits=dict(type='dict', options=dict(max_dispatches_per_second=dict(type='int'), max_concurrent_dispatches=dict(type='int'))),
+            rate_limits=dict(type='dict', options=dict(max_dispatches_per_second=dict(type='str'), max_concurrent_dispatches=dict(type='int'))),
             retry_config=dict(
                 type='dict',
                 options=dict(
