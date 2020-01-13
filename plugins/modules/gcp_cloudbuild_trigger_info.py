@@ -143,7 +143,7 @@ resources:
       type: str
     ignoredFiles:
       description:
-      - ignoredFiles and includedFiles are file glob matches using http://godoc/pkg/path/filepath#Match
+      - ignoredFiles and includedFiles are file glob matches using U(https://golang.org/pkg/path/filepath/#Match)
         extended with support for `**`.
       - If ignoredFiles and changed files are both empty, then they are not used to
         determine whether or not to trigger a build.
