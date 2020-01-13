@@ -235,12 +235,11 @@ resources:
       type: dict
     target:
       description:
-      - This field is only used for EXTERNAL load balancing.
-      - A reference to a TargetPool resource to receive the matched traffic.
-      - This target must live in the same region as the forwarding rule.
+      - The URL of the target resource to receive the matched traffic.
+      - The target must live in the same region as the forwarding rule.
       - The forwarded traffic must be of a type appropriate to the target object.
       returned: success
-      type: dict
+      type: str
     allPorts:
       description:
       - For internal TCP/UDP load balancing (i.e. load balancing scheme is INTERNAL
