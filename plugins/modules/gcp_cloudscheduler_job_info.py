@@ -132,6 +132,19 @@ resources:
       - The value of this field must be a time zone name from the tz database.
       returned: success
       type: str
+    attemptDeadline:
+      description:
+      - The deadline for job attempts. If the request handler does not respond by
+        this deadline then the request is cancelled and the attempt is marked as a
+        DEADLINE_EXCEEDED failure. The failed attempt can be viewed in execution logs.
+        Cloud Scheduler will retry the job according to the RetryConfig.
+      - 'The allowed duration for this deadline is: * For HTTP targets, between 15
+        seconds and 30 minutes.'
+      - "* For App Engine HTTP targets, between 15 seconds and 24 hours."
+      - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
+        Example: "3.5s" .'
+      returned: success
+      type: str
     retryConfig:
       description:
       - By default, if a job does not complete successfully, meaning that an acknowledgement
