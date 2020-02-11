@@ -12,6 +12,7 @@ ansible-galaxy collection install google.cloud
   * App Engine FirewallRule (gcp_appengine_firewall_rule, gcp_appengine_firewall_rule_facts)
   * BigQuery Dataset (gcp_bigquery_dataset, gcp_bigquery_dataset_facts)
   * BigQuery Table (gcp_bigquery_table, gcp_bigquery_table_facts)
+  * Bigtable Instance (gcp_bigtable_instance, gcp_bigtable_instance_facts)
   * Cloud Build Trigger (gcp_cloudbuild_trigger, gcp_cloudbuild_trigger_facts)
   * Cloud Functions CloudFunction (gcp_cloudfunctions_cloud_function, gcp_cloudfunctions_cloud_function_facts)
   * Cloud Scheduler Job (gcp_cloudscheduler_job, gcp_cloudscheduler_job_facts)
