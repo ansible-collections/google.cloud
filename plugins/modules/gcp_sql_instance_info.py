@@ -450,7 +450,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/sql/v1beta4/projects/{project}/instances".format(**module.params)
+    return "https://sqladmin.googleapis.com/v1beta4/projects/{project}/instances".format(**module.params)
 
 
 def fetch_list(module, link):
