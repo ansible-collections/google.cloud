@@ -52,6 +52,7 @@ options:
   backends:
     description:
     - The set of backends that serve this RegionBackendService.
+    elements: dict
     required: false
     type: list
     suboptions:
@@ -177,6 +178,7 @@ options:
     description:
     - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
       Currently at most one health check can be specified, and a health check is required.
+    elements: str
     required: true
     type: list
   load_balancing_scheme:

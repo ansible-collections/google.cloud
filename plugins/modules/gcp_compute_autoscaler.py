@@ -131,6 +131,7 @@ options:
       custom_metric_utilizations:
         description:
         - Configuration parameters of autoscaling based on a custom metric.
+        elements: dict
         required: false
         type: list
         aliases:

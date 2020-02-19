@@ -208,6 +208,7 @@ options:
       replica_names:
         description:
         - The replicas of the instance.
+        elements: str
         required: false
         type: list
       service_account_email_address:
@@ -225,6 +226,7 @@ options:
       database_flags:
         description:
         - The database flags passed to the instance at startup.
+        elements: dict
         required: false
         type: list
         version_added: '2.9'
@@ -260,6 +262,7 @@ options:
             - The list of external networks that are allowed to connect to the instance
               using the IP. In CIDR notation, also known as 'slash' notation (e.g.
               192.168.100.0/24).
+            elements: dict
             required: false
             type: list
             suboptions:

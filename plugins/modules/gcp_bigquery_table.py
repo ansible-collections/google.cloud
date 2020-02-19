@@ -75,6 +75,7 @@ options:
       simple-type fields are supported. When you cluster a table using multiple columns,
       the order of columns you specify is important. The order of the specified columns
       determines the sort order of the data.
+    elements: str
     required: false
     type: list
     version_added: '2.9'
@@ -120,6 +121,7 @@ options:
       user_defined_function_resources:
         description:
         - Describes user-defined function resources used in the query.
+        elements: dict
         required: false
         type: list
         suboptions:
@@ -171,6 +173,7 @@ options:
       fields:
         description:
         - Describes the fields in a table.
+        elements: dict
         required: false
         type: list
         suboptions:
@@ -182,6 +185,7 @@ options:
           fields:
             description:
             - Describes the nested schema fields if the type property is set to RECORD.
+            elements: str
             required: false
             type: list
           mode:
@@ -270,6 +274,7 @@ options:
           HTTPS URL for a Google Cloud Bigtable table. For Google Cloud Datastore
           backups, exactly one URI can be specified. Also, the ''*'' wildcard character
           is not allowed.'
+        elements: str
         required: false
         type: list
       schema:
@@ -281,6 +286,7 @@ options:
           fields:
             description:
             - Describes the fields in a table.
+            elements: dict
             required: false
             type: list
             suboptions:
@@ -293,6 +299,7 @@ options:
                 description:
                 - Describes the nested schema fields if the type property is set to
                   RECORD .
+                elements: str
                 required: false
                 type: list
               mode:
@@ -387,6 +394,7 @@ options:
             description:
             - List of column families to expose in the table schema along with their
               types.
+            elements: dict
             required: false
             type: list
             suboptions:
@@ -394,6 +402,7 @@ options:
                 description:
                 - Lists of columns that should be exposed as individual fields as
                   opposed to a list of (column name, value) pairs.
+                elements: dict
                 required: false
                 type: list
                 suboptions:

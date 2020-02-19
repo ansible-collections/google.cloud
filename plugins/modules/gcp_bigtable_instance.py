@@ -76,6 +76,7 @@ options:
   clusters:
     description:
     - An array of clusters. Maximum 4.
+    elements: dict
     required: false
     type: list
     suboptions:

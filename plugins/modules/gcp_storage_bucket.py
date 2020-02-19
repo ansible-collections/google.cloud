@@ -56,6 +56,7 @@ options:
   acl:
     description:
     - Access controls on the bucket.
+    elements: dict
     required: false
     type: list
     suboptions:
@@ -111,6 +112,7 @@ options:
   cors:
     description:
     - The bucket's Cross-Origin Resource Sharing (CORS) configuration.
+    elements: dict
     required: false
     type: list
     suboptions:
@@ -125,18 +127,21 @@ options:
         - 'The list of HTTP methods on which to include CORS response headers, (GET,
           OPTIONS, POST, etc) Note: "*" is permitted in the list of methods, and means
           "any method".'
+        elements: str
         required: false
         type: list
       origin:
         description:
         - The list of Origins eligible to receive CORS response headers.
         - 'Note: "*" is permitted in the list of origins, and means "any Origin".'
+        elements: str
         required: false
         type: list
       response_header:
         description:
         - The list of HTTP headers other than the simple response headers to give
           permission for the user-agent to share across domains.
+        elements: str
         required: false
         type: list
   default_event_based_hold:
@@ -149,6 +154,7 @@ options:
   default_object_acl:
     description:
     - Default access controls to apply to new objects when no ACL is provided.
+    elements: dict
     required: false
     type: list
     version_added: '2.7'
@@ -194,6 +200,7 @@ options:
         description:
         - A lifecycle management rule, which is made of an action to take and the
           condition(s) under which the action will be taken.
+        elements: dict
         required: false
         type: list
         suboptions:
@@ -246,6 +253,7 @@ options:
                 - Objects having any of the storage classes specified by this condition
                   will be matched. Values include MULTI_REGIONAL, REGIONAL, NEARLINE,
                   COLDLINE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
+                elements: str
                 required: false
                 type: list
               num_newer_versions:

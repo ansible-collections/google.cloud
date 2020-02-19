@@ -90,6 +90,7 @@ options:
     - If ignoredFiles is not empty, then we ignore any files that match any of the
       ignored_file globs. If the change has no files that are outside of the ignoredFiles
       globs, then we do not trigger a build.
+    elements: str
     required: false
     type: list
   included_files:
@@ -101,6 +102,7 @@ options:
     - If any of the files altered in the commit pass the ignoredFiles filter and includedFiles
       is not empty, then we make sure that at least one of those files matches a includedFiles
       glob. If not, then we do not trigger a build.
+    elements: str
     required: false
     type: list
   trigger_template:
@@ -161,6 +163,7 @@ options:
       tags:
         description:
         - Tags for annotation of a Build. These are not docker tags.
+        elements: str
         required: false
         type: list
       images:
@@ -171,6 +174,7 @@ options:
         - The digests of the pushed images will be stored in the Build resource's
           results field.
         - If any of the images fail to be pushed, the build status is marked FAILURE.
+        elements: str
         required: false
         type: list
       timeout:
@@ -189,6 +193,7 @@ options:
       steps:
         description:
         - The operations to be performed on the workspace.
+        elements: dict
         required: true
         type: list
         suboptions:
@@ -216,6 +221,7 @@ options:
               args are used as arguments to that entrypoint. If the image does not
               define an entrypoint, the first element in args is used as the entrypoint,
               and the remainder will be used as arguments.
+            elements: str
             required: false
             type: list
           env:
@@ -224,6 +230,7 @@ options:
               step.
             - The elements are of the form "KEY=VALUE" for the environment variable
               "KEY" being given the value "VALUE".
+            elements: str
             required: false
             type: list
           id:
@@ -256,6 +263,7 @@ options:
             - A list of environment variables which are encrypted using a Cloud Key
               Management Service crypto key. These values must be specified in the
               build's `Secret`.
+            elements: str
             required: false
             type: list
           timeout:
@@ -278,6 +286,7 @@ options:
               are discarded.
             - Using a named volume in only one step is not valid as it is indicative
               of a build request with an incorrect configuration.
+            elements: dict
             required: false
             type: list
             suboptions:
@@ -303,6 +312,7 @@ options:
               have completed successfully. If `wait_for` is empty, this build step
               will start when all previous build steps in the `Build.Steps` list have
               completed successfully.
+            elements: str
             required: false
             type: list
   project:
