@@ -106,6 +106,7 @@ options:
           communicating with gcr.io (the Google Container Registry).
         - If unspecified, no scopes are added, unless Cloud Logging or Cloud Monitoring
           are enabled, in which case their required scopes will be added.
+        elements: str
         required: false
         type: list
       service_account:
@@ -162,6 +163,7 @@ options:
           valid sources or targets for network firewalls and are specified by the
           client during cluster or node pool creation. Each tag within the list must
           comply with RFC1035.
+        elements: str
         required: false
         type: list
       preemptible:
@@ -174,6 +176,7 @@ options:
         description:
         - A list of hardware accelerators to be attached to each node. See U(https://cloud.google.com/compute/docs/gpus)
           for more information about support for GPUs.
+        elements: dict
         required: false
         type: list
         version_added: '2.9'
@@ -207,6 +210,7 @@ options:
         - List of kubernetes taints to be applied to each node.
         - 'For more information, including usage and the valid values, see: U(https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
           .'
+        elements: dict
         required: false
         type: list
         version_added: '2.9'
@@ -385,6 +389,7 @@ options:
     description:
     - The list of Google Compute Engine zones in which the cluster's nodes should
       be located.
+    elements: str
     required: false
     type: list
     aliases:
@@ -534,6 +539,7 @@ options:
         description:
         - Define up to 50 external networks that could access Kubernetes master through
           HTTPS.
+        elements: dict
         required: false
         type: list
         suboptions:

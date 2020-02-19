@@ -110,6 +110,7 @@ options:
           metric type has a label for the HTTP response code, response_code, so you
           can look at latencies for successful responses or just for responses that
           failed.
+        elements: dict
         required: false
         type: list
         suboptions:
@@ -223,6 +224,7 @@ options:
           bounds:
             description:
             - The values must be monotonically increasing.
+            elements: str
             required: true
             type: list
   project:

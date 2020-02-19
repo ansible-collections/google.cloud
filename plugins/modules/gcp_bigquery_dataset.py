@@ -56,6 +56,7 @@ options:
   access:
     description:
     - An array of objects that define dataset access for one or more entities.
+    elements: dict
     required: false
     type: list
     suboptions:

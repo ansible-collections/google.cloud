@@ -91,6 +91,7 @@ options:
         - Specifies parameters that will be used for generating initial DnsKeys for
           this ManagedZone. If you provide a spec for keySigning or zoneSigning, you
           must also provide one for the other.
+        elements: dict
         required: false
         type: list
         suboptions:
@@ -162,6 +163,7 @@ options:
       networks:
         description:
         - The list of VPC networks that can see this zone.
+        elements: dict
         required: true
         type: list
         suboptions:

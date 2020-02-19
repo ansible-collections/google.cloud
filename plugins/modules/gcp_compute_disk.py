@@ -73,6 +73,7 @@ options:
   licenses:
     description:
     - Any applicable publicly visible licenses.
+    elements: str
     required: false
     type: list
   name:

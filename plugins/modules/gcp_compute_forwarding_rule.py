@@ -155,6 +155,7 @@ options:
       list of ports can be configured. Only packets addressed to these ports will
       be forwarded to the backends configured with this forwarding rule.
     - You may specify a maximum of up to 5 ports.
+    elements: str
     required: false
     type: list
   subnetwork:

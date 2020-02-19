@@ -63,6 +63,7 @@ options:
   backends:
     description:
     - The set of backends that serve this BackendService.
+    elements: dict
     required: false
     type: list
     suboptions:
@@ -202,6 +203,7 @@ options:
             - All other parameters will be included. Either specify query_string_whitelist
               or query_string_blacklist, not both.
             - "'&' and '=' will be percent encoded and not treated as delimiters."
+            elements: str
             required: false
             type: list
           query_string_whitelist:
@@ -210,6 +212,7 @@ options:
             - All other parameters will be excluded. Either specify query_string_whitelist
               or query_string_blacklist, not both.
             - "'&' and '=' will be percent encoded and not treated as delimiters."
+            elements: str
             required: false
             type: list
       signed_url_cache_max_age_sec:
@@ -255,6 +258,7 @@ options:
       and a health check is required.
     - For internal load balancing, a URL to a HealthCheck resource must be specified
       instead.
+    elements: str
     required: true
     type: list
   iap:
