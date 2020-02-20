@@ -254,7 +254,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/forwardingRule)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/forwardingRules)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/network/forwarding-rules)'
 - for authentication, you can set service_account_file using the C(gcp_service_account_file)
   env variable.
