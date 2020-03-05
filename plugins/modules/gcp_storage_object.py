@@ -43,12 +43,12 @@ options:
     - delete
   src:
     description:
-    - Source location of file (may be local machine or cloud depending on action).
+    - Source location of file (may be local machine or cloud depending on action). Cloud locations need to be urlencoded including slashes.
     required: false
     type: path
   dest:
     description:
-    - Destination location of file (may be local machine or cloud depending on action).
+    - Destination location of file (may be local machine or cloud depending on action). Cloud location need to be urlencoded including slashes.
     required: false
     type: path
   bucket:
