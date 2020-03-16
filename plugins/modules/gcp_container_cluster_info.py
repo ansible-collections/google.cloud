@@ -719,6 +719,17 @@ resources:
           - Name of the node pool.
           returned: success
           type: str
+    binaryAuthorization:
+      description:
+      - Configuration for the BinaryAuthorization feature.
+      returned: success
+      type: complex
+      contains:
+        enabled:
+          description:
+          - If enabled, all container images will be validated by Binary Authorization.
+          returned: success
+          type: bool
     location:
       description:
       - The location where the cluster is deployed.

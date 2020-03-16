@@ -553,6 +553,18 @@ options:
             - Block specified in CIDR notation.
             required: false
             type: str
+  binary_authorization:
+    description:
+    - Configuration for the BinaryAuthorization feature.
+    required: false
+    type: dict
+    version_added: '2.10'
+    suboptions:
+      enabled:
+        description:
+        - If enabled, all container images will be validated by Binary Authorization.
+        required: false
+        type: bool
   location:
     description:
     - The location where the cluster is deployed.
@@ -1238,6 +1250,17 @@ nodePools:
       - Name of the node pool.
       returned: success
       type: str
+binaryAuthorization:
+  description:
+  - Configuration for the BinaryAuthorization feature.
+  returned: success
+  type: complex
+  contains:
+    enabled:
+      description:
+      - If enabled, all container images will be validated by Binary Authorization.
+      returned: success
+      type: bool
 location:
   description:
   - The location where the cluster is deployed.
@@ -1359,6 +1382,7 @@ def main():
                     cidr_blocks=dict(type='list', elements='dict', options=dict(display_name=dict(type='str'), cidr_block=dict(type='str'))),
                 ),
             ),
+            binary_authorization=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             location=dict(required=True, type='str', aliases=['zone']),
             kubectl_path=dict(type='str'),
             kubectl_context=dict(type='str'),
@@ -1437,6 +1461,7 @@ def resource_to_request(module):
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(
             module.params.get('master_authorized_networks_config', {}), module
         ).to_request(),
+        u'binaryAuthorization': ClusterBinaryauthorization(module.params.get('binary_authorization', {}), module).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -1538,6 +1563,7 @@ def response_to_hash(module, response):
         u'conditions': ClusterConditionsArray(response.get(u'conditions', []), module).from_response(),
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(response.get(u'masterAuthorizedNetworksConfig', {}), module).from_response(),
         u'nodePools': ClusterNodepoolsArray(response.get(u'nodePools', []), module).from_response(),
+        u'binaryAuthorization': ClusterBinaryauthorization(response.get(u'binaryAuthorization', {}), module).from_response(),
     }
 
 
@@ -2098,6 +2124,21 @@ class ClusterNodepoolsArray(object):
 
     def _response_from_item(self, item):
         return remove_nones_from_dict({u'name': item.get(u'name')})
+
+
+class ClusterBinaryauthorization(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enabled': self.request.get('enabled')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enabled': self.request.get(u'enabled')})
 
 
 if __name__ == '__main__':
