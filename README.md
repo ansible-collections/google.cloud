@@ -55,6 +55,7 @@ ansible-galaxy collection install google.cloud
   * Compute Engine TargetSslProxy (gcp_compute_target_ssl_proxy, gcp_compute_target_ssl_proxy_facts)
   * Compute Engine TargetTcpProxy (gcp_compute_target_tcp_proxy, gcp_compute_target_tcp_proxy_facts)
   * Compute Engine TargetVpnGateway (gcp_compute_target_vpn_gateway, gcp_compute_target_vpn_gateway_facts)
+  * Compute Engine ExternalVpnGateway (gcp_compute_external_vpn_gateway, gcp_compute_external_vpn_gateway_facts)
   * Compute Engine UrlMap (gcp_compute_url_map, gcp_compute_url_map_facts)
   * Compute Engine VpnTunnel (gcp_compute_vpn_tunnel, gcp_compute_vpn_tunnel_facts)
   * Google Kubernetes Engine Cluster (gcp_container_cluster, gcp_container_cluster_facts)
