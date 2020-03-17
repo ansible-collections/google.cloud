@@ -113,7 +113,7 @@ DOCUMENTATION = """
 """
 
 EXAMPLES = """
-plugin: gcp_compute
+plugin: google.cloud.gcp_compute
 zones: # populate inventory with instances in these regions
   - us-east1-a
 projects:
