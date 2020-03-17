@@ -240,6 +240,12 @@ resources:
       - The forwarded traffic must be of a type appropriate to the target object.
       returned: success
       type: str
+    allowGlobalAccess:
+      description:
+      - If true, clients can access ILB from all regions.
+      - Otherwise only allows from the local region the ILB is located at.
+      returned: success
+      type: bool
     allPorts:
       description:
       - For internal TCP/UDP load balancing (i.e. load balancing scheme is INTERNAL
