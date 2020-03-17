@@ -179,6 +179,13 @@ options:
     required: false
     type: str
     version_added: '2.7'
+  allow_global_access:
+    description:
+    - If true, clients can access ILB from all regions.
+    - Otherwise only allows from the local region the ILB is located at.
+    required: false
+    type: bool
+    version_added: '2.10'
   all_ports:
     description:
     - For internal TCP/UDP load balancing (i.e. load balancing scheme is INTERNAL
@@ -423,6 +430,12 @@ target:
   - The forwarded traffic must be of a type appropriate to the target object.
   returned: success
   type: str
+allowGlobalAccess:
+  description:
+  - If true, clients can access ILB from all regions.
+  - Otherwise only allows from the local region the ILB is located at.
+  returned: success
+  type: bool
 allPorts:
   description:
   - For internal TCP/UDP load balancing (i.e. load balancing scheme is INTERNAL and
@@ -494,6 +507,7 @@ def main():
             ports=dict(type='list', elements='str'),
             subnetwork=dict(type='dict'),
             target=dict(type='str'),
+            allow_global_access=dict(type='bool'),
             all_ports=dict(type='bool'),
             network_tier=dict(type='str'),
             service_label=dict(type='str'),
@@ -545,6 +559,8 @@ def update(module, link, kind, fetch):
 def update_fields(module, request, response):
     if response.get('target') != request.get('target'):
         target_update(module, request, response)
+    if response.get('allowGlobalAccess') != request.get('allowGlobalAccess'):
+        allow_global_access_update(module, request, response)
 
 
 def target_update(module, request, response):
@@ -552,6 +568,14 @@ def target_update(module, request, response):
     auth.post(
         ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/forwardingRules/{name}/setTarget"]).format(**module.params),
         {u'target': module.params.get('target')},
+    )
+
+
+def allow_global_access_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    auth.patch(
+        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/forwardingRules/{name}"]).format(**module.params),
+        {u'allowGlobalAccess': module.params.get('allow_global_access')},
     )
 
 
@@ -574,6 +598,7 @@ def resource_to_request(module):
         u'ports': module.params.get('ports'),
         u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
         u'target': module.params.get('target'),
+        u'allowGlobalAccess': module.params.get('allow_global_access'),
         u'allPorts': module.params.get('all_ports'),
         u'networkTier': module.params.get('network_tier'),
         u'serviceLabel': module.params.get('service_label'),
@@ -655,6 +680,7 @@ def response_to_hash(module, response):
         u'ports': response.get(u'ports'),
         u'subnetwork': response.get(u'subnetwork'),
         u'target': response.get(u'target'),
+        u'allowGlobalAccess': response.get(u'allowGlobalAccess'),
         u'allPorts': response.get(u'allPorts'),
         u'networkTier': module.params.get('network_tier'),
         u'serviceLabel': response.get(u'serviceLabel'),
