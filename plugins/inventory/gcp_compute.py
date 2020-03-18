@@ -281,7 +281,7 @@ class GcpInstance(object):
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
-    NAME = "gcp_compute"
+    NAME = "google.cloud.gcp_compute"
 
     _instances = (
         r"https://www.googleapis.com/compute/v1/projects/%s/aggregated/instances"
