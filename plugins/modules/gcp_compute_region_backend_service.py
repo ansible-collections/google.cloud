@@ -224,6 +224,17 @@ options:
       Default is 30 seconds. Valid range is [1, 86400].
     required: false
     type: int
+  network:
+    description:
+    - The URL of the network to which this backend service belongs.
+    - This field can only be specified when the load balancing scheme is set to INTERNAL.
+    - 'This field represents a link to a Network resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_network task and then set this network field to "{{ name-of-resource
+      }}"'
+    required: false
+    type: dict
   region:
     description:
     - A reference to the region where the regional backend service resides.
@@ -492,6 +503,12 @@ timeoutSec:
     Default is 30 seconds. Valid range is [1, 86400].
   returned: success
   type: int
+network:
+  description:
+  - The URL of the network to which this backend service belongs.
+  - This field can only be specified when the load balancing scheme is set to INTERNAL.
+  returned: success
+  type: dict
 region:
   description:
   - A reference to the region where the regional backend service resides.
@@ -550,6 +567,7 @@ def main():
             protocol=dict(type='str'),
             session_affinity=dict(type='str'),
             timeout_sec=dict(type='int'),
+            network=dict(type='dict'),
             region=dict(required=True, type='str'),
         )
     )
@@ -612,6 +630,7 @@ def resource_to_request(module):
         u'protocol': module.params.get('protocol'),
         u'sessionAffinity': module.params.get('session_affinity'),
         u'timeoutSec': module.params.get('timeout_sec'),
+        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -689,6 +708,7 @@ def response_to_hash(module, response):
         u'protocol': response.get(u'protocol'),
         u'sessionAffinity': response.get(u'sessionAffinity'),
         u'timeoutSec': response.get(u'timeoutSec'),
+        u'network': response.get(u'network'),
     }
 
 

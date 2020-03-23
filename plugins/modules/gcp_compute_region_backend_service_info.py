@@ -302,6 +302,13 @@ resources:
         Default is 30 seconds. Valid range is [1, 86400].
       returned: success
       type: int
+    network:
+      description:
+      - The URL of the network to which this backend service belongs.
+      - This field can only be specified when the load balancing scheme is set to
+        INTERNAL.
+      returned: success
+      type: dict
     region:
       description:
       - A reference to the region where the regional backend service resides.
