@@ -1643,7 +1643,7 @@ class Kubectl(object):
             self.module.fail_json(msg="Please install the pyyaml module")
 
         with open(self.module.params['kubectl_path'], 'w') as f:
-            f.write(yaml.dump(self._contents()))
+            f.write(yaml.safe_dump(self._contents()))
 
     """
     Returns the contents of a kubectl file
