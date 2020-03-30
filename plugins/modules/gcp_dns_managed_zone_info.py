@@ -135,6 +135,7 @@ resources:
           description:
           - Specifies the mechanism used to provide authenticated denial-of-existence
             responses.
+          - non_existence can only be updated when the state is `off`.
           returned: success
           type: str
         state:
@@ -147,6 +148,7 @@ resources:
           - Specifies parameters that will be used for generating initial DnsKeys
             for this ManagedZone. If you provide a spec for keySigning or zoneSigning,
             you must also provide one for the other.
+          - default_key_specs can only be updated when the state is `off`.
           returned: success
           type: complex
           contains:

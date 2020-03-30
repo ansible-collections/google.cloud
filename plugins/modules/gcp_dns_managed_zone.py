@@ -77,6 +77,7 @@ options:
         description:
         - Specifies the mechanism used to provide authenticated denial-of-existence
           responses.
+        - non_existence can only be updated when the state is `off`.
         - 'Some valid choices include: "nsec", "nsec3"'
         required: false
         type: str
@@ -91,6 +92,7 @@ options:
         - Specifies parameters that will be used for generating initial DnsKeys for
           this ManagedZone. If you provide a spec for keySigning or zoneSigning, you
           must also provide one for the other.
+        - default_key_specs can only be updated when the state is `off`.
         elements: dict
         required: false
         type: list
@@ -265,6 +267,7 @@ dnssecConfig:
       description:
       - Specifies the mechanism used to provide authenticated denial-of-existence
         responses.
+      - non_existence can only be updated when the state is `off`.
       returned: success
       type: str
     state:
@@ -277,6 +280,7 @@ dnssecConfig:
       - Specifies parameters that will be used for generating initial DnsKeys for
         this ManagedZone. If you provide a spec for keySigning or zoneSigning, you
         must also provide one for the other.
+      - default_key_specs can only be updated when the state is `off`.
       returned: success
       type: complex
       contains:
@@ -432,7 +436,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
+                update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -456,30 +460,9 @@ def create(module, link, kind):
     return return_if_object(module, auth.post(link, resource_to_request(module)), kind)
 
 
-def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
-    return fetch_resource(module, self_link(module), kind)
-
-
-def update_fields(module, request, response):
-    if (
-        response.get('description') != request.get('description')
-        or response.get('labels') != request.get('labels')
-        or response.get('privateVisibilityConfig') != request.get('privateVisibilityConfig')
-    ):
-        description_update(module, request, response)
-
-
-def description_update(module, request, response):
+def update(module, link, kind):
     auth = GcpSession(module, 'dns')
-    auth.patch(
-        ''.join(["https://www.googleapis.com/dns/v1/", "projects/{project}/managedZones/{name}"]).format(**module.params),
-        {
-            u'description': module.params.get('description'),
-            u'labels': module.params.get('labels'),
-            u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(module.params.get('private_visibility_config', {}), module).to_request(),
-        },
-    )
+    return return_if_object(module, auth.patch(link, resource_to_request(module)), kind)
 
 
 def delete(module, link, kind):
@@ -564,15 +547,15 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'description': response.get(u'description'),
-        u'dnsName': response.get(u'dnsName'),
+        u'dnsName': module.params.get('dns_name'),
         u'dnssecConfig': ManagedZoneDnssecconfig(response.get(u'dnssecConfig', {}), module).from_response(),
         u'id': response.get(u'id'),
-        u'name': response.get(u'name'),
+        u'name': module.params.get('name'),
         u'nameServers': response.get(u'nameServers'),
-        u'nameServerSet': response.get(u'nameServerSet'),
+        u'nameServerSet': module.params.get('name_server_set'),
         u'creationTime': response.get(u'creationTime'),
         u'labels': response.get(u'labels'),
-        u'visibility': response.get(u'visibility'),
+        u'visibility': module.params.get('visibility'),
         u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(response.get(u'privateVisibilityConfig', {}), module).from_response(),
     }
 
