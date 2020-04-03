@@ -54,6 +54,7 @@ options:
     - Whether the VLAN attachment is enabled or disabled. When using PARTNER type
       this will Pre-Activate the interconnect attachment .
     required: false
+    default: 'true'
     type: bool
     version_added: '2.9'
   interconnect:
@@ -369,7 +370,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            admin_enabled=dict(type='bool'),
+            admin_enabled=dict(default=True, type='bool'),
             interconnect=dict(type='str'),
             description=dict(type='str'),
             bandwidth=dict(type='str'),
@@ -420,8 +421,8 @@ def create(module, link, kind):
 
 
 def update(module, link, kind):
-    delete(module, self_link(module), kind)
-    create(module, collection(module), kind)
+    auth = GcpSession(module, 'compute')
+    return wait_for_operation(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
@@ -510,22 +511,22 @@ def response_to_hash(module, response):
         u'adminEnabled': response.get(u'adminEnabled'),
         u'cloudRouterIpAddress': response.get(u'cloudRouterIpAddress'),
         u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
-        u'interconnect': response.get(u'interconnect'),
+        u'interconnect': module.params.get('interconnect'),
         u'description': response.get(u'description'),
-        u'bandwidth': response.get(u'bandwidth'),
-        u'edgeAvailabilityDomain': response.get(u'edgeAvailabilityDomain'),
+        u'bandwidth': module.params.get('bandwidth'),
+        u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
         u'pairingKey': response.get(u'pairingKey'),
         u'partnerAsn': response.get(u'partnerAsn'),
         u'privateInterconnectInfo': InterconnectAttachmentPrivateinterconnectinfo(response.get(u'privateInterconnectInfo', {}), module).from_response(),
-        u'type': response.get(u'type'),
+        u'type': module.params.get('type'),
         u'state': response.get(u'state'),
         u'googleReferenceId': response.get(u'googleReferenceId'),
-        u'router': response.get(u'router'),
+        u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'id': response.get(u'id'),
-        u'name': response.get(u'name'),
-        u'candidateSubnets': response.get(u'candidateSubnets'),
-        u'vlanTag8021q': response.get(u'vlanTag8021q'),
+        u'name': module.params.get('name'),
+        u'candidateSubnets': module.params.get('candidate_subnets'),
+        u'vlanTag8021q': module.params.get('vlan_tag8021q'),
     }
 
 
