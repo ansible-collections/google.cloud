@@ -375,6 +375,12 @@ options:
       "bucketOwnerRead", "private", "projectPrivate", "publicRead"'
     required: false
     type: str
+  labels:
+    description:
+    - Labels applied to this bucket. A list of key->value pairs.
+    required: false
+    type: dict
+    version_added: '2.10'
   auth_kind:
     description:
     - The type of credential used.
@@ -794,6 +800,11 @@ predefinedDefaultObjectAcl:
   - '- "publicRead": Object owner gets OWNER access, and allUsers get READER access.'
   returned: success
   type: str
+labels:
+  description:
+  - Labels applied to this bucket. A list of key->value pairs.
+  returned: success
+  type: dict
 '''
 
 ################################################################################
@@ -885,6 +896,7 @@ def main():
             website=dict(type='dict', options=dict(main_page_suffix=dict(type='str'), not_found_page=dict(type='str'))),
             project=dict(type='str'),
             predefined_default_object_acl=dict(type='str'),
+            labels=dict(type='dict'),
         )
     )
 
