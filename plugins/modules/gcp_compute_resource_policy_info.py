@@ -242,6 +242,34 @@ resources:
               - Whether to perform a 'guest aware' snapshot.
               returned: success
               type: bool
+    groupPlacementPolicy:
+      description:
+      - Policy for creating snapshots of persistent disks.
+      returned: success
+      type: complex
+      contains:
+        vmCount:
+          description:
+          - Number of vms in this placement group.
+          returned: success
+          type: int
+        availabilityDomainCount:
+          description:
+          - The number of availability domains instances will be spread across. If
+            two instances are in different availability domain, they will not be put
+            in the same low latency network .
+          returned: success
+          type: int
+        collocation:
+          description:
+          - Collocation specifies whether to place VMs inside the same availability
+            domain on the same low-latency network.
+          - Specify `COLLOCATED` to enable collocation. Can only be specified with
+            `vm_count`. If compute instances are created with a COLLOCATED policy,
+            then exactly `vm_count` instances must be created at the same time with
+            the resource policy attached.
+          returned: success
+          type: str
     region:
       description:
       - Region where resource policy resides.

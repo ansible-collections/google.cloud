@@ -179,6 +179,35 @@ options:
             - Whether to perform a 'guest aware' snapshot.
             required: false
             type: bool
+  group_placement_policy:
+    description:
+    - Policy for creating snapshots of persistent disks.
+    required: false
+    type: dict
+    suboptions:
+      vm_count:
+        description:
+        - Number of vms in this placement group.
+        required: false
+        type: int
+      availability_domain_count:
+        description:
+        - The number of availability domains instances will be spread across. If two
+          instances are in different availability domain, they will not be put in
+          the same low latency network .
+        required: false
+        type: int
+      collocation:
+        description:
+        - Collocation specifies whether to place VMs inside the same availability
+          domain on the same low-latency network.
+        - Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`.
+          If compute instances are created with a COLLOCATED policy, then exactly
+          `vm_count` instances must be created at the same time with the resource
+          policy attached.
+        - 'Some valid choices include: "COLLOCATED"'
+        required: false
+        type: str
   region:
     description:
     - Region where resource policy resides.
@@ -362,6 +391,33 @@ snapshotSchedulePolicy:
           - Whether to perform a 'guest aware' snapshot.
           returned: success
           type: bool
+groupPlacementPolicy:
+  description:
+  - Policy for creating snapshots of persistent disks.
+  returned: success
+  type: complex
+  contains:
+    vmCount:
+      description:
+      - Number of vms in this placement group.
+      returned: success
+      type: int
+    availabilityDomainCount:
+      description:
+      - The number of availability domains instances will be spread across. If two
+        instances are in different availability domain, they will not be put in the
+        same low latency network .
+      returned: success
+      type: int
+    collocation:
+      description:
+      - Collocation specifies whether to place VMs inside the same availability domain
+        on the same low-latency network.
+      - Specify `COLLOCATED` to enable collocation. Can only be specified with `vm_count`.
+        If compute instances are created with a COLLOCATED policy, then exactly `vm_count`
+        instances must be created at the same time with the resource policy attached.
+      returned: success
+      type: str
 region:
   description:
   - Region where resource policy resides.
@@ -431,8 +487,12 @@ def main():
                     ),
                 ),
             ),
+            group_placement_policy=dict(
+                type='dict', options=dict(vm_count=dict(type='int'), availability_domain_count=dict(type='int'), collocation=dict(type='str'))
+            ),
             region=dict(required=True, type='str'),
-        )
+        ),
+        mutually_exclusive=[['group_placement_policy', 'snapshot_schedule_policy']],
     )
 
     if not module.params['scopes']:
@@ -487,6 +547,7 @@ def resource_to_request(module):
         u'region': module.params.get('region'),
         u'name': module.params.get('name'),
         u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(module.params.get('snapshot_schedule_policy', {}), module).to_request(),
+        u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(module.params.get('group_placement_policy', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -554,6 +615,7 @@ def response_to_hash(module, response):
     return {
         u'name': response.get(u'name'),
         u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(response.get(u'snapshotSchedulePolicy', {}), module).from_response(),
+        u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(response.get(u'groupPlacementPolicy', {}), module).from_response(),
     }
 
 
@@ -753,6 +815,33 @@ class ResourcePolicySnapshotproperties(object):
     def from_response(self):
         return remove_nones_from_dict(
             {u'labels': self.request.get(u'labels'), u'storageLocations': self.request.get(u'storageLocations'), u'guestFlush': self.request.get(u'guestFlush')}
+        )
+
+
+class ResourcePolicyGroupplacementpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'vmCount': self.request.get('vm_count'),
+                u'availabilityDomainCount': self.request.get('availability_domain_count'),
+                u'collocation': self.request.get('collocation'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'vmCount': self.request.get(u'vmCount'),
+                u'availabilityDomainCount': self.request.get(u'availabilityDomainCount'),
+                u'collocation': self.request.get(u'collocation'),
+            }
         )
 
 
