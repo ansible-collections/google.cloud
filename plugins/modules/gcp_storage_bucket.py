@@ -354,6 +354,12 @@ options:
           bucket as the content for a 404 Not Found result.
         required: false
         type: str
+  labels:
+    description:
+    - Labels applied to this bucket. A list of key->value pairs.
+    required: false
+    type: dict
+    version_added: '2.10'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -375,12 +381,6 @@ options:
       "bucketOwnerRead", "private", "projectPrivate", "publicRead"'
     required: false
     type: str
-  labels:
-    description:
-    - Labels applied to this bucket. A list of key->value pairs.
-    required: false
-    type: dict
-    version_added: '2.10'
   auth_kind:
     description:
     - The type of credential used.
@@ -780,6 +780,11 @@ website:
         bucket as the content for a 404 Not Found result.
       returned: success
       type: str
+labels:
+  description:
+  - Labels applied to this bucket. A list of key->value pairs.
+  returned: success
+  type: dict
 project:
   description:
   - A valid API project identifier.
@@ -800,11 +805,6 @@ predefinedDefaultObjectAcl:
   - '- "publicRead": Object owner gets OWNER access, and allUsers get READER access.'
   returned: success
   type: str
-labels:
-  description:
-  - Labels applied to this bucket. A list of key->value pairs.
-  returned: success
-  type: dict
 '''
 
 ################################################################################
@@ -894,9 +894,9 @@ def main():
             storage_class=dict(type='str'),
             versioning=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             website=dict(type='dict', options=dict(main_page_suffix=dict(type='str'), not_found_page=dict(type='str'))),
+            labels=dict(type='dict'),
             project=dict(type='str'),
             predefined_default_object_acl=dict(type='str'),
-            labels=dict(type='dict'),
         )
     )
 
@@ -964,6 +964,7 @@ def resource_to_request(module):
         u'storageClass': module.params.get('storage_class'),
         u'versioning': BucketVersioning(module.params.get('versioning', {}), module).to_request(),
         u'website': BucketWebsite(module.params.get('website', {}), module).to_request(),
+        u'labels': module.params.get('labels'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1046,6 +1047,7 @@ def response_to_hash(module, response):
         u'updated': response.get(u'updated'),
         u'versioning': BucketVersioning(response.get(u'versioning', {}), module).from_response(),
         u'website': BucketWebsite(response.get(u'website', {}), module).from_response(),
+        u'labels': response.get(u'labels'),
     }
 
 
