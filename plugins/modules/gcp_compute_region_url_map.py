@@ -872,38 +872,45 @@ options:
               https_redirect:
                 description:
                 - If set to true, the URL scheme in the redirected request is set
-                  to https. If set to false, the URL scheme of the redirected request
-                  will remain the same as that of the request. This must only be set
-                  for UrlMaps used in TargetHttpProxys.
-                - Setting this true for TargetHttpsProxy is not permitted. Defaults
-                  to false.
+                  to https.
+                - If set to false, the URL scheme of the redirected request will remain
+                  the same as that of the request. This must only be set for UrlMaps
+                  used in TargetHttpProxys. Setting this true for TargetHttpsProxy
+                  is not permitted. The default is set to false.
                 required: false
                 default: 'false'
                 type: bool
               path_redirect:
                 description:
                 - The path that will be used in the redirect response instead of the
-                  one that was supplied in the request. Only one of pathRedirect or
-                  prefixRedirect must be specified. The value must be between 1 and
-                  1024 characters.
+                  one that was supplied in the request. pathRedirect cannot be supplied
+                  together with prefixRedirect. Supply one alone or neither. If neither
+                  is supplied, the path of the original request will be used for the
+                  redirect.
+                - The value must be between 1 and 1024 characters.
                 required: false
                 type: str
               prefix_redirect:
                 description:
                 - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
                   retaining the remaining portion of the URL before redirecting the
-                  request.
+                  request. prefixRedirect cannot be supplied together with pathRedirect.
+                  Supply one alone or neither. If neither is supplied, the path of
+                  the original request will be used for the redirect. The value must
+                  be between 1 and 1024 characters.
                 required: false
                 type: str
               redirect_response_code:
                 description:
                 - 'The HTTP Status code to use for this RedirectAction. Supported
                   values are: - MOVED_PERMANENTLY_DEFAULT, which is the default value
-                  and corresponds to 301. - FOUND, which corresponds to 302. - SEE_OTHER
-                  which corresponds to 303. - TEMPORARY_REDIRECT, which corresponds
-                  to 307. In this case, the request method will be retained. - PERMANENT_REDIRECT,
-                  which corresponds to 308. In this case, the request method will
-                  be retained.'
+                  and corresponds to 301.'
+                - "- FOUND, which corresponds to 302."
+                - "- SEE_OTHER which corresponds to 303."
+                - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                  request method will be retained."
+                - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                  request method will be retained."
                 - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT",
                   "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"'
                 required: false
@@ -912,7 +919,8 @@ options:
                 description:
                 - If set to true, any accompanying query portion of the original URL
                   is removed prior to redirecting the request. If set to false, the
-                  query portion of the original URL is retained. Defaults to false.
+                  query portion of the original URL is retained. The default is set
+                  to false.
                 required: false
                 default: 'false'
                 type: bool
@@ -1355,27 +1363,32 @@ options:
               https_redirect:
                 description:
                 - If set to true, the URL scheme in the redirected request is set
-                  to https. If set to false, the URL scheme of the redirected request
-                  will remain the same as that of the request. This must only be set
-                  for UrlMaps used in TargetHttpProxys.
-                - Setting this true for TargetHttpsProxy is not permitted. Defaults
-                  to false.
+                  to https.
+                - If set to false, the URL scheme of the redirected request will remain
+                  the same as that of the request. This must only be set for UrlMaps
+                  used in TargetHttpProxys. Setting this true for TargetHttpsProxy
+                  is not permitted. The default is set to false.
                 required: false
                 default: 'false'
                 type: bool
               path_redirect:
                 description:
                 - The path that will be used in the redirect response instead of the
-                  one that was supplied in the request. Only one of pathRedirect or
-                  prefixRedirect must be specified. The value must be between 1 and
-                  1024 characters.
+                  one that was supplied in the request. pathRedirect cannot be supplied
+                  together with prefixRedirect. Supply one alone or neither. If neither
+                  is supplied, the path of the original request will be used for the
+                  redirect.
+                - The value must be between 1 and 1024 characters.
                 required: false
                 type: str
               prefix_redirect:
                 description:
                 - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
                   retaining the remaining portion of the URL before redirecting the
-                  request.
+                  request. prefixRedirect cannot be supplied together with pathRedirect.
+                  Supply one alone or neither. If neither is supplied, the path of
+                  the original request will be used for the redirect. The value must
+                  be between 1 and 1024 characters.
                 required: false
                 type: str
               redirect_response_code:
@@ -1397,8 +1410,10 @@ options:
                 description:
                 - If set to true, any accompanying query portion of the original URL
                   is removed prior to redirecting the request. If set to false, the
-                  query portion of the original URL is retained.
-                required: true
+                  query portion of the original URL is retained. The default is set
+                  to false.
+                required: false
+                default: 'false'
                 type: bool
   tests:
     description:
@@ -2292,43 +2307,52 @@ pathMatchers:
             httpsRedirect:
               description:
               - If set to true, the URL scheme in the redirected request is set to
-                https. If set to false, the URL scheme of the redirected request will
-                remain the same as that of the request. This must only be set for
-                UrlMaps used in TargetHttpProxys.
-              - Setting this true for TargetHttpsProxy is not permitted. Defaults
-                to false.
+                https.
+              - If set to false, the URL scheme of the redirected request will remain
+                the same as that of the request. This must only be set for UrlMaps
+                used in TargetHttpProxys. Setting this true for TargetHttpsProxy is
+                not permitted. The default is set to false.
               returned: success
               type: bool
             pathRedirect:
               description:
               - The path that will be used in the redirect response instead of the
-                one that was supplied in the request. Only one of pathRedirect or
-                prefixRedirect must be specified. The value must be between 1 and
-                1024 characters.
+                one that was supplied in the request. pathRedirect cannot be supplied
+                together with prefixRedirect. Supply one alone or neither. If neither
+                is supplied, the path of the original request will be used for the
+                redirect.
+              - The value must be between 1 and 1024 characters.
               returned: success
               type: str
             prefixRedirect:
               description:
               - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
                 retaining the remaining portion of the URL before redirecting the
-                request.
+                request. prefixRedirect cannot be supplied together with pathRedirect.
+                Supply one alone or neither. If neither is supplied, the path of the
+                original request will be used for the redirect. The value must be
+                between 1 and 1024 characters.
               returned: success
               type: str
             redirectResponseCode:
               description:
               - 'The HTTP Status code to use for this RedirectAction. Supported values
                 are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
-                to 301. - FOUND, which corresponds to 302. - SEE_OTHER which corresponds
-                to 303. - TEMPORARY_REDIRECT, which corresponds to 307. In this case,
-                the request method will be retained. - PERMANENT_REDIRECT, which corresponds
-                to 308. In this case, the request method will be retained.'
+                to 301.'
+              - "- FOUND, which corresponds to 302."
+              - "- SEE_OTHER which corresponds to 303."
+              - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                request method will be retained."
+              - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                request method will be retained."
               returned: success
               type: str
             stripQuery:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained. Defaults to false.
+                query portion of the original URL is retained. The default is set
+                to false.
               returned: success
               type: bool
     pathRules:
@@ -2732,26 +2756,31 @@ pathMatchers:
             httpsRedirect:
               description:
               - If set to true, the URL scheme in the redirected request is set to
-                https. If set to false, the URL scheme of the redirected request will
-                remain the same as that of the request. This must only be set for
-                UrlMaps used in TargetHttpProxys.
-              - Setting this true for TargetHttpsProxy is not permitted. Defaults
-                to false.
+                https.
+              - If set to false, the URL scheme of the redirected request will remain
+                the same as that of the request. This must only be set for UrlMaps
+                used in TargetHttpProxys. Setting this true for TargetHttpsProxy is
+                not permitted. The default is set to false.
               returned: success
               type: bool
             pathRedirect:
               description:
               - The path that will be used in the redirect response instead of the
-                one that was supplied in the request. Only one of pathRedirect or
-                prefixRedirect must be specified. The value must be between 1 and
-                1024 characters.
+                one that was supplied in the request. pathRedirect cannot be supplied
+                together with prefixRedirect. Supply one alone or neither. If neither
+                is supplied, the path of the original request will be used for the
+                redirect.
+              - The value must be between 1 and 1024 characters.
               returned: success
               type: str
             prefixRedirect:
               description:
               - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
                 retaining the remaining portion of the URL before redirecting the
-                request.
+                request. prefixRedirect cannot be supplied together with pathRedirect.
+                Supply one alone or neither. If neither is supplied, the path of the
+                original request will be used for the redirect. The value must be
+                between 1 and 1024 characters.
               returned: success
               type: str
             redirectResponseCode:
@@ -2771,7 +2800,8 @@ pathMatchers:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained.
+                query portion of the original URL is retained. The default is set
+                to false.
               returned: success
               type: bool
 tests:
@@ -3119,7 +3149,7 @@ def main():
                                     path_redirect=dict(type='str'),
                                     prefix_redirect=dict(type='str'),
                                     redirect_response_code=dict(type='str'),
-                                    strip_query=dict(required=True, type='bool'),
+                                    strip_query=dict(type='bool'),
                                 ),
                             ),
                         ),
