@@ -414,6 +414,12 @@ resources:
             try to update this value.
           returned: success
           type: int
+        userLabels:
+          description:
+          - User-provided labels, represented as a dictionary where each label is
+            a single key value pair.
+          returned: success
+          type: dict
     gceZone:
       description:
       - The Compute Engine zone that the instance is currently serving from. This
