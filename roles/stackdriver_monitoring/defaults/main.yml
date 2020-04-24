@@ -1,0 +1,20 @@
+---
+# defaults file for stackdriver_monitoring
+
+stackdriver_mon_service_name: stackdriver-agent
+stackdriver_mon_package_name: stackdriver-agent
+stackdriver_mon_repo_host: packages.cloud.google.com
+stackdriver_mon_repo_suffix: all
+
+# debian package
+stackdriver_mon_apt_repo_url: https://{{ stackdriver_mon_repo_host }}/apt
+stackdriver_mon_apt_gpg_key: "{{ stackdriver_mon_apt_repo_url }}/doc/apt-key.gpg"
+stackdriver_mon_apt_repo_name: google-cloud-monitoring-{{ ansible_lsb.codename }}-{{ stackdriver_mon_repo_suffix }}
+
+# yum package
+stackdriver_mon_yum_repo_url: https://{{ stackdriver_mon_repo_host }}/yum
+stackdriver_mon_yum_repo_name: google-cloud-monitoring-el{{ ansible_distribution_major_version }}-{{ ansible_architecture }}-{{ stackdriver_mon_repo_suffix }}
+stackdriver_mon_yum_repo: "{{ stackdriver_mon_yum_repo_url }}/repos/{{ stackdriver_mon_yum_repo_name }}"
+stackdriver_mon_yum_gpg_key:
+  - "{{ stackdriver_mon_yum_repo_url }}/doc/yum-key.gpg"
+  - "{{ stackdriver_mon_yum_repo_url }}/doc/rpm-package-key.gpg"

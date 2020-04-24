@@ -1,0 +1,5 @@
+---
+# handlers file for stackdriver_monitoring
+
+- name: Stackdriver Monitoring | Restart Stackdriver Agent
+  service: name={{ stackdriver_mon_service_name }} state=restarted
