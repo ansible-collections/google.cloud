@@ -66,8 +66,7 @@ options:
     type: str
   proxy_header:
     description:
-    - Specifies the type of proxy header to append before sending data to the backend,
-      either NONE or PROXY_V1. The default is NONE.
+    - Specifies the type of proxy header to append before sending data to the backend.
     - 'Some valid choices include: "NONE", "PROXY_V1"'
     required: false
     type: str
@@ -270,8 +269,7 @@ name:
   type: str
 proxyHeader:
   description:
-  - Specifies the type of proxy header to append before sending data to the backend,
-    either NONE or PROXY_V1. The default is NONE.
+  - Specifies the type of proxy header to append before sending data to the backend.
   returned: success
   type: str
 service:

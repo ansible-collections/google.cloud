@@ -139,8 +139,7 @@ resources:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     service:

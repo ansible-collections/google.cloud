@@ -67,17 +67,15 @@ options:
   profile:
     description:
     - Profile specifies the set of SSL features that can be used by the load balancer
-      when negotiating SSL with clients. This can be one of `COMPATIBLE`, `MODERN`,
-      `RESTRICTED`, or `CUSTOM`. If using `CUSTOM`, the set of SSL features to enable
-      must be specified in the `customFeatures` field.
+      when negotiating SSL with clients. If using `CUSTOM`, the set of SSL features
+      to enable must be specified in the `customFeatures` field.
     - 'Some valid choices include: "COMPATIBLE", "MODERN", "RESTRICTED", "CUSTOM"'
     required: false
     type: str
   min_tls_version:
     description:
     - The minimum version of SSL protocol that can be used by the clients to establish
-      a connection with the load balancer. This can be one of `TLS_1_0`, `TLS_1_1`,
-      `TLS_1_2`.
+      a connection with the load balancer.
     - 'Some valid choices include: "TLS_1_0", "TLS_1_1", "TLS_1_2"'
     required: false
     type: str
@@ -185,16 +183,14 @@ name:
 profile:
   description:
   - Profile specifies the set of SSL features that can be used by the load balancer
-    when negotiating SSL with clients. This can be one of `COMPATIBLE`, `MODERN`,
-    `RESTRICTED`, or `CUSTOM`. If using `CUSTOM`, the set of SSL features to enable
-    must be specified in the `customFeatures` field.
+    when negotiating SSL with clients. If using `CUSTOM`, the set of SSL features
+    to enable must be specified in the `customFeatures` field.
   returned: success
   type: str
 minTlsVersion:
   description:
   - The minimum version of SSL protocol that can be used by the clients to establish
-    a connection with the load balancer. This can be one of `TLS_1_0`, `TLS_1_1`,
-    `TLS_1_2`.
+    a connection with the load balancer.
   returned: success
   type: str
 enabledFeatures:

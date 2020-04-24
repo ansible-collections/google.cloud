@@ -141,8 +141,7 @@ resources:
       type: str
     networkEndpointType:
       description:
-      - Type of network endpoints in this network endpoint group. The only supported
-        value is GCE_VM_IP_PORT .
+      - Type of network endpoints in this network endpoint group.
       returned: success
       type: str
     size:

@@ -126,7 +126,7 @@ resources:
       contains:
         balancingMode:
           description:
-          - Specifies the balancing mode for this backend. Defaults to CONNECTION.
+          - Specifies the balancing mode for this backend.
           returned: success
           type: str
         capacityScaler:
@@ -268,8 +268,7 @@ resources:
       description:
       - Indicates what kind of load balancing this regional backend service will be
         used for. A backend service created for one type of load balancing cannot
-        be used with the other(s). Must be `INTERNAL` or `INTERNAL_MANAGED`. Defaults
-        to `INTERNAL`.
+        be used with the other(s).
       returned: success
       type: str
     name:
@@ -285,9 +284,8 @@ resources:
     protocol:
       description:
       - The protocol this RegionBackendService uses to communicate with backends.
-      - 'Possible values are HTTP, HTTPS, HTTP2, SSL, TCP, and UDP. The default is
-        HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and
-        may result in errors if used with the GA API.'
+      - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+        types and may result in errors if used with the GA API.'
       returned: success
       type: str
     sessionAffinity:

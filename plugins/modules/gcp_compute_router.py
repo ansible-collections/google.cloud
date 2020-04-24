@@ -88,7 +88,6 @@ options:
       advertise_mode:
         description:
         - User-specified flag to indicate which mode to use for advertisement.
-        - 'Valid values of this enum field are: DEFAULT, CUSTOM .'
         - 'Some valid choices include: "DEFAULT", "CUSTOM"'
         required: false
         default: DEFAULT
@@ -257,7 +256,6 @@ bgp:
     advertiseMode:
       description:
       - User-specified flag to indicate which mode to use for advertisement.
-      - 'Valid values of this enum field are: DEFAULT, CUSTOM .'
       returned: success
       type: str
     advertisedGroups:

@@ -58,7 +58,7 @@ options:
     suboptions:
       balancing_mode:
         description:
-        - Specifies the balancing mode for this backend. Defaults to CONNECTION.
+        - Specifies the balancing mode for this backend.
         - 'Some valid choices include: "UTILIZATION", "RATE", "CONNECTION"'
         required: false
         default: CONNECTION
@@ -185,8 +185,7 @@ options:
     description:
     - Indicates what kind of load balancing this regional backend service will be
       used for. A backend service created for one type of load balancing cannot be
-      used with the other(s). Must be `INTERNAL` or `INTERNAL_MANAGED`. Defaults to
-      `INTERNAL`.
+      used with the other(s).
     - 'Some valid choices include: "INTERNAL", "INTERNAL_MANAGED"'
     required: false
     default: INTERNAL
@@ -204,9 +203,8 @@ options:
   protocol:
     description:
     - The protocol this RegionBackendService uses to communicate with backends.
-    - 'Possible values are HTTP, HTTPS, HTTP2, SSL, TCP, and UDP. The default is HTTP.
-      **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and may result
-      in errors if used with the GA API.'
+    - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+      types and may result in errors if used with the GA API.'
     - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP"'
     required: false
     type: str
@@ -331,7 +329,7 @@ backends:
   contains:
     balancingMode:
       description:
-      - Specifies the balancing mode for this backend. Defaults to CONNECTION.
+      - Specifies the balancing mode for this backend.
       returned: success
       type: str
     capacityScaler:
@@ -470,7 +468,7 @@ loadBalancingScheme:
   description:
   - Indicates what kind of load balancing this regional backend service will be used
     for. A backend service created for one type of load balancing cannot be used with
-    the other(s). Must be `INTERNAL` or `INTERNAL_MANAGED`. Defaults to `INTERNAL`.
+    the other(s).
   returned: success
   type: str
 name:
@@ -486,9 +484,8 @@ name:
 protocol:
   description:
   - The protocol this RegionBackendService uses to communicate with backends.
-  - 'Possible values are HTTP, HTTPS, HTTP2, SSL, TCP, and UDP. The default is HTTP.
-    **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and may result
-    in errors if used with the GA API.'
+  - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+    types and may result in errors if used with the GA API.'
   returned: success
   type: str
 sessionAffinity:

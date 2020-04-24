@@ -151,7 +151,6 @@ options:
             description:
             - Specifies the behavior to apply to scheduled snapshots when the source
               disk is deleted.
-            - Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY .
             - 'Some valid choices include: "KEEP_AUTO_SNAPSHOTS", "APPLY_RETENTION_POLICY"'
             required: false
             default: KEEP_AUTO_SNAPSHOTS
@@ -366,7 +365,6 @@ snapshotSchedulePolicy:
           description:
           - Specifies the behavior to apply to scheduled snapshots when the source
             disk is deleted.
-          - Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY .
           returned: success
           type: str
     snapshotProperties:

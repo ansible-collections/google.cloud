@@ -217,7 +217,6 @@ resources:
               description:
               - Specifies the behavior to apply to scheduled snapshots when the source
                 disk is deleted.
-              - Valid options are KEEP_AUTO_SNAPSHOTS and APPLY_RETENTION_POLICY .
               returned: success
               type: str
         snapshotProperties:

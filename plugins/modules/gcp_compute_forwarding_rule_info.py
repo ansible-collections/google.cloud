@@ -160,8 +160,7 @@ resources:
       type: str
     IPProtocol:
       description:
-      - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP,
-        AH, SCTP or ICMP.
+      - The IP protocol to which this rule applies.
       - When the load balancing scheme is INTERNAL, only TCP and UDP are valid.
       returned: success
       type: str
@@ -256,9 +255,8 @@ resources:
       type: bool
     networkTier:
       description:
-      - 'The networking tier used for configuring this address. This field can take
-        the following values: PREMIUM or STANDARD. If this field is not specified,
-        it is assumed to be PREMIUM.'
+      - The networking tier used for configuring this address. If this field is not
+        specified, it is assumed to be PREMIUM.
       returned: success
       type: str
     serviceLabel:

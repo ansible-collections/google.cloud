@@ -135,8 +135,7 @@ options:
             suboptions:
               interface:
                 description:
-                - The disk interface to use for attaching this disk, one of `SCSI`
-                  or `NVME`. The default is `SCSI`.
+                - The disk interface to use for attaching this disk.
                 - 'Some valid choices include: "SCSI", "NVME"'
                 required: false
                 default: SCSI
@@ -325,8 +324,7 @@ specificReservation:
           contains:
             interface:
               description:
-              - The disk interface to use for attaching this disk, one of `SCSI` or
-                `NVME`. The default is `SCSI`.
+              - The disk interface to use for attaching this disk.
               returned: success
               type: str
             diskSizeGb:

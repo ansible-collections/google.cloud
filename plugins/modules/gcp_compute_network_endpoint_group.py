@@ -73,8 +73,7 @@ options:
     type: str
   network_endpoint_type:
     description:
-    - Type of network endpoints in this network endpoint group. The only supported
-      value is GCE_VM_IP_PORT .
+    - Type of network endpoints in this network endpoint group.
     - 'Some valid choices include: "GCE_VM_IP_PORT"'
     required: false
     default: GCE_VM_IP_PORT
@@ -222,8 +221,7 @@ description:
   type: str
 networkEndpointType:
   description:
-  - Type of network endpoints in this network endpoint group. The only supported value
-    is GCE_VM_IP_PORT .
+  - Type of network endpoints in this network endpoint group.
   returned: success
   type: str
 size:
