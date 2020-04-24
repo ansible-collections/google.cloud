@@ -356,8 +356,7 @@ resources:
       description:
       - Indicates whether the backend service will be used with internal or external
         load balancing. A backend service created for one type of load balancing cannot
-        be used with the other. Must be `EXTERNAL` or `INTERNAL_SELF_MANAGED` for
-        a global backend service. Defaults to `EXTERNAL`.
+        be used with the other.
       returned: success
       type: str
     name:
@@ -379,9 +378,8 @@ resources:
     protocol:
       description:
       - The protocol this BackendService uses to communicate with backends.
-      - 'Possible values are HTTP, HTTPS, HTTP2, TCP, and SSL. The default is HTTP.
-        **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer types and may
-        result in errors if used with the GA API.'
+      - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
+        types and may result in errors if used with the GA API.'
       returned: success
       type: str
     securityPolicy:

@@ -128,8 +128,7 @@ resources:
       type: str
     addressType:
       description:
-      - The type of address to reserve, either INTERNAL or EXTERNAL.
-      - If unspecified, defaults to EXTERNAL.
+      - The type of address to reserve.
       returned: success
       type: str
     creationTimestamp:
@@ -166,9 +165,8 @@ resources:
       type: str
     networkTier:
       description:
-      - 'The networking tier used for configuring this address. This field can take
-        the following values: PREMIUM or STANDARD. If this field is not specified,
-        it is assumed to be PREMIUM.'
+      - The networking tier used for configuring this address. If this field is not
+        specified, it is assumed to be PREMIUM.
       returned: success
       type: str
     subnetwork:

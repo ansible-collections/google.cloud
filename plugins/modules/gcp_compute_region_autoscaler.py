@@ -148,7 +148,7 @@ options:
           utilization_target_type:
             description:
             - Defines how target utilization value is expressed for a Stackdriver
-              Monitoring metric. Either GAUGE, DELTA_PER_SECOND, or DELTA_PER_MINUTE.
+              Monitoring metric.
             - 'Some valid choices include: "GAUGE", "DELTA_PER_SECOND", "DELTA_PER_MINUTE"'
             required: false
             type: str
@@ -404,7 +404,7 @@ autoscalingPolicy:
         utilizationTargetType:
           description:
           - Defines how target utilization value is expressed for a Stackdriver Monitoring
-            metric. Either GAUGE, DELTA_PER_SECOND, or DELTA_PER_MINUTE.
+            metric.
           returned: success
           type: str
     loadBalancingUtilization:

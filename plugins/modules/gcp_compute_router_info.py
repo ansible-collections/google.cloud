@@ -163,7 +163,6 @@ resources:
         advertiseMode:
           description:
           - User-specified flag to indicate which mode to use for advertisement.
-          - 'Valid values of this enum field are: DEFAULT, CUSTOM .'
           returned: success
           type: str
         advertisedGroups:

@@ -72,8 +72,7 @@ options:
     type: str
   ip_version:
     description:
-    - The IP Version that will be used by this address. Valid options are `IPV4` or
-      `IPV6`. The default value is `IPV4`.
+    - The IP Version that will be used by this address. The default value is `IPV4`.
     - 'Some valid choices include: "IPV4", "IPV6"'
     required: false
     type: str
@@ -87,7 +86,7 @@ options:
     version_added: '2.9'
   address_type:
     description:
-    - The type of the address to reserve, default is EXTERNAL.
+    - The type of the address to reserve.
     - "* EXTERNAL indicates public/external single IP address."
     - "* INTERNAL indicates internal IP ranges belonging to some network."
     - 'Some valid choices include: "EXTERNAL", "INTERNAL"'
@@ -212,8 +211,7 @@ name:
   type: str
 ipVersion:
   description:
-  - The IP Version that will be used by this address. Valid options are `IPV4` or
-    `IPV6`. The default value is `IPV4`.
+  - The IP Version that will be used by this address. The default value is `IPV4`.
   returned: success
   type: str
 region:
@@ -230,7 +228,7 @@ prefixLength:
   type: int
 addressType:
   description:
-  - The type of the address to reserve, default is EXTERNAL.
+  - The type of the address to reserve.
   - "* EXTERNAL indicates public/external single IP address."
   - "* INTERNAL indicates internal IP ranges belonging to some network."
   returned: success

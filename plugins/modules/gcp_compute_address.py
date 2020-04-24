@@ -66,8 +66,7 @@ options:
     type: str
   address_type:
     description:
-    - The type of address to reserve, either INTERNAL or EXTERNAL.
-    - If unspecified, defaults to EXTERNAL.
+    - The type of address to reserve.
     - 'Some valid choices include: "INTERNAL", "EXTERNAL"'
     required: false
     default: EXTERNAL
@@ -99,9 +98,8 @@ options:
     version_added: '2.10'
   network_tier:
     description:
-    - 'The networking tier used for configuring this address. This field can take
-      the following values: PREMIUM or STANDARD. If this field is not specified, it
-      is assumed to be PREMIUM.'
+    - The networking tier used for configuring this address. If this field is not
+      specified, it is assumed to be PREMIUM.
     - 'Some valid choices include: "PREMIUM", "STANDARD"'
     required: false
     type: str
@@ -200,8 +198,7 @@ address:
   type: str
 addressType:
   description:
-  - The type of address to reserve, either INTERNAL or EXTERNAL.
-  - If unspecified, defaults to EXTERNAL.
+  - The type of address to reserve.
   returned: success
   type: str
 creationTimestamp:
@@ -238,9 +235,8 @@ purpose:
   type: str
 networkTier:
   description:
-  - 'The networking tier used for configuring this address. This field can take the
-    following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
-    to be PREMIUM.'
+  - The networking tier used for configuring this address. If this field is not specified,
+    it is assumed to be PREMIUM.
   returned: success
   type: str
 subnetwork:

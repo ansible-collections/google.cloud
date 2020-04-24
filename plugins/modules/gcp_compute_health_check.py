@@ -152,7 +152,7 @@ options:
       proxy_header:
         description:
         - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
+          backend.
         - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
@@ -214,7 +214,7 @@ options:
       proxy_header:
         description:
         - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
+          backend.
         - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
@@ -269,7 +269,7 @@ options:
       proxy_header:
         description:
         - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
+          backend.
         - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
@@ -324,7 +324,7 @@ options:
       proxy_header:
         description:
         - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
+          backend.
         - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
@@ -387,7 +387,7 @@ options:
       proxy_header:
         description:
         - Specifies the type of proxy header to append before sending data to the
-          backend, either NONE or PROXY_V1. The default is NONE.
+          backend.
         - 'Some valid choices include: "NONE", "PROXY_V1"'
         required: false
         default: NONE
@@ -574,8 +574,7 @@ httpHealthCheck:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     portSpecification:
@@ -630,8 +629,7 @@ httpsHealthCheck:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     portSpecification:
@@ -680,8 +678,7 @@ tcpHealthCheck:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     portSpecification:
@@ -730,8 +727,7 @@ sslHealthCheck:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     portSpecification:
@@ -786,8 +782,7 @@ http2HealthCheck:
       type: str
     proxyHeader:
       description:
-      - Specifies the type of proxy header to append before sending data to the backend,
-        either NONE or PROXY_V1. The default is NONE.
+      - Specifies the type of proxy header to append before sending data to the backend.
       returned: success
       type: str
     portSpecification:

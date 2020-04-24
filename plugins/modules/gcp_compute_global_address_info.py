@@ -145,8 +145,7 @@ resources:
       type: str
     ipVersion:
       description:
-      - The IP Version that will be used by this address. Valid options are `IPV4`
-        or `IPV6`. The default value is `IPV4`.
+      - The IP Version that will be used by this address. The default value is `IPV4`.
       returned: success
       type: str
     region:
@@ -163,7 +162,7 @@ resources:
       type: int
     addressType:
       description:
-      - The type of the address to reserve, default is EXTERNAL.
+      - The type of the address to reserve.
       - "* EXTERNAL indicates public/external single IP address."
       - "* INTERNAL indicates internal IP ranges belonging to some network."
       returned: success

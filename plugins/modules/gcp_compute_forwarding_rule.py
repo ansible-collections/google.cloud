@@ -81,8 +81,7 @@ options:
     type: str
   ip_protocol:
     description:
-    - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP,
-      AH, SCTP or ICMP.
+    - The IP protocol to which this rule applies.
     - When the load balancing scheme is INTERNAL, only TCP and UDP are valid.
     - 'Some valid choices include: "TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"'
     required: false
@@ -197,9 +196,8 @@ options:
     version_added: '2.8'
   network_tier:
     description:
-    - 'The networking tier used for configuring this address. This field can take
-      the following values: PREMIUM or STANDARD. If this field is not specified, it
-      is assumed to be PREMIUM.'
+    - The networking tier used for configuring this address. If this field is not
+      specified, it is assumed to be PREMIUM.
     - 'Some valid choices include: "PREMIUM", "STANDARD"'
     required: false
     type: str
@@ -352,8 +350,7 @@ IPAddress:
   type: str
 IPProtocol:
   description:
-  - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP, AH,
-    SCTP or ICMP.
+  - The IP protocol to which this rule applies.
   - When the load balancing scheme is INTERNAL, only TCP and UDP are valid.
   returned: success
   type: str
@@ -446,9 +443,8 @@ allPorts:
   type: bool
 networkTier:
   description:
-  - 'The networking tier used for configuring this address. This field can take the
-    following values: PREMIUM or STANDARD. If this field is not specified, it is assumed
-    to be PREMIUM.'
+  - The networking tier used for configuring this address. If this field is not specified,
+    it is assumed to be PREMIUM.
   returned: success
   type: str
 serviceLabel:

@@ -69,8 +69,7 @@ options:
     - Specifies the QUIC override policy for this resource. This determines whether
       the load balancer will attempt to negotiate QUIC with clients or not. Can specify
       one of NONE, ENABLE, or DISABLE. If NONE is specified, uses the QUIC policy
-      with no user overrides, which is equivalent to DISABLE. Not specifying this
-      field is equivalent to specifying NONE.
+      with no user overrides, which is equivalent to DISABLE.
     - 'Some valid choices include: "NONE", "ENABLE", "DISABLE"'
     required: false
     type: str
@@ -283,8 +282,7 @@ quicOverride:
   - Specifies the QUIC override policy for this resource. This determines whether
     the load balancer will attempt to negotiate QUIC with clients or not. Can specify
     one of NONE, ENABLE, or DISABLE. If NONE is specified, uses the QUIC policy with
-    no user overrides, which is equivalent to DISABLE. Not specifying this field is
-    equivalent to specifying NONE.
+    no user overrides, which is equivalent to DISABLE.
   returned: success
   type: str
 sslCertificates:

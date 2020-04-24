@@ -83,16 +83,14 @@ options:
     type: str
   ip_protocol:
     description:
-    - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP,
-      AH, SCTP or ICMP. When the load balancing scheme is INTERNAL_SELF_MANAGED, only
-      TCP is valid.
+    - The IP protocol to which this rule applies. When the load balancing scheme is
+      INTERNAL_SELF_MANAGED, only TCP is valid.
     - 'Some valid choices include: "TCP", "UDP", "ESP", "AH", "SCTP", "ICMP"'
     required: false
     type: str
   ip_version:
     description:
     - The IP Version that will be used by this global forwarding rule.
-    - Valid options are IPV4 or IPV6.
     - 'Some valid choices include: "IPV4", "IPV6"'
     required: false
     type: str
@@ -363,15 +361,13 @@ IPAddress:
   type: str
 IPProtocol:
   description:
-  - The IP protocol to which this rule applies. Valid options are TCP, UDP, ESP, AH,
-    SCTP or ICMP. When the load balancing scheme is INTERNAL_SELF_MANAGED, only TCP
-    is valid.
+  - The IP protocol to which this rule applies. When the load balancing scheme is
+    INTERNAL_SELF_MANAGED, only TCP is valid.
   returned: success
   type: str
 ipVersion:
   description:
   - The IP Version that will be used by this global forwarding rule.
-  - Valid options are IPV4 or IPV6.
   returned: success
   type: str
 loadBalancingScheme:

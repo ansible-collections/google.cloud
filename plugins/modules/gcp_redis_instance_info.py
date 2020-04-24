@@ -125,8 +125,7 @@ resources:
       type: str
     connectMode:
       description:
-      - The connection mode of the Redis instance. Can be either `DIRECT_PEERING`
-        or `PRIVATE_SERVICE_ACCESS`. The default connect mode if not provided is `DIRECT_PEERING`.
+      - The connection mode of the Redis instance.
       returned: success
       type: str
     createTime:
