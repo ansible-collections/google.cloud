@@ -51,13 +51,19 @@ options:
     type: str
   default_service:
     description:
-    - A reference to RegionBackendService resource if none of the hostRules match.
+    - The full or partial URL of the defaultService resource to which traffic is directed
+      if none of the hostRules match. If defaultRouteAction is additionally specified,
+      advanced routing actions like URL Rewrites, etc. take effect prior to sending
+      the request to the backend. However, if defaultService is specified, defaultRouteAction
+      cannot contain any weightedBackendServices. Conversely, if routeAction specifies
+      any weightedBackendServices, service must not be specified. Only one of defaultService,
+      defaultUrlRedirect or defaultRouteAction.weightedBackendService must be set.
     - 'This field represents a link to a RegionBackendService resource in GCP. It
       can be specified in two ways. First, you can place a dictionary with key ''selfLink''
       and value of your resource''s selfLink Alternatively, you can add `register:
       name-of-resource` to a gcp_compute_region_backend_service task and then set
       this default_service field to "{{ name-of-resource }}"'
-    required: true
+    required: false
     type: dict
   description:
     description:
@@ -1410,11 +1416,77 @@ options:
                 description:
                 - If set to true, any accompanying query portion of the original URL
                   is removed prior to redirecting the request. If set to false, the
-                  query portion of the original URL is retained. The default is set
-                  to false.
+                  query portion of the original URL is retained.
                 required: false
                 default: 'false'
                 type: bool
+      default_url_redirect:
+        description:
+        - When none of the specified hostRules match, the request is redirected to
+          a URL specified by defaultUrlRedirect. If defaultUrlRedirect is specified,
+          defaultService or defaultRouteAction must not be set.
+        required: false
+        type: dict
+        suboptions:
+          host_redirect:
+            description:
+            - The host that will be used in the redirect response instead of the one
+              that was supplied in the request. The value must be between 1 and 255
+              characters.
+            required: false
+            type: str
+          https_redirect:
+            description:
+            - If set to true, the URL scheme in the redirected request is set to https.
+              If set to false, the URL scheme of the redirected request will remain
+              the same as that of the request. This must only be set for UrlMaps used
+              in TargetHttpProxys. Setting this true for TargetHttpsProxy is not permitted.
+              The default is set to false.
+            required: false
+            default: 'false'
+            type: bool
+          path_redirect:
+            description:
+            - The path that will be used in the redirect response instead of the one
+              that was supplied in the request. pathRedirect cannot be supplied together
+              with prefixRedirect. Supply one alone or neither. If neither is supplied,
+              the path of the original request will be used for the redirect. The
+              value must be between 1 and 1024 characters.
+            required: false
+            type: str
+          prefix_redirect:
+            description:
+            - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+              retaining the remaining portion of the URL before redirecting the request.
+            - prefixRedirect cannot be supplied together with pathRedirect. Supply
+              one alone or neither. If neither is supplied, the path of the original
+              request will be used for the redirect. The value must be between 1 and
+              1024 characters.
+            required: false
+            type: str
+          redirect_response_code:
+            description:
+            - 'The HTTP Status code to use for this RedirectAction. Supported values
+              are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+              to 301.'
+            - "- FOUND, which corresponds to 302."
+            - "- SEE_OTHER which corresponds to 303."
+            - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+              method will be retained."
+            - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+              method will be retained."
+            - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT",
+              "SEE_OTHER", "TEMPORARY_REDIRECT"'
+            required: false
+            type: str
+          strip_query:
+            description:
+            - If set to true, any accompanying query portion of the original URL is
+              removed prior to redirecting the request. If set to false, the query
+              portion of the original URL is retained. The default is set to false.
+            required: false
+            default: 'false'
+            type: bool
   tests:
     description:
     - The list of expected URL mappings. Requests to update this UrlMap will succeed
@@ -1449,6 +1521,71 @@ options:
           task and then set this service field to "{{ name-of-resource }}"'
         required: true
         type: dict
+  default_url_redirect:
+    description:
+    - When none of the specified hostRules match, the request is redirected to a URL
+      specified by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService
+      or defaultRouteAction must not be set.
+    required: false
+    type: dict
+    suboptions:
+      host_redirect:
+        description:
+        - The host that will be used in the redirect response instead of the one that
+          was supplied in the request. The value must be between 1 and 255 characters.
+        required: false
+        type: str
+      https_redirect:
+        description:
+        - If set to true, the URL scheme in the redirected request is set to https.
+          If set to false, the URL scheme of the redirected request will remain the
+          same as that of the request. This must only be set for UrlMaps used in TargetHttpProxys.
+          Setting this true for TargetHttpsProxy is not permitted. The default is
+          set to false.
+        required: false
+        default: 'false'
+        type: bool
+      path_redirect:
+        description:
+        - The path that will be used in the redirect response instead of the one that
+          was supplied in the request. pathRedirect cannot be supplied together with
+          prefixRedirect. Supply one alone or neither. If neither is supplied, the
+          path of the original request will be used for the redirect. The value must
+          be between 1 and 1024 characters.
+        required: false
+        type: str
+      prefix_redirect:
+        description:
+        - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+          retaining the remaining portion of the URL before redirecting the request.
+        - prefixRedirect cannot be supplied together with pathRedirect. Supply one
+          alone or neither. If neither is supplied, the path of the original request
+          will be used for the redirect. The value must be between 1 and 1024 characters.
+        required: false
+        type: str
+      redirect_response_code:
+        description:
+        - 'The HTTP Status code to use for this RedirectAction. Supported values are:
+          - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+          to 301.'
+        - "- FOUND, which corresponds to 302."
+        - "- SEE_OTHER which corresponds to 303."
+        - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+          method will be retained."
+        - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+          method will be retained."
+        - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT",
+          "SEE_OTHER", "TEMPORARY_REDIRECT"'
+        required: false
+        type: str
+      strip_query:
+        description:
+        - If set to true, any accompanying query portion of the original URL is removed
+          prior to redirecting the request. If set to false, the query portion of
+          the original URL is retained. The default is set to false.
+        required: false
+        default: 'false'
+        type: bool
   region:
     description:
     - A reference to the region where the url map resides.
@@ -1540,7 +1677,13 @@ creationTimestamp:
   type: str
 defaultService:
   description:
-  - A reference to RegionBackendService resource if none of the hostRules match.
+  - The full or partial URL of the defaultService resource to which traffic is directed
+    if none of the hostRules match. If defaultRouteAction is additionally specified,
+    advanced routing actions like URL Rewrites, etc. take effect prior to sending
+    the request to the backend. However, if defaultService is specified, defaultRouteAction
+    cannot contain any weightedBackendServices. Conversely, if routeAction specifies
+    any weightedBackendServices, service must not be specified. Only one of defaultService,
+    defaultUrlRedirect or defaultRouteAction.weightedBackendService must be set.
   returned: success
   type: dict
 description:
@@ -2800,10 +2943,71 @@ pathMatchers:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained. The default is set
-                to false.
+                query portion of the original URL is retained.
               returned: success
               type: bool
+    defaultUrlRedirect:
+      description:
+      - When none of the specified hostRules match, the request is redirected to a
+        URL specified by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService
+        or defaultRouteAction must not be set.
+      returned: success
+      type: complex
+      contains:
+        hostRedirect:
+          description:
+          - The host that will be used in the redirect response instead of the one
+            that was supplied in the request. The value must be between 1 and 255
+            characters.
+          returned: success
+          type: str
+        httpsRedirect:
+          description:
+          - If set to true, the URL scheme in the redirected request is set to https.
+            If set to false, the URL scheme of the redirected request will remain
+            the same as that of the request. This must only be set for UrlMaps used
+            in TargetHttpProxys. Setting this true for TargetHttpsProxy is not permitted.
+            The default is set to false.
+          returned: success
+          type: bool
+        pathRedirect:
+          description:
+          - The path that will be used in the redirect response instead of the one
+            that was supplied in the request. pathRedirect cannot be supplied together
+            with prefixRedirect. Supply one alone or neither. If neither is supplied,
+            the path of the original request will be used for the redirect. The value
+            must be between 1 and 1024 characters.
+          returned: success
+          type: str
+        prefixRedirect:
+          description:
+          - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+            retaining the remaining portion of the URL before redirecting the request.
+          - prefixRedirect cannot be supplied together with pathRedirect. Supply one
+            alone or neither. If neither is supplied, the path of the original request
+            will be used for the redirect. The value must be between 1 and 1024 characters.
+          returned: success
+          type: str
+        redirectResponseCode:
+          description:
+          - 'The HTTP Status code to use for this RedirectAction. Supported values
+            are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+            to 301.'
+          - "- FOUND, which corresponds to 302."
+          - "- SEE_OTHER which corresponds to 303."
+          - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+            method will be retained."
+          - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+            method will be retained."
+          returned: success
+          type: str
+        stripQuery:
+          description:
+          - If set to true, any accompanying query portion of the original URL is
+            removed prior to redirecting the request. If set to false, the query portion
+            of the original URL is retained. The default is set to false.
+          returned: success
+          type: bool
 tests:
   description:
   - The list of expected URL mappings. Requests to update this UrlMap will succeed
@@ -2832,6 +3036,67 @@ tests:
         be mapped to.
       returned: success
       type: dict
+defaultUrlRedirect:
+  description:
+  - When none of the specified hostRules match, the request is redirected to a URL
+    specified by defaultUrlRedirect. If defaultUrlRedirect is specified, defaultService
+    or defaultRouteAction must not be set.
+  returned: success
+  type: complex
+  contains:
+    hostRedirect:
+      description:
+      - The host that will be used in the redirect response instead of the one that
+        was supplied in the request. The value must be between 1 and 255 characters.
+      returned: success
+      type: str
+    httpsRedirect:
+      description:
+      - If set to true, the URL scheme in the redirected request is set to https.
+        If set to false, the URL scheme of the redirected request will remain the
+        same as that of the request. This must only be set for UrlMaps used in TargetHttpProxys.
+        Setting this true for TargetHttpsProxy is not permitted. The default is set
+        to false.
+      returned: success
+      type: bool
+    pathRedirect:
+      description:
+      - The path that will be used in the redirect response instead of the one that
+        was supplied in the request. pathRedirect cannot be supplied together with
+        prefixRedirect. Supply one alone or neither. If neither is supplied, the path
+        of the original request will be used for the redirect. The value must be between
+        1 and 1024 characters.
+      returned: success
+      type: str
+    prefixRedirect:
+      description:
+      - The prefix that replaces the prefixMatch specified in the HttpRouteRuleMatch,
+        retaining the remaining portion of the URL before redirecting the request.
+      - prefixRedirect cannot be supplied together with pathRedirect. Supply one alone
+        or neither. If neither is supplied, the path of the original request will
+        be used for the redirect. The value must be between 1 and 1024 characters.
+      returned: success
+      type: str
+    redirectResponseCode:
+      description:
+      - 'The HTTP Status code to use for this RedirectAction. Supported values are:
+        - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to
+        301.'
+      - "- FOUND, which corresponds to 302."
+      - "- SEE_OTHER which corresponds to 303."
+      - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+        method will be retained."
+      - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+        method will be retained."
+      returned: success
+      type: str
+    stripQuery:
+      description:
+      - If set to true, any accompanying query portion of the original URL is removed
+        prior to redirecting the request. If set to false, the query portion of the
+        original URL is retained. The default is set to false.
+      returned: success
+      type: bool
 region:
   description:
   - A reference to the region where the url map resides.
@@ -2865,7 +3130,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            default_service=dict(required=True, type='dict'),
+            default_service=dict(type='dict'),
             description=dict(type='str'),
             host_rules=dict(
                 type='list',
@@ -3154,6 +3419,17 @@ def main():
                             ),
                         ),
                     ),
+                    default_url_redirect=dict(
+                        type='dict',
+                        options=dict(
+                            host_redirect=dict(type='str'),
+                            https_redirect=dict(type='bool'),
+                            path_redirect=dict(type='str'),
+                            prefix_redirect=dict(type='str'),
+                            redirect_response_code=dict(type='str'),
+                            strip_query=dict(type='bool'),
+                        ),
+                    ),
                 ),
             ),
             tests=dict(
@@ -3164,6 +3440,17 @@ def main():
                     host=dict(required=True, type='str'),
                     path=dict(required=True, type='str'),
                     service=dict(required=True, type='dict'),
+                ),
+            ),
+            default_url_redirect=dict(
+                type='dict',
+                options=dict(
+                    host_redirect=dict(type='str'),
+                    https_redirect=dict(type='bool'),
+                    path_redirect=dict(type='str'),
+                    prefix_redirect=dict(type='str'),
+                    redirect_response_code=dict(type='str'),
+                    strip_query=dict(type='bool'),
                 ),
             ),
             region=dict(required=True, type='str'),
@@ -3225,6 +3512,7 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'pathMatchers': RegionUrlMapPathmatchersArray(module.params.get('path_matchers', []), module).to_request(),
         u'tests': RegionUrlMapTestsArray(module.params.get('tests', []), module).to_request(),
+        u'defaultUrlRedirect': RegionUrlMapDefaulturlredirect(module.params.get('default_url_redirect', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -3299,6 +3587,7 @@ def response_to_hash(module, response):
         u'name': module.params.get('name'),
         u'pathMatchers': RegionUrlMapPathmatchersArray(response.get(u'pathMatchers', []), module).from_response(),
         u'tests': RegionUrlMapTestsArray(response.get(u'tests', []), module).from_response(),
+        u'defaultUrlRedirect': RegionUrlMapDefaulturlredirect(response.get(u'defaultUrlRedirect', {}), module).from_response(),
     }
 
 
@@ -3392,6 +3681,7 @@ class RegionUrlMapPathmatchersArray(object):
                 u'name': item.get('name'),
                 u'routeRules': RegionUrlMapRouterulesArray(item.get('route_rules', []), self.module).to_request(),
                 u'pathRules': RegionUrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request(),
+                u'defaultUrlRedirect': RegionUrlMapDefaulturlredirect(item.get('default_url_redirect', {}), self.module).to_request(),
             }
         )
 
@@ -3403,6 +3693,7 @@ class RegionUrlMapPathmatchersArray(object):
                 u'name': item.get(u'name'),
                 u'routeRules': RegionUrlMapRouterulesArray(item.get(u'routeRules', []), self.module).from_response(),
                 u'pathRules': RegionUrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response(),
+                u'defaultUrlRedirect': RegionUrlMapDefaulturlredirect(item.get(u'defaultUrlRedirect', {}), self.module).from_response(),
             }
         )
 
@@ -4588,6 +4879,39 @@ class RegionUrlMapUrlredirect(object):
         )
 
 
+class RegionUrlMapDefaulturlredirect(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get('host_redirect'),
+                u'httpsRedirect': self.request.get('https_redirect'),
+                u'pathRedirect': self.request.get('path_redirect'),
+                u'prefixRedirect': self.request.get('prefix_redirect'),
+                u'redirectResponseCode': self.request.get('redirect_response_code'),
+                u'stripQuery': self.request.get('strip_query'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get(u'hostRedirect'),
+                u'httpsRedirect': self.request.get(u'httpsRedirect'),
+                u'pathRedirect': self.request.get(u'pathRedirect'),
+                u'prefixRedirect': self.request.get(u'prefixRedirect'),
+                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
+                u'stripQuery': self.request.get(u'stripQuery'),
+            }
+        )
+
+
 class RegionUrlMapTestsArray(object):
     def __init__(self, request, module):
         self.module = module
@@ -4621,6 +4945,39 @@ class RegionUrlMapTestsArray(object):
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {u'description': item.get(u'description'), u'host': item.get(u'host'), u'path': item.get(u'path'), u'service': item.get(u'service')}
+        )
+
+
+class RegionUrlMapDefaulturlredirect(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get('host_redirect'),
+                u'httpsRedirect': self.request.get('https_redirect'),
+                u'pathRedirect': self.request.get('path_redirect'),
+                u'prefixRedirect': self.request.get('prefix_redirect'),
+                u'redirectResponseCode': self.request.get('redirect_response_code'),
+                u'stripQuery': self.request.get('strip_query'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'hostRedirect': self.request.get(u'hostRedirect'),
+                u'httpsRedirect': self.request.get(u'httpsRedirect'),
+                u'pathRedirect': self.request.get(u'pathRedirect'),
+                u'prefixRedirect': self.request.get(u'prefixRedirect'),
+                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
+                u'stripQuery': self.request.get(u'stripQuery'),
+            }
         )
 
 
