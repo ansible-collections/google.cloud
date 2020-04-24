@@ -1,0 +1,26 @@
+---
+# defaults file for stackdriver_logging
+
+stackdriver_log_service_name: google-fluentd
+stackdriver_log_package_name: google-fluentd
+stackdriver_log_config_type: unstructured
+stackdriver_log_config_name: "{{ 'google-fluentd-catch-all-config' if stackdriver_log_config_type == 'unstructured' \
+  else 'google-fluentd-catch-all-config-structured' }}"
+stackdriver_log_catch_all_conf: true
+stackdriver_log_repo_host: packages.cloud.google.com
+stackdriver_log_repo_suffix_value: "{{ '-' ~ stackdriver_log_repo_suffix if stackdriver_log_repo_suffix is defined else '' }}"
+
+# debian package
+stackdriver_log_apt_repo_url: https://{{ stackdriver_log_repo_host }}/apt
+stackdriver_log_apt_gpg_key: "{{ stackdriver_log_apt_repo_url }}/doc/apt-key.gpg"
+stackdriver_log_apt_repo_name: >-
+  google-cloud-logging-wheezy{{ stackdriver_log_repo_suffix_value }}
+
+# yum package
+stackdriver_log_yum_repo_url: https://{{ stackdriver_log_repo_host }}/yum
+stackdriver_log_yum_repo_name: >-
+  google-cloud-monitoring-el{{ ansible_distribution_major_version }}-{{ ansible_architecture }}{{ stackdriver_log_repo_suffix_value }}
+stackdriver_log_yum_repo: "{{ stackdriver_log_yum_repo_url }}/repos/{{ stackdriver_log_yum_repo_name }}"
+stackdriver_log_yum_gpg_key:
+  - "{{ stackdriver_log_yum_repo_url }}/doc/yum-key.gpg"
+  - "{{ stackdriver_log_yum_repo_url }}/doc/rpm-package-key.gpg"

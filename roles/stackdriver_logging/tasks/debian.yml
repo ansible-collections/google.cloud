@@ -1,0 +1,25 @@
+---
+- name: Stackdriver Logging | Debian | Add the Stackdriver repository
+  apt_repository:
+    repo: "deb {{ stackdriver_log_apt_repo_url }} {{ stackdriver_log_apt_repo_name }} main"
+    filename: google-cloud-logging
+    state: present
+
+- name: Stackdriver Logging | Debian | Ensure Stackdriver's GPG key is available.
+  apt_key:
+    url: "{{ stackdriver_log_apt_repo_url }}/doc/apt-key.gpg"
+    state: present
+
+- name: Stackdriver Logging | Debian | Install the Stackdriver agent
+  apt:
+    name: "{{ stackdriver_log_package_name }}"
+    state: present
+    update_cache: yes
+  notify: Stackdriver Logging | Restart Stackdriver Agent
+
+- name: Stackdriver Logging | Debian | Install the Stackdriver catch all config
+  apt:
+    name: "{{ stackdriver_log_config_name }}"
+    state: present
+    update_cache: yes
+  when: stackdriver_log_catch_all_conf
