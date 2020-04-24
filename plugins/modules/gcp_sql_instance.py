@@ -325,6 +325,13 @@ options:
             - Define the backup start time in UTC (HH:MM) .
             required: false
             type: str
+      user_labels:
+        description:
+        - User-provided labels, represented as a dictionary where each label is a
+          single key value pair.
+        required: false
+        type: dict
+        version_added: '2.10'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -687,6 +694,12 @@ settings:
         this value.
       returned: success
       type: int
+    userLabels:
+      description:
+      - User-provided labels, represented as a dictionary where each label is a single
+        key value pair.
+      returned: success
+      type: dict
 gceZone:
   description:
   - The Compute Engine zone that the instance is currently serving from. This value
@@ -779,6 +792,7 @@ def main():
                     backup_configuration=dict(
                         type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'))
                     ),
+                    user_labels=dict(type='dict'),
                 ),
             ),
         )
@@ -1095,6 +1109,7 @@ class InstanceSettings(object):
                 u'tier': self.request.get('tier'),
                 u'availabilityType': self.request.get('availability_type'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get('backup_configuration', {}), self.module).to_request(),
+                u'userLabels': self.request.get('user_labels'),
             }
         )
 
@@ -1106,6 +1121,7 @@ class InstanceSettings(object):
                 u'tier': self.request.get(u'tier'),
                 u'availabilityType': self.request.get(u'availabilityType'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get(u'backupConfiguration', {}), self.module).from_response(),
+                u'userLabels': self.request.get(u'userLabels'),
             }
         )
 
