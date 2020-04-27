@@ -23,8 +23,7 @@
   gcp_compute_backend_service:
       name: "{{ gcp_http_lb_backendservice }}"
       backends:
-      - group:
-          selfLink: "{{ gcp_http_lb_backend }}"
+      - group: "{{ gcp_http_lb_backend.selfLink }}"
       health_checks:
       - "{{ healthcheck.selfLink }}"
       enable_cdn: "{{ gcp_http_lb_cdn }}"
