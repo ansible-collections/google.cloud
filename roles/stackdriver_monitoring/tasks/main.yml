@@ -1,0 +1,5 @@
+---
+# tasks file for stackdriver_monitoring
+
+- name: Stackdriver Monitoring | OS Based Installation
+  include_tasks: "{{ ansible_os_family|lower }}.yml"

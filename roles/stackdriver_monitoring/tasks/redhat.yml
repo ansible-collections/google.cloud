@@ -1,0 +1,21 @@
+---
+- name: Stackdriver Monitoring | RedHat | Install the Python bindings for SELinux
+  yum: name=libselinux-python state=present
+
+- name: Stackdriver Monitoring | RedHat | Add the Stackdriver repository
+  yum_repository:
+    name: google-cloud-monitoring
+    description: Google Cloud Monitoring Agent Repository
+    baseurl: "{{ stackdriver_mon_yum_repo }}"
+    file: google-cloud-monitoring
+    enabled: yes
+    gpgcheck: yes
+    repo_gpgcheck: yes
+    gpgkey: "{{ stackdriver_mon_yum_gpg_key }}"
+
+
+- name: Stackdriver Monitoring | RedHat | Install Stackdriver agent
+  yum:
+    name: "{{ stackdriver_mon_package_name }}"
+    state: present
+  notify: Stackdriver Monitoring | Restart Stackdriver Agent
