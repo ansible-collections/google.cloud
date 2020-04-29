@@ -118,7 +118,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/beta/regionTargetHttpProxies)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/regionTargetHttpProxies)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/http/target-proxies)'
 - for authentication, you can set service_account_file using the C(gcp_service_account_file)
   env variable.

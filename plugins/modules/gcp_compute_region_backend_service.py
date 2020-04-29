@@ -49,6 +49,14 @@ options:
     - absent
     default: present
     type: str
+  affinity_cookie_ttl_sec:
+    description:
+    - Lifetime of cookies in seconds if session_affinity is GENERATED_COOKIE. If set
+      to 0, the cookie is non-persistent and lasts only until the end of the browser
+      session (or equivalent). The maximum allowed value for TTL is one day.
+    - When the load balancing scheme is INTERNAL, this field is not used.
+    required: false
+    type: int
   backends:
     description:
     - The set of backends that serve this RegionBackendService.
@@ -80,6 +88,12 @@ options:
         - Provide this property when you create the resource.
         required: false
         type: str
+      failover:
+        description:
+        - This field designates whether this is a failover backend. More than one
+          failover backend can be configured for a given RegionBackendService.
+        required: false
+        type: bool
       group:
         description:
         - The fully-qualified URL of an Instance Group or Network Endpoint Group resource.
@@ -156,6 +170,117 @@ options:
         - Cannot be set for INTERNAL backend services.
         required: false
         type: str
+  circuit_breakers:
+    description:
+    - Settings controlling the volume of connections to a backend service. This field
+      is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+      and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+    required: false
+    type: dict
+    suboptions:
+      max_requests_per_connection:
+        description:
+        - Maximum requests for a single backend connection. This parameter is respected
+          by both the HTTP/1.1 and HTTP/2 implementations. If not specified, there
+          is no limit. Setting this parameter to 1 will effectively disable keep alive.
+        required: false
+        type: int
+      max_connections:
+        description:
+        - The maximum number of connections to the backend cluster.
+        - Defaults to 1024.
+        required: false
+        default: '1024'
+        type: int
+      max_pending_requests:
+        description:
+        - The maximum number of pending requests to the backend cluster.
+        - Defaults to 1024.
+        required: false
+        default: '1024'
+        type: int
+      max_requests:
+        description:
+        - The maximum number of parallel requests to the backend cluster.
+        - Defaults to 1024.
+        required: false
+        default: '1024'
+        type: int
+      max_retries:
+        description:
+        - The maximum number of parallel retries to the backend cluster.
+        - Defaults to 3.
+        required: false
+        default: '3'
+        type: int
+  consistent_hash:
+    description:
+    - Consistent Hash-based load balancing can be used to provide soft session affinity
+      based on HTTP headers, cookies or other properties. This load balancing policy
+      is applicable only for HTTP connections. The affinity to a particular destination
+      host will be lost when one or more hosts are added/removed from the destination
+      service. This field specifies parameters that control consistent hashing.
+    - This field only applies when all of the following are true - * `load_balancing_scheme`
+      is set to INTERNAL_MANAGED * `protocol` is set to HTTP, HTTPS, or HTTP2 * `locality_lb_policy`
+      is set to MAGLEV or RING_HASH .
+    required: false
+    type: dict
+    suboptions:
+      http_cookie:
+        description:
+        - Hash is based on HTTP Cookie. This field describes a HTTP cookie that will
+          be used as the hash key for the consistent hash load balancer. If the cookie
+          is not present, it will be generated.
+        - This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
+        required: false
+        type: dict
+        suboptions:
+          ttl:
+            description:
+            - Lifetime of the cookie.
+            required: false
+            type: dict
+            suboptions:
+              seconds:
+                description:
+                - Span of time at a resolution of a second.
+                - Must be from 0 to 315,576,000,000 inclusive.
+                required: true
+                type: int
+              nanos:
+                description:
+                - Span of time that's a fraction of a second at nanosecond resolution.
+                  Durations less than one second are represented with a 0 seconds
+                  field and a positive nanos field. Must be from 0 to 999,999,999
+                  inclusive.
+                required: false
+                type: int
+          name:
+            description:
+            - Name of the cookie.
+            required: false
+            type: str
+          path:
+            description:
+            - Path to set for the cookie.
+            required: false
+            type: str
+      http_header_name:
+        description:
+        - The hash based on the value of the specified header field.
+        - This field is applicable if the sessionAffinity is set to HEADER_FIELD.
+        required: false
+        type: str
+      minimum_ring_size:
+        description:
+        - The minimum number of virtual nodes to use for the hash ring.
+        - Larger ring sizes result in more granular load distributions. If the number
+          of hosts in the load balancing pool is larger than the ring size, each host
+          will be assigned a single virtual node.
+        - Defaults to 1024.
+        required: false
+        default: '1024'
+        type: int
   connection_draining:
     description:
     - Settings for connection draining .
@@ -174,6 +299,43 @@ options:
     - An optional description of this resource.
     required: false
     type: str
+  failover_policy:
+    description:
+    - Policy for failovers.
+    required: false
+    type: dict
+    suboptions:
+      disable_connection_drain_on_failover:
+        description:
+        - 'On failover or failback, this field indicates whether connection drain
+          will be honored. Setting this to true has the following effect: connections
+          to the old active pool are not drained. Connections to the new active pool
+          use the timeout of 10 min (currently fixed). Setting to false has the following
+          effect: both old and new connections will have a drain timeout of 10 min.'
+        - This can be set to true only if the protocol is TCP.
+        - The default is false.
+        required: false
+        type: bool
+      drop_traffic_if_unhealthy:
+        description:
+        - This option is used only when no healthy VMs are detected in the primary
+          and backup instance groups. When set to true, traffic is dropped. When set
+          to false, new connections are sent across all VMs in the primary group.
+        - The default is false.
+        required: false
+        type: bool
+      failover_ratio:
+        description:
+        - The value of the field must be in [0, 1]. If the ratio of the healthy VMs
+          in the primary backend is at or below this number, traffic arriving at the
+          load-balanced IP will be directed to the failover backend.
+        - In case where 'failoverRatio' is not set or all the VMs in the backup backend
+          are unhealthy, the traffic will be directed back to the primary backend
+          in the "force" mode, where traffic will be spread to the healthy VMs with
+          the best effort, or to all VMs when no VM is healthy.
+        - This field is only used with l4 load balancing.
+        required: false
+        type: str
   health_checks:
     description:
     - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
@@ -190,6 +352,30 @@ options:
     required: false
     default: INTERNAL
     type: str
+  locality_lb_policy:
+    description:
+    - The load balancing algorithm used within the scope of the locality.
+    - The possible values are - ROUND_ROBIN - This is a simple policy in which each
+      healthy backend is selected in round robin order.
+    - LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts and
+      picks the host which has fewer active requests.
+    - RING_HASH - The ring/modulo hash load balancer implements consistent hashing
+      to backends. The algorithm has the property that the addition/removal of a host
+      from a set of N hosts only affects 1/N of the requests.
+    - RANDOM - The load balancer selects a random healthy host.
+    - ORIGINAL_DESTINATION - Backend host is selected based on the client connection
+      metadata, i.e., connections are opened to the same address as the destination
+      address of the incoming connection before the connection was redirected to the
+      load balancer.
+    - MAGLEV - used as a drop in replacement for the ring hash load balancer.
+    - Maglev is not as stable as ring hash but has faster table lookup build times
+      and host selection times. For more information about Maglev, refer to https://ai.google/research/pubs/pub44824
+      This field is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+      and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+    - 'Some valid choices include: "ROUND_ROBIN", "LEAST_REQUEST", "RING_HASH", "RANDOM",
+      "ORIGINAL_DESTINATION", "MAGLEV"'
+    required: false
+    type: str
   name:
     description:
     - Name of the resource. Provided by the client when the resource is created. The
@@ -200,6 +386,132 @@ options:
       which cannot be a dash.
     required: true
     type: str
+  outlier_detection:
+    description:
+    - Settings controlling eviction of unhealthy hosts from the load balancing pool.
+    - This field is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+      and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+    required: false
+    type: dict
+    suboptions:
+      base_ejection_time:
+        description:
+        - The base time that a host is ejected for. The real time is equal to the
+          base time multiplied by the number of times the host has been ejected. Defaults
+          to 30000ms or 30s.
+        required: false
+        type: dict
+        suboptions:
+          seconds:
+            description:
+            - Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+              inclusive.
+            required: true
+            type: int
+          nanos:
+            description:
+            - Span of time that's a fraction of a second at nanosecond resolution.
+              Durations less than one second are represented with a 0 `seconds` field
+              and a positive `nanos` field. Must be from 0 to 999,999,999 inclusive.
+            required: false
+            type: int
+      consecutive_errors:
+        description:
+        - Number of errors before a host is ejected from the connection pool. When
+          the backend host is accessed over HTTP, a 5xx return code qualifies as an
+          error.
+        - Defaults to 5.
+        required: false
+        default: '5'
+        type: int
+      consecutive_gateway_failure:
+        description:
+        - The number of consecutive gateway failures (502, 503, 504 status or connection
+          errors that are mapped to one of those status codes) before a consecutive
+          gateway failure ejection occurs. Defaults to 5.
+        required: false
+        default: '5'
+        type: int
+      enforcing_consecutive_errors:
+        description:
+        - The percentage chance that a host will be actually ejected when an outlier
+          status is detected through consecutive 5xx. This setting can be used to
+          disable ejection or to ramp it up slowly. Defaults to 100.
+        required: false
+        default: '100'
+        type: int
+      enforcing_consecutive_gateway_failure:
+        description:
+        - The percentage chance that a host will be actually ejected when an outlier
+          status is detected through consecutive gateway failures. This setting can
+          be used to disable ejection or to ramp it up slowly. Defaults to 0.
+        required: false
+        type: int
+      enforcing_success_rate:
+        description:
+        - The percentage chance that a host will be actually ejected when an outlier
+          status is detected through success rate statistics. This setting can be
+          used to disable ejection or to ramp it up slowly. Defaults to 100.
+        required: false
+        default: '100'
+        type: int
+      interval:
+        description:
+        - Time interval between ejection sweep analysis. This can result in both new
+          ejections as well as hosts being returned to service. Defaults to 10 seconds.
+        required: false
+        type: dict
+        suboptions:
+          seconds:
+            description:
+            - Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+              inclusive.
+            required: true
+            type: int
+          nanos:
+            description:
+            - Span of time that's a fraction of a second at nanosecond resolution.
+              Durations less than one second are represented with a 0 `seconds` field
+              and a positive `nanos` field. Must be from 0 to 999,999,999 inclusive.
+            required: false
+            type: int
+      max_ejection_percent:
+        description:
+        - Maximum percentage of hosts in the load balancing pool for the backend service
+          that can be ejected. Defaults to 10%.
+        required: false
+        default: '10'
+        type: int
+      success_rate_minimum_hosts:
+        description:
+        - The number of hosts in a cluster that must have enough request volume to
+          detect success rate outliers. If the number of hosts is less than this setting,
+          outlier detection via success rate statistics is not performed for any host
+          in the cluster. Defaults to 5.
+        required: false
+        default: '5'
+        type: int
+      success_rate_request_volume:
+        description:
+        - The minimum number of total requests that must be collected in one interval
+          (as defined by the interval duration above) to include this host in success
+          rate based outlier detection. If the volume is lower than this setting,
+          outlier detection via success rate statistics is not performed for that
+          host. Defaults to 100.
+        required: false
+        default: '100'
+        type: int
+      success_rate_stdev_factor:
+        description:
+        - 'This factor is used to determine the ejection threshold for success rate
+          outlier ejection. The ejection threshold is the difference between the mean
+          success rate, and the product of this factor and the standard deviation
+          of the mean success rate: mean - (stdev * success_rate_stdev_factor). This
+          factor is divided by a thousand to get a double. That is, if the desired
+          factor is 1.9, the runtime value should be 1900. Defaults to 1900.'
+        required: false
+        default: '1900'
+        type: int
   protocol:
     description:
     - The protocol this RegionBackendService uses to communicate with backends.
@@ -222,6 +534,29 @@ options:
       Default is 30 seconds. Valid range is [1, 86400].
     required: false
     type: int
+  log_config:
+    description:
+    - This field denotes the logging options for the load balancer traffic served
+      by this backend service.
+    - If logging is enabled, logs will be exported to Stackdriver.
+    required: false
+    type: dict
+    suboptions:
+      enable:
+        description:
+        - Whether to enable logging for the load balancer traffic served by this backend
+          service.
+        required: false
+        type: bool
+      sample_rate:
+        description:
+        - This field can only be specified if logging is enabled for this backend
+          service. The value of the field must be in [0, 1]. This configures the sampling
+          rate of requests to the load balancer where 1.0 means all logged requests
+          are reported and 0.0 means no logged requests are reported.
+        - The default value is 1.0.
+        required: false
+        type: str
   network:
     description:
     - The URL of the network to which this backend service belongs.
@@ -321,6 +656,14 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
+affinityCookieTtlSec:
+  description:
+  - Lifetime of cookies in seconds if session_affinity is GENERATED_COOKIE. If set
+    to 0, the cookie is non-persistent and lasts only until the end of the browser
+    session (or equivalent). The maximum allowed value for TTL is one day.
+  - When the load balancing scheme is INTERNAL, this field is not used.
+  returned: success
+  type: int
 backends:
   description:
   - The set of backends that serve this RegionBackendService.
@@ -349,6 +692,12 @@ backends:
       - Provide this property when you create the resource.
       returned: success
       type: str
+    failover:
+      description:
+      - This field designates whether this is a failover backend. More than one failover
+        backend can be configured for a given RegionBackendService.
+      returned: success
+      type: bool
     group:
       description:
       - The fully-qualified URL of an Instance Group or Network Endpoint Group resource.
@@ -425,6 +774,111 @@ backends:
       - Cannot be set for INTERNAL backend services.
       returned: success
       type: str
+circuitBreakers:
+  description:
+  - Settings controlling the volume of connections to a backend service. This field
+    is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+    and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  returned: success
+  type: complex
+  contains:
+    maxRequestsPerConnection:
+      description:
+      - Maximum requests for a single backend connection. This parameter is respected
+        by both the HTTP/1.1 and HTTP/2 implementations. If not specified, there is
+        no limit. Setting this parameter to 1 will effectively disable keep alive.
+      returned: success
+      type: int
+    maxConnections:
+      description:
+      - The maximum number of connections to the backend cluster.
+      - Defaults to 1024.
+      returned: success
+      type: int
+    maxPendingRequests:
+      description:
+      - The maximum number of pending requests to the backend cluster.
+      - Defaults to 1024.
+      returned: success
+      type: int
+    maxRequests:
+      description:
+      - The maximum number of parallel requests to the backend cluster.
+      - Defaults to 1024.
+      returned: success
+      type: int
+    maxRetries:
+      description:
+      - The maximum number of parallel retries to the backend cluster.
+      - Defaults to 3.
+      returned: success
+      type: int
+consistentHash:
+  description:
+  - Consistent Hash-based load balancing can be used to provide soft session affinity
+    based on HTTP headers, cookies or other properties. This load balancing policy
+    is applicable only for HTTP connections. The affinity to a particular destination
+    host will be lost when one or more hosts are added/removed from the destination
+    service. This field specifies parameters that control consistent hashing.
+  - This field only applies when all of the following are true - * `load_balancing_scheme`
+    is set to INTERNAL_MANAGED * `protocol` is set to HTTP, HTTPS, or HTTP2 * `locality_lb_policy`
+    is set to MAGLEV or RING_HASH .
+  returned: success
+  type: complex
+  contains:
+    httpCookie:
+      description:
+      - Hash is based on HTTP Cookie. This field describes a HTTP cookie that will
+        be used as the hash key for the consistent hash load balancer. If the cookie
+        is not present, it will be generated.
+      - This field is applicable if the sessionAffinity is set to HTTP_COOKIE.
+      returned: success
+      type: complex
+      contains:
+        ttl:
+          description:
+          - Lifetime of the cookie.
+          returned: success
+          type: complex
+          contains:
+            seconds:
+              description:
+              - Span of time at a resolution of a second.
+              - Must be from 0 to 315,576,000,000 inclusive.
+              returned: success
+              type: int
+            nanos:
+              description:
+              - Span of time that's a fraction of a second at nanosecond resolution.
+                Durations less than one second are represented with a 0 seconds field
+                and a positive nanos field. Must be from 0 to 999,999,999 inclusive.
+              returned: success
+              type: int
+        name:
+          description:
+          - Name of the cookie.
+          returned: success
+          type: str
+        path:
+          description:
+          - Path to set for the cookie.
+          returned: success
+          type: str
+    httpHeaderName:
+      description:
+      - The hash based on the value of the specified header field.
+      - This field is applicable if the sessionAffinity is set to HEADER_FIELD.
+      returned: success
+      type: str
+    minimumRingSize:
+      description:
+      - The minimum number of virtual nodes to use for the hash ring.
+      - Larger ring sizes result in more granular load distributions. If the number
+        of hosts in the load balancing pool is larger than the ring size, each host
+        will be assigned a single virtual node.
+      - Defaults to 1024.
+      returned: success
+      type: int
 connectionDraining:
   description:
   - Settings for connection draining .
@@ -447,6 +901,43 @@ description:
   - An optional description of this resource.
   returned: success
   type: str
+failoverPolicy:
+  description:
+  - Policy for failovers.
+  returned: success
+  type: complex
+  contains:
+    disableConnectionDrainOnFailover:
+      description:
+      - 'On failover or failback, this field indicates whether connection drain will
+        be honored. Setting this to true has the following effect: connections to
+        the old active pool are not drained. Connections to the new active pool use
+        the timeout of 10 min (currently fixed). Setting to false has the following
+        effect: both old and new connections will have a drain timeout of 10 min.'
+      - This can be set to true only if the protocol is TCP.
+      - The default is false.
+      returned: success
+      type: bool
+    dropTrafficIfUnhealthy:
+      description:
+      - This option is used only when no healthy VMs are detected in the primary and
+        backup instance groups. When set to true, traffic is dropped. When set to
+        false, new connections are sent across all VMs in the primary group.
+      - The default is false.
+      returned: success
+      type: bool
+    failoverRatio:
+      description:
+      - The value of the field must be in [0, 1]. If the ratio of the healthy VMs
+        in the primary backend is at or below this number, traffic arriving at the
+        load-balanced IP will be directed to the failover backend.
+      - In case where 'failoverRatio' is not set or all the VMs in the backup backend
+        are unhealthy, the traffic will be directed back to the primary backend in
+        the "force" mode, where traffic will be spread to the healthy VMs with the
+        best effort, or to all VMs when no VM is healthy.
+      - This field is only used with l4 load balancing.
+      returned: success
+      type: str
 fingerprint:
   description:
   - Fingerprint of this resource. A hash of the contents stored in this object. This
@@ -471,6 +962,28 @@ loadBalancingScheme:
     the other(s).
   returned: success
   type: str
+localityLbPolicy:
+  description:
+  - The load balancing algorithm used within the scope of the locality.
+  - The possible values are - ROUND_ROBIN - This is a simple policy in which each
+    healthy backend is selected in round robin order.
+  - LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts and picks
+    the host which has fewer active requests.
+  - RING_HASH - The ring/modulo hash load balancer implements consistent hashing to
+    backends. The algorithm has the property that the addition/removal of a host from
+    a set of N hosts only affects 1/N of the requests.
+  - RANDOM - The load balancer selects a random healthy host.
+  - ORIGINAL_DESTINATION - Backend host is selected based on the client connection
+    metadata, i.e., connections are opened to the same address as the destination
+    address of the incoming connection before the connection was redirected to the
+    load balancer.
+  - MAGLEV - used as a drop in replacement for the ring hash load balancer.
+  - Maglev is not as stable as ring hash but has faster table lookup build times and
+    host selection times. For more information about Maglev, refer to https://ai.google/research/pubs/pub44824
+    This field is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+    and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  returned: success
+  type: str
 name:
   description:
   - Name of the resource. Provided by the client when the resource is created. The
@@ -481,6 +994,123 @@ name:
     which cannot be a dash.
   returned: success
   type: str
+outlierDetection:
+  description:
+  - Settings controlling eviction of unhealthy hosts from the load balancing pool.
+  - This field is applicable only when the `load_balancing_scheme` is set to INTERNAL_MANAGED
+    and the `protocol` is set to HTTP, HTTPS, or HTTP2.
+  returned: success
+  type: complex
+  contains:
+    baseEjectionTime:
+      description:
+      - The base time that a host is ejected for. The real time is equal to the base
+        time multiplied by the number of times the host has been ejected. Defaults
+        to 30000ms or 30s.
+      returned: success
+      type: complex
+      contains:
+        seconds:
+          description:
+          - Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+            inclusive.
+          returned: success
+          type: int
+        nanos:
+          description:
+          - Span of time that's a fraction of a second at nanosecond resolution. Durations
+            less than one second are represented with a 0 `seconds` field and a positive
+            `nanos` field. Must be from 0 to 999,999,999 inclusive.
+          returned: success
+          type: int
+    consecutiveErrors:
+      description:
+      - Number of errors before a host is ejected from the connection pool. When the
+        backend host is accessed over HTTP, a 5xx return code qualifies as an error.
+      - Defaults to 5.
+      returned: success
+      type: int
+    consecutiveGatewayFailure:
+      description:
+      - The number of consecutive gateway failures (502, 503, 504 status or connection
+        errors that are mapped to one of those status codes) before a consecutive
+        gateway failure ejection occurs. Defaults to 5.
+      returned: success
+      type: int
+    enforcingConsecutiveErrors:
+      description:
+      - The percentage chance that a host will be actually ejected when an outlier
+        status is detected through consecutive 5xx. This setting can be used to disable
+        ejection or to ramp it up slowly. Defaults to 100.
+      returned: success
+      type: int
+    enforcingConsecutiveGatewayFailure:
+      description:
+      - The percentage chance that a host will be actually ejected when an outlier
+        status is detected through consecutive gateway failures. This setting can
+        be used to disable ejection or to ramp it up slowly. Defaults to 0.
+      returned: success
+      type: int
+    enforcingSuccessRate:
+      description:
+      - The percentage chance that a host will be actually ejected when an outlier
+        status is detected through success rate statistics. This setting can be used
+        to disable ejection or to ramp it up slowly. Defaults to 100.
+      returned: success
+      type: int
+    interval:
+      description:
+      - Time interval between ejection sweep analysis. This can result in both new
+        ejections as well as hosts being returned to service. Defaults to 10 seconds.
+      returned: success
+      type: complex
+      contains:
+        seconds:
+          description:
+          - Span of time at a resolution of a second. Must be from 0 to 315,576,000,000
+            inclusive.
+          returned: success
+          type: int
+        nanos:
+          description:
+          - Span of time that's a fraction of a second at nanosecond resolution. Durations
+            less than one second are represented with a 0 `seconds` field and a positive
+            `nanos` field. Must be from 0 to 999,999,999 inclusive.
+          returned: success
+          type: int
+    maxEjectionPercent:
+      description:
+      - Maximum percentage of hosts in the load balancing pool for the backend service
+        that can be ejected. Defaults to 10%.
+      returned: success
+      type: int
+    successRateMinimumHosts:
+      description:
+      - The number of hosts in a cluster that must have enough request volume to detect
+        success rate outliers. If the number of hosts is less than this setting, outlier
+        detection via success rate statistics is not performed for any host in the
+        cluster. Defaults to 5.
+      returned: success
+      type: int
+    successRateRequestVolume:
+      description:
+      - The minimum number of total requests that must be collected in one interval
+        (as defined by the interval duration above) to include this host in success
+        rate based outlier detection. If the volume is lower than this setting, outlier
+        detection via success rate statistics is not performed for that host. Defaults
+        to 100.
+      returned: success
+      type: int
+    successRateStdevFactor:
+      description:
+      - 'This factor is used to determine the ejection threshold for success rate
+        outlier ejection. The ejection threshold is the difference between the mean
+        success rate, and the product of this factor and the standard deviation of
+        the mean success rate: mean - (stdev * success_rate_stdev_factor). This factor
+        is divided by a thousand to get a double. That is, if the desired factor is
+        1.9, the runtime value should be 1900. Defaults to 1900.'
+      returned: success
+      type: int
 protocol:
   description:
   - The protocol this RegionBackendService uses to communicate with backends.
@@ -500,6 +1130,29 @@ timeoutSec:
     Default is 30 seconds. Valid range is [1, 86400].
   returned: success
   type: int
+logConfig:
+  description:
+  - This field denotes the logging options for the load balancer traffic served by
+    this backend service.
+  - If logging is enabled, logs will be exported to Stackdriver.
+  returned: success
+  type: complex
+  contains:
+    enable:
+      description:
+      - Whether to enable logging for the load balancer traffic served by this backend
+        service.
+      returned: success
+      type: bool
+    sampleRate:
+      description:
+      - This field can only be specified if logging is enabled for this backend service.
+        The value of the field must be in [0, 1]. This configures the sampling rate
+        of requests to the load balancer where 1.0 means all logged requests are reported
+        and 0.0 means no logged requests are reported.
+      - The default value is 1.0.
+      returned: success
+      type: str
 network:
   description:
   - The URL of the network to which this backend service belongs.
@@ -539,6 +1192,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
+            affinity_cookie_ttl_sec=dict(type='int'),
             backends=dict(
                 type='list',
                 elements='dict',
@@ -546,6 +1200,7 @@ def main():
                     balancing_mode=dict(default='CONNECTION', type='str'),
                     capacity_scaler=dict(type='str'),
                     description=dict(type='str'),
+                    failover=dict(type='bool'),
                     group=dict(required=True, type='str'),
                     max_connections=dict(type='int'),
                     max_connections_per_instance=dict(type='int'),
@@ -556,14 +1211,63 @@ def main():
                     max_utilization=dict(type='str'),
                 ),
             ),
+            circuit_breakers=dict(
+                type='dict',
+                options=dict(
+                    max_requests_per_connection=dict(type='int'),
+                    max_connections=dict(default=1024, type='int'),
+                    max_pending_requests=dict(default=1024, type='int'),
+                    max_requests=dict(default=1024, type='int'),
+                    max_retries=dict(default=3, type='int'),
+                ),
+            ),
+            consistent_hash=dict(
+                type='dict',
+                options=dict(
+                    http_cookie=dict(
+                        type='dict',
+                        options=dict(
+                            ttl=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
+                            name=dict(type='str'),
+                            path=dict(type='str'),
+                        ),
+                    ),
+                    http_header_name=dict(type='str'),
+                    minimum_ring_size=dict(default=1024, type='int'),
+                ),
+            ),
             connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
             description=dict(type='str'),
+            failover_policy=dict(
+                type='dict',
+                options=dict(
+                    disable_connection_drain_on_failover=dict(type='bool'), drop_traffic_if_unhealthy=dict(type='bool'), failover_ratio=dict(type='str')
+                ),
+            ),
             health_checks=dict(required=True, type='list', elements='str'),
             load_balancing_scheme=dict(default='INTERNAL', type='str'),
+            locality_lb_policy=dict(type='str'),
             name=dict(required=True, type='str'),
+            outlier_detection=dict(
+                type='dict',
+                options=dict(
+                    base_ejection_time=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
+                    consecutive_errors=dict(default=5, type='int'),
+                    consecutive_gateway_failure=dict(default=5, type='int'),
+                    enforcing_consecutive_errors=dict(default=100, type='int'),
+                    enforcing_consecutive_gateway_failure=dict(default=0, type='int'),
+                    enforcing_success_rate=dict(default=100, type='int'),
+                    interval=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
+                    max_ejection_percent=dict(default=10, type='int'),
+                    success_rate_minimum_hosts=dict(default=5, type='int'),
+                    success_rate_request_volume=dict(default=100, type='int'),
+                    success_rate_stdev_factor=dict(default=1900, type='int'),
+                ),
+            ),
             protocol=dict(type='str'),
             session_affinity=dict(type='str'),
             timeout_sec=dict(type='int'),
+            log_config=dict(type='dict', options=dict(enable=dict(type='bool'), sample_rate=dict(type='str'))),
             network=dict(type='dict'),
             region=dict(required=True, type='str'),
         )
@@ -618,15 +1322,22 @@ def delete(module, link, kind):
 def resource_to_request(module):
     request = {
         u'kind': 'compute#backendService',
+        u'affinityCookieTtlSec': module.params.get('affinity_cookie_ttl_sec'),
         u'backends': RegionBackendServiceBackendsArray(module.params.get('backends', []), module).to_request(),
+        u'circuitBreakers': RegionBackendServiceCircuitbreakers(module.params.get('circuit_breakers', {}), module).to_request(),
+        u'consistentHash': RegionBackendServiceConsistenthash(module.params.get('consistent_hash', {}), module).to_request(),
         u'connectionDraining': RegionBackendServiceConnectiondraining(module.params.get('connection_draining', {}), module).to_request(),
         u'description': module.params.get('description'),
+        u'failoverPolicy': RegionBackendServiceFailoverpolicy(module.params.get('failover_policy', {}), module).to_request(),
         u'healthChecks': module.params.get('health_checks'),
         u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
+        u'localityLbPolicy': module.params.get('locality_lb_policy'),
         u'name': module.params.get('name'),
+        u'outlierDetection': RegionBackendServiceOutlierdetection(module.params.get('outlier_detection', {}), module).to_request(),
         u'protocol': module.params.get('protocol'),
         u'sessionAffinity': module.params.get('session_affinity'),
         u'timeoutSec': module.params.get('timeout_sec'),
+        u'logConfig': RegionBackendServiceLogconfig(module.params.get('log_config', {}), module).to_request(),
         u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
     }
     return_vals = {}
@@ -693,18 +1404,25 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
+        u'affinityCookieTtlSec': response.get(u'affinityCookieTtlSec'),
         u'backends': RegionBackendServiceBackendsArray(response.get(u'backends', []), module).from_response(),
+        u'circuitBreakers': RegionBackendServiceCircuitbreakers(response.get(u'circuitBreakers', {}), module).from_response(),
+        u'consistentHash': RegionBackendServiceConsistenthash(response.get(u'consistentHash', {}), module).from_response(),
         u'connectionDraining': RegionBackendServiceConnectiondraining(response.get(u'connectionDraining', {}), module).from_response(),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'description': response.get(u'description'),
+        u'failoverPolicy': RegionBackendServiceFailoverpolicy(response.get(u'failoverPolicy', {}), module).from_response(),
         u'fingerprint': response.get(u'fingerprint'),
         u'healthChecks': response.get(u'healthChecks'),
         u'id': response.get(u'id'),
         u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
+        u'localityLbPolicy': response.get(u'localityLbPolicy'),
         u'name': module.params.get('name'),
+        u'outlierDetection': RegionBackendServiceOutlierdetection(response.get(u'outlierDetection', {}), module).from_response(),
         u'protocol': response.get(u'protocol'),
         u'sessionAffinity': response.get(u'sessionAffinity'),
         u'timeoutSec': response.get(u'timeoutSec'),
+        u'logConfig': RegionBackendServiceLogconfig(response.get(u'logConfig', {}), module).from_response(),
         u'network': response.get(u'network'),
     }
 
@@ -770,6 +1488,7 @@ class RegionBackendServiceBackendsArray(object):
                 u'balancingMode': item.get('balancing_mode'),
                 u'capacityScaler': item.get('capacity_scaler'),
                 u'description': item.get('description'),
+                u'failover': item.get('failover'),
                 u'group': item.get('group'),
                 u'maxConnections': item.get('max_connections'),
                 u'maxConnectionsPerInstance': item.get('max_connections_per_instance'),
@@ -787,6 +1506,7 @@ class RegionBackendServiceBackendsArray(object):
                 u'balancingMode': item.get(u'balancingMode'),
                 u'capacityScaler': item.get(u'capacityScaler'),
                 u'description': item.get(u'description'),
+                u'failover': item.get(u'failover'),
                 u'group': item.get(u'group'),
                 u'maxConnections': item.get(u'maxConnections'),
                 u'maxConnectionsPerInstance': item.get(u'maxConnectionsPerInstance'),
@@ -797,6 +1517,106 @@ class RegionBackendServiceBackendsArray(object):
                 u'maxUtilization': item.get(u'maxUtilization'),
             }
         )
+
+
+class RegionBackendServiceCircuitbreakers(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'maxRequestsPerConnection': self.request.get('max_requests_per_connection'),
+                u'maxConnections': self.request.get('max_connections'),
+                u'maxPendingRequests': self.request.get('max_pending_requests'),
+                u'maxRequests': self.request.get('max_requests'),
+                u'maxRetries': self.request.get('max_retries'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'maxRequestsPerConnection': self.request.get(u'maxRequestsPerConnection'),
+                u'maxConnections': self.request.get(u'maxConnections'),
+                u'maxPendingRequests': self.request.get(u'maxPendingRequests'),
+                u'maxRequests': self.request.get(u'maxRequests'),
+                u'maxRetries': self.request.get(u'maxRetries'),
+            }
+        )
+
+
+class RegionBackendServiceConsistenthash(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'httpCookie': RegionBackendServiceHttpcookie(self.request.get('http_cookie', {}), self.module).to_request(),
+                u'httpHeaderName': self.request.get('http_header_name'),
+                u'minimumRingSize': self.request.get('minimum_ring_size'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'httpCookie': RegionBackendServiceHttpcookie(self.request.get(u'httpCookie', {}), self.module).from_response(),
+                u'httpHeaderName': self.request.get(u'httpHeaderName'),
+                u'minimumRingSize': self.request.get(u'minimumRingSize'),
+            }
+        )
+
+
+class RegionBackendServiceHttpcookie(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'ttl': RegionBackendServiceTtl(self.request.get('ttl', {}), self.module).to_request(),
+                u'name': self.request.get('name'),
+                u'path': self.request.get('path'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'ttl': RegionBackendServiceTtl(self.request.get(u'ttl', {}), self.module).from_response(),
+                u'name': self.request.get(u'name'),
+                u'path': self.request.get(u'path'),
+            }
+        )
+
+
+class RegionBackendServiceTtl(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
 
 
 class RegionBackendServiceConnectiondraining(object):
@@ -812,6 +1632,121 @@ class RegionBackendServiceConnectiondraining(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'drainingTimeoutSec': self.request.get(u'drainingTimeoutSec')})
+
+
+class RegionBackendServiceFailoverpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'disableConnectionDrainOnFailover': self.request.get('disable_connection_drain_on_failover'),
+                u'dropTrafficIfUnhealthy': self.request.get('drop_traffic_if_unhealthy'),
+                u'failoverRatio': self.request.get('failover_ratio'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'disableConnectionDrainOnFailover': self.request.get(u'disableConnectionDrainOnFailover'),
+                u'dropTrafficIfUnhealthy': self.request.get(u'dropTrafficIfUnhealthy'),
+                u'failoverRatio': self.request.get(u'failoverRatio'),
+            }
+        )
+
+
+class RegionBackendServiceOutlierdetection(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'baseEjectionTime': RegionBackendServiceBaseejectiontime(self.request.get('base_ejection_time', {}), self.module).to_request(),
+                u'consecutiveErrors': self.request.get('consecutive_errors'),
+                u'consecutiveGatewayFailure': self.request.get('consecutive_gateway_failure'),
+                u'enforcingConsecutiveErrors': self.request.get('enforcing_consecutive_errors'),
+                u'enforcingConsecutiveGatewayFailure': self.request.get('enforcing_consecutive_gateway_failure'),
+                u'enforcingSuccessRate': self.request.get('enforcing_success_rate'),
+                u'interval': RegionBackendServiceInterval(self.request.get('interval', {}), self.module).to_request(),
+                u'maxEjectionPercent': self.request.get('max_ejection_percent'),
+                u'successRateMinimumHosts': self.request.get('success_rate_minimum_hosts'),
+                u'successRateRequestVolume': self.request.get('success_rate_request_volume'),
+                u'successRateStdevFactor': self.request.get('success_rate_stdev_factor'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'baseEjectionTime': RegionBackendServiceBaseejectiontime(self.request.get(u'baseEjectionTime', {}), self.module).from_response(),
+                u'consecutiveErrors': self.request.get(u'consecutiveErrors'),
+                u'consecutiveGatewayFailure': self.request.get(u'consecutiveGatewayFailure'),
+                u'enforcingConsecutiveErrors': self.request.get(u'enforcingConsecutiveErrors'),
+                u'enforcingConsecutiveGatewayFailure': self.request.get(u'enforcingConsecutiveGatewayFailure'),
+                u'enforcingSuccessRate': self.request.get(u'enforcingSuccessRate'),
+                u'interval': RegionBackendServiceInterval(self.request.get(u'interval', {}), self.module).from_response(),
+                u'maxEjectionPercent': self.request.get(u'maxEjectionPercent'),
+                u'successRateMinimumHosts': self.request.get(u'successRateMinimumHosts'),
+                u'successRateRequestVolume': self.request.get(u'successRateRequestVolume'),
+                u'successRateStdevFactor': self.request.get(u'successRateStdevFactor'),
+            }
+        )
+
+
+class RegionBackendServiceBaseejectiontime(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+
+
+class RegionBackendServiceInterval(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+
+
+class RegionBackendServiceLogconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enable': self.request.get('enable'), u'sampleRate': self.request.get('sample_rate')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enable': self.request.get(u'enable'), u'sampleRate': self.request.get(u'sampleRate')})
 
 
 if __name__ == '__main__':
