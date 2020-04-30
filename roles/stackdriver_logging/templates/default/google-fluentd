@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+{% if stackdriver_http_proxy is defined %}
+export http_proxy="{{ stackdriver_http_proxy }}"
+{% endif %}
+{% if stackdriver_https_proxy is defined %}
+export https_proxy="{{ stackdriver_https_proxy }}"
+{% endif %}
+export no_proxy==169.254.169.254
