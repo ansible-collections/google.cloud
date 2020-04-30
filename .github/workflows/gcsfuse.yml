@@ -22,8 +22,6 @@ jobs:
             command: /sbin/init
           - distro: ubuntu:18.04
             command: /lib/systemd/systemd
-          - distro: ubuntu:20.04
-            command: /lib/systemd/systemd
           - distro: debian:9
             command: /lib/systemd/systemd
         collection_role:
