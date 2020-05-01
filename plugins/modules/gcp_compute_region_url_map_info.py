@@ -960,7 +960,7 @@ resources:
                   - If set to true, any accompanying query portion of the original
                     URL is removed prior to redirecting the request. If set to false,
                     the query portion of the original URL is retained. The default
-                    is set to false.
+                    value is false.
                   returned: success
                   type: bool
         pathRules:
@@ -1484,8 +1484,7 @@ resources:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained. The default is set
-                to false.
+                query portion of the original URL is retained.
               returned: success
               type: bool
     tests:
@@ -1575,7 +1574,7 @@ resources:
           description:
           - If set to true, any accompanying query portion of the original URL is
             removed prior to redirecting the request. If set to false, the query portion
-            of the original URL is retained. The default is set to false.
+            of the original URL is retained.
           returned: success
           type: bool
     region:
