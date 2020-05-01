@@ -925,8 +925,8 @@ options:
                 description:
                 - If set to true, any accompanying query portion of the original URL
                   is removed prior to redirecting the request. If set to false, the
-                  query portion of the original URL is retained. The default is set
-                  to false.
+                  query portion of the original URL is retained. The default value
+                  is false.
                 required: false
                 default: 'false'
                 type: bool
@@ -1483,7 +1483,7 @@ options:
             description:
             - If set to true, any accompanying query portion of the original URL is
               removed prior to redirecting the request. If set to false, the query
-              portion of the original URL is retained. The default is set to false.
+              portion of the original URL is retained.
             required: false
             default: 'false'
             type: bool
@@ -1582,7 +1582,7 @@ options:
         description:
         - If set to true, any accompanying query portion of the original URL is removed
           prior to redirecting the request. If set to false, the query portion of
-          the original URL is retained. The default is set to false.
+          the original URL is retained.
         required: false
         default: 'false'
         type: bool
@@ -2494,8 +2494,8 @@ pathMatchers:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained. The default is set
-                to false.
+                query portion of the original URL is retained. The default value is
+                false.
               returned: success
               type: bool
     pathRules:
@@ -3005,7 +3005,7 @@ pathMatchers:
           description:
           - If set to true, any accompanying query portion of the original URL is
             removed prior to redirecting the request. If set to false, the query portion
-            of the original URL is retained. The default is set to false.
+            of the original URL is retained.
           returned: success
           type: bool
 tests:
@@ -3094,7 +3094,7 @@ defaultUrlRedirect:
       description:
       - If set to true, any accompanying query portion of the original URL is removed
         prior to redirecting the request. If set to false, the query portion of the
-        original URL is retained. The default is set to false.
+        original URL is retained.
       returned: success
       type: bool
 region:

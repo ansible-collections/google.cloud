@@ -783,8 +783,7 @@ options:
                 description:
                 - If set to true, any accompanying query portion of the original URL
                   is removed prior to redirecting the request. If set to false, the
-                  query portion of the original URL is retained. The default is set
-                  to false.
+                  query portion of the original URL is retained.
                 required: false
                 default: 'false'
                 type: bool
@@ -1641,7 +1640,7 @@ options:
             description:
             - If set to true, any accompanying query portion of the original URL is
               removed prior to redirecting the request. If set to false, the query
-              portion of the original URL is retained. The default is set to false.
+              portion of the original URL is retained.
             required: false
             default: 'false'
             type: bool
@@ -2529,8 +2528,7 @@ pathMatchers:
               description:
               - If set to true, any accompanying query portion of the original URL
                 is removed prior to redirecting the request. If set to false, the
-                query portion of the original URL is retained. The default is set
-                to false.
+                query portion of the original URL is retained.
               returned: success
               type: bool
     routeRules:
@@ -3323,7 +3321,7 @@ pathMatchers:
           description:
           - If set to true, any accompanying query portion of the original URL is
             removed prior to redirecting the request. If set to false, the query portion
-            of the original URL is retained. The default is set to false.
+            of the original URL is retained.
           returned: success
           type: bool
 tests:
