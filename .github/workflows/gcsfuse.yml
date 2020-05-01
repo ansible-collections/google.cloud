@@ -1,4 +1,4 @@
-name: "Role: google.cloud.gcsfuse Molecule Test"
+name: "google.cloud.gcsfuse"
 on:
   push:
     paths:
@@ -9,7 +9,7 @@ on:
       - roles/gcsfuse/**
       - .github/workflows/gcsfuse.yml
 jobs:
-  roles_test:
+  gcsfuse:
     runs-on: ubuntu-18.04
     env:
       PY_COLORS: 1
