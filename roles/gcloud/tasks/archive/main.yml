@@ -1,0 +1,37 @@
+---
+# tasks to install gcloud via archive
+- name: gcloud | Archive | Look for existing Google Cloud SDK installation
+  stat:
+    path: "{{ gcloud_archive_path }}/google-cloud-sdk/VERSION"
+  register: gcloud_status
+
+- debug: var=gcloud_status
+
+- name: gcloud | Archive | Set installed version if installation exists
+  block:
+    - name: gcloud | Archive | Importing contents of {{ gcloud_archive_path }}/google-cloud-sdk/VERSION
+      slurp:
+        src: "{{ gcloud_archive_path }}/google-cloud-sdk/VERSION"
+      register: gcloud_installed_version_data
+    - name: gcloud | Archive | Setting the gcloud_installed_version variable/fact
+      set_fact:
+        gcloud_installed_version: "{{ (gcloud_installed_version_data.content|b64decode|trim) }}"
+    - debug:
+        msg: "google-cloud-sdk: {{ gcloud_installed_version }} is installed"
+    - debug:
+        msg: >-
+          Skipping installation of google-cloud-sdk version {{ gcloud_version }} when
+          {{ gcloud_installed_version }} is already installed.
+      when: gcloud_version == gcloud_installed_version
+  when: gcloud_status.stat.exists
+
+- name: gcloud | Archive | Start installation
+  include_tasks: archive_install.yml
+  when: gcloud_installed_version is undefined or
+        gcloud_version is version(gcloud_installed_version, '>')
+
+- name: gcloud | Debian | Install the google-cloud-sdk additional components # noqa 301
+  command: gcloud components install {{ item }}
+  register: gcloud_install_comp_status
+  changed_when: "'All components are up to date.' not in gcloud_install_comp_status.stderr_lines"
+  loop: "{{ gcloud_additional_components }}"
