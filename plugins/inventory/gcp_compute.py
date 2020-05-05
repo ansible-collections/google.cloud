@@ -236,6 +236,8 @@ class GcpInstance(object):
                 name = self._get_privateip()
             elif order == "name":
                 name = self.json[u"name"]
+            elif order == "metadata_hostname":
+                name = self.json[u"hostname"]
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
