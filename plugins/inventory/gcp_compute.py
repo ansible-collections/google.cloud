@@ -237,7 +237,11 @@ class GcpInstance(object):
             elif order == "name":
                 name = self.json[u"name"]
             elif order == "metadata_hostname":
-                name = self.json[u"hostname"]
+                if "hostname" in self.json:
+                    name = self.json[u"hostname"]
+                else:
+                    name = self.json[u"name"]
+
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
