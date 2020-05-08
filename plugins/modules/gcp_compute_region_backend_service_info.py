@@ -584,6 +584,18 @@ resources:
             desired factor is 1.9, the runtime value should be 1900. Defaults to 1900.'
           returned: success
           type: int
+    portName:
+      description:
+      - A named port on a backend instance group representing the port for communication
+        to the backend VMs in that group. Required when the loadBalancingScheme is
+        EXTERNAL, INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED and the backends are
+        instance groups. The named port must be defined on each backend instance group.
+        This parameter has no meaning if the backends are NEGs. API sets a default
+        of "http" if not given.
+      - Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP
+        Load Balancing).
+      returned: success
+      type: str
     protocol:
       description:
       - The protocol this RegionBackendService uses to communicate with backends.

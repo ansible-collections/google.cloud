@@ -512,6 +512,18 @@ options:
         required: false
         default: '1900'
         type: int
+  port_name:
+    description:
+    - A named port on a backend instance group representing the port for communication
+      to the backend VMs in that group. Required when the loadBalancingScheme is EXTERNAL,
+      INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED and the backends are instance groups.
+      The named port must be defined on each backend instance group. This parameter
+      has no meaning if the backends are NEGs. API sets a default of "http" if not
+      given.
+    - Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load
+      Balancing).
+    required: false
+    type: str
   protocol:
     description:
     - The protocol this RegionBackendService uses to communicate with backends.
@@ -1111,6 +1123,17 @@ outlierDetection:
         1.9, the runtime value should be 1900. Defaults to 1900.'
       returned: success
       type: int
+portName:
+  description:
+  - A named port on a backend instance group representing the port for communication
+    to the backend VMs in that group. Required when the loadBalancingScheme is EXTERNAL,
+    INTERNAL_MANAGED, or INTERNAL_SELF_MANAGED and the backends are instance groups.
+    The named port must be defined on each backend instance group. This parameter
+    has no meaning if the backends are NEGs. API sets a default of "http" if not given.
+  - Must be omitted when the loadBalancingScheme is INTERNAL (Internal TCP/UDP Load
+    Balancing).
+  returned: success
+  type: str
 protocol:
   description:
   - The protocol this RegionBackendService uses to communicate with backends.
@@ -1264,6 +1287,7 @@ def main():
                     success_rate_stdev_factor=dict(default=1900, type='int'),
                 ),
             ),
+            port_name=dict(type='str'),
             protocol=dict(type='str'),
             session_affinity=dict(type='str'),
             timeout_sec=dict(type='int'),
@@ -1334,6 +1358,7 @@ def resource_to_request(module):
         u'localityLbPolicy': module.params.get('locality_lb_policy'),
         u'name': module.params.get('name'),
         u'outlierDetection': RegionBackendServiceOutlierdetection(module.params.get('outlier_detection', {}), module).to_request(),
+        u'portName': module.params.get('port_name'),
         u'protocol': module.params.get('protocol'),
         u'sessionAffinity': module.params.get('session_affinity'),
         u'timeoutSec': module.params.get('timeout_sec'),
@@ -1419,6 +1444,7 @@ def response_to_hash(module, response):
         u'localityLbPolicy': response.get(u'localityLbPolicy'),
         u'name': module.params.get('name'),
         u'outlierDetection': RegionBackendServiceOutlierdetection(response.get(u'outlierDetection', {}), module).from_response(),
+        u'portName': response.get(u'portName'),
         u'protocol': response.get(u'protocol'),
         u'sessionAffinity': response.get(u'sessionAffinity'),
         u'timeoutSec': response.get(u'timeoutSec'),
