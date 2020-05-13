@@ -1,0 +1,52 @@
+name: "google.cloud.gcsfuse"
+on:
+  push:
+    paths:
+      - roles/gcsfuse/**
+      - .github/workflows/gcsfuse.yml
+  pull_request:
+    paths:
+      - roles/gcsfuse/**
+      - .github/workflows/gcsfuse.yml
+jobs:
+  gcsfuse:
+    runs-on: ubuntu-18.04
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        molecule_distro:
+          - distro: ubuntu:16.04
+            command: /sbin/init
+          - distro: ubuntu:18.04
+            command: /lib/systemd/systemd
+          - distro: debian:9
+            command: /lib/systemd/systemd
+        collection_role:
+          - gcsfuse
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+        with:
+          path: ansible_collections/google/cloud
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          sudo apt install docker
+          python -m pip install --upgrade pip
+          pip install molecule yamllint ansible-lint docker
+
+      - name: Run role test
+        run: >-
+          molecule --version &&
+          ansible --version &&
+          MOLECULE_COMMAND=${{ matrix.molecule_distro.command }}
+          MOLECULE_DISTRO=${{ matrix.molecule_distro.distro }}
+          molecule --debug test -s ${{ matrix.collection_role }}
