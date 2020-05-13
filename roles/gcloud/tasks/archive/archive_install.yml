@@ -1,0 +1,50 @@
+---
+- name: gcloud | Archive | Ensure temp path exists
+  file: path={{ gcloud_archive_path }} state=directory
+
+- name: gcloud | Archive | Extract Cloud SDK archive
+  unarchive:
+    src: "{{ gcloud_archive_url }}"
+    dest: "{{ gcloud_archive_path }}"
+    remote_src: yes
+    creates: "{{ gcloud_library_path }}"
+
+- name: gcloud | Archive | Link binaries to /usr/bin (like package install)
+  file:
+    src: "{{ gcloud_library_path }}/bin/{{ item }}"
+    dest: "/usr/bin/{{ item }}"
+    state: link
+  loop:
+    - bq
+    - docker-credential-gcloud
+    - gcloud
+    - git-credential-gcloud.sh
+    - gsutil
+  when: not gcloud_install_script
+
+- name: gcloud | Archive | Add command completion
+  include_tasks: command_completion.yml
+  when: gcloud_command_completion
+
+- name: gcloud | Archive | Install into Path
+  command: >-
+    {{ gcloud_archive_path }}/install.sh --quiet
+    --usage-reporting {{ gcloud_usage_reporting | lower }}
+    {% if gcloud_profile_path %}
+      --rc-path {{ gcloud_profile_path }}
+    {% endif %}
+    --command-completion {{ gcloud_command_completion | lower }}
+    --path-update {{ gcloud_update_path | lower }}
+    {% if gcloud_override_components | length > 0 %}--override-components
+      {% for component in gcloud_override_components %}{{ component }}
+        {% if loop.index < gcloud_override_components | length  %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if gcloud_additional_components | length > 0 %}--additional-components
+      {% for component in gcloud_additional_components %}{{ component }}
+        {% if loop.index < gcloud_additional_components | length %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  when: gcloud_install_script
