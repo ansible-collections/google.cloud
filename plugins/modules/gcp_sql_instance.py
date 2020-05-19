@@ -332,6 +332,30 @@ options:
         required: false
         type: dict
         version_added: '2.10'
+  disk_encryption_configuration:
+    description:
+    - Disk encyption settings.
+    required: false
+    type: dict
+    version_added: '2.10'
+    suboptions:
+      kms_key_name:
+        description:
+        - The KMS key used to encrypt the Cloud SQL instance .
+        required: false
+        type: str
+  disk_encryption_status:
+    description:
+    - Disk encyption status.
+    required: false
+    type: dict
+    version_added: '2.10'
+    suboptions:
+      kms_key_version_name:
+        description:
+        - The KMS key version used to encrypt the Cloud SQL instance .
+        required: false
+        type: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -712,6 +736,28 @@ state:
   - The current serving state of the database instance.
   returned: success
   type: str
+diskEncryptionConfiguration:
+  description:
+  - Disk encyption settings.
+  returned: success
+  type: complex
+  contains:
+    kmsKeyName:
+      description:
+      - The KMS key used to encrypt the Cloud SQL instance .
+      returned: success
+      type: str
+diskEncryptionStatus:
+  description:
+  - Disk encyption status.
+  returned: success
+  type: complex
+  contains:
+    kmsKeyVersionName:
+      description:
+      - The KMS key version used to encrypt the Cloud SQL instance .
+      returned: success
+      type: str
 '''
 
 ################################################################################
@@ -795,6 +841,8 @@ def main():
                     user_labels=dict(type='dict'),
                 ),
             ),
+            disk_encryption_configuration=dict(type='dict', options=dict(kms_key_name=dict(type='str'))),
+            disk_encryption_status=dict(type='dict', options=dict(kms_key_version_name=dict(type='str'))),
         )
     )
 
@@ -858,6 +906,8 @@ def resource_to_request(module):
         u'region': module.params.get('region'),
         u'replicaConfiguration': InstanceReplicaconfiguration(module.params.get('replica_configuration', {}), module).to_request(),
         u'settings': InstanceSettings(module.params.get('settings', {}), module).to_request(),
+        u'diskEncryptionConfiguration': InstanceDiskencryptionconfiguration(module.params.get('disk_encryption_configuration', {}), module).to_request(),
+        u'diskEncryptionStatus': InstanceDiskencryptionstatus(module.params.get('disk_encryption_status', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -941,6 +991,8 @@ def response_to_hash(module, response):
         u'settings': InstanceSettings(response.get(u'settings', {}), module).from_response(),
         u'gceZone': response.get(u'gceZone'),
         u'state': response.get(u'state'),
+        u'diskEncryptionConfiguration': InstanceDiskencryptionconfiguration(response.get(u'diskEncryptionConfiguration', {}), module).from_response(),
+        u'diskEncryptionStatus': InstanceDiskencryptionstatus(response.get(u'diskEncryptionStatus', {}), module).from_response(),
     }
 
 
@@ -1224,6 +1276,36 @@ class InstanceBackupconfiguration(object):
         return remove_nones_from_dict(
             {u'enabled': self.request.get(u'enabled'), u'binaryLogEnabled': self.request.get(u'binaryLogEnabled'), u'startTime': self.request.get(u'startTime')}
         )
+
+
+class InstanceDiskencryptionconfiguration(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'kmsKeyName': self.request.get('kms_key_name')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'kmsKeyName': self.request.get(u'kmsKeyName')})
+
+
+class InstanceDiskencryptionstatus(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'kmsKeyVersionName': self.request.get('kms_key_version_name')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'kmsKeyVersionName': self.request.get(u'kmsKeyVersionName')})
 
 
 if __name__ == '__main__':
