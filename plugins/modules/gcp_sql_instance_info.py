@@ -432,6 +432,28 @@ resources:
       - The current serving state of the database instance.
       returned: success
       type: str
+    diskEncryptionConfiguration:
+      description:
+      - Disk encyption settings.
+      returned: success
+      type: complex
+      contains:
+        kmsKeyName:
+          description:
+          - The KMS key used to encrypt the Cloud SQL instance .
+          returned: success
+          type: str
+    diskEncryptionStatus:
+      description:
+      - Disk encyption status.
+      returned: success
+      type: complex
+      contains:
+        kmsKeyVersionName:
+          description:
+          - The KMS key version used to encrypt the Cloud SQL instance .
+          returned: success
+          type: str
 '''
 
 ################################################################################
