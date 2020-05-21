@@ -175,6 +175,59 @@ options:
               .
             required: true
             type: str
+  forwarding_config:
+    description:
+    - The presence for this field indicates that outbound forwarding is enabled for
+      this zone. The value of this field contains the set of destinations to forward
+      to.
+    required: false
+    type: dict
+    version_added: '2.10'
+    suboptions:
+      target_name_servers:
+        description:
+        - List of target name servers to forward to. Cloud DNS will select the best
+          available name server if more than one target is given.
+        elements: dict
+        required: true
+        type: list
+        suboptions:
+          ipv4_address:
+            description:
+            - IPv4 address of a target name server.
+            required: true
+            type: str
+          forwarding_path:
+            description:
+            - Forwarding path for this TargetNameServer. If unset or `default` Cloud
+              DNS will make forwarding decision based on address ranges, i.e. RFC1918
+              addresses go to the VPC, Non-RFC1918 addresses go to the Internet. When
+              set to `private`, Cloud DNS will always send queries through VPC for
+              this target .
+            - 'Some valid choices include: "default", "private"'
+            required: false
+            type: str
+  peering_config:
+    description:
+    - The presence of this field indicates that DNS Peering is enabled for this zone.
+      The value of this field contains the network to peer with.
+    required: false
+    type: dict
+    version_added: '2.10'
+    suboptions:
+      target_network:
+        description:
+        - The network with which to peer.
+        required: true
+        type: dict
+        suboptions:
+          network_url:
+            description:
+            - The fully qualified URL of the VPC network to forward queries to.
+            - This should be formatted like `U(https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`)
+              .
+            required: true
+            type: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -368,6 +421,55 @@ privateVisibilityConfig:
             .
           returned: success
           type: str
+forwardingConfig:
+  description:
+  - The presence for this field indicates that outbound forwarding is enabled for
+    this zone. The value of this field contains the set of destinations to forward
+    to.
+  returned: success
+  type: complex
+  contains:
+    targetNameServers:
+      description:
+      - List of target name servers to forward to. Cloud DNS will select the best
+        available name server if more than one target is given.
+      returned: success
+      type: complex
+      contains:
+        ipv4Address:
+          description:
+          - IPv4 address of a target name server.
+          returned: success
+          type: str
+        forwardingPath:
+          description:
+          - Forwarding path for this TargetNameServer. If unset or `default` Cloud
+            DNS will make forwarding decision based on address ranges, i.e. RFC1918
+            addresses go to the VPC, Non-RFC1918 addresses go to the Internet. When
+            set to `private`, Cloud DNS will always send queries through VPC for this
+            target .
+          returned: success
+          type: str
+peeringConfig:
+  description:
+  - The presence of this field indicates that DNS Peering is enabled for this zone.
+    The value of this field contains the network to peer with.
+  returned: success
+  type: complex
+  contains:
+    targetNetwork:
+      description:
+      - The network with which to peer.
+      returned: success
+      type: complex
+      contains:
+        networkUrl:
+          description:
+          - The fully qualified URL of the VPC network to forward queries to.
+          - This should be formatted like `U(https://www.googleapis.com/compute/v1/projects/{project}/global/networks/{network}`)
+            .
+          returned: success
+          type: str
 '''
 
 ################################################################################
@@ -418,6 +520,20 @@ def main():
             visibility=dict(default='public', type='str'),
             private_visibility_config=dict(
                 type='dict', options=dict(networks=dict(required=True, type='list', elements='dict', options=dict(network_url=dict(required=True, type='str'))))
+            ),
+            forwarding_config=dict(
+                type='dict',
+                options=dict(
+                    target_name_servers=dict(
+                        required=True,
+                        type='list',
+                        elements='dict',
+                        options=dict(ipv4_address=dict(required=True, type='str'), forwarding_path=dict(type='str')),
+                    )
+                ),
+            ),
+            peering_config=dict(
+                type='dict', options=dict(target_network=dict(required=True, type='dict', options=dict(network_url=dict(required=True, type='str'))))
             ),
         )
     )
@@ -479,6 +595,8 @@ def resource_to_request(module):
         u'labels': module.params.get('labels'),
         u'visibility': module.params.get('visibility'),
         u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(module.params.get('private_visibility_config', {}), module).to_request(),
+        u'forwardingConfig': ManagedZoneForwardingconfig(module.params.get('forwarding_config', {}), module).to_request(),
+        u'peeringConfig': ManagedZonePeeringconfig(module.params.get('peering_config', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -555,6 +673,8 @@ def response_to_hash(module, response):
         u'labels': response.get(u'labels'),
         u'visibility': module.params.get('visibility'),
         u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(response.get(u'privateVisibilityConfig', {}), module).from_response(),
+        u'forwardingConfig': ManagedZoneForwardingconfig(response.get(u'forwardingConfig', {}), module).from_response(),
+        u'peeringConfig': ManagedZonePeeringconfig(response.get(u'peeringConfig', {}), module).from_response(),
     }
 
 
@@ -658,6 +778,82 @@ class ManagedZoneNetworksArray(object):
 
     def _response_from_item(self, item):
         return remove_nones_from_dict({u'networkUrl': item.get(u'networkUrl')})
+
+
+class ManagedZoneForwardingconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'targetNameServers': ManagedZoneTargetnameserversArray(self.request.get('target_name_servers', []), self.module).to_request()}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'targetNameServers': ManagedZoneTargetnameserversArray(self.request.get(u'targetNameServers', []), self.module).from_response()}
+        )
+
+
+class ManagedZoneTargetnameserversArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'ipv4Address': item.get('ipv4_address'), u'forwardingPath': item.get('forwarding_path')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'ipv4Address': item.get(u'ipv4Address'), u'forwardingPath': item.get(u'forwardingPath')})
+
+
+class ManagedZonePeeringconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'targetNetwork': ManagedZoneTargetnetwork(self.request.get('target_network', {}), self.module).to_request()})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'targetNetwork': ManagedZoneTargetnetwork(self.request.get(u'targetNetwork', {}), self.module).from_response()})
+
+
+class ManagedZoneTargetnetwork(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'networkUrl': self.request.get('network_url')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'networkUrl': self.request.get(u'networkUrl')})
 
 
 if __name__ == '__main__':
