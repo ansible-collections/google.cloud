@@ -48,7 +48,7 @@ options:
     type: list
   region:
     description:
-    - URL of the GCP region for this subnetwork.
+    - The GCP region for this subnetwork.
     required: true
     type: str
   project:
@@ -196,7 +196,7 @@ resources:
       type: bool
     region:
       description:
-      - URL of the GCP region for this subnetwork.
+      - The GCP region for this subnetwork.
       returned: success
       type: str
 '''

@@ -132,7 +132,7 @@ options:
     type: bool
   region:
     description:
-    - URL of the GCP region for this subnetwork.
+    - The GCP region for this subnetwork.
     required: true
     type: str
   project:
@@ -289,7 +289,7 @@ privateIpGoogleAccess:
   type: bool
 region:
   description:
-  - URL of the GCP region for this subnetwork.
+  - The GCP region for this subnetwork.
   returned: success
   type: str
 '''
