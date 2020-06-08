@@ -523,6 +523,13 @@ options:
         - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
         required: false
         type: str
+  initial_cluster_version:
+    description:
+    - The software version of the master endpoint and kubelets used in the cluster
+      when it was first created. The version can be upgraded over time.
+    required: false
+    type: str
+    version_added: '2.10'
   master_authorized_networks_config:
     description:
     - Configuration for controlling how IPs are allocated in the cluster.
@@ -1375,6 +1382,7 @@ def main():
                     tpu_ipv4_cidr_block=dict(type='str'),
                 ),
             ),
+            initial_cluster_version=dict(type='str'),
             master_authorized_networks_config=dict(
                 type='dict',
                 options=dict(
@@ -1458,6 +1466,7 @@ def resource_to_request(module):
         u'networkPolicy': ClusterNetworkpolicy(module.params.get('network_policy', {}), module).to_request(),
         u'defaultMaxPodsConstraint': ClusterDefaultmaxpodsconstraint(module.params.get('default_max_pods_constraint', {}), module).to_request(),
         u'ipAllocationPolicy': ClusterIpallocationpolicy(module.params.get('ip_allocation_policy', {}), module).to_request(),
+        u'initialClusterVersion': module.params.get('initial_cluster_version'),
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(
             module.params.get('master_authorized_networks_config', {}), module
         ).to_request(),
