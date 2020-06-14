@@ -332,6 +332,11 @@ options:
               when reading the data.
             required: false
             type: int
+          range:
+            description:
+            - Range of a sheet to query from. Only used when non-empty.
+            required: true
+            type: str
       csv_options:
         description:
         - Additional properties to set if sourceFormat is set to CSV.
@@ -1072,7 +1077,13 @@ def main():
                             )
                         ),
                     ),
-                    google_sheets_options=dict(type='dict', options=dict(skip_leading_rows=dict(default=0, type='int'))),
+                    google_sheets_options=dict(
+                        type='dict', 
+                        options=dict(
+                            skip_leading_rows=dict(default=0, type='int')
+                            range=dict(type='str')
+                        )
+                    ),
                     csv_options=dict(
                         type='dict',
                         options=dict(
@@ -1560,10 +1571,20 @@ class TableGooglesheetsoptions(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'skipLeadingRows': self.request.get('skip_leading_rows')})
+        return remove_nones_from_dict(
+            {
+                u'skipLeadingRows': self.request.get('skip_leading_rows'),
+                u'range': self.request.get('range'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'skipLeadingRows': self.request.get(u'skipLeadingRows')})
+        return remove_nones_from_dict(
+            {
+                u'skipLeadingRows': self.request.get(u'skipLeadingRows'),
+                u'range': self.request.get(u'range'),
+            }
+        )
 
 
 class TableCsvoptions(object):
