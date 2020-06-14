@@ -335,7 +335,7 @@ options:
           range:
             description:
             - Range of a sheet to query from. Only used when non-empty.
-            required: true
+            required: false
             type: str
       csv_options:
         description:
