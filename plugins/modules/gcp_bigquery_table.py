@@ -113,6 +113,11 @@ options:
     required: false
     type: dict
     suboptions:
+      query:
+        description:
+        - A query that BigQuery executes when the view is referenced.
+        required: true
+        type: str
       use_legacy_sql:
         description:
         - Specifies whether to use BigQuery's legacy SQL for this view .
@@ -641,6 +646,11 @@ view:
   returned: success
   type: complex
   contains:
+    query:
+      description:
+      - A query that BigQuery executes when the view is referenced.
+      required: true
+      type: str
     useLegacySql:
       description:
       - Specifies whether to use BigQuery's legacy SQL for this view .
@@ -1027,6 +1037,7 @@ def main():
             view=dict(
                 type='dict',
                 options=dict(
+                    query=dict(required=True, type='str'),
                     use_legacy_sql=dict(type='bool'),
                     user_defined_function_resources=dict(
                         type='list', elements='dict', options=dict(inline_code=dict(type='str'), resource_uri=dict(type='str'))
@@ -1311,6 +1322,7 @@ class TableView(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
+                u'query': self.request.get('query'),
                 u'useLegacySql': self.request.get('use_legacy_sql'),
                 u'userDefinedFunctionResources': TableUserdefinedfunctionresourcesArray(
                     self.request.get('user_defined_function_resources', []), self.module
@@ -1321,6 +1333,7 @@ class TableView(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
+                u'query': self.request.get(u'query'),
                 u'useLegacySql': self.request.get(u'useLegacySql'),
                 u'userDefinedFunctionResources': TableUserdefinedfunctionresourcesArray(
                     self.request.get(u'userDefinedFunctionResources', []), self.module
