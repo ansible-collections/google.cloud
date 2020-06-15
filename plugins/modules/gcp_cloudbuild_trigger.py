@@ -133,6 +133,12 @@ options:
           path, this value is ignored for that step's execution.
         required: false
         type: str
+      invert_regex:
+        description:
+        - Only trigger a build if the revision regex does NOT match the revision regex.
+        required: false
+        type: bool
+        version_added: '2.10'
       branch_name:
         description:
         - Name of the branch to build. Exactly one a of branch name, tag, or commit
@@ -479,6 +485,11 @@ triggerTemplate:
         path, this value is ignored for that step's execution.
       returned: success
       type: str
+    invertRegex:
+      description:
+      - Only trigger a build if the revision regex does NOT match the revision regex.
+      returned: success
+      type: bool
     branchName:
       description:
       - Name of the branch to build. Exactly one a of branch name, tag, or commit
@@ -687,6 +698,7 @@ def main():
                     project_id=dict(type='str'),
                     repo_name=dict(default='default', type='str'),
                     dir=dict(type='str'),
+                    invert_regex=dict(type='bool'),
                     branch_name=dict(type='str'),
                     tag_name=dict(type='str'),
                     commit_sha=dict(type='str'),
@@ -873,6 +885,7 @@ class TriggerTriggertemplate(object):
                 u'projectId': self.request.get('project_id'),
                 u'repoName': self.request.get('repo_name'),
                 u'dir': self.request.get('dir'),
+                u'invertRegex': self.request.get('invert_regex'),
                 u'branchName': self.request.get('branch_name'),
                 u'tagName': self.request.get('tag_name'),
                 u'commitSha': self.request.get('commit_sha'),
@@ -885,6 +898,7 @@ class TriggerTriggertemplate(object):
                 u'projectId': self.request.get(u'projectId'),
                 u'repoName': self.request.get(u'repoName'),
                 u'dir': self.request.get(u'dir'),
+                u'invertRegex': self.request.get(u'invertRegex'),
                 u'branchName': self.request.get(u'branchName'),
                 u'tagName': self.request.get(u'tagName'),
                 u'commitSha': self.request.get(u'commitSha'),

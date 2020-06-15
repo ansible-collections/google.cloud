@@ -192,6 +192,12 @@ resources:
             path, this value is ignored for that step's execution.
           returned: success
           type: str
+        invertRegex:
+          description:
+          - Only trigger a build if the revision regex does NOT match the revision
+            regex.
+          returned: success
+          type: bool
         branchName:
           description:
           - Name of the branch to build. Exactly one a of branch name, tag, or commit
