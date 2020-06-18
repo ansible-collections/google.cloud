@@ -454,6 +454,44 @@ resources:
           - The KMS key version used to encrypt the Cloud SQL instance .
           returned: success
           type: str
+    serverCaCert:
+      description:
+      - SSL configuration.
+      returned: success
+      type: complex
+      contains:
+        cert:
+          description:
+          - PEM representation of the X.509 certificate.
+          returned: success
+          type: str
+        certSerialNumber:
+          description:
+          - Serial number, as extracted from the certificate.
+          returned: success
+          type: str
+        commonName:
+          description:
+          - User supplied name. Constrained to [a-zA-Z.-_ ]+.
+          returned: success
+          type: str
+        createTime:
+          description:
+          - The time when the certificate was created in RFC 3339 format, for example
+            2012-11-15T16:19:00.094Z.
+          returned: success
+          type: str
+        expirationTime:
+          description:
+          - The time when the certificate expires in RFC 3339 format, for example
+            2012-11-15T16:19:00.094Z.
+          returned: success
+          type: str
+        sha1Fingerprint:
+          description:
+          - SHA-1 fingerprint of the certificate.
+          returned: success
+          type: str
 '''
 
 ################################################################################
