@@ -758,6 +758,43 @@ diskEncryptionStatus:
       - The KMS key version used to encrypt the Cloud SQL instance .
       returned: success
       type: str
+serverCaCert:
+  description:
+  - SSL configuration.
+  returned: success
+  type: complex
+  contains:
+    cert:
+      description:
+      - PEM representation of the X.509 certificate.
+      returned: success
+      type: str
+    certSerialNumber:
+      description:
+      - Serial number, as extracted from the certificate.
+      returned: success
+      type: str
+    commonName:
+      description:
+      - User supplied name. Constrained to [a-zA-Z.-_ ]+.
+      returned: success
+      type: str
+    createTime:
+      description:
+      - The time when the certificate was created in RFC 3339 format, for example
+        2012-11-15T16:19:00.094Z.
+      returned: success
+      type: str
+    expirationTime:
+      description:
+      - The time when the certificate expires in RFC 3339 format, for example 2012-11-15T16:19:00.094Z.
+      returned: success
+      type: str
+    sha1Fingerprint:
+      description:
+      - SHA-1 fingerprint of the certificate.
+      returned: success
+      type: str
 '''
 
 ################################################################################
@@ -993,6 +1030,7 @@ def response_to_hash(module, response):
         u'state': response.get(u'state'),
         u'diskEncryptionConfiguration': InstanceDiskencryptionconfiguration(response.get(u'diskEncryptionConfiguration', {}), module).from_response(),
         u'diskEncryptionStatus': InstanceDiskencryptionstatus(response.get(u'diskEncryptionStatus', {}), module).from_response(),
+        u'serverCaCert': InstanceServercacert(response.get(u'serverCaCert', {}), module).from_response(),
     }
 
 
@@ -1306,6 +1344,39 @@ class InstanceDiskencryptionstatus(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'kmsKeyVersionName': self.request.get(u'kmsKeyVersionName')})
+
+
+class InstanceServercacert(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'cert': self.request.get('cert'),
+                u'certSerialNumber': self.request.get('cert_serial_number'),
+                u'commonName': self.request.get('common_name'),
+                u'createTime': self.request.get('create_time'),
+                u'expirationTime': self.request.get('expiration_time'),
+                u'sha1Fingerprint': self.request.get('sha1_fingerprint'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'cert': self.request.get(u'cert'),
+                u'certSerialNumber': self.request.get(u'certSerialNumber'),
+                u'commonName': self.request.get(u'commonName'),
+                u'createTime': self.request.get(u'createTime'),
+                u'expirationTime': self.request.get(u'expirationTime'),
+                u'sha1Fingerprint': self.request.get(u'sha1Fingerprint'),
+            }
+        )
 
 
 if __name__ == '__main__':
