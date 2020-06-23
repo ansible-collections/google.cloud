@@ -105,6 +105,14 @@ options:
         type: int
         aliases:
         - cooldownPeriod
+      mode:
+        description:
+        - Defines operating mode for this policy.
+        - 'Some valid choices include: "OFF", "ONLY_UP", "ON"'
+        required: false
+        default: 'ON'
+        type: str
+        version_added: '2.10'
       cpu_utilization:
         description:
         - Defines the CPU utilization policy that allows the autoscaler to scale based
@@ -381,6 +389,11 @@ autoscalingPolicy:
         do this, create an instance and time the startup process.
       returned: success
       type: int
+    mode:
+      description:
+      - Defines operating mode for this policy.
+      returned: success
+      type: str
     cpuUtilization:
       description:
       - Defines the CPU utilization policy that allows the autoscaler to scale based
@@ -490,6 +503,7 @@ def main():
                     min_num_replicas=dict(type='int', aliases=['minReplicas']),
                     max_num_replicas=dict(required=True, type='int', aliases=['maxReplicas']),
                     cool_down_period_sec=dict(default=60, type='int', aliases=['cooldownPeriod']),
+                    mode=dict(default='ON', type='str'),
                     cpu_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str', aliases=['target']))),
                     custom_metric_utilizations=dict(
                         type='list',
@@ -686,6 +700,7 @@ class AutoscalerAutoscalingpolicy(object):
                 u'minNumReplicas': self.request.get('min_num_replicas'),
                 u'maxNumReplicas': self.request.get('max_num_replicas'),
                 u'coolDownPeriodSec': self.request.get('cool_down_period_sec'),
+                u'mode': self.request.get('mode'),
                 u'cpuUtilization': AutoscalerCpuutilization(self.request.get('cpu_utilization', {}), self.module).to_request(),
                 u'customMetricUtilizations': AutoscalerCustommetricutilizationsArray(
                     self.request.get('custom_metric_utilizations', []), self.module
@@ -700,6 +715,7 @@ class AutoscalerAutoscalingpolicy(object):
                 u'minNumReplicas': self.request.get(u'minNumReplicas'),
                 u'maxNumReplicas': self.request.get(u'maxNumReplicas'),
                 u'coolDownPeriodSec': self.request.get(u'coolDownPeriodSec'),
+                u'mode': self.request.get(u'mode'),
                 u'cpuUtilization': AutoscalerCpuutilization(self.request.get(u'cpuUtilization', {}), self.module).from_response(),
                 u'customMetricUtilizations': AutoscalerCustommetricutilizationsArray(
                     self.request.get(u'customMetricUtilizations', []), self.module
