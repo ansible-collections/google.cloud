@@ -177,6 +177,11 @@ resources:
             To do this, create an instance and time the startup process.
           returned: success
           type: int
+        mode:
+          description:
+          - Defines operating mode for this policy.
+          returned: success
+          type: str
         cpuUtilization:
           description:
           - Defines the CPU utilization policy that allows the autoscaler to scale
