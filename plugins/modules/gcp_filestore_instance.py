@@ -61,7 +61,8 @@ options:
   tier:
     description:
     - The service tier of the instance.
-    - 'Some valid choices include: "TIER_UNSPECIFIED", "STANDARD", "PREMIUM"'
+    - 'Some valid choices include: "TIER_UNSPECIFIED", "STANDARD", "PREMIUM", "BASIC_HDD",
+      "BASIC_SSD", "HIGH_SCALE_SSD"'
     required: true
     type: str
   labels:
