@@ -909,13 +909,13 @@ options:
               redirect_response_code:
                 description:
                 - 'The HTTP Status code to use for this RedirectAction. Supported
-                  values are: - MOVED_PERMANENTLY_DEFAULT, which is the default value
+                  values are: * MOVED_PERMANENTLY_DEFAULT, which is the default value
                   and corresponds to 301.'
-                - "- FOUND, which corresponds to 302."
-                - "- SEE_OTHER which corresponds to 303."
-                - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                - "* FOUND, which corresponds to 302."
+                - "* SEE_OTHER which corresponds to 303."
+                - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
                   request method will be retained."
-                - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the
                   request method will be retained."
                 - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT",
                   "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"'
@@ -1400,13 +1400,13 @@ options:
               redirect_response_code:
                 description:
                 - 'The HTTP Status code to use for this RedirectAction. Supported
-                  values are: - MOVED_PERMANENTLY_DEFAULT, which is the default value
+                  values are: * MOVED_PERMANENTLY_DEFAULT, which is the default value
                   and corresponds to 301.'
-                - "- FOUND, which corresponds to 302."
-                - "- SEE_OTHER which corresponds to 303."
-                - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+                - "* FOUND, which corresponds to 302."
+                - "* SEE_OTHER which corresponds to 303."
+                - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
                   request method will be retained."
-                - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+                - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the
                   request method will be retained."
                 - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT",
                   "PERMANENT_REDIRECT", "SEE_OTHER", "TEMPORARY_REDIRECT"'
@@ -1467,13 +1467,13 @@ options:
           redirect_response_code:
             description:
             - 'The HTTP Status code to use for this RedirectAction. Supported values
-              are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+              are: * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
               to 301.'
-            - "- FOUND, which corresponds to 302."
-            - "- SEE_OTHER which corresponds to 303."
-            - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+            - "* FOUND, which corresponds to 302."
+            - "* SEE_OTHER which corresponds to 303."
+            - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
               method will be retained."
-            - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+            - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
               method will be retained."
             - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT",
               "SEE_OTHER", "TEMPORARY_REDIRECT"'
@@ -1566,13 +1566,13 @@ options:
       redirect_response_code:
         description:
         - 'The HTTP Status code to use for this RedirectAction. Supported values are:
-          - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+          * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
           to 301.'
-        - "- FOUND, which corresponds to 302."
-        - "- SEE_OTHER which corresponds to 303."
-        - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+        - "* FOUND, which corresponds to 302."
+        - "* SEE_OTHER which corresponds to 303."
+        - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
           method will be retained."
-        - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+        - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
           method will be retained."
         - 'Some valid choices include: "FOUND", "MOVED_PERMANENTLY_DEFAULT", "PERMANENT_REDIRECT",
           "SEE_OTHER", "TEMPORARY_REDIRECT"'
@@ -2480,13 +2480,13 @@ pathMatchers:
             redirectResponseCode:
               description:
               - 'The HTTP Status code to use for this RedirectAction. Supported values
-                are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+                are: * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
                 to 301.'
-              - "- FOUND, which corresponds to 302."
-              - "- SEE_OTHER which corresponds to 303."
-              - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+              - "* FOUND, which corresponds to 302."
+              - "* SEE_OTHER which corresponds to 303."
+              - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
                 request method will be retained."
-              - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+              - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the
                 request method will be retained."
               returned: success
               type: str
@@ -2929,13 +2929,13 @@ pathMatchers:
             redirectResponseCode:
               description:
               - 'The HTTP Status code to use for this RedirectAction. Supported values
-                are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+                are: * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
                 to 301.'
-              - "- FOUND, which corresponds to 302."
-              - "- SEE_OTHER which corresponds to 303."
-              - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
+              - "* FOUND, which corresponds to 302."
+              - "* SEE_OTHER which corresponds to 303."
+              - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the
                 request method will be retained."
-              - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the
+              - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the
                 request method will be retained."
               returned: success
               type: str
@@ -2991,13 +2991,13 @@ pathMatchers:
         redirectResponseCode:
           description:
           - 'The HTTP Status code to use for this RedirectAction. Supported values
-            are: - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
+            are: * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds
             to 301.'
-          - "- FOUND, which corresponds to 302."
-          - "- SEE_OTHER which corresponds to 303."
-          - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+          - "* FOUND, which corresponds to 302."
+          - "* SEE_OTHER which corresponds to 303."
+          - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
             method will be retained."
-          - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+          - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
             method will be retained."
           returned: success
           type: str
@@ -3080,13 +3080,13 @@ defaultUrlRedirect:
     redirectResponseCode:
       description:
       - 'The HTTP Status code to use for this RedirectAction. Supported values are:
-        - MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to
+        * MOVED_PERMANENTLY_DEFAULT, which is the default value and corresponds to
         301.'
-      - "- FOUND, which corresponds to 302."
-      - "- SEE_OTHER which corresponds to 303."
-      - "- TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
+      - "* FOUND, which corresponds to 302."
+      - "* SEE_OTHER which corresponds to 303."
+      - "* TEMPORARY_REDIRECT, which corresponds to 307. In this case, the request
         method will be retained."
-      - "- PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
+      - "* PERMANENT_REDIRECT, which corresponds to 308. In this case, the request
         method will be retained."
       returned: success
       type: str
