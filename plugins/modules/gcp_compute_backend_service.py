@@ -372,12 +372,13 @@ options:
   health_checks:
     description:
     - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
-      checking this BackendService. Currently at most one health check can be specified,
-      and a health check is required.
+      checking this BackendService. Currently at most one health check can be specified.
+    - A health check must be specified unless the backend service uses an internet
+      NEG as a backend.
     - For internal load balancing, a URL to a HealthCheck resource must be specified
       instead.
     elements: str
-    required: true
+    required: false
     type: list
   iap:
     description:
@@ -1030,8 +1031,9 @@ enableCDN:
 healthChecks:
   description:
   - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
-    checking this BackendService. Currently at most one health check can be specified,
-    and a health check is required.
+    checking this BackendService. Currently at most one health check can be specified.
+  - A health check must be specified unless the backend service uses an internet NEG
+    as a backend.
   - For internal load balancing, a URL to a HealthCheck resource must be specified
     instead.
   returned: success
@@ -1365,7 +1367,7 @@ def main():
             custom_request_headers=dict(type='list', elements='str'),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
-            health_checks=dict(required=True, type='list', elements='str'),
+            health_checks=dict(type='list', elements='str'),
             iap=dict(
                 type='dict',
                 options=dict(enabled=dict(type='bool'), oauth2_client_id=dict(required=True, type='str'), oauth2_client_secret=dict(required=True, type='str')),
