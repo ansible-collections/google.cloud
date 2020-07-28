@@ -195,17 +195,23 @@ resources:
       type: bool
     logConfig:
       description:
-      - This field denotes whether to enable logging for a particular firewall rule.
-        If logging is enabled, logs will be exported to Stackdriver.
+      - This field denotes the logging options for a particular firewall rule.
+      - If logging is enabled, logs will be exported to Cloud Logging.
       returned: success
       type: complex
       contains:
-        enableLogging:
+        enable:
           description:
           - This field denotes whether to enable logging for a particular firewall
             rule. If logging is enabled, logs will be exported to Stackdriver.
           returned: success
           type: bool
+        metadata:
+          description:
+          - This field denotes whether to include or exclude metadata for firewall
+            logs.
+          returned: success
+          type: str
     id:
       description:
       - The unique identifier for the resource.
