@@ -143,18 +143,24 @@ options:
     version_added: '2.8'
   log_config:
     description:
-    - This field denotes whether to enable logging for a particular firewall rule.
-      If logging is enabled, logs will be exported to Stackdriver.
+    - This field denotes the logging options for a particular firewall rule.
+    - If logging is enabled, logs will be exported to Cloud Logging.
     required: false
     type: dict
     version_added: '2.10'
     suboptions:
-      enable_logging:
+      enable:
         description:
         - This field denotes whether to enable logging for a particular firewall rule.
           If logging is enabled, logs will be exported to Stackdriver.
         required: false
         type: bool
+      metadata:
+        description:
+        - This field denotes whether to include or exclude metadata for firewall logs.
+        - 'Some valid choices include: "EXCLUDE_ALL_METADATA", "INCLUDE_ALL_METADATA"'
+        required: false
+        type: str
   name:
     description:
     - Name of the resource. Provided by the client when the resource is created. The
@@ -406,17 +412,22 @@ disabled:
   type: bool
 logConfig:
   description:
-  - This field denotes whether to enable logging for a particular firewall rule. If
-    logging is enabled, logs will be exported to Stackdriver.
+  - This field denotes the logging options for a particular firewall rule.
+  - If logging is enabled, logs will be exported to Cloud Logging.
   returned: success
   type: complex
   contains:
-    enableLogging:
+    enable:
       description:
       - This field denotes whether to enable logging for a particular firewall rule.
         If logging is enabled, logs will be exported to Stackdriver.
       returned: success
       type: bool
+    metadata:
+      description:
+      - This field denotes whether to include or exclude metadata for firewall logs.
+      returned: success
+      type: str
 id:
   description:
   - The unique identifier for the resource.
@@ -539,7 +550,7 @@ def main():
             destination_ranges=dict(type='list', elements='str'),
             direction=dict(type='str'),
             disabled=dict(type='bool'),
-            log_config=dict(type='dict', options=dict(enable_logging=dict(type='bool'))),
+            log_config=dict(type='dict', options=dict(enable=dict(type='bool'), metadata=dict(type='str'))),
             name=dict(required=True, type='str'),
             network=dict(default=dict(selfLink='global/networks/default'), type='dict'),
             priority=dict(default=1000, type='int'),
@@ -817,10 +828,10 @@ class FirewallLogconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'enable': self.request.get('enable_logging')})
+        return remove_nones_from_dict({u'enable': self.request.get('enable'), u'metadata': self.request.get('metadata')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'enable': self.request.get(u'enable')})
+        return remove_nones_from_dict({u'enable': self.request.get(u'enable'), u'metadata': self.request.get(u'metadata')})
 
 
 if __name__ == '__main__':
