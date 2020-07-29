@@ -15,6 +15,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import (absolute_import, division, print_function)
+
 from ansible_collections.community.general.tests.unit.compat import unittest
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (GcpRequest,
                                                                              navigate_hash,
