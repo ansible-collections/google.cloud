@@ -108,8 +108,9 @@ options:
   redis_version:
     description:
     - 'The version of Redis software. If not provided, latest supported version will
-      be used. Currently, the supported values are: - REDIS_4_0 for Redis 4.0 compatibility
-      - REDIS_3_2 for Redis 3.2 compatibility .'
+      be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0 compatibility
+      - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis 3.2 compatibility
+      .'
     required: false
     type: str
   reserved_ip_range:
@@ -293,11 +294,20 @@ port:
   - The port number of the exposed Redis endpoint.
   returned: success
   type: int
+persistenceIamIdentity:
+  description:
+  - Output only. Cloud IAM identity used by import / export operations to transfer
+    data to/from Cloud Storage. Format is "serviceAccount:".
+  - The value may change over time for a given instance so should be checked before
+    each import/export operation.
+  returned: success
+  type: str
 redisVersion:
   description:
   - 'The version of Redis software. If not provided, latest supported version will
-    be used. Currently, the supported values are: - REDIS_4_0 for Redis 4.0 compatibility
-    - REDIS_3_2 for Redis 3.2 compatibility .'
+    be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0 compatibility
+    - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis 3.2 compatibility
+    .'
   returned: success
   type: str
 reservedIpRange:
@@ -513,6 +523,7 @@ def response_to_hash(module, response):
         u'name': module.params.get('name'),
         u'memorySizeGb': response.get(u'memorySizeGb'),
         u'port': response.get(u'port'),
+        u'persistenceIamIdentity': response.get(u'persistenceIamIdentity'),
         u'redisVersion': module.params.get('redis_version'),
         u'reservedIpRange': module.params.get('reserved_ip_range'),
         u'tier': module.params.get('tier'),
