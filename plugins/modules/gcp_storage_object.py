@@ -251,7 +251,7 @@ def upload_file(module, client, src, dest):
     try:
         bucket = client.get_bucket(module.params['bucket'])
         blob = Blob(dest, bucket)
-        with open(src, "r") as file_obj:
+        with open(src, "rb") as file_obj:
             blob.upload_from_file(file_obj)
         return blob_to_dict(blob)
     except google.cloud.exceptions.GoogleCloudError as e:
