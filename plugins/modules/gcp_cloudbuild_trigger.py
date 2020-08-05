@@ -64,6 +64,13 @@ options:
     - Human-readable description of the trigger.
     required: false
     type: str
+  tags:
+    description:
+    - Tags for annotation of a BuildTrigger .
+    elements: str
+    required: false
+    type: list
+    version_added: '2.10'
   disabled:
     description:
     - Whether the trigger is disabled or not. If true, the trigger will never result
@@ -166,6 +173,97 @@ options:
     required: false
     type: dict
     suboptions:
+      source:
+        description:
+        - The location of the source files to build.
+        required: false
+        type: dict
+        version_added: '2.10'
+        suboptions:
+          storage_source:
+            description:
+            - Location of the source in an archive file in Google Cloud Storage.
+            required: false
+            type: dict
+            suboptions:
+              bucket:
+                description:
+                - Google Cloud Storage bucket containing the source.
+                required: true
+                type: str
+              object:
+                description:
+                - Google Cloud Storage object containing the source.
+                - This object must be a gzipped archive file (.tar.gz) containing
+                  source to build.
+                required: true
+                type: str
+              generation:
+                description:
+                - Google Cloud Storage generation for the object. If the generation
+                  is omitted, the latest generation will be used .
+                required: false
+                type: str
+          repo_source:
+            description:
+            - Location of the source in a Google Cloud Source Repository.
+            required: false
+            type: dict
+            suboptions:
+              project_id:
+                description:
+                - ID of the project that owns the Cloud Source Repository. If omitted,
+                  the project ID requesting the build is assumed.
+                required: false
+                type: str
+              repo_name:
+                description:
+                - Name of the Cloud Source Repository.
+                required: true
+                type: str
+              dir:
+                description:
+                - Directory, relative to the source root, in which to run the build.
+                - This must be a relative path. If a step's dir is specified and is
+                  an absolute path, this value is ignored for that step's execution.
+                required: false
+                type: str
+              invert_regex:
+                description:
+                - Only trigger a build if the revision regex does NOT match the revision
+                  regex.
+                required: false
+                type: bool
+              substitutions:
+                description:
+                - Substitutions to use in a triggered build. Should only be used with
+                  triggers.run .
+                required: false
+                type: dict
+              branch_name:
+                description:
+                - Regex matching branches to build. Exactly one a of branch name,
+                  tag, or commit SHA must be provided.
+                - The syntax of the regular expressions accepted is the syntax accepted
+                  by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                  .
+                required: false
+                type: str
+              tag_name:
+                description:
+                - Regex matching tags to build. Exactly one a of branch name, tag,
+                  or commit SHA must be provided.
+                - The syntax of the regular expressions accepted is the syntax accepted
+                  by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                  .
+                required: false
+                type: str
+              commit_sha:
+                description:
+                - Explicit commit SHA to build. Exactly one a of branch name, tag,
+                  or commit SHA must be provided.
+                required: false
+                type: str
       tags:
         description:
         - Tags for annotation of a Build. These are not docker tags.
@@ -183,6 +281,29 @@ options:
         elements: str
         required: false
         type: list
+      substitutions:
+        description:
+        - Substitutions data for Build resource.
+        required: false
+        type: dict
+        version_added: '2.10'
+      queue_ttl:
+        description:
+        - TTL in queue for this build. If provided and the build is enqueued longer
+          than this value, the build will expire and the build status will be EXPIRED.
+        - The TTL starts ticking from createTime.
+        - 'A duration in seconds with up to nine fractional digits, terminated by
+          ''s''. Example: "3.5s".'
+        required: false
+        type: str
+        version_added: '2.10'
+      logs_bucket:
+        description:
+        - Google Cloud Storage bucket where logs should be written. Logs file names
+          will be of the format ${logsBucket}/log-${build_id}.txt.
+        required: false
+        type: str
+        version_added: '2.10'
       timeout:
         description:
         - Amount of time that this build should be allowed to run, to second granularity.
@@ -196,6 +317,28 @@ options:
         default: 600s
         type: str
         version_added: '2.10'
+      secrets:
+        description:
+        - Secrets to decrypt using Cloud Key Management Service.
+        elements: dict
+        required: false
+        type: list
+        version_added: '2.10'
+        suboptions:
+          kms_key_name:
+            description:
+            - Cloud KMS key name to use to decrypt these envs.
+            required: true
+            type: str
+          secret_env:
+            description:
+            - Map of environment variable name to its encrypted value.
+            - Secret environment variables must be unique across all of a build's
+              secrets, and must be used by at least one build step. Values can be
+              at most 64 KB in size. There can be at most 100 secret values across
+              all of a build's secrets.
+            required: false
+            type: dict
       steps:
         description:
         - The operations to be performed on the workspace.
@@ -415,6 +558,11 @@ description:
   - Human-readable description of the trigger.
   returned: success
   type: str
+tags:
+  description:
+  - Tags for annotation of a BuildTrigger .
+  returned: success
+  type: list
 disabled:
   description:
   - Whether the trigger is disabled or not. If true, the trigger will never result
@@ -516,6 +664,96 @@ build:
   returned: success
   type: complex
   contains:
+    source:
+      description:
+      - The location of the source files to build.
+      returned: success
+      type: complex
+      contains:
+        storageSource:
+          description:
+          - Location of the source in an archive file in Google Cloud Storage.
+          returned: success
+          type: complex
+          contains:
+            bucket:
+              description:
+              - Google Cloud Storage bucket containing the source.
+              returned: success
+              type: str
+            object:
+              description:
+              - Google Cloud Storage object containing the source.
+              - This object must be a gzipped archive file (.tar.gz) containing source
+                to build.
+              returned: success
+              type: str
+            generation:
+              description:
+              - Google Cloud Storage generation for the object. If the generation
+                is omitted, the latest generation will be used .
+              returned: success
+              type: str
+        repoSource:
+          description:
+          - Location of the source in a Google Cloud Source Repository.
+          returned: success
+          type: complex
+          contains:
+            projectId:
+              description:
+              - ID of the project that owns the Cloud Source Repository. If omitted,
+                the project ID requesting the build is assumed.
+              returned: success
+              type: str
+            repoName:
+              description:
+              - Name of the Cloud Source Repository.
+              returned: success
+              type: str
+            dir:
+              description:
+              - Directory, relative to the source root, in which to run the build.
+              - This must be a relative path. If a step's dir is specified and is
+                an absolute path, this value is ignored for that step's execution.
+              returned: success
+              type: str
+            invertRegex:
+              description:
+              - Only trigger a build if the revision regex does NOT match the revision
+                regex.
+              returned: success
+              type: bool
+            substitutions:
+              description:
+              - Substitutions to use in a triggered build. Should only be used with
+                triggers.run .
+              returned: success
+              type: dict
+            branchName:
+              description:
+              - Regex matching branches to build. Exactly one a of branch name, tag,
+                or commit SHA must be provided.
+              - The syntax of the regular expressions accepted is the syntax accepted
+                by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                .
+              returned: success
+              type: str
+            tagName:
+              description:
+              - Regex matching tags to build. Exactly one a of branch name, tag, or
+                commit SHA must be provided.
+              - The syntax of the regular expressions accepted is the syntax accepted
+                by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                .
+              returned: success
+              type: str
+            commitSha:
+              description:
+              - Explicit commit SHA to build. Exactly one a of branch name, tag, or
+                commit SHA must be provided.
+              returned: success
+              type: str
     tags:
       description:
       - Tags for annotation of a Build. These are not docker tags.
@@ -531,6 +769,26 @@ build:
       - If any of the images fail to be pushed, the build status is marked FAILURE.
       returned: success
       type: list
+    substitutions:
+      description:
+      - Substitutions data for Build resource.
+      returned: success
+      type: dict
+    queueTtl:
+      description:
+      - TTL in queue for this build. If provided and the build is enqueued longer
+        than this value, the build will expire and the build status will be EXPIRED.
+      - The TTL starts ticking from createTime.
+      - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
+        Example: "3.5s".'
+      returned: success
+      type: str
+    logsBucket:
+      description:
+      - Google Cloud Storage bucket where logs should be written. Logs file names
+        will be of the format ${logsBucket}/log-${build_id}.txt.
+      returned: success
+      type: str
     timeout:
       description:
       - Amount of time that this build should be allowed to run, to second granularity.
@@ -542,6 +800,26 @@ build:
       - Default time is ten minutes (600s).
       returned: success
       type: str
+    secrets:
+      description:
+      - Secrets to decrypt using Cloud Key Management Service.
+      returned: success
+      type: complex
+      contains:
+        kmsKeyName:
+          description:
+          - Cloud KMS key name to use to decrypt these envs.
+          returned: success
+          type: str
+        secretEnv:
+          description:
+          - Map of environment variable name to its encrypted value.
+          - Secret environment variables must be unique across all of a build's secrets,
+            and must be used by at least one build step. Values can be at most 64
+            KB in size. There can be at most 100 secret values across all of a build's
+            secrets.
+          returned: success
+          type: dict
     steps:
       description:
       - The operations to be performed on the workspace.
@@ -687,6 +965,7 @@ def main():
             id=dict(type='str'),
             name=dict(type='str'),
             description=dict(type='str'),
+            tags=dict(type='list', elements='str'),
             disabled=dict(type='bool'),
             substitutions=dict(type='dict'),
             filename=dict(type='str'),
@@ -707,9 +986,35 @@ def main():
             build=dict(
                 type='dict',
                 options=dict(
+                    source=dict(
+                        type='dict',
+                        options=dict(
+                            storage_source=dict(
+                                type='dict',
+                                options=dict(bucket=dict(required=True, type='str'), object=dict(required=True, type='str'), generation=dict(type='str')),
+                            ),
+                            repo_source=dict(
+                                type='dict',
+                                options=dict(
+                                    project_id=dict(type='str'),
+                                    repo_name=dict(required=True, type='str'),
+                                    dir=dict(type='str'),
+                                    invert_regex=dict(type='bool'),
+                                    substitutions=dict(type='dict'),
+                                    branch_name=dict(type='str'),
+                                    tag_name=dict(type='str'),
+                                    commit_sha=dict(type='str'),
+                                ),
+                            ),
+                        ),
+                    ),
                     tags=dict(type='list', elements='str'),
                     images=dict(type='list', elements='str'),
+                    substitutions=dict(type='dict'),
+                    queue_ttl=dict(type='str'),
+                    logs_bucket=dict(type='str'),
                     timeout=dict(default='600s', type='str'),
+                    secrets=dict(type='list', elements='dict', options=dict(kms_key_name=dict(required=True, type='str'), secret_env=dict(type='dict'))),
                     steps=dict(
                         required=True,
                         type='list',
@@ -785,6 +1090,7 @@ def resource_to_request(module):
         u'id': module.params.get('id'),
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
+        u'tags': module.params.get('tags'),
         u'disabled': module.params.get('disabled'),
         u'substitutions': module.params.get('substitutions'),
         u'filename': module.params.get('filename'),
@@ -860,6 +1166,7 @@ def response_to_hash(module, response):
         u'id': response.get(u'id'),
         u'name': response.get(u'name'),
         u'description': response.get(u'description'),
+        u'tags': response.get(u'tags'),
         u'disabled': response.get(u'disabled'),
         u'createTime': response.get(u'createTime'),
         u'substitutions': response.get(u'substitutions'),
@@ -917,9 +1224,14 @@ class TriggerBuild(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
+                u'source': TriggerSource(self.request.get('source', {}), self.module).to_request(),
                 u'tags': self.request.get('tags'),
                 u'images': self.request.get('images'),
+                u'substitutions': self.request.get('substitutions'),
+                u'queueTtl': self.request.get('queue_ttl'),
+                u'logsBucket': self.request.get('logs_bucket'),
                 u'timeout': self.request.get('timeout'),
+                u'secrets': TriggerSecretsArray(self.request.get('secrets', []), self.module).to_request(),
                 u'steps': TriggerStepsArray(self.request.get('steps', []), self.module).to_request(),
             }
         )
@@ -927,12 +1239,125 @@ class TriggerBuild(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
+                u'source': TriggerSource(self.request.get(u'source', {}), self.module).from_response(),
                 u'tags': self.request.get(u'tags'),
                 u'images': self.request.get(u'images'),
+                u'substitutions': self.request.get(u'substitutions'),
+                u'queueTtl': self.request.get(u'queueTtl'),
+                u'logsBucket': self.request.get(u'logsBucket'),
                 u'timeout': self.request.get(u'timeout'),
+                u'secrets': TriggerSecretsArray(self.request.get(u'secrets', []), self.module).from_response(),
                 u'steps': TriggerStepsArray(self.request.get(u'steps', []), self.module).from_response(),
             }
         )
+
+
+class TriggerSource(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'storageSource': TriggerStoragesource(self.request.get('storage_source', {}), self.module).to_request(),
+                u'repoSource': TriggerReposource(self.request.get('repo_source', {}), self.module).to_request(),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'storageSource': TriggerStoragesource(self.request.get(u'storageSource', {}), self.module).from_response(),
+                u'repoSource': TriggerReposource(self.request.get(u'repoSource', {}), self.module).from_response(),
+            }
+        )
+
+
+class TriggerStoragesource(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'bucket': self.request.get('bucket'), u'object': self.request.get('object'), u'generation': self.request.get('generation')}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'bucket': self.request.get(u'bucket'), u'object': self.request.get(u'object'), u'generation': self.request.get(u'generation')}
+        )
+
+
+class TriggerReposource(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'projectId': self.request.get('project_id'),
+                u'repoName': self.request.get('repo_name'),
+                u'dir': self.request.get('dir'),
+                u'invertRegex': self.request.get('invert_regex'),
+                u'substitutions': self.request.get('substitutions'),
+                u'branchName': self.request.get('branch_name'),
+                u'tagName': self.request.get('tag_name'),
+                u'commitSha': self.request.get('commit_sha'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'projectId': self.request.get(u'projectId'),
+                u'repoName': self.request.get(u'repoName'),
+                u'dir': self.request.get(u'dir'),
+                u'invertRegex': self.request.get(u'invertRegex'),
+                u'substitutions': self.request.get(u'substitutions'),
+                u'branchName': self.request.get(u'branchName'),
+                u'tagName': self.request.get(u'tagName'),
+                u'commitSha': self.request.get(u'commitSha'),
+            }
+        )
+
+
+class TriggerSecretsArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'kmsKeyName': item.get('kms_key_name'), u'secretEnv': item.get('secret_env')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'kmsKeyName': item.get(u'kmsKeyName'), u'secretEnv': item.get(u'secretEnv')})
 
 
 class TriggerStepsArray(object):
