@@ -119,6 +119,11 @@ resources:
       - Human-readable description of the trigger.
       returned: success
       type: str
+    tags:
+      description:
+      - Tags for annotation of a BuildTrigger .
+      returned: success
+      type: list
     disabled:
       description:
       - Whether the trigger is disabled or not. If true, the trigger will never result
@@ -225,6 +230,96 @@ resources:
       returned: success
       type: complex
       contains:
+        source:
+          description:
+          - The location of the source files to build.
+          returned: success
+          type: complex
+          contains:
+            storageSource:
+              description:
+              - Location of the source in an archive file in Google Cloud Storage.
+              returned: success
+              type: complex
+              contains:
+                bucket:
+                  description:
+                  - Google Cloud Storage bucket containing the source.
+                  returned: success
+                  type: str
+                object:
+                  description:
+                  - Google Cloud Storage object containing the source.
+                  - This object must be a gzipped archive file (.tar.gz) containing
+                    source to build.
+                  returned: success
+                  type: str
+                generation:
+                  description:
+                  - Google Cloud Storage generation for the object. If the generation
+                    is omitted, the latest generation will be used .
+                  returned: success
+                  type: str
+            repoSource:
+              description:
+              - Location of the source in a Google Cloud Source Repository.
+              returned: success
+              type: complex
+              contains:
+                projectId:
+                  description:
+                  - ID of the project that owns the Cloud Source Repository. If omitted,
+                    the project ID requesting the build is assumed.
+                  returned: success
+                  type: str
+                repoName:
+                  description:
+                  - Name of the Cloud Source Repository.
+                  returned: success
+                  type: str
+                dir:
+                  description:
+                  - Directory, relative to the source root, in which to run the build.
+                  - This must be a relative path. If a step's dir is specified and
+                    is an absolute path, this value is ignored for that step's execution.
+                  returned: success
+                  type: str
+                invertRegex:
+                  description:
+                  - Only trigger a build if the revision regex does NOT match the
+                    revision regex.
+                  returned: success
+                  type: bool
+                substitutions:
+                  description:
+                  - Substitutions to use in a triggered build. Should only be used
+                    with triggers.run .
+                  returned: success
+                  type: dict
+                branchName:
+                  description:
+                  - Regex matching branches to build. Exactly one a of branch name,
+                    tag, or commit SHA must be provided.
+                  - The syntax of the regular expressions accepted is the syntax accepted
+                    by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                    .
+                  returned: success
+                  type: str
+                tagName:
+                  description:
+                  - Regex matching tags to build. Exactly one a of branch name, tag,
+                    or commit SHA must be provided.
+                  - The syntax of the regular expressions accepted is the syntax accepted
+                    by RE2 and described at U(https://github.com/google/re2/wiki/Syntax)
+                    .
+                  returned: success
+                  type: str
+                commitSha:
+                  description:
+                  - Explicit commit SHA to build. Exactly one a of branch name, tag,
+                    or commit SHA must be provided.
+                  returned: success
+                  type: str
         tags:
           description:
           - Tags for annotation of a Build. These are not docker tags.
@@ -240,6 +335,26 @@ resources:
           - If any of the images fail to be pushed, the build status is marked FAILURE.
           returned: success
           type: list
+        substitutions:
+          description:
+          - Substitutions data for Build resource.
+          returned: success
+          type: dict
+        queueTtl:
+          description:
+          - TTL in queue for this build. If provided and the build is enqueued longer
+            than this value, the build will expire and the build status will be EXPIRED.
+          - The TTL starts ticking from createTime.
+          - 'A duration in seconds with up to nine fractional digits, terminated by
+            ''s''. Example: "3.5s".'
+          returned: success
+          type: str
+        logsBucket:
+          description:
+          - Google Cloud Storage bucket where logs should be written. Logs file names
+            will be of the format ${logsBucket}/log-${build_id}.txt.
+          returned: success
+          type: str
         timeout:
           description:
           - Amount of time that this build should be allowed to run, to second granularity.
@@ -251,6 +366,26 @@ resources:
           - Default time is ten minutes (600s).
           returned: success
           type: str
+        secrets:
+          description:
+          - Secrets to decrypt using Cloud Key Management Service.
+          returned: success
+          type: complex
+          contains:
+            kmsKeyName:
+              description:
+              - Cloud KMS key name to use to decrypt these envs.
+              returned: success
+              type: str
+            secretEnv:
+              description:
+              - Map of environment variable name to its encrypted value.
+              - Secret environment variables must be unique across all of a build's
+                secrets, and must be used by at least one build step. Values can be
+                at most 64 KB in size. There can be at most 100 secret values across
+                all of a build's secrets.
+              returned: success
+              type: dict
         steps:
           description:
           - The operations to be performed on the workspace.
