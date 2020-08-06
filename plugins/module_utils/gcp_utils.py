@@ -288,8 +288,7 @@ class GcpModule(AnsibleModule):
                 scopes=dict(
                     required=False,
                     fallback=(env_fallback, ['GCP_SCOPES']),
-                    type='list',
-                    elements='str'),
+                    type='list'),
                 env_type=dict(
                     required=False,
                     fallback=(env_fallback, ['GCP_ENV_TYPE']),
