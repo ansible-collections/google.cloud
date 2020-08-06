@@ -24,6 +24,8 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (Gcp
                                                                              remove_nones_from_dict,
                                                                              replace_resource_dict)
 
+__metaclass__ = type
+
 
 class ReplaceResourceDictTestCase(unittest.TestCase):
     def test_given_dict(self):
