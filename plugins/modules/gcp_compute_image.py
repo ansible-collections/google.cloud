@@ -186,6 +186,33 @@ options:
       of a given disk name.
     required: false
     type: str
+  source_image:
+    description:
+    - 'URL of the source image used to create this image. In order to create an image,
+      you must provide the full or partial URL of one of the following: The selfLink
+      URL This property The rawDisk.source URL The sourceDisk URL .'
+    - 'This field represents a link to a Image resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_image task and then set this source_image field to "{{ name-of-resource
+      }}"'
+    required: false
+    type: dict
+    version_added: '2.10'
+  source_snapshot:
+    description:
+    - URL of the source snapshot used to create this image.
+    - 'In order to create an image, you must provide the full or partial URL of one
+      of the following: The selfLink URL This property The sourceImage URL The rawDisk.source
+      URL The sourceDisk URL .'
+    - 'This field represents a link to a Snapshot resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_snapshot task and then set this source_snapshot field to "{{
+      name-of-resource }}"'
+    required: false
+    type: dict
+    version_added: '2.10'
   source_type:
     description:
     - The type of the image used to create this disk. The default and only value is
@@ -460,6 +487,21 @@ sourceDiskId:
     of a given disk name.
   returned: success
   type: str
+sourceImage:
+  description:
+  - 'URL of the source image used to create this image. In order to create an image,
+    you must provide the full or partial URL of one of the following: The selfLink
+    URL This property The rawDisk.source URL The sourceDisk URL .'
+  returned: success
+  type: dict
+sourceSnapshot:
+  description:
+  - URL of the source snapshot used to create this image.
+  - 'In order to create an image, you must provide the full or partial URL of one
+    of the following: The selfLink URL This property The sourceImage URL The rawDisk.source
+    URL The sourceDisk URL .'
+  returned: success
+  type: dict
 sourceType:
   description:
   - The type of the image used to create this disk. The default and only value is
@@ -507,6 +549,8 @@ def main():
             source_disk=dict(type='dict'),
             source_disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
             source_disk_id=dict(type='str'),
+            source_image=dict(type='dict'),
+            source_snapshot=dict(type='dict'),
             source_type=dict(type='str'),
         )
     )
@@ -585,6 +629,8 @@ def resource_to_request(module):
         u'sourceDisk': replace_resource_dict(module.params.get(u'source_disk', {}), 'selfLink'),
         u'sourceDiskEncryptionKey': ImageSourcediskencryptionkey(module.params.get('source_disk_encryption_key', {}), module).to_request(),
         u'sourceDiskId': module.params.get('source_disk_id'),
+        u'sourceImage': replace_resource_dict(module.params.get(u'source_image', {}), 'selfLink'),
+        u'sourceSnapshot': replace_resource_dict(module.params.get(u'source_snapshot', {}), 'selfLink'),
         u'sourceType': module.params.get('source_type'),
     }
     return_vals = {}
@@ -668,6 +714,8 @@ def response_to_hash(module, response):
         u'sourceDisk': response.get(u'sourceDisk'),
         u'sourceDiskEncryptionKey': ImageSourcediskencryptionkey(response.get(u'sourceDiskEncryptionKey', {}), module).from_response(),
         u'sourceDiskId': response.get(u'sourceDiskId'),
+        u'sourceImage': response.get(u'sourceImage'),
+        u'sourceSnapshot': response.get(u'sourceSnapshot'),
         u'sourceType': response.get(u'sourceType'),
     }
 

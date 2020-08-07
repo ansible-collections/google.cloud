@@ -307,6 +307,21 @@ resources:
         of a given disk name.
       returned: success
       type: str
+    sourceImage:
+      description:
+      - 'URL of the source image used to create this image. In order to create an
+        image, you must provide the full or partial URL of one of the following: The
+        selfLink URL This property The rawDisk.source URL The sourceDisk URL .'
+      returned: success
+      type: dict
+    sourceSnapshot:
+      description:
+      - URL of the source snapshot used to create this image.
+      - 'In order to create an image, you must provide the full or partial URL of
+        one of the following: The selfLink URL This property The sourceImage URL The
+        rawDisk.source URL The sourceDisk URL .'
+      returned: success
+      type: dict
     sourceType:
       description:
       - The type of the image used to create this disk. The default and only value
