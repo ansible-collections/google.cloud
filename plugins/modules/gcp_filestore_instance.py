@@ -33,7 +33,6 @@ module: gcp_filestore_instance
 description:
 - A Google Cloud Filestore instance.
 short_description: Creates a GCP Instance
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -150,6 +149,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

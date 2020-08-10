@@ -33,7 +33,6 @@ module: gcp_compute_network
 description:
 - Manages a VPC network or legacy network resource on GCP.
 short_description: Creates a GCP Network
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -79,7 +78,6 @@ options:
       to determine what type of network-wide routing behavior to enforce.
     required: false
     type: dict
-    version_added: '2.8'
     suboptions:
       routing_mode:
         description:
@@ -122,6 +120,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

@@ -43,7 +43,6 @@ description:
 - Add a persistent disk to your instance when you need reliable and affordable storage
   with consistent performance characteristics.
 short_description: Creates a GCP RegionDisk
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -195,6 +194,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

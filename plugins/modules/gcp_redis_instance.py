@@ -33,7 +33,6 @@ module: gcp_redis_instance
 description:
 - A Google Cloud Redis instance.
 short_description: Creates a GCP Instance
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -68,7 +67,6 @@ options:
     required: false
     default: DIRECT_PEERING
     type: str
-    version_added: '2.10'
   display_name:
     description:
     - An arbitrary and optional user-provided name for the instance.
@@ -165,6 +163,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

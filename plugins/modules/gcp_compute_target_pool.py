@@ -33,7 +33,6 @@ module: gcp_compute_target_pool
 description:
 - Represents a TargetPool resource, used for Load Balancing.
 short_description: Creates a GCP TargetPool
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -165,6 +164,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

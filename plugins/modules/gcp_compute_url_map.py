@@ -34,7 +34,6 @@ description:
 - UrlMaps are used to route requests to a backend service based on rules that you
   define for the host and path of an incoming URL.
 short_description: Creates a GCP UrlMap
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -78,7 +77,6 @@ options:
       headerAction specified under pathMatcher.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       request_headers_to_add:
         description:
@@ -224,7 +222,6 @@ options:
           in the UrlMap .
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           request_headers_to_add:
             description:
@@ -344,7 +341,6 @@ options:
               Only one of routeAction or urlRedirect must be set.
             required: false
             type: dict
-            version_added: '2.10'
             suboptions:
               cors_policy:
                 description:
@@ -724,7 +720,6 @@ options:
               must not be set.
             required: false
             type: dict
-            version_added: '2.10'
             suboptions:
               host_redirect:
                 description:
@@ -798,7 +793,6 @@ options:
         elements: dict
         required: false
         type: list
-        version_added: '2.10'
         suboptions:
           priority:
             description:
@@ -1585,7 +1579,6 @@ options:
           defaultService or defaultRouteAction must not be set.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           host_redirect:
             description:
@@ -1658,7 +1651,6 @@ options:
         - Only one of defaultRouteAction or defaultUrlRedirect must be set.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           weighted_backend_services:
             description:
@@ -2089,7 +2081,6 @@ options:
       or defaultRouteAction must not be set.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       host_redirect:
         description:
@@ -2159,7 +2150,6 @@ options:
     - Only one of defaultRouteAction or defaultUrlRedirect must be set.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       weighted_backend_services:
         description:
@@ -2575,6 +2565,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

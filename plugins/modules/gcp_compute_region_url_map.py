@@ -34,7 +34,6 @@ description:
 - UrlMaps are used to route requests to a backend service based on rules that you
   define for the host and path of an incoming URL.
 short_description: Creates a GCP RegionUrlMap
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -1622,6 +1621,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

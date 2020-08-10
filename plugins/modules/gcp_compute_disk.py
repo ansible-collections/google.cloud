@@ -43,7 +43,6 @@ description:
 - Add a persistent disk to your instance when you need reliable and affordable storage
   with consistent performance characteristics.
 short_description: Creates a GCP Disk
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -69,7 +68,6 @@ options:
     - Labels to apply to this disk. A list of key->value pairs.
     required: false
     type: dict
-    version_added: '2.7'
   licenses:
     description:
     - Any applicable publicly visible licenses.
@@ -105,14 +103,12 @@ options:
       values for the caller's project.
     required: false
     type: int
-    version_added: '2.8'
   type:
     description:
     - URL of the disk type resource describing which disk type to use to create the
       disk. Provide this when creating the disk.
     required: false
     type: str
-    version_added: '2.7'
   source_image:
     description:
     - The source image used to create this disk. If the source image is deleted, this
@@ -237,6 +233,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

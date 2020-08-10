@@ -34,7 +34,6 @@ description:
 - A single firewall rule that is evaluated against incoming traffic and provides an
   action to take on matched requests.
 short_description: Creates a GCP FirewallRule
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -106,6 +105,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

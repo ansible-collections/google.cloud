@@ -35,7 +35,6 @@ description:
   of the values. The distribution records the statistics of the extracted values along
   with an optional histogram of the values as specified by the bucket options.
 short_description: Creates a GCP Metric
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -258,6 +257,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

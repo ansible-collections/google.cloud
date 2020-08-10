@@ -33,7 +33,6 @@ module: gcp_kms_key_ring
 description:
 - A `KeyRing` is a toplevel logical grouping of `CryptoKeys`.
 short_description: Creates a GCP KeyRing
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -91,6 +90,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

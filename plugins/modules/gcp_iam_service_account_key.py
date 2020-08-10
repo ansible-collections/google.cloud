@@ -33,7 +33,6 @@ module: gcp_iam_service_account_key
 description:
 - A service account in the Identity and Access Management API.
 short_description: Creates a GCP ServiceAccountKey
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -108,6 +107,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -198,7 +198,7 @@ path:
 # Imports
 ################################################################################
 
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
 from ansible.module_utils._text import to_native
 import json
 import os

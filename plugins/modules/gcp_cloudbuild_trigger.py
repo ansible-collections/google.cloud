@@ -33,7 +33,6 @@ module: gcp_cloudbuild_trigger
 description:
 - Configuration for an automated build in response to source repository changes.
 short_description: Creates a GCP Trigger
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -58,7 +57,6 @@ options:
     - Name of the trigger. Must be unique within the project.
     required: false
     type: str
-    version_added: '2.10'
   description:
     description:
     - Human-readable description of the trigger.
@@ -70,7 +68,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.10'
   disabled:
     description:
     - Whether the trigger is disabled or not. If true, the trigger will never result
@@ -145,7 +142,6 @@ options:
         - Only trigger a build if the revision regex does NOT match the revision regex.
         required: false
         type: bool
-        version_added: '2.10'
       branch_name:
         description:
         - Name of the branch to build. Exactly one a of branch name, tag, or commit
@@ -178,7 +174,6 @@ options:
         - The location of the source files to build.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           storage_source:
             description:
@@ -286,7 +281,6 @@ options:
         - Substitutions data for Build resource.
         required: false
         type: dict
-        version_added: '2.10'
       queue_ttl:
         description:
         - TTL in queue for this build. If provided and the build is enqueued longer
@@ -296,14 +290,12 @@ options:
           ''s''. Example: "3.5s".'
         required: false
         type: str
-        version_added: '2.10'
       logs_bucket:
         description:
         - Google Cloud Storage bucket where logs should be written. Logs file names
           will be of the format ${logsBucket}/log-${build_id}.txt.
         required: false
         type: str
-        version_added: '2.10'
       timeout:
         description:
         - Amount of time that this build should be allowed to run, to second granularity.
@@ -316,14 +308,12 @@ options:
         required: false
         default: 600s
         type: str
-        version_added: '2.10'
       secrets:
         description:
         - Secrets to decrypt using Cloud Key Management Service.
         elements: dict
         required: false
         type: list
-        version_added: '2.10'
         suboptions:
           kms_key_name:
             description:
@@ -495,6 +485,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

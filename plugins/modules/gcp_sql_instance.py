@@ -35,7 +35,6 @@ description:
   Google's cloud. The Instances resource provides methods for common configuration
   and management tasks.
 short_description: Creates a GCP Instance
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -229,7 +228,6 @@ options:
         elements: dict
         required: false
         type: list
-        version_added: '2.9'
         suboptions:
           name:
             description:
@@ -331,13 +329,11 @@ options:
           single key value pair.
         required: false
         type: dict
-        version_added: '2.10'
   disk_encryption_configuration:
     description:
     - Disk encyption settings.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       kms_key_name:
         description:
@@ -349,7 +345,6 @@ options:
     - Disk encyption status.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       kms_key_version_name:
         description:
@@ -387,6 +382,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

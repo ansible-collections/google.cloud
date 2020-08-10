@@ -34,7 +34,6 @@ description:
 - Represents a TargetTcpProxy resource, which is used by one or more global forwarding
   rule to route incoming TCP requests to a Backend service.
 short_description: Creates a GCP TargetTcpProxy
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -111,6 +110,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

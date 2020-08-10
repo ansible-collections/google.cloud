@@ -38,7 +38,6 @@ description:
   must separately verify the status of the individual instances.
 - A managed instance group can have up to 1000 VM instances per group.
 short_description: Creates a GCP InstanceGroupManager
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -155,6 +154,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

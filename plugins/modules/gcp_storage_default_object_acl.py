@@ -43,7 +43,6 @@ description:
 - For more information, see Access Control, with the caveat that this API uses READER
   and OWNER instead of READ and FULL_CONTROL.
 short_description: Creates a GCP DefaultObjectACL
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -118,6 +117,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

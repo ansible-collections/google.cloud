@@ -35,7 +35,6 @@ description:
 - Autoscalers allow you to automatically scale virtual machine instances in managed
   instance groups according to an autoscaling policy that you define.
 short_description: Creates a GCP Autoscaler
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -112,7 +111,6 @@ options:
         required: false
         default: 'ON'
         type: str
-        version_added: '2.10'
       cpu_utilization:
         description:
         - Defines the CPU utilization policy that allows the autoscaler to scale based
@@ -237,6 +235,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

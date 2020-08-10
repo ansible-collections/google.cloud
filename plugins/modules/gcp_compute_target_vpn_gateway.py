@@ -34,7 +34,6 @@ description:
 - Represents a VPN gateway running in GCP. This virtual device is managed by Google,
   but used only by you.
 short_description: Creates a GCP TargetVpnGateway
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -110,6 +109,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

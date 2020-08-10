@@ -41,7 +41,6 @@ description:
   successfully to some number of consecutive probes, it is marked healthy again and
   can receive new connections.
 short_description: Creates a GCP HealthCheck
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -171,7 +170,6 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
-        version_added: '2.9'
   https_health_check:
     description:
     - A nested object resource.
@@ -233,7 +231,6 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
-        version_added: '2.9'
   tcp_health_check:
     description:
     - A nested object resource.
@@ -288,7 +285,6 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
-        version_added: '2.9'
   ssl_health_check:
     description:
     - A nested object resource.
@@ -343,13 +339,11 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
-        version_added: '2.9'
   http2_health_check:
     description:
     - A nested object resource.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       host:
         description:
@@ -437,6 +431,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

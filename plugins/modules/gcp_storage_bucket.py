@@ -38,7 +38,6 @@ description:
   manipulation of an existing bucket's access controls.
 - A bucket is always owned by the project team owners group.
 short_description: Creates a GCP Bucket
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -150,14 +149,12 @@ options:
       to the bucket.
     required: false
     type: bool
-    version_added: '2.10'
   default_object_acl:
     description:
     - Default access controls to apply to new objects when no ACL is provided.
     elements: dict
     required: false
     type: list
-    version_added: '2.7'
     suboptions:
       bucket:
         description:
@@ -359,7 +356,6 @@ options:
     - Labels applied to this bucket. A list of key->value pairs.
     required: false
     type: dict
-    version_added: '2.10'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -408,6 +404,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

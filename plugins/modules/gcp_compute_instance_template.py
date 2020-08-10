@@ -39,7 +39,6 @@ description:
 - 'Tip: Disks should be set to autoDelete=true so that leftover disks are not left
   behind on machine deletion.'
 short_description: Creates a GCP InstanceTemplate
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -236,7 +235,6 @@ options:
         - Labels to apply to this address. A list of key->value pairs.
         required: false
         type: dict
-        version_added: '2.9'
       machine_type:
         description:
         - The machine type to use in the VM instance template.
@@ -326,14 +324,12 @@ options:
                   the external IP address of the instance to a DNS domain name.
                 required: false
                 type: bool
-                version_added: '2.10'
               public_ptr_domain_name:
                 description:
                 - The DNS domain name for the public PTR record. You can set this
                   field only if the setPublicPtr field is enabled.
                 required: false
                 type: str
-                version_added: '2.10'
               network_tier:
                 description:
                 - This signifies the networking tier used for configuring this access
@@ -345,7 +341,6 @@ options:
                 - 'Some valid choices include: "PREMIUM", "STANDARD"'
                 required: false
                 type: str
-                version_added: '2.10'
           alias_ip_ranges:
             description:
             - An array of alias IP ranges for this network interface. Can only be
@@ -508,6 +503,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
