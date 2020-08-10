@@ -34,7 +34,6 @@ description:
 - Each version is a trained model deployed in the cloud, ready to handle prediction
   requests. A model can have multiple versions .
 short_description: Creates a GCP Version
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -189,6 +188,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

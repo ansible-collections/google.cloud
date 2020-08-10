@@ -34,7 +34,6 @@ description:
 - A zone is a subtree of the DNS namespace under one administrative responsibility.
   A ManagedZone is a resource that represents a DNS zone hosted by the Cloud DNS service.
 short_description: Creates a GCP ManagedZone
-version_added: '2.5'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -65,7 +64,6 @@ options:
     - DNSSEC configuration.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       kind:
         description:
@@ -143,7 +141,6 @@ options:
     - A set of key/value label pairs to assign to this ManagedZone.
     required: false
     type: dict
-    version_added: '2.8'
   visibility:
     description:
     - 'The zone''s visibility: public zones are exposed to the Internet, while private
@@ -152,14 +149,12 @@ options:
     required: false
     default: public
     type: str
-    version_added: '2.8'
   private_visibility_config:
     description:
     - For privately visible zones, the set of Virtual Private Cloud resources that
       the zone is visible from.
     required: false
     type: dict
-    version_added: '2.8'
     suboptions:
       networks:
         description:
@@ -182,7 +177,6 @@ options:
       to.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       target_name_servers:
         description:
@@ -213,7 +207,6 @@ options:
       The value of this field contains the network to peer with.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       target_network:
         description:
@@ -259,6 +252,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

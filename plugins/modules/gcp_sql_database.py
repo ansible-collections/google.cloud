@@ -33,7 +33,6 @@ module: gcp_sql_database
 description:
 - Represents a SQL database inside the Cloud SQL instance, hosted in Google's cloud.
 short_description: Creates a GCP Database
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -106,6 +105,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

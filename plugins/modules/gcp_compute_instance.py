@@ -33,7 +33,6 @@ module: gcp_compute_instance
 description:
 - An instance is a virtual machine (VM) hosted on Google's infrastructure.
 short_description: Creates a GCP Instance
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -62,7 +61,6 @@ options:
     - Whether the resource should be protected against deletion.
     required: false
     type: bool
-    version_added: '2.9'
   disks:
     description:
     - An array of disks that are associated with the instances that are created from
@@ -233,13 +231,11 @@ options:
       when using zonal DNS.
     required: false
     type: str
-    version_added: '2.9'
   labels:
     description:
     - Labels to apply to this instance. A list of key->value pairs.
     required: false
     type: dict
-    version_added: '2.9'
   metadata:
     description:
     - The metadata key/value pairs to assign to instances that are created from this
@@ -319,14 +315,12 @@ options:
               external IP address of the instance to a DNS domain name.
             required: false
             type: bool
-            version_added: '2.10'
           public_ptr_domain_name:
             description:
             - The DNS domain name for the public PTR record. You can set this field
               only if the setPublicPtr field is enabled.
             required: false
             type: str
-            version_added: '2.10'
           network_tier:
             description:
             - This signifies the networking tier used for configuring this access
@@ -338,7 +332,6 @@ options:
             - 'Some valid choices include: "PREMIUM", "STANDARD"'
             required: false
             type: str
-            version_added: '2.10'
       alias_ip_ranges:
         description:
         - An array of alias IP ranges for this network interface. Can only be specified
@@ -448,7 +441,6 @@ options:
     - Configuration for various parameters related to shielded instances.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       enable_secure_boot:
         description:
@@ -475,7 +467,6 @@ options:
       "SUSPENDING", "SUSPENDED", "TERMINATED"'
     required: false
     type: str
-    version_added: '2.8'
   tags:
     description:
     - A list of tags to apply to this instance. Tags are used to identify valid sources
@@ -537,6 +528,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

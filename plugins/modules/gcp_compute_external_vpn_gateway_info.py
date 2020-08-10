@@ -33,7 +33,6 @@ module: gcp_compute_external_vpn_gateway_info
 description:
 - Gather info for GCP ExternalVpnGateway
 short_description: Gather info for GCP ExternalVpnGateway
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -77,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -149,7 +150,7 @@ resources:
           description:
           - IP address of the interface in the external VPN gateway.
           - Only IPv4 is supported. This IP address can be either from your on-premise
-            gateway or another Cloud provider’s VPN gateway, it cannot be an IP address
+            gateway or another Cloud provider's VPN gateway, it cannot be an IP address
             from Google Compute Engine.
           returned: success
           type: str
@@ -158,7 +159,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

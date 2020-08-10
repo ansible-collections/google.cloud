@@ -33,7 +33,6 @@ module: gcp_kms_crypto_key
 description:
 - A `CryptoKey` represents a logical key that can be used for cryptographic operations.
 short_description: Creates a GCP CryptoKey
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -131,6 +130,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

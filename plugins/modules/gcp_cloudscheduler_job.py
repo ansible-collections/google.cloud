@@ -37,7 +37,6 @@ description:
   in one of the supported regions. If your project does not have an App Engine app,
   you must create one.
 short_description: Creates a GCP Job
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -324,6 +323,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

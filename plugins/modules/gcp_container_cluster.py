@@ -33,7 +33,6 @@ module: gcp_container_cluster
 description:
 - A Google Container Engine cluster.
 short_description: Creates a GCP Cluster
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -179,7 +178,6 @@ options:
         elements: dict
         required: false
         type: list
-        version_added: '2.9'
         suboptions:
           accelerator_count:
             description:
@@ -197,14 +195,12 @@ options:
           If unspecified, the default disk type is 'pd-standard' .
         required: false
         type: str
-        version_added: '2.9'
       min_cpu_platform:
         description:
         - Minimum CPU platform to be used by this instance. The instance may be scheduled
           on the specified or newer CPU platform.
         required: false
         type: str
-        version_added: '2.9'
       taints:
         description:
         - List of kubernetes taints to be applied to each node.
@@ -213,7 +209,6 @@ options:
         elements: dict
         required: false
         type: list
-        version_added: '2.9'
         suboptions:
           key:
             description:
@@ -237,7 +232,6 @@ options:
         - Shielded Instance options.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           enable_secure_boot:
             description:
@@ -281,7 +275,6 @@ options:
           is issued.
         required: false
         type: dict
-        version_added: '2.9'
         suboptions:
           issue_client_certificate:
             description:
@@ -318,7 +311,6 @@ options:
     - Configuration for a private cluster.
     required: false
     type: dict
-    version_added: '2.8'
     suboptions:
       enable_private_nodes:
         description:
@@ -354,7 +346,6 @@ options:
       .
     required: false
     type: bool
-    version_added: '2.9'
   addons_config:
     description:
     - Configurations for the various addons available to run in the cluster.
@@ -397,7 +388,6 @@ options:
           for the nodes.
         required: false
         type: dict
-        version_added: '2.9'
         suboptions:
           disabled:
             description:
@@ -418,20 +408,17 @@ options:
     type: list
     aliases:
     - nodeLocations
-    version_added: '2.9'
   resource_labels:
     description:
     - The resource labels for the cluster to use to annotate any related Google Compute
       Engine resources.
     required: false
     type: dict
-    version_added: '2.9'
   legacy_abac:
     description:
     - Configuration for the legacy ABAC authorization mode.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       enabled:
         description:
@@ -446,7 +433,6 @@ options:
     - Configuration options for the NetworkPolicy feature.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       provider:
         description:
@@ -466,7 +452,6 @@ options:
     - Only honored if cluster created with IP Alias support.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       max_pods_per_node:
         description:
@@ -478,7 +463,6 @@ options:
     - Configuration for controlling how IPs are allocated in the cluster.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       use_ip_aliases:
         description:
@@ -553,13 +537,11 @@ options:
       when it was first created. The version can be upgraded over time.
     required: false
     type: str
-    version_added: '2.10'
   master_authorized_networks_config:
     description:
     - Configuration for controlling how IPs are allocated in the cluster.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       enabled:
         description:
@@ -589,7 +571,6 @@ options:
     - Configuration for the BinaryAuthorization feature.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       enabled:
         description:
@@ -603,7 +584,6 @@ options:
     type: str
     aliases:
     - zone
-    version_added: '2.8'
   kubectl_path:
     description:
     - The path that the kubectl config file will be written to.
@@ -612,14 +592,12 @@ options:
     - This requires the PyYaml library.
     required: false
     type: str
-    version_added: '2.9'
   kubectl_context:
     description:
     - The name of the context for the kubectl config file. Will default to the cluster
       name.
     required: false
     type: str
-    version_added: '2.9'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -651,6 +629,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -1717,9 +1696,7 @@ class Kubectl(object):
 
         return {
             'apiVersion': 'v1',
-            'clusters': [
-                {'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate']), 'server': endpoint,}}
-            ],
+            'clusters': [{'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate'])}}],
             'contexts': [{'name': context, 'context': {'cluster': context, 'user': context}}],
             'current-context': context,
             'kind': 'Config',

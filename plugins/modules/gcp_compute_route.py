@@ -48,7 +48,6 @@ description:
 - A Route resource must have exactly one specification of either nextHopGateway, nextHopInstance,
   nextHopIp, nextHopVpnTunnel, or nextHopIlb.
 short_description: Creates a GCP Route
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -75,7 +74,6 @@ options:
       the resource.
     required: false
     type: str
-    version_added: '2.7'
   name:
     description:
     - Name of the resource. Provided by the client when the resource is created. The
@@ -163,7 +161,6 @@ options:
       field to "{{ name-of-resource }}"'
     required: false
     type: dict
-    version_added: '2.10'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -195,6 +192,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

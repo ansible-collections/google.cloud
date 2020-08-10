@@ -33,7 +33,6 @@ module: gcp_compute_backend_bucket_info
 description:
 - Gather info for GCP BackendBucket
 short_description: Gather info for GCP BackendBucket
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -77,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -170,7 +171,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

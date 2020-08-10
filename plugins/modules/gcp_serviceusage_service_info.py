@@ -33,7 +33,6 @@ module: gcp_serviceusage_service_info
 description:
 - Gather info for GCP Service
 short_description: Gather info for GCP Service
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -71,6 +70,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -162,7 +162,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

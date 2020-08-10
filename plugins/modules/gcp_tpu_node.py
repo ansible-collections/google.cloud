@@ -33,7 +33,6 @@ module: gcp_tpu_node
 description:
 - A Cloud TPU instance.
 short_description: Creates a GCP Node
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -139,6 +138,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

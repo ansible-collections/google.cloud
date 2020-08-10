@@ -34,7 +34,6 @@ description:
 - A named resource representing the stream of messages from a single, specific topic,
   to be delivered to the subscribing application.
 short_description: Creates a GCP Subscription
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -69,7 +68,6 @@ options:
     - A set of key/value label pairs to assign to this Subscription.
     required: false
     type: dict
-    version_added: '2.8'
   push_config:
     description:
     - If push delivery is used with this subscription, this field is used to configure
@@ -84,7 +82,6 @@ options:
           header in the HTTP request for every pushed message.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           service_account_email:
             description:
@@ -160,7 +157,6 @@ options:
     required: false
     default: 604800s
     type: str
-    version_added: '2.8'
   retain_acked_messages:
     description:
     - Indicates whether to retain acknowledged messages. If `true`, then messages
@@ -168,7 +164,6 @@ options:
       until they fall out of the messageRetentionDuration window.
     required: false
     type: bool
-    version_added: '2.8'
   expiration_policy:
     description:
     - A policy that specifies the conditions for this subscription's expiration.
@@ -179,7 +174,6 @@ options:
       value for expirationPolicy.ttl is 1 day.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       ttl:
         description:
@@ -199,13 +193,12 @@ options:
       must have permission to Acknowledge() messages on this subscription.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       dead_letter_topic:
         description:
         - The name of the topic to which dead letter messages should be published.
         - Format is `projects/{project}/topics/{topic}`.
-        - The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+        - The Cloud Pub/Sub service account associated with the enclosing subscription's
           parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
           must have permission to Publish() to this topic.
         - The operation will fail if the topic does not exist.
@@ -257,6 +250,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -443,7 +437,7 @@ deadLetterPolicy:
       description:
       - The name of the topic to which dead letter messages should be published.
       - Format is `projects/{project}/topics/{topic}`.
-      - The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+      - The Cloud Pub/Sub service account associated with the enclosing subscription's
         parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
         must have permission to Publish() to this topic.
       - The operation will fail if the topic does not exist.

@@ -33,7 +33,6 @@ module: gcp_compute_node_group
 description:
 - Represents a NodeGroup resource to manage a group of sole-tenant nodes.
 short_description: Creates a GCP NodeGroup
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -109,6 +108,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

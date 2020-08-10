@@ -33,7 +33,6 @@ module: gcp_bigquery_dataset
 description:
 - Datasets allow you to organize and control access to your tables.
 short_description: Creates a GCP Dataset
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -167,7 +166,6 @@ options:
       the default partition expiration time indicated by this property.'
     required: false
     type: int
-    version_added: '2.9'
   description:
     description:
     - A user-friendly description of the dataset.
@@ -208,7 +206,6 @@ options:
       key.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       kms_key_name:
         description:
@@ -248,6 +245,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
