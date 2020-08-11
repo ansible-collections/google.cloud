@@ -184,6 +184,14 @@ options:
         - Example - "3.5s".
         required: true
         type: str
+  filter:
+    description:
+    - The subscription only delivers the messages that match the filter. Pub/Sub automatically
+      acknowledges the messages that don't match the filter. You can filter messages
+      by their attributes. The maximum length of a filter is 256 bytes. After creating
+      the subscription, you can't modify the filter.
+    required: false
+    type: str
   dead_letter_policy:
     description:
     - A policy that specifies the conditions for dead lettering messages in this subscription.
@@ -423,6 +431,14 @@ expirationPolicy:
       - Example - "3.5s".
       returned: success
       type: str
+filter:
+  description:
+  - The subscription only delivers the messages that match the filter. Pub/Sub automatically
+    acknowledges the messages that don't match the filter. You can filter messages
+    by their attributes. The maximum length of a filter is 256 bytes. After creating
+    the subscription, you can't modify the filter.
+  returned: success
+  type: str
 deadLetterPolicy:
   description:
   - A policy that specifies the conditions for dead lettering messages in this subscription.
@@ -501,6 +517,7 @@ def main():
             message_retention_duration=dict(default='604800s', type='str'),
             retain_acked_messages=dict(type='bool'),
             expiration_policy=dict(type='dict', options=dict(ttl=dict(required=True, type='str'))),
+            filter=dict(type='str'),
             dead_letter_policy=dict(type='dict', options=dict(dead_letter_topic=dict(type='str'), max_delivery_attempts=dict(type='int'))),
         )
     )
@@ -582,6 +599,7 @@ def resource_to_request(module):
         u'messageRetentionDuration': module.params.get('message_retention_duration'),
         u'retainAckedMessages': module.params.get('retain_acked_messages'),
         u'expirationPolicy': SubscriptionExpirationpolicy(module.params.get('expiration_policy', {}), module).to_request(),
+        u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(module.params.get('dead_letter_policy', {}), module).to_request(),
     }
     return_vals = {}
@@ -656,6 +674,7 @@ def response_to_hash(module, response):
         u'messageRetentionDuration': response.get(u'messageRetentionDuration'),
         u'retainAckedMessages': response.get(u'retainAckedMessages'),
         u'expirationPolicy': SubscriptionExpirationpolicy(response.get(u'expirationPolicy', {}), module).from_response(),
+        u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
     }
 

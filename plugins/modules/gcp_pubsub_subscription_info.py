@@ -236,6 +236,14 @@ resources:
           - Example - "3.5s".
           returned: success
           type: str
+    filter:
+      description:
+      - The subscription only delivers the messages that match the filter. Pub/Sub
+        automatically acknowledges the messages that don't match the filter. You can
+        filter messages by their attributes. The maximum length of a filter is 256
+        bytes. After creating the subscription, you can't modify the filter.
+      returned: success
+      type: str
     deadLetterPolicy:
       description:
       - A policy that specifies the conditions for dead lettering messages in this
