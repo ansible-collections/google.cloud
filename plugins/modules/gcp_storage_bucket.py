@@ -249,7 +249,7 @@ options:
                 description:
                 - Objects having any of the storage classes specified by this condition
                   will be matched. Values include MULTI_REGIONAL, REGIONAL, NEARLINE,
-                  COLDLINE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
+                  COLDLINE, ARCHIVE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
                 elements: str
                 required: false
                 type: list
@@ -310,11 +310,11 @@ options:
     - The bucket's default storage class, used whenever no storageClass is specified
       for a newly-created object. This defines how objects in the bucket are stored
       and determines the SLA and the cost of storage.
-    - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, and DURABLE_REDUCED_AVAILABILITY.
-      If this value is not specified when the bucket is created, it will default to
-      STANDARD. For more information, see storage classes.
+    - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, ARCHIVE,
+      and DURABLE_REDUCED_AVAILABILITY. If this value is not specified when the bucket
+      is created, it will default to STANDARD. For more information, see storage classes.
     - 'Some valid choices include: "MULTI_REGIONAL", "REGIONAL", "STANDARD", "NEARLINE",
-      "COLDLINE", "DURABLE_REDUCED_AVAILABILITY"'
+      "COLDLINE", "ARCHIVE", "DURABLE_REDUCED_AVAILABILITY"'
     required: false
     type: str
   versioning:
@@ -659,7 +659,7 @@ lifecycle:
               description:
               - Objects having any of the storage classes specified by this condition
                 will be matched. Values include MULTI_REGIONAL, REGIONAL, NEARLINE,
-                COLDLINE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
+                COLDLINE, ARCHIVE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
               returned: success
               type: list
             numNewerVersions:
@@ -729,9 +729,9 @@ storageClass:
   - The bucket's default storage class, used whenever no storageClass is specified
     for a newly-created object. This defines how objects in the bucket are stored
     and determines the SLA and the cost of storage.
-  - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, and DURABLE_REDUCED_AVAILABILITY.
-    If this value is not specified when the bucket is created, it will default to
-    STANDARD. For more information, see storage classes.
+  - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, ARCHIVE,
+    and DURABLE_REDUCED_AVAILABILITY. If this value is not specified when the bucket
+    is created, it will default to STANDARD. For more information, see storage classes.
   returned: success
   type: str
 timeCreated:
