@@ -606,11 +606,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones/{name}".format(**module.params)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones".format(**module.params)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

@@ -195,7 +195,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/networkEndpointGroups".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/networkEndpointGroups".format(**module.params)
 
 
 def fetch_list(module, link, query):

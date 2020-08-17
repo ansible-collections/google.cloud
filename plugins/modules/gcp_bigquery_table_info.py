@@ -593,7 +593,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
 
 
 def fetch_list(module, link):

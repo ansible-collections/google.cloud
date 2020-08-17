@@ -601,7 +601,7 @@ def update_fields(module, request, response):
 def labels_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/images/{name}/setLabels"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/images/{name}/setLabels"]).format(**module.params),
         {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
     )
 
@@ -644,11 +644,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/images/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/images".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -720,16 +720,16 @@ def response_to_hash(module, response):
 def license_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
+    url = r"https://compute.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

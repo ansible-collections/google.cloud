@@ -314,12 +314,12 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 def self_link(module):
     res = {'bucket': replace_resource_dict(module.params['bucket'], 'name'), 'entity': module.params['entity']}
-    return "https://www.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(**res)
+    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(**res)
 
 
 def collection(module):
     res = {'bucket': replace_resource_dict(module.params['bucket'], 'name')}
-    return "https://www.googleapis.com/storage/v1/b/{bucket}/acl".format(**res)
+    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl".format(**res)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

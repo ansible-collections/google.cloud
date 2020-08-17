@@ -977,11 +977,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/storage/v1/b/{name}?projection=full".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b/{name}?projection=full".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/storage/v1/b?project={project}".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b?project={project}".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
