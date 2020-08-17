@@ -311,7 +311,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones".format(**module.params)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones".format(**module.params)
 
 
 def fetch_list(module, link, query):

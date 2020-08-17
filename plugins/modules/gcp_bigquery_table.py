@@ -1192,11 +1192,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables/{name}".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

@@ -287,7 +287,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments".format(**module.params)
 
 
 def fetch_list(module, link, query):

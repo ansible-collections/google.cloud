@@ -300,7 +300,7 @@ def update_fields(module, request, response):
 def proxy_header_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetTcpProxies/{name}/setProxyHeader"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/targetTcpProxies/{name}/setProxyHeader"]).format(**module.params),
         {u'proxyHeader': module.params.get('proxy_header')},
     )
 
@@ -308,7 +308,7 @@ def proxy_header_update(module, request, response):
 def service_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/targetTcpProxies/{name}/setBackendService"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/targetTcpProxies/{name}/setBackendService"]).format(**module.params),
         {u'service': replace_resource_dict(module.params.get(u'service', {}), 'selfLink')},
     )
 
@@ -340,11 +340,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/targetTcpProxies".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -402,7 +402,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)
