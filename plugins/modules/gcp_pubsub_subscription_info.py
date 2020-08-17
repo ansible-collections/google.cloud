@@ -279,6 +279,13 @@ resources:
           - If this parameter is 0, a default value of 5 is used.
           returned: success
           type: int
+    enableMessageOrdering:
+      description:
+      - If `true`, messages published with the same orderingKey in PubsubMessage will
+        be delivered to the subscribers in the order in which they are received by
+        the Pub/Sub system. Otherwise, they may be delivered in any order.
+      returned: success
+      type: bool
 '''
 
 ################################################################################
