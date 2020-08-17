@@ -400,6 +400,49 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
+  grpc_health_check:
+    description:
+    - A nested object resource.
+    required: false
+    type: dict
+    suboptions:
+      port:
+        description:
+        - The port number for the health check request. Must be specified if portName
+          and portSpecification are not set or if port_specification is USE_FIXED_PORT.
+          Valid values are 1 through 65535.
+        required: false
+        type: int
+      port_name:
+        description:
+        - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+          are defined, port takes precedence.
+        required: false
+        type: str
+      port_specification:
+        description:
+        - 'Specifies how port is selected for health checking, can be one of the following
+          values: * `USE_FIXED_PORT`: The port number in `port` is used for health
+          checking.'
+        - "* `USE_NAMED_PORT`: The `portName` is used for health checking."
+        - "* `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for
+          each network endpoint is used for health checking. For other backends, the
+          port or named port specified in the Backend Service is used for health checking."
+        - If not specified, gRPC health check follows behavior specified in `port`
+          and `portName` fields.
+        - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
+        required: false
+        type: str
+      grpc_service_name:
+        description:
+        - 'The gRPC service name for the health check. The value of grpcServiceName
+          has the following meanings by convention: - Empty serviceName means the
+          overall status of all services at the backend.'
+        - "- Non-empty serviceName means the health of that gRPC service, as defined
+          by the owner of the service."
+        - The grpcServiceName can only be ASCII.
+        required: false
+        type: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -792,6 +835,47 @@ http2HealthCheck:
         and `portName` fields.
       returned: success
       type: str
+grpcHealthCheck:
+  description:
+  - A nested object resource.
+  returned: success
+  type: complex
+  contains:
+    port:
+      description:
+      - The port number for the health check request. Must be specified if portName
+        and portSpecification are not set or if port_specification is USE_FIXED_PORT.
+        Valid values are 1 through 65535.
+      returned: success
+      type: int
+    portName:
+      description:
+      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+        are defined, port takes precedence.
+      returned: success
+      type: str
+    portSpecification:
+      description:
+      - 'Specifies how port is selected for health checking, can be one of the following
+        values: * `USE_FIXED_PORT`: The port number in `port` is used for health checking.'
+      - "* `USE_NAMED_PORT`: The `portName` is used for health checking."
+      - "* `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
+        network endpoint is used for health checking. For other backends, the port
+        or named port specified in the Backend Service is used for health checking."
+      - If not specified, gRPC health check follows behavior specified in `port` and
+        `portName` fields.
+      returned: success
+      type: str
+    grpcServiceName:
+      description:
+      - 'The gRPC service name for the health check. The value of grpcServiceName
+        has the following meanings by convention: - Empty serviceName means the overall
+        status of all services at the backend.'
+      - "- Non-empty serviceName means the health of that gRPC service, as defined
+        by the owner of the service."
+      - The grpcServiceName can only be ASCII.
+      returned: success
+      type: str
 '''
 
 ################################################################################
@@ -885,6 +969,10 @@ def main():
                     port_specification=dict(type='str'),
                 ),
             ),
+            grpc_health_check=dict(
+                type='dict',
+                options=dict(port=dict(type='int'), port_name=dict(type='str'), port_specification=dict(type='str'), grpc_service_name=dict(type='str')),
+            ),
         )
     )
 
@@ -949,6 +1037,7 @@ def resource_to_request(module):
         u'tcpHealthCheck': HealthCheckTcphealthcheck(module.params.get('tcp_health_check', {}), module).to_request(),
         u'sslHealthCheck': HealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
         u'http2HealthCheck': HealthCheckHttp2healthcheck(module.params.get('http2_health_check', {}), module).to_request(),
+        u'grpcHealthCheck': HealthCheckGrpchealthcheck(module.params.get('grpc_health_check', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1028,6 +1117,7 @@ def response_to_hash(module, response):
         u'tcpHealthCheck': HealthCheckTcphealthcheck(response.get(u'tcpHealthCheck', {}), module).from_response(),
         u'sslHealthCheck': HealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
         u'http2HealthCheck': HealthCheckHttp2healthcheck(response.get(u'http2HealthCheck', {}), module).from_response(),
+        u'grpcHealthCheck': HealthCheckGrpchealthcheck(response.get(u'grpcHealthCheck', {}), module).from_response(),
     }
 
 
@@ -1233,6 +1323,35 @@ class HealthCheckHttp2healthcheck(object):
                 u'portName': self.request.get(u'portName'),
                 u'proxyHeader': self.request.get(u'proxyHeader'),
                 u'portSpecification': self.request.get(u'portSpecification'),
+            }
+        )
+
+
+class HealthCheckGrpchealthcheck(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'port': self.request.get('port'),
+                u'portName': self.request.get('port_name'),
+                u'portSpecification': self.request.get('port_specification'),
+                u'grpcServiceName': self.request.get('grpc_service_name'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'port': self.request.get(u'port'),
+                u'portName': self.request.get(u'portName'),
+                u'portSpecification': self.request.get(u'portSpecification'),
+                u'grpcServiceName': self.request.get(u'grpcServiceName'),
             }
         )
 
