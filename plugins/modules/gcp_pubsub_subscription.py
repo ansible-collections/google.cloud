@@ -227,6 +227,13 @@ options:
         - If this parameter is 0, a default value of 5 is used.
         required: false
         type: int
+  enable_message_ordering:
+    description:
+    - If `true`, messages published with the same orderingKey in PubsubMessage will
+      be delivered to the subscribers in the order in which they are received by the
+      Pub/Sub system. Otherwise, they may be delivered in any order.
+    required: false
+    type: bool
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -474,6 +481,13 @@ deadLetterPolicy:
       - If this parameter is 0, a default value of 5 is used.
       returned: success
       type: int
+enableMessageOrdering:
+  description:
+  - If `true`, messages published with the same orderingKey in PubsubMessage will
+    be delivered to the subscribers in the order in which they are received by the
+    Pub/Sub system. Otherwise, they may be delivered in any order.
+  returned: success
+  type: bool
 '''
 
 ################################################################################
@@ -519,6 +533,7 @@ def main():
             expiration_policy=dict(type='dict', options=dict(ttl=dict(required=True, type='str'))),
             filter=dict(type='str'),
             dead_letter_policy=dict(type='dict', options=dict(dead_letter_topic=dict(type='str'), max_delivery_attempts=dict(type='int'))),
+            enable_message_ordering=dict(type='bool'),
         )
     )
 
@@ -581,6 +596,8 @@ def updateMask(request, response):
         update_mask.append('expirationPolicy')
     if request.get('deadLetterPolicy') != response.get('deadLetterPolicy'):
         update_mask.append('deadLetterPolicy')
+    if request.get('enableMessageOrdering') != response.get('enableMessageOrdering'):
+        update_mask.append('enableMessageOrdering')
     return ','.join(update_mask)
 
 
@@ -601,6 +618,7 @@ def resource_to_request(module):
         u'expirationPolicy': SubscriptionExpirationpolicy(module.params.get('expiration_policy', {}), module).to_request(),
         u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(module.params.get('dead_letter_policy', {}), module).to_request(),
+        u'enableMessageOrdering': module.params.get('enable_message_ordering'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -676,6 +694,7 @@ def response_to_hash(module, response):
         u'expirationPolicy': SubscriptionExpirationpolicy(response.get(u'expirationPolicy', {}), module).from_response(),
         u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
+        u'enableMessageOrdering': response.get(u'enableMessageOrdering'),
     }
 
 
