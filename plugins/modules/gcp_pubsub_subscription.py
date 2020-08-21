@@ -227,6 +227,32 @@ options:
         - If this parameter is 0, a default value of 5 is used.
         required: false
         type: int
+  retry_policy:
+    description:
+    - A policy that specifies how Pub/Sub retries message delivery for this subscription.
+    - If not set, the default retry policy is applied. This generally implies that
+      messages will be retried as soon as possible for healthy subscribers. RetryPolicy
+      will be triggered on NACKs or acknowledgement deadline exceeded events for a
+      given message .
+    required: false
+    type: dict
+    suboptions:
+      minimum_backoff:
+        description:
+        - The minimum delay between consecutive deliveries of a given message. Value
+          should be between 0 and 600 seconds. Defaults to 10 seconds.
+        - 'A duration in seconds with up to nine fractional digits, terminated by
+          ''s''. Example: "3.5s".'
+        required: false
+        type: str
+      maximum_backoff:
+        description:
+        - 'The maximum delay between consecutive deliveries of a given message. Value
+          should be between 0 and 600 seconds. Defaults to 600 seconds. A duration
+          in seconds with up to nine fractional digits, terminated by ''s''. Example:
+          "3.5s".'
+        required: false
+        type: str
   enable_message_ordering:
     description:
     - If `true`, messages published with the same orderingKey in PubsubMessage will
@@ -481,6 +507,31 @@ deadLetterPolicy:
       - If this parameter is 0, a default value of 5 is used.
       returned: success
       type: int
+retryPolicy:
+  description:
+  - A policy that specifies how Pub/Sub retries message delivery for this subscription.
+  - If not set, the default retry policy is applied. This generally implies that messages
+    will be retried as soon as possible for healthy subscribers. RetryPolicy will
+    be triggered on NACKs or acknowledgement deadline exceeded events for a given
+    message .
+  returned: success
+  type: complex
+  contains:
+    minimumBackoff:
+      description:
+      - The minimum delay between consecutive deliveries of a given message. Value
+        should be between 0 and 600 seconds. Defaults to 10 seconds.
+      - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
+        Example: "3.5s".'
+      returned: success
+      type: str
+    maximumBackoff:
+      description:
+      - 'The maximum delay between consecutive deliveries of a given message. Value
+        should be between 0 and 600 seconds. Defaults to 600 seconds. A duration in
+        seconds with up to nine fractional digits, terminated by ''s''. Example: "3.5s".'
+      returned: success
+      type: str
 enableMessageOrdering:
   description:
   - If `true`, messages published with the same orderingKey in PubsubMessage will
@@ -533,6 +584,7 @@ def main():
             expiration_policy=dict(type='dict', options=dict(ttl=dict(required=True, type='str'))),
             filter=dict(type='str'),
             dead_letter_policy=dict(type='dict', options=dict(dead_letter_topic=dict(type='str'), max_delivery_attempts=dict(type='int'))),
+            retry_policy=dict(type='dict', options=dict(minimum_backoff=dict(type='str'), maximum_backoff=dict(type='str'))),
             enable_message_ordering=dict(type='bool'),
         )
     )
@@ -596,6 +648,8 @@ def updateMask(request, response):
         update_mask.append('expirationPolicy')
     if request.get('deadLetterPolicy') != response.get('deadLetterPolicy'):
         update_mask.append('deadLetterPolicy')
+    if request.get('retryPolicy') != response.get('retryPolicy'):
+        update_mask.append('retryPolicy')
     if request.get('enableMessageOrdering') != response.get('enableMessageOrdering'):
         update_mask.append('enableMessageOrdering')
     return ','.join(update_mask)
@@ -618,6 +672,7 @@ def resource_to_request(module):
         u'expirationPolicy': SubscriptionExpirationpolicy(module.params.get('expiration_policy', {}), module).to_request(),
         u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(module.params.get('dead_letter_policy', {}), module).to_request(),
+        u'retryPolicy': SubscriptionRetrypolicy(module.params.get('retry_policy', {}), module).to_request(),
         u'enableMessageOrdering': module.params.get('enable_message_ordering'),
     }
     return_vals = {}
@@ -694,6 +749,7 @@ def response_to_hash(module, response):
         u'expirationPolicy': SubscriptionExpirationpolicy(response.get(u'expirationPolicy', {}), module).from_response(),
         u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
+        u'retryPolicy': SubscriptionRetrypolicy(response.get(u'retryPolicy', {}), module).from_response(),
         u'enableMessageOrdering': response.get(u'enableMessageOrdering'),
     }
 
@@ -800,6 +856,21 @@ class SubscriptionDeadletterpolicy(object):
         return remove_nones_from_dict(
             {u'deadLetterTopic': self.request.get(u'deadLetterTopic'), u'maxDeliveryAttempts': self.request.get(u'maxDeliveryAttempts')}
         )
+
+
+class SubscriptionRetrypolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'minimumBackoff': self.request.get('minimum_backoff'), u'maximumBackoff': self.request.get('maximum_backoff')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'minimumBackoff': self.request.get(u'minimumBackoff'), u'maximumBackoff': self.request.get(u'maximumBackoff')})
 
 
 if __name__ == '__main__':
