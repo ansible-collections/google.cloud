@@ -513,7 +513,7 @@ def response_to_hash(module, response):
         u'authorizedNetwork': module.params.get('authorized_network'),
         u'connectMode': module.params.get('connect_mode'),
         u'createTime': response.get(u'createTime'),
-        u'currentLocationId': module.params.get('current_location_id'),
+        u'currentLocationId': response.get(u'currentLocationId'),
         u'displayName': response.get(u'displayName'),
         u'host': response.get(u'host'),
         u'labels': response.get(u'labels'),
