@@ -172,7 +172,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks)'
+- 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/subnetworks)'
 - 'Private Google Access: U(https://cloud.google.com/vpc/docs/configure-private-google-access)'
 - 'Cloud Networking: U(https://cloud.google.com/vpc/docs/using-vpc)'
 - for authentication, you can set service_account_file using the C(gcp_service_account_file)
