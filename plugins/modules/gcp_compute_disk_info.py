@@ -207,10 +207,10 @@ resources:
       - The source image used to create this disk. If the source image is deleted,
         this field will not be set.
       - 'To create a disk with one of the public operating system images, specify
-        the image by its family name. For example, specify family/debian-8 to use
-        the latest Debian 8 image: projects/debian-cloud/global/images/family/debian-8
+        the image by its family name. For example, specify family/debian-9 to use
+        the latest Debian 9 image: projects/debian-cloud/global/images/family/debian-9
         Alternatively, use a specific version of a public operating system image:
-        projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD To create a
+        projects/debian-cloud/global/images/debian-9-stretch-vYYYYMMDD To create a
         disk with a private image that you created, specify the image name in the
         following format: global/images/my-private-image You can also specify a private
         image by its image family, which returns the latest version of the image in
@@ -245,6 +245,12 @@ resources:
         kmsKeyName:
           description:
           - The name of the encryption key that is stored in Google Cloud KMS.
+          returned: success
+          type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key. If absent, the Compute Engine Service Agent service account is used.
           returned: success
           type: str
     sourceImageId:
@@ -289,6 +295,12 @@ resources:
             must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key. If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
     sourceSnapshot:
       description:
       - The source snapshot used to create this disk. You can provide this as a partial
@@ -317,6 +329,12 @@ resources:
           description:
           - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
             key that protects this resource.
+          returned: success
+          type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key. If absent, the Compute Engine Service Agent service account is used.
           returned: success
           type: str
     sourceSnapshotId:

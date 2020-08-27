@@ -114,9 +114,9 @@ options:
     - The source image used to create this disk. If the source image is deleted, this
       field will not be set.
     - 'To create a disk with one of the public operating system images, specify the
-      image by its family name. For example, specify family/debian-8 to use the latest
-      Debian 8 image: projects/debian-cloud/global/images/family/debian-8 Alternatively,
-      use a specific version of a public operating system image: projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD
+      image by its family name. For example, specify family/debian-9 to use the latest
+      Debian 9 image: projects/debian-cloud/global/images/family/debian-9 Alternatively,
+      use a specific version of a public operating system image: projects/debian-cloud/global/images/debian-9-stretch-vYYYYMMDD
       To create a disk with a private image that you created, specify the image name
       in the following format: global/images/my-private-image You can also specify
       a private image by its image family, which returns the latest version of the
@@ -147,6 +147,12 @@ options:
         - The name of the encryption key that is stored in Google Cloud KMS.
         required: false
         type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+          If absent, the Compute Engine Service Agent service account is used.
+        required: false
+        type: str
   disk_encryption_key:
     description:
     - Encrypts the disk using a customer-supplied encryption key.
@@ -171,6 +177,12 @@ options:
         - The name of the encryption key that is stored in Google Cloud KMS.
         - Your project's Compute Engine System service account (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`)
           must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+        required: false
+        type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+          If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   source_snapshot:
@@ -200,6 +212,12 @@ options:
       kms_key_name:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
+        required: false
+        type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+          If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   project:
@@ -358,9 +376,9 @@ sourceImage:
   - The source image used to create this disk. If the source image is deleted, this
     field will not be set.
   - 'To create a disk with one of the public operating system images, specify the
-    image by its family name. For example, specify family/debian-8 to use the latest
-    Debian 8 image: projects/debian-cloud/global/images/family/debian-8 Alternatively,
-    use a specific version of a public operating system image: projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD
+    image by its family name. For example, specify family/debian-9 to use the latest
+    Debian 9 image: projects/debian-cloud/global/images/family/debian-9 Alternatively,
+    use a specific version of a public operating system image: projects/debian-cloud/global/images/debian-9-stretch-vYYYYMMDD
     To create a disk with a private image that you created, specify the image name
     in the following format: global/images/my-private-image You can also specify a
     private image by its image family, which returns the latest version of the image
@@ -395,6 +413,12 @@ sourceImageEncryptionKey:
     kmsKeyName:
       description:
       - The name of the encryption key that is stored in Google Cloud KMS.
+      returned: success
+      type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+        If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 sourceImageId:
@@ -438,6 +462,12 @@ diskEncryptionKey:
         must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
       returned: success
       type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+        If absent, the Compute Engine Service Agent service account is used.
+      returned: success
+      type: str
 sourceSnapshot:
   description:
   - The source snapshot used to create this disk. You can provide this as a partial
@@ -466,6 +496,12 @@ sourceSnapshotEncryptionKey:
       description:
       - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
         key that protects this resource.
+      returned: success
+      type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+        If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 sourceSnapshotId:
@@ -515,10 +551,16 @@ def main():
             type=dict(type='str'),
             source_image=dict(type='str'),
             zone=dict(required=True, type='str'),
-            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
-            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
+            source_image_encryption_key=dict(
+                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
+            disk_encryption_key=dict(
+                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
             source_snapshot=dict(type='dict'),
-            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
+            source_snapshot_encryption_key=dict(
+                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
         )
     )
 
@@ -740,10 +782,22 @@ class DiskSourceimageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 class DiskDiskencryptionkey(object):
@@ -755,10 +809,22 @@ class DiskDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 class DiskSourcesnapshotencryptionkey(object):
@@ -770,10 +836,22 @@ class DiskSourcesnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 if __name__ == '__main__':
