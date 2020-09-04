@@ -150,7 +150,7 @@ options:
       kms_key_service_account:
         description:
         - The service account used for the encryption request for the given KMS key.
-          If absent, the Compute Engine Service Agent service account is used.
+        - If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   disk_encryption_key:
@@ -182,7 +182,7 @@ options:
       kms_key_service_account:
         description:
         - The service account used for the encryption request for the given KMS key.
-          If absent, the Compute Engine Service Agent service account is used.
+        - If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   source_snapshot:
@@ -418,7 +418,7 @@ sourceImageEncryptionKey:
     kmsKeyServiceAccount:
       description:
       - The service account used for the encryption request for the given KMS key.
-        If absent, the Compute Engine Service Agent service account is used.
+      - If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 sourceImageId:
@@ -465,7 +465,7 @@ diskEncryptionKey:
     kmsKeyServiceAccount:
       description:
       - The service account used for the encryption request for the given KMS key.
-        If absent, the Compute Engine Service Agent service account is used.
+      - If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 sourceSnapshot:
