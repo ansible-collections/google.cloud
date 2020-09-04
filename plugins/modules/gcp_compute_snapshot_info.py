@@ -149,6 +149,11 @@ resources:
         number is expected to change with snapshot creation/deletion.
       returned: success
       type: int
+    storageLocations:
+      description:
+      - Cloud Storage bucket storage location of the snapshot (regional or multi-regional).
+      returned: success
+      type: list
     licenses:
       description:
       - A list of public visible licenses that apply to this snapshot. This can be
@@ -202,6 +207,13 @@ resources:
           - The name of the encryption key that is stored in Google Cloud KMS.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
     sourceDiskEncryptionKey:
       description:
       - The customer-supplied encryption key of the source snapshot. Required if the
@@ -218,6 +230,13 @@ resources:
         kmsKeyName:
           description:
           - The name of the encryption key that is stored in Google Cloud KMS.
+          returned: success
+          type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
           returned: success
           type: str
 '''
