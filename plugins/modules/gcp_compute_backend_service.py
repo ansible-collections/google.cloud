@@ -572,7 +572,7 @@ options:
     - The protocol this BackendService uses to communicate with backends.
     - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
       types and may result in errors if used with the GA API.'
-    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "TCP", "SSL"'
+    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC"'
     required: false
     type: str
   security_policy:
