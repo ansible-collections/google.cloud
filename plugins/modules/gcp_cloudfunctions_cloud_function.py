@@ -195,6 +195,11 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
+  max_instances:
+    description:
+    - The limit on the maximum number of function instances that may coexist at a given time.
+    required: false
+    type: int
 '''
 
 EXAMPLES = '''
@@ -208,6 +213,7 @@ EXAMPLES = '''
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
+    max_instances: 1
     state: present
 '''
 
@@ -353,6 +359,11 @@ trigger_http:
   - Use HTTP to trigger this function.
   returned: success
   type: bool
+max_instances:
+  description:
+  - The limit on the maximum number of function instances that may coexist at a given time.
+  returned: success
+  type: int
 '''
 
 ################################################################################
@@ -399,6 +410,7 @@ def main():
             ),
             location=dict(required=True, type='str'),
             trigger_http=dict(type='bool'),
+            max_instances=dict(type='int'),
         )
     )
 
@@ -483,6 +495,8 @@ def updateMask(request, response):
         update_mask.append('location')
     if request.get('trigger_http') != response.get('trigger_http'):
         update_mask.append('trigger_http')
+    if request.get('max_instances') != response.get('max_instances'):
+        update_mask.append('max_instances')
     return ','.join(update_mask)
 
 
@@ -506,6 +520,7 @@ def resource_to_request(module):
         u'sourceRepository': CloudFunctionSourcerepository(module.params.get('source_repository', {}), module).to_request(),
         u'httpsTrigger': CloudFunctionHttpstrigger(module.params.get('https_trigger', {}), module).to_request(),
         u'eventTrigger': CloudFunctionEventtrigger(module.params.get('event_trigger', {}), module).to_request(),
+        u'maxInstances': module.params.get('max_instances'),
     }
     request = encode_request(request, module)
     return request
@@ -584,6 +599,7 @@ def response_to_hash(module, response):
         u'sourceRepository': CloudFunctionSourcerepository(response.get(u'sourceRepository', {}), module).from_response(),
         u'httpsTrigger': CloudFunctionHttpstrigger(response.get(u'httpsTrigger', {}), module).from_response(),
         u'eventTrigger': CloudFunctionEventtrigger(response.get(u'eventTrigger', {}), module).from_response(),
+        u'maxInstances': response.get(u'maxInstances'),
     }
 
 
