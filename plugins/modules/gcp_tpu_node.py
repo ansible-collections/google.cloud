@@ -84,8 +84,18 @@ options:
       TPU node, the CIDR block conflicts with any subnetworks in the user's provided
       network, or the provided network is peered with another network that is using
       that CIDR block.
-    required: true
+    required: false
     type: str
+  use_service_networking:
+    description:
+    - Whether the VPC peering for the node is set up through Service Networking API.
+    - The VPC Peering should be set up before provisioning the node. If this field
+      is set, cidr_block field should not be specified. If the network that you want
+      to peer the TPU Node to is a Shared VPC network, the node must be created with
+      this this field enabled.
+    required: false
+    default: 'false'
+    type: bool
   scheduling_config:
     description:
     - Sets the scheduling options for this TPU instance.
@@ -146,7 +156,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- 'API Reference: U(https://cloud.google.com/tpu/docs/reference/rest/)'
+- 'API Reference: U(https://cloud.google.com/tpu/docs/reference/rest/v1/projects.locations.nodes)'
 - 'Official Documentation: U(https://cloud.google.com/tpu/docs/)'
 - for authentication, you can set service_account_file using the C(gcp_service_account_file)
   env variable.
@@ -220,6 +230,15 @@ serviceAccount:
     in the Node, this account must have permissions to that data.
   returned: success
   type: str
+useServiceNetworking:
+  description:
+  - Whether the VPC peering for the node is set up through Service Networking API.
+  - The VPC Peering should be set up before provisioning the node. If this field is
+    set, cidr_block field should not be specified. If the network that you want to
+    peer the TPU Node to is a Shared VPC network, the node must be created with this
+    this field enabled.
+  returned: success
+  type: bool
 schedulingConfig:
   description:
   - Sets the scheduling options for this TPU instance.
@@ -292,11 +311,13 @@ def main():
             accelerator_type=dict(required=True, type='str'),
             tensorflow_version=dict(required=True, type='str'),
             network=dict(type='str'),
-            cidr_block=dict(required=True, type='str'),
+            cidr_block=dict(type='str'),
+            use_service_networking=dict(type='bool'),
             scheduling_config=dict(type='dict', options=dict(preemptible=dict(required=True, type='bool'))),
             labels=dict(type='dict'),
             zone=dict(required=True, type='str'),
-        )
+        ),
+        mutually_exclusive=[['cidr_block', 'use_service_networking']],
     )
 
     if not module.params['scopes']:
@@ -365,6 +386,7 @@ def resource_to_request(module):
         u'tensorflowVersion': module.params.get('tensorflow_version'),
         u'network': module.params.get('network'),
         u'cidrBlock': module.params.get('cidr_block'),
+        u'useServiceNetworking': module.params.get('use_service_networking'),
         u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
         u'labels': module.params.get('labels'),
     }
@@ -443,6 +465,7 @@ def response_to_hash(module, response):
         u'network': module.params.get('network'),
         u'cidrBlock': module.params.get('cidr_block'),
         u'serviceAccount': response.get(u'serviceAccount'),
+        u'useServiceNetworking': module.params.get('use_service_networking'),
         u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
         u'networkEndpoints': NodeNetworkendpointsArray(response.get(u'networkEndpoints', []), module).from_response(),
         u'labels': module.params.get('labels'),
