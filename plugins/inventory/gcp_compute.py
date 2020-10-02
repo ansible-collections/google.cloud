@@ -131,6 +131,9 @@ keyed_groups:
   # Create groups from GCE labels
   - prefix: gcp
     key: labels
+groups:
+  # Create groups from Jinja2 conditionals (f.e. instance name with a regex)
+  group_from_jinja_expression: "name | regex_search('-([a-z]+-[0-9]{2}[a-z]?)$')"
 hostnames:
   # List host by name instead of the default public ip
   - name
