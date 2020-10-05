@@ -338,9 +338,11 @@ options:
   health_checks:
     description:
     - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
-      Currently at most one health check can be specified, and a health check is required.
+      Currently at most one health check can be specified. A health check must be
+      specified unless the backend service uses an internet or serverless NEG as a
+      backend.
     elements: str
-    required: true
+    required: false
     type: list
   load_balancing_scheme:
     description:
@@ -960,7 +962,8 @@ fingerprint:
 healthChecks:
   description:
   - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
-    Currently at most one health check can be specified, and a health check is required.
+    Currently at most one health check can be specified. A health check must be specified
+    unless the backend service uses an internet or serverless NEG as a backend.
   returned: success
   type: list
 id:
@@ -1268,7 +1271,7 @@ def main():
                     disable_connection_drain_on_failover=dict(type='bool'), drop_traffic_if_unhealthy=dict(type='bool'), failover_ratio=dict(type='str')
                 ),
             ),
-            health_checks=dict(required=True, type='list', elements='str'),
+            health_checks=dict(type='list', elements='str'),
             load_balancing_scheme=dict(default='INTERNAL', type='str'),
             locality_lb_policy=dict(type='str'),
             name=dict(required=True, type='str'),
