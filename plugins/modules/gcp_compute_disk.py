@@ -639,6 +639,7 @@ def resource_to_request(module):
         u'sourceImageEncryptionKey': DiskSourceimageencryptionkey(module.params.get('source_image_encryption_key', {}), module).to_request(),
         u'diskEncryptionKey': DiskDiskencryptionkey(module.params.get('disk_encryption_key', {}), module).to_request(),
         u'sourceSnapshotEncryptionKey': DiskSourcesnapshotencryptionkey(module.params.get('source_snapshot_encryption_key', {}), module).to_request(),
+        u'sourceSnapshot': disk_sourcesnapshot_selflink(module.params.get('source_snapshot', {})),
         u'description': module.params.get('description'),
         u'labels': module.params.get('labels'),
         u'licenses': module.params.get('licenses'),
@@ -654,6 +655,12 @@ def resource_to_request(module):
             return_vals[k] = v
 
     return return_vals
+
+def disk_sourcesnapshot_selflink(sourceSnapshot):
+    if sourceSnapshot and sourceSnapshot['selfLink']:
+        return sourceSnapshot['selfLink']
+    else:
+        return sourceSnapshot
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
