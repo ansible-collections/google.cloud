@@ -33,7 +33,6 @@ module: gcp_spanner_database
 description:
 - A Cloud Spanner Database which is hosted on a Spanner instance.
 short_description: Creates a GCP Database
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -104,6 +103,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -211,7 +211,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module))
+                update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
         else:
@@ -235,13 +235,26 @@ def create(module, link):
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link):
+def update(module, link, fetch):
     module.fail_json(msg="Spanner objects can't be updated to ensure data safety")
+
+
+def update_fields(module, request, response):
+    if response.get('extraStatements') != request.get('extraStatements'):
+        extra_statements_update(module, request, response)
+
+
+def extra_statements_update(module, request, response):
+    auth = GcpSession(module, 'spanner')
+    auth.patch(
+        ''.join(["https://spanner.googleapis.com/v1/", "projects/{project}/instances/{instance}/databases/{name}/ddl"]).format(**module.params),
+        {u'extraStatements': module.params.get('extra_statements')},
+    )
 
 
 def delete(module, link):
     auth = GcpSession(module, 'spanner')
-    return return_if_object(module, auth.delete(link))
+    return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
@@ -315,7 +328,7 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': module.params.get('name'), u'extraStatements': module.params.get('extra_statements')}
+    return {u'name': module.params.get('name'), u'extraStatements': response.get(u'extraStatements')}
 
 
 def async_op_url(module, extra_data=None):

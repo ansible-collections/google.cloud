@@ -33,7 +33,6 @@ module: gcp_tpu_node_info
 description:
 - Gather info for GCP Node
 short_description: Gather info for GCP Node
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -76,6 +75,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -156,6 +156,16 @@ resources:
         job running in the Node, this account must have permissions to that data.
       returned: success
       type: str
+    useServiceNetworking:
+      description:
+      - Whether the VPC peering for the node is set up through Service Networking
+        API.
+      - The VPC Peering should be set up before provisioning the node. If this field
+        is set, cidr_block field should not be specified. If the network that you
+        want to peer the TPU Node to is a Shared VPC network, the node must be created
+        with this this field enabled.
+      returned: success
+      type: bool
     schedulingConfig:
       description:
       - Sets the scheduling options for this TPU instance.
@@ -200,7 +210,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

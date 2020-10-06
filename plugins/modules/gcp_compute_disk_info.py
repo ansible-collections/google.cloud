@@ -33,7 +33,6 @@ module: gcp_compute_disk_info
 description:
 - Gather info for GCP Disk
 short_description: Gather info for GCP Disk
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   zone:
     description:
     - A reference to the zone where the disk resides.
@@ -82,6 +82,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -206,10 +207,10 @@ resources:
       - The source image used to create this disk. If the source image is deleted,
         this field will not be set.
       - 'To create a disk with one of the public operating system images, specify
-        the image by its family name. For example, specify family/debian-8 to use
-        the latest Debian 8 image: projects/debian-cloud/global/images/family/debian-8
+        the image by its family name. For example, specify family/debian-9 to use
+        the latest Debian 9 image: projects/debian-cloud/global/images/family/debian-9
         Alternatively, use a specific version of a public operating system image:
-        projects/debian-cloud/global/images/debian-8-jessie-vYYYYMMDD To create a
+        projects/debian-cloud/global/images/debian-9-stretch-vYYYYMMDD To create a
         disk with a private image that you created, specify the image name in the
         following format: global/images/my-private-image You can also specify a private
         image by its image family, which returns the latest version of the image in
@@ -244,6 +245,13 @@ resources:
         kmsKeyName:
           description:
           - The name of the encryption key that is stored in Google Cloud KMS.
+          returned: success
+          type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
           returned: success
           type: str
     sourceImageId:
@@ -288,6 +296,13 @@ resources:
             must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
     sourceSnapshot:
       description:
       - The source snapshot used to create this disk. You can provide this as a partial
@@ -318,6 +333,12 @@ resources:
             key that protects this resource.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key. If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
     sourceSnapshotId:
       description:
       - The unique ID of the snapshot used to create this disk. This value identifies
@@ -332,7 +353,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -351,7 +372,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks".format(**module.params)
 
 
 def fetch_list(module, link, query):

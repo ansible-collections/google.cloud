@@ -34,7 +34,6 @@ description:
 - Represents a Global Address resource. Global addresses are used for HTTP(S) load
   balancing.
 short_description: Creates a GCP GlobalAddress
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -54,7 +53,6 @@ options:
     - The static external IP address represented by this resource.
     required: false
     type: str
-    version_added: '2.8'
   description:
     description:
     - An optional description of this resource.
@@ -83,7 +81,6 @@ options:
     - This field is not applicable to addresses with addressType=EXTERNAL.
     required: false
     type: int
-    version_added: '2.9'
   address_type:
     description:
     - The type of the address to reserve.
@@ -93,7 +90,6 @@ options:
     required: false
     default: EXTERNAL
     type: str
-    version_added: '2.8'
   purpose:
     description:
     - The purpose of the resource. For global internal addresses it can be * VPC_PEERING
@@ -101,7 +97,6 @@ options:
     - 'Some valid choices include: "VPC_PEERING"'
     required: false
     type: str
-    version_added: '2.9'
   network:
     description:
     - The URL of the network in which to reserve the IP range. The IP range must be
@@ -115,7 +110,6 @@ options:
       }}"'
     required: false
     type: dict
-    version_added: '2.9'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -147,6 +141,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -352,11 +347,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/addresses/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/addresses/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/addresses".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/addresses".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -419,16 +414,16 @@ def response_to_hash(module, response):
 def region_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1/projects/.*/regions/.*"
+    url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

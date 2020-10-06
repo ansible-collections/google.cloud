@@ -33,7 +33,6 @@ module: gcp_cloudbuild_trigger
 description:
 - Configuration for an automated build in response to source repository changes.
 short_description: Creates a GCP Trigger
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -58,7 +57,6 @@ options:
     - Name of the trigger. Must be unique within the project.
     required: false
     type: str
-    version_added: '2.10'
   description:
     description:
     - Human-readable description of the trigger.
@@ -70,7 +68,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.10'
   disabled:
     description:
     - Whether the trigger is disabled or not. If true, the trigger will never result
@@ -145,7 +142,6 @@ options:
         - Only trigger a build if the revision regex does NOT match the revision regex.
         required: false
         type: bool
-        version_added: '2.10'
       branch_name:
         description:
         - Name of the branch to build. Exactly one a of branch name, tag, or commit
@@ -178,7 +174,6 @@ options:
         - The location of the source files to build.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           storage_source:
             description:
@@ -286,7 +281,6 @@ options:
         - Substitutions data for Build resource.
         required: false
         type: dict
-        version_added: '2.10'
       queue_ttl:
         description:
         - TTL in queue for this build. If provided and the build is enqueued longer
@@ -296,14 +290,12 @@ options:
           ''s''. Example: "3.5s".'
         required: false
         type: str
-        version_added: '2.10'
       logs_bucket:
         description:
         - Google Cloud Storage bucket where logs should be written. Logs file names
           will be of the format ${logsBucket}/log-${build_id}.txt.
         required: false
         type: str
-        version_added: '2.10'
       timeout:
         description:
         - Amount of time that this build should be allowed to run, to second granularity.
@@ -316,14 +308,12 @@ options:
         required: false
         default: 600s
         type: str
-        version_added: '2.10'
       secrets:
         description:
         - Secrets to decrypt using Cloud Key Management Service.
         elements: dict
         required: false
         type: list
-        version_added: '2.10'
         suboptions:
           kms_key_name:
             description:
@@ -464,6 +454,168 @@ options:
             elements: str
             required: false
             type: list
+      artifacts:
+        description:
+        - Artifacts produced by the build that should be uploaded upon successful
+          completion of all build steps.
+        required: false
+        type: dict
+        suboptions:
+          images:
+            description:
+            - A list of images to be pushed upon the successful completion of all
+              build steps.
+            - The images will be pushed using the builder service account's credentials.
+            - The digests of the pushed images will be stored in the Build resource's
+              results field.
+            - If any of the images fail to be pushed, the build is marked FAILURE.
+            elements: str
+            required: false
+            type: list
+          objects:
+            description:
+            - A list of objects to be uploaded to Cloud Storage upon successful completion
+              of all build steps.
+            - Files in the workspace matching specified paths globs will be uploaded
+              to the Cloud Storage location using the builder service account's credentials.
+            - The location and generation of the uploaded objects will be stored in
+              the Build resource's results field.
+            - If any objects fail to be pushed, the build is marked FAILURE.
+            required: false
+            type: dict
+            suboptions:
+              location:
+                description:
+                - Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+                - Files in the workspace matching any path pattern will be uploaded
+                  to Cloud Storage with this location as a prefix.
+                required: false
+                type: str
+              paths:
+                description:
+                - Path globs used to match files in the build's workspace.
+                elements: str
+                required: false
+                type: list
+      options:
+        description:
+        - Special options for this build.
+        required: false
+        type: dict
+        suboptions:
+          source_provenance_hash:
+            description:
+            - Requested hash for SourceProvenance.
+            elements: str
+            required: false
+            type: list
+          requested_verify_option:
+            description:
+            - Requested verifiability options.
+            - 'Some valid choices include: "NOT_VERIFIED", "VERIFIED"'
+            required: false
+            type: str
+          machine_type:
+            description:
+            - Compute Engine machine type on which to run the build.
+            - 'Some valid choices include: "UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32"'
+            required: false
+            type: str
+          disk_size_gb:
+            description:
+            - Requested disk size for the VM that runs the build. Note that this is
+              NOT "disk free"; some of the space will be used by the operating system
+              and build utilities.
+            - Also note that this is the minimum disk size that will be allocated
+              for the build -- the build may run with a larger disk than requested.
+              At present, the maximum disk size is 1000GB; builds that request more
+              than the maximum are rejected with an error.
+            required: false
+            type: int
+          substitution_option:
+            description:
+            - Option to specify behavior when there is an error in the substitution
+              checks.
+            - NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot
+              be overridden in the build configuration file.
+            - 'Some valid choices include: "MUST_MATCH", "ALLOW_LOOSE"'
+            required: false
+            type: str
+          dynamic_substitutions:
+            description:
+            - Option to specify whether or not to apply bash style string operations
+              to the substitutions.
+            - NOTE this is always enabled for triggered builds and cannot be overridden
+              in the build configuration file.
+            required: false
+            type: bool
+          log_streaming_option:
+            description:
+            - Option to define build log streaming behavior to Google Cloud Storage.
+            - 'Some valid choices include: "STREAM_DEFAULT", "STREAM_ON", "STREAM_OFF"'
+            required: false
+            type: str
+          worker_pool:
+            description:
+            - Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+              This field is experimental.
+            required: false
+            type: str
+          logging:
+            description:
+            - Option to specify the logging mode, which determines if and where build
+              logs are stored.
+            - 'Some valid choices include: "LOGGING_UNSPECIFIED", "LEGACY", "GCS_ONLY",
+              "STACKDRIVER_ONLY", "NONE"'
+            required: false
+            type: str
+          env:
+            description:
+            - A list of global environment variable definitions that will exist for
+              all build steps in this build. If a variable is defined in both globally
+              and in a build step, the variable will use the build step value.
+            - The elements are of the form "KEY=VALUE" for the environment variable
+              "KEY" being given the value "VALUE".
+            elements: str
+            required: false
+            type: list
+          secret_env:
+            description:
+            - A list of global environment variables, which are encrypted using a
+              Cloud Key Management Service crypto key. These values must be specified
+              in the build's Secret. These variables will be available to all build
+              steps in this build.
+            elements: str
+            required: false
+            type: list
+          volumes:
+            description:
+            - Global list of volumes to mount for ALL build steps Each volume is created
+              as an empty volume prior to starting the build process.
+            - Upon completion of the build, volumes and their contents are discarded.
+              Global volume names and paths cannot conflict with the volumes defined
+              a build step.
+            - Using a global volume in a build with only one step is not valid as
+              it is indicative of a build request with an incorrect configuration.
+            elements: dict
+            required: false
+            type: list
+            suboptions:
+              name:
+                description:
+                - Name of the volume to mount.
+                - Volume names must be unique per build step and must be valid names
+                  for Docker volumes.
+                - Each named volume must be used by at least two build steps.
+                required: false
+                type: str
+              path:
+                description:
+                - Path at which to mount the volume.
+                - Paths must be absolute and cannot conflict with other volume paths
+                  on the same build step or with certain reserved volume paths.
+                required: false
+                type: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -495,6 +647,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -935,6 +1088,178 @@ build:
             successfully.
           returned: success
           type: list
+    artifacts:
+      description:
+      - Artifacts produced by the build that should be uploaded upon successful completion
+        of all build steps.
+      returned: success
+      type: complex
+      contains:
+        images:
+          description:
+          - A list of images to be pushed upon the successful completion of all build
+            steps.
+          - The images will be pushed using the builder service account's credentials.
+          - The digests of the pushed images will be stored in the Build resource's
+            results field.
+          - If any of the images fail to be pushed, the build is marked FAILURE.
+          returned: success
+          type: list
+        objects:
+          description:
+          - A list of objects to be uploaded to Cloud Storage upon successful completion
+            of all build steps.
+          - Files in the workspace matching specified paths globs will be uploaded
+            to the Cloud Storage location using the builder service account's credentials.
+          - The location and generation of the uploaded objects will be stored in
+            the Build resource's results field.
+          - If any objects fail to be pushed, the build is marked FAILURE.
+          returned: success
+          type: complex
+          contains:
+            location:
+              description:
+              - Cloud Storage bucket and optional object path, in the form "gs://bucket/path/to/somewhere/".
+              - Files in the workspace matching any path pattern will be uploaded
+                to Cloud Storage with this location as a prefix.
+              returned: success
+              type: str
+            paths:
+              description:
+              - Path globs used to match files in the build's workspace.
+              returned: success
+              type: list
+            timing:
+              description:
+              - Output only. Stores timing information for pushing all artifact objects.
+              returned: success
+              type: complex
+              contains:
+                startTime:
+                  description:
+                  - Start of time span.
+                  - 'A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution
+                    and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z"
+                    and "2014-10-02T15:01:23.045123456Z".'
+                  returned: success
+                  type: str
+                endTime:
+                  description:
+                  - End of time span.
+                  - 'A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution
+                    and up to nine fractional digits. Examples: "2014-10-02T15:01:23Z"
+                    and "2014-10-02T15:01:23.045123456Z".'
+                  returned: success
+                  type: str
+    options:
+      description:
+      - Special options for this build.
+      returned: success
+      type: complex
+      contains:
+        sourceProvenanceHash:
+          description:
+          - Requested hash for SourceProvenance.
+          returned: success
+          type: list
+        requestedVerifyOption:
+          description:
+          - Requested verifiability options.
+          returned: success
+          type: str
+        machineType:
+          description:
+          - Compute Engine machine type on which to run the build.
+          returned: success
+          type: str
+        diskSizeGb:
+          description:
+          - Requested disk size for the VM that runs the build. Note that this is
+            NOT "disk free"; some of the space will be used by the operating system
+            and build utilities.
+          - Also note that this is the minimum disk size that will be allocated for
+            the build -- the build may run with a larger disk than requested. At present,
+            the maximum disk size is 1000GB; builds that request more than the maximum
+            are rejected with an error.
+          returned: success
+          type: int
+        substitutionOption:
+          description:
+          - Option to specify behavior when there is an error in the substitution
+            checks.
+          - NOTE this is always set to ALLOW_LOOSE for triggered builds and cannot
+            be overridden in the build configuration file.
+          returned: success
+          type: str
+        dynamicSubstitutions:
+          description:
+          - Option to specify whether or not to apply bash style string operations
+            to the substitutions.
+          - NOTE this is always enabled for triggered builds and cannot be overridden
+            in the build configuration file.
+          returned: success
+          type: bool
+        logStreamingOption:
+          description:
+          - Option to define build log streaming behavior to Google Cloud Storage.
+          returned: success
+          type: str
+        workerPool:
+          description:
+          - Option to specify a WorkerPool for the build. Format projects/{project}/workerPools/{workerPool}
+            This field is experimental.
+          returned: success
+          type: str
+        logging:
+          description:
+          - Option to specify the logging mode, which determines if and where build
+            logs are stored.
+          returned: success
+          type: str
+        env:
+          description:
+          - A list of global environment variable definitions that will exist for
+            all build steps in this build. If a variable is defined in both globally
+            and in a build step, the variable will use the build step value.
+          - The elements are of the form "KEY=VALUE" for the environment variable
+            "KEY" being given the value "VALUE".
+          returned: success
+          type: list
+        secretEnv:
+          description:
+          - A list of global environment variables, which are encrypted using a Cloud
+            Key Management Service crypto key. These values must be specified in the
+            build's Secret. These variables will be available to all build steps in
+            this build.
+          returned: success
+          type: list
+        volumes:
+          description:
+          - Global list of volumes to mount for ALL build steps Each volume is created
+            as an empty volume prior to starting the build process.
+          - Upon completion of the build, volumes and their contents are discarded.
+            Global volume names and paths cannot conflict with the volumes defined
+            a build step.
+          - Using a global volume in a build with only one step is not valid as it
+            is indicative of a build request with an incorrect configuration.
+          returned: success
+          type: complex
+          contains:
+            name:
+              description:
+              - Name of the volume to mount.
+              - Volume names must be unique per build step and must be valid names
+                for Docker volumes.
+              - Each named volume must be used by at least two build steps.
+              returned: success
+              type: str
+            path:
+              description:
+              - Path at which to mount the volume.
+              - Paths must be absolute and cannot conflict with other volume paths
+                on the same build step or with certain reserved volume paths.
+              returned: success
+              type: str
 '''
 
 ################################################################################
@@ -1033,6 +1358,30 @@ def main():
                                 type='list', elements='dict', options=dict(name=dict(required=True, type='str'), path=dict(required=True, type='str'))
                             ),
                             wait_for=dict(type='list', elements='str'),
+                        ),
+                    ),
+                    artifacts=dict(
+                        type='dict',
+                        options=dict(
+                            images=dict(type='list', elements='str'),
+                            objects=dict(type='dict', options=dict(location=dict(type='str'), paths=dict(type='list', elements='str'))),
+                        ),
+                    ),
+                    options=dict(
+                        type='dict',
+                        options=dict(
+                            source_provenance_hash=dict(type='list', elements='str'),
+                            requested_verify_option=dict(type='str'),
+                            machine_type=dict(type='str'),
+                            disk_size_gb=dict(type='int'),
+                            substitution_option=dict(type='str'),
+                            dynamic_substitutions=dict(type='bool'),
+                            log_streaming_option=dict(type='str'),
+                            worker_pool=dict(type='str'),
+                            logging=dict(type='str'),
+                            env=dict(type='list', elements='str'),
+                            secret_env=dict(type='list', elements='str'),
+                            volumes=dict(type='list', elements='dict', options=dict(name=dict(type='str'), path=dict(type='str'))),
                         ),
                     ),
                 ),
@@ -1233,6 +1582,8 @@ class TriggerBuild(object):
                 u'timeout': self.request.get('timeout'),
                 u'secrets': TriggerSecretsArray(self.request.get('secrets', []), self.module).to_request(),
                 u'steps': TriggerStepsArray(self.request.get('steps', []), self.module).to_request(),
+                u'artifacts': TriggerArtifacts(self.request.get('artifacts', {}), self.module).to_request(),
+                u'options': TriggerOptions(self.request.get('options', {}), self.module).to_request(),
             }
         )
 
@@ -1248,6 +1599,8 @@ class TriggerBuild(object):
                 u'timeout': self.request.get(u'timeout'),
                 u'secrets': TriggerSecretsArray(self.request.get(u'secrets', []), self.module).from_response(),
                 u'steps': TriggerStepsArray(self.request.get(u'steps', []), self.module).from_response(),
+                u'artifacts': TriggerArtifacts(self.request.get(u'artifacts', {}), self.module).from_response(),
+                u'options': TriggerOptions(self.request.get(u'options', {}), self.module).from_response(),
             }
         )
 
@@ -1411,6 +1764,127 @@ class TriggerStepsArray(object):
                 u'timing': item.get(u'timing'),
                 u'volumes': TriggerVolumesArray(item.get(u'volumes', []), self.module).from_response(),
                 u'waitFor': item.get(u'waitFor'),
+            }
+        )
+
+
+class TriggerVolumesArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'name': item.get('name'), u'path': item.get('path')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'name': item.get(u'name'), u'path': item.get(u'path')})
+
+
+class TriggerArtifacts(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'images': self.request.get('images'), u'objects': TriggerObjects(self.request.get('objects', {}), self.module).to_request()}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'images': self.request.get(u'images'), u'objects': TriggerObjects(self.request.get(u'objects', {}), self.module).from_response()}
+        )
+
+
+class TriggerObjects(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'location': self.request.get('location'), u'paths': self.request.get('paths')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'location': self.request.get(u'location'), u'paths': self.request.get(u'paths')})
+
+
+class TriggerTiming(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'startTime': self.request.get('start_time'), u'endTime': self.request.get('end_time')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'startTime': self.request.get(u'startTime'), u'endTime': self.request.get(u'endTime')})
+
+
+class TriggerOptions(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'sourceProvenanceHash': self.request.get('source_provenance_hash'),
+                u'requestedVerifyOption': self.request.get('requested_verify_option'),
+                u'machineType': self.request.get('machine_type'),
+                u'diskSizeGb': self.request.get('disk_size_gb'),
+                u'substitutionOption': self.request.get('substitution_option'),
+                u'dynamicSubstitutions': self.request.get('dynamic_substitutions'),
+                u'logStreamingOption': self.request.get('log_streaming_option'),
+                u'workerPool': self.request.get('worker_pool'),
+                u'logging': self.request.get('logging'),
+                u'env': self.request.get('env'),
+                u'secretEnv': self.request.get('secret_env'),
+                u'volumes': TriggerVolumesArray(self.request.get('volumes', []), self.module).to_request(),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'sourceProvenanceHash': self.request.get(u'sourceProvenanceHash'),
+                u'requestedVerifyOption': self.request.get(u'requestedVerifyOption'),
+                u'machineType': self.request.get(u'machineType'),
+                u'diskSizeGb': self.request.get(u'diskSizeGb'),
+                u'substitutionOption': self.request.get(u'substitutionOption'),
+                u'dynamicSubstitutions': self.request.get(u'dynamicSubstitutions'),
+                u'logStreamingOption': self.request.get(u'logStreamingOption'),
+                u'workerPool': self.request.get(u'workerPool'),
+                u'logging': self.request.get(u'logging'),
+                u'env': self.request.get(u'env'),
+                u'secretEnv': self.request.get(u'secretEnv'),
+                u'volumes': TriggerVolumesArray(self.request.get(u'volumes', []), self.module).from_response(),
             }
         )
 

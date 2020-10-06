@@ -42,7 +42,6 @@ description:
   see Access Control, with the caveat that this API uses READER, WRITER, and OWNER
   instead of READ, WRITE, and FULL_CONTROL.'
 short_description: Creates a GCP BucketAccessControl
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -114,6 +113,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -314,12 +314,12 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 def self_link(module):
     res = {'bucket': replace_resource_dict(module.params['bucket'], 'name'), 'entity': module.params['entity']}
-    return "https://www.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(**res)
+    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(**res)
 
 
 def collection(module):
     res = {'bucket': replace_resource_dict(module.params['bucket'], 'name')}
-    return "https://www.googleapis.com/storage/v1/b/{bucket}/acl".format(**res)
+    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl".format(**res)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

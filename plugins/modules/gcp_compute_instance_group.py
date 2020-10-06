@@ -36,7 +36,6 @@ description:
   template. Unlike managed instance groups, you must create and add instances to an
   instance group manually.
 short_description: Creates a GCP InstanceGroup
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -126,7 +125,6 @@ options:
     elements: dict
     required: false
     type: list
-    version_added: '2.8'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -158,6 +156,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -378,11 +377,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -442,16 +441,16 @@ def response_to_hash(module, response):
 def region_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1/projects/.*/regions/.*"
+    url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

@@ -40,7 +40,6 @@ description:
   incoming traffic. For all networks except the default network, you must create any
   firewall rules you need.
 short_description: Creates a GCP Firewall
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -67,8 +66,8 @@ options:
         description:
         - The IP protocol to which this rule applies. The protocol type is required
           when creating a firewall rule. This value can either be one of the following
-          well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip), or the
-          IP protocol number.
+          well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip, all),
+          or the IP protocol number.
         required: true
         type: str
       ports:
@@ -88,14 +87,13 @@ options:
     elements: dict
     required: false
     type: list
-    version_added: '2.8'
     suboptions:
       ip_protocol:
         description:
         - The IP protocol to which this rule applies. The protocol type is required
           when creating a firewall rule. This value can either be one of the following
-          well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip), or the
-          IP protocol number.
+          well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip, all),
+          or the IP protocol number.
         required: true
         type: str
       ports:
@@ -122,7 +120,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.8'
   direction:
     description:
     - 'Direction of traffic to which this firewall applies; default is INGRESS. Note:
@@ -131,7 +128,6 @@ options:
     - 'Some valid choices include: "INGRESS", "EGRESS"'
     required: false
     type: str
-    version_added: '2.8'
   disabled:
     description:
     - Denotes whether the firewall rule is disabled, i.e not applied to the network
@@ -140,14 +136,12 @@ options:
       rule will be enabled.
     required: false
     type: bool
-    version_added: '2.8'
   log_config:
     description:
     - This field denotes the logging options for a particular firewall rule.
     - If logging is enabled, logs will be exported to Cloud Logging.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       enable:
         description:
@@ -198,7 +192,6 @@ options:
     required: false
     default: '1000'
     type: int
-    version_added: '2.8'
   source_ranges:
     description:
     - If source ranges are specified, the firewall will apply only to traffic that
@@ -225,7 +218,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.8'
   source_tags:
     description:
     - If source tags are specified, the firewall will apply only to traffic with source
@@ -249,7 +241,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.8'
   target_tags:
     description:
     - A list of instance tags indicating sets of instances located in the network
@@ -290,6 +281,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -342,8 +334,8 @@ allowed:
       description:
       - The IP protocol to which this rule applies. The protocol type is required
         when creating a firewall rule. This value can either be one of the following
-        well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip), or the
-        IP protocol number.
+        well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip, all), or
+        the IP protocol number.
       returned: success
       type: str
     ports:
@@ -370,8 +362,8 @@ denied:
       description:
       - The IP protocol to which this rule applies. The protocol type is required
         when creating a firewall rule. This value can either be one of the following
-        well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip), or the
-        IP protocol number.
+        well known protocol strings (tcp, udp, icmp, esp, ah, sctp, ipip, all), or
+        the IP protocol number.
       returned: success
       type: str
     ports:
@@ -650,11 +642,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/firewalls/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/firewalls/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/firewalls".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/firewalls".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -723,7 +715,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

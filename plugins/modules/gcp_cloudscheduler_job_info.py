@@ -33,7 +33,6 @@ module: gcp_cloudscheduler_job_info
 description:
 - Gather info for GCP Job
 short_description: Gather info for GCP Job
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -76,6 +75,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -141,6 +141,8 @@ resources:
       - 'The allowed duration for this deadline is: * For HTTP targets, between 15
         seconds and 30 minutes.'
       - "* For App Engine HTTP targets, between 15 seconds and 24 hours."
+      - "* **Note**: For PubSub targets, this field is ignored - setting it will introduce
+        an unresolvable diff."
       - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
         Example: "3.5s" .'
       returned: success
@@ -358,7 +360,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

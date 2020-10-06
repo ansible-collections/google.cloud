@@ -34,7 +34,6 @@ description:
 - A named resource representing the stream of messages from a single, specific topic,
   to be delivered to the subscribing application.
 short_description: Creates a GCP Subscription
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -69,7 +68,6 @@ options:
     - A set of key/value label pairs to assign to this Subscription.
     required: false
     type: dict
-    version_added: '2.8'
   push_config:
     description:
     - If push delivery is used with this subscription, this field is used to configure
@@ -84,7 +82,6 @@ options:
           header in the HTTP request for every pushed message.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           service_account_email:
             description:
@@ -160,7 +157,6 @@ options:
     required: false
     default: 604800s
     type: str
-    version_added: '2.8'
   retain_acked_messages:
     description:
     - Indicates whether to retain acknowledged messages. If `true`, then messages
@@ -168,7 +164,6 @@ options:
       until they fall out of the messageRetentionDuration window.
     required: false
     type: bool
-    version_added: '2.8'
   expiration_policy:
     description:
     - A policy that specifies the conditions for this subscription's expiration.
@@ -179,7 +174,6 @@ options:
       value for expirationPolicy.ttl is 1 day.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       ttl:
         description:
@@ -190,6 +184,14 @@ options:
         - Example - "3.5s".
         required: true
         type: str
+  filter:
+    description:
+    - The subscription only delivers the messages that match the filter. Pub/Sub automatically
+      acknowledges the messages that don't match the filter. You can filter messages
+      by their attributes. The maximum length of a filter is 256 bytes. After creating
+      the subscription, you can't modify the filter.
+    required: false
+    type: str
   dead_letter_policy:
     description:
     - A policy that specifies the conditions for dead lettering messages in this subscription.
@@ -199,13 +201,12 @@ options:
       must have permission to Acknowledge() messages on this subscription.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       dead_letter_topic:
         description:
         - The name of the topic to which dead letter messages should be published.
         - Format is `projects/{project}/topics/{topic}`.
-        - The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+        - The Cloud Pub/Sub service account associated with the enclosing subscription's
           parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
           must have permission to Publish() to this topic.
         - The operation will fail if the topic does not exist.
@@ -226,6 +227,39 @@ options:
         - If this parameter is 0, a default value of 5 is used.
         required: false
         type: int
+  retry_policy:
+    description:
+    - A policy that specifies how Pub/Sub retries message delivery for this subscription.
+    - If not set, the default retry policy is applied. This generally implies that
+      messages will be retried as soon as possible for healthy subscribers. RetryPolicy
+      will be triggered on NACKs or acknowledgement deadline exceeded events for a
+      given message .
+    required: false
+    type: dict
+    suboptions:
+      minimum_backoff:
+        description:
+        - The minimum delay between consecutive deliveries of a given message. Value
+          should be between 0 and 600 seconds. Defaults to 10 seconds.
+        - 'A duration in seconds with up to nine fractional digits, terminated by
+          ''s''. Example: "3.5s".'
+        required: false
+        type: str
+      maximum_backoff:
+        description:
+        - 'The maximum delay between consecutive deliveries of a given message. Value
+          should be between 0 and 600 seconds. Defaults to 600 seconds. A duration
+          in seconds with up to nine fractional digits, terminated by ''s''. Example:
+          "3.5s".'
+        required: false
+        type: str
+  enable_message_ordering:
+    description:
+    - If `true`, messages published with the same orderingKey in PubsubMessage will
+      be delivered to the subscribers in the order in which they are received by the
+      Pub/Sub system. Otherwise, they may be delivered in any order.
+    required: false
+    type: bool
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -257,6 +291,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -429,6 +464,14 @@ expirationPolicy:
       - Example - "3.5s".
       returned: success
       type: str
+filter:
+  description:
+  - The subscription only delivers the messages that match the filter. Pub/Sub automatically
+    acknowledges the messages that don't match the filter. You can filter messages
+    by their attributes. The maximum length of a filter is 256 bytes. After creating
+    the subscription, you can't modify the filter.
+  returned: success
+  type: str
 deadLetterPolicy:
   description:
   - A policy that specifies the conditions for dead lettering messages in this subscription.
@@ -443,7 +486,7 @@ deadLetterPolicy:
       description:
       - The name of the topic to which dead letter messages should be published.
       - Format is `projects/{project}/topics/{topic}`.
-      - The Cloud Pub/Sub service\naccount associated with the enclosing subscription's
+      - The Cloud Pub/Sub service account associated with the enclosing subscription's
         parent project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
         must have permission to Publish() to this topic.
       - The operation will fail if the topic does not exist.
@@ -464,6 +507,38 @@ deadLetterPolicy:
       - If this parameter is 0, a default value of 5 is used.
       returned: success
       type: int
+retryPolicy:
+  description:
+  - A policy that specifies how Pub/Sub retries message delivery for this subscription.
+  - If not set, the default retry policy is applied. This generally implies that messages
+    will be retried as soon as possible for healthy subscribers. RetryPolicy will
+    be triggered on NACKs or acknowledgement deadline exceeded events for a given
+    message .
+  returned: success
+  type: complex
+  contains:
+    minimumBackoff:
+      description:
+      - The minimum delay between consecutive deliveries of a given message. Value
+        should be between 0 and 600 seconds. Defaults to 10 seconds.
+      - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
+        Example: "3.5s".'
+      returned: success
+      type: str
+    maximumBackoff:
+      description:
+      - 'The maximum delay between consecutive deliveries of a given message. Value
+        should be between 0 and 600 seconds. Defaults to 600 seconds. A duration in
+        seconds with up to nine fractional digits, terminated by ''s''. Example: "3.5s".'
+      returned: success
+      type: str
+enableMessageOrdering:
+  description:
+  - If `true`, messages published with the same orderingKey in PubsubMessage will
+    be delivered to the subscribers in the order in which they are received by the
+    Pub/Sub system. Otherwise, they may be delivered in any order.
+  returned: success
+  type: bool
 '''
 
 ################################################################################
@@ -507,7 +582,10 @@ def main():
             message_retention_duration=dict(default='604800s', type='str'),
             retain_acked_messages=dict(type='bool'),
             expiration_policy=dict(type='dict', options=dict(ttl=dict(required=True, type='str'))),
+            filter=dict(type='str'),
             dead_letter_policy=dict(type='dict', options=dict(dead_letter_topic=dict(type='str'), max_delivery_attempts=dict(type='int'))),
+            retry_policy=dict(type='dict', options=dict(minimum_backoff=dict(type='str'), maximum_backoff=dict(type='str'))),
+            enable_message_ordering=dict(type='bool'),
         )
     )
 
@@ -570,6 +648,10 @@ def updateMask(request, response):
         update_mask.append('expirationPolicy')
     if request.get('deadLetterPolicy') != response.get('deadLetterPolicy'):
         update_mask.append('deadLetterPolicy')
+    if request.get('retryPolicy') != response.get('retryPolicy'):
+        update_mask.append('retryPolicy')
+    if request.get('enableMessageOrdering') != response.get('enableMessageOrdering'):
+        update_mask.append('enableMessageOrdering')
     return ','.join(update_mask)
 
 
@@ -588,7 +670,10 @@ def resource_to_request(module):
         u'messageRetentionDuration': module.params.get('message_retention_duration'),
         u'retainAckedMessages': module.params.get('retain_acked_messages'),
         u'expirationPolicy': SubscriptionExpirationpolicy(module.params.get('expiration_policy', {}), module).to_request(),
+        u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(module.params.get('dead_letter_policy', {}), module).to_request(),
+        u'retryPolicy': SubscriptionRetrypolicy(module.params.get('retry_policy', {}), module).to_request(),
+        u'enableMessageOrdering': module.params.get('enable_message_ordering'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -662,7 +747,10 @@ def response_to_hash(module, response):
         u'messageRetentionDuration': response.get(u'messageRetentionDuration'),
         u'retainAckedMessages': response.get(u'retainAckedMessages'),
         u'expirationPolicy': SubscriptionExpirationpolicy(response.get(u'expirationPolicy', {}), module).from_response(),
+        u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
+        u'retryPolicy': SubscriptionRetrypolicy(response.get(u'retryPolicy', {}), module).from_response(),
+        u'enableMessageOrdering': response.get(u'enableMessageOrdering'),
     }
 
 
@@ -768,6 +856,21 @@ class SubscriptionDeadletterpolicy(object):
         return remove_nones_from_dict(
             {u'deadLetterTopic': self.request.get(u'deadLetterTopic'), u'maxDeliveryAttempts': self.request.get(u'maxDeliveryAttempts')}
         )
+
+
+class SubscriptionRetrypolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'minimumBackoff': self.request.get('minimum_backoff'), u'maximumBackoff': self.request.get('maximum_backoff')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'minimumBackoff': self.request.get(u'minimumBackoff'), u'maximumBackoff': self.request.get(u'maximumBackoff')})
 
 
 if __name__ == '__main__':

@@ -34,7 +34,6 @@ description:
 - A Region Backend Service defines a regionally-scoped group of virtual machines that
   will serve traffic for load balancing.
 short_description: Creates a GCP RegionBackendService
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -339,9 +338,11 @@ options:
   health_checks:
     description:
     - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
-      Currently at most one health check can be specified, and a health check is required.
+      Currently at most one health check can be specified. A health check must be
+      specified unless the backend service uses an internet or serverless NEG as a
+      backend.
     elements: str
-    required: true
+    required: false
     type: list
   load_balancing_scheme:
     description:
@@ -529,7 +530,8 @@ options:
     - The protocol this RegionBackendService uses to communicate with backends.
     - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
       types and may result in errors if used with the GA API.'
-    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP"'
+    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "SSL", "TCP", "UDP",
+      "GRPC"'
     required: false
     type: str
   session_affinity:
@@ -616,6 +618,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -959,7 +962,8 @@ fingerprint:
 healthChecks:
   description:
   - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
-    Currently at most one health check can be specified, and a health check is required.
+    Currently at most one health check can be specified. A health check must be specified
+    unless the backend service uses an internet or serverless NEG as a backend.
   returned: success
   type: list
 id:
@@ -1267,7 +1271,7 @@ def main():
                     disable_connection_drain_on_failover=dict(type='bool'), drop_traffic_if_unhealthy=dict(type='bool'), failover_ratio=dict(type='str')
                 ),
             ),
-            health_checks=dict(required=True, type='list', elements='str'),
+            health_checks=dict(type='list', elements='str'),
             load_balancing_scheme=dict(default='INTERNAL', type='str'),
             locality_lb_policy=dict(type='str'),
             name=dict(required=True, type='str'),
@@ -1379,11 +1383,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/backendServices".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1456,7 +1460,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

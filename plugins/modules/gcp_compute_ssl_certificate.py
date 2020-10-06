@@ -35,7 +35,6 @@ description:
   a mechanism to upload an SSL key and certificate to the load balancer to serve secure
   connections from the user.
 short_description: Creates a GCP SslCertificate
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -108,6 +107,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -299,11 +299,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/sslCertificates/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslCertificates/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/sslCertificates".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslCertificates".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -361,7 +361,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

@@ -41,7 +41,6 @@ description:
   faster and at a much lower cost than if you regularly created a full image of the
   disk.
 short_description: Creates a GCP Snapshot
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -71,6 +70,12 @@ options:
     - An optional description of this resource.
     required: false
     type: str
+  storage_locations:
+    description:
+    - Cloud Storage bucket storage location of the snapshot (regional or multi-regional).
+    elements: str
+    required: false
+    type: list
   labels:
     description:
     - Labels to apply to this Snapshot.
@@ -109,6 +114,12 @@ options:
         - The name of the encryption key that is stored in Google Cloud KMS.
         required: false
         type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+        - If absent, the Compute Engine Service Agent service account is used.
+        required: false
+        type: str
   source_disk_encryption_key:
     description:
     - The customer-supplied encryption key of the source snapshot. Required if the
@@ -125,6 +136,12 @@ options:
       kms_key_name:
         description:
         - The name of the encryption key that is stored in Google Cloud KMS.
+        required: false
+        type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+        - If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   project:
@@ -158,6 +175,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -240,6 +258,11 @@ storageBytes:
     is expected to change with snapshot creation/deletion.
   returned: success
   type: int
+storageLocations:
+  description:
+  - Cloud Storage bucket storage location of the snapshot (regional or multi-regional).
+  returned: success
+  type: list
 licenses:
   description:
   - A list of public visible licenses that apply to this snapshot. This can be because
@@ -292,6 +315,12 @@ snapshotEncryptionKey:
       - The name of the encryption key that is stored in Google Cloud KMS.
       returned: success
       type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+      - If absent, the Compute Engine Service Agent service account is used.
+      returned: success
+      type: str
 sourceDiskEncryptionKey:
   description:
   - The customer-supplied encryption key of the source snapshot. Required if the source
@@ -308,6 +337,12 @@ sourceDiskEncryptionKey:
     kmsKeyName:
       description:
       - The name of the encryption key that is stored in Google Cloud KMS.
+      returned: success
+      type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+      - If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 '''
@@ -341,11 +376,16 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
             description=dict(type='str'),
+            storage_locations=dict(type='list', elements='str'),
             labels=dict(type='dict'),
             source_disk=dict(required=True, type='dict'),
             zone=dict(type='str'),
-            snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
-            source_disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'))),
+            snapshot_encryption_key=dict(
+                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
+            source_disk_encryption_key=dict(
+                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
         )
     )
 
@@ -398,7 +438,7 @@ def update_fields(module, request, response):
 def labels_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/snapshots/{name}/setLabels"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/snapshots/{name}/setLabels"]).format(**module.params),
         {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
     )
 
@@ -415,6 +455,7 @@ def resource_to_request(module):
         u'zone': module.params.get('zone'),
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
+        u'storageLocations': module.params.get('storage_locations'),
         u'labels': module.params.get('labels'),
     }
     return_vals = {}
@@ -431,16 +472,16 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/snapshots/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(**module.params)
 
 
 def create_link(module):
     res = {'project': module.params['project'], 'zone': module.params['zone'], 'source_disk': replace_resource_dict(module.params['source_disk'], 'name')}
-    return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{source_disk}/createSnapshot".format(**res)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{source_disk}/createSnapshot".format(**res)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -492,6 +533,7 @@ def response_to_hash(module, response):
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
         u'storageBytes': response.get(u'storageBytes'),
+        u'storageLocations': response.get(u'storageLocations'),
         u'licenses': response.get(u'licenses'),
         u'labels': response.get(u'labels'),
         u'labelFingerprint': response.get(u'labelFingerprint'),
@@ -501,16 +543,16 @@ def response_to_hash(module, response):
 def license_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
+    url = r"https://compute.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/"
+    url = "https://compute.googleapis.com/compute/v1/"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)
@@ -551,10 +593,22 @@ class SnapshotSnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 class SnapshotSourcediskencryptionkey(object):
@@ -566,10 +620,22 @@ class SnapshotSourcediskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 if __name__ == '__main__':

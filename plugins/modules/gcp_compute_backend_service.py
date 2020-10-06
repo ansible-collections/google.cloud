@@ -37,7 +37,6 @@ description:
 - For managed internal load balancing, use a regional backend service instead.
 - Currently self-managed internal load balancing is only available in beta.
 short_description: Creates a GCP BackendService
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -134,7 +133,6 @@ options:
           must be set.
         required: false
         type: int
-        version_added: '2.9'
       max_rate:
         description:
         - The max requests per second (RPS) of the group.
@@ -159,7 +157,6 @@ options:
           must be set.
         required: false
         type: str
-        version_added: '2.9'
       max_utilization:
         description:
         - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
@@ -173,7 +170,6 @@ options:
       is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       max_requests_per_connection:
         description:
@@ -221,7 +217,6 @@ options:
       This field is only applicable when locality_lb_policy is set to MAGLEV or RING_HASH.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       http_cookie:
         description:
@@ -338,7 +333,6 @@ options:
         required: false
         default: '3600'
         type: int
-        version_added: '2.8'
   connection_draining:
     description:
     - Settings for connection draining .
@@ -358,7 +352,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.10'
   description:
     description:
     - An optional description of this resource.
@@ -374,7 +367,7 @@ options:
     - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
       checking this BackendService. Currently at most one health check can be specified.
     - A health check must be specified unless the backend service uses an internet
-      NEG as a backend.
+      or serverless NEG as a backend.
     - For internal load balancing, a URL to a HealthCheck resource must be specified
       instead.
     elements: str
@@ -385,7 +378,6 @@ options:
     - Settings for enabling Cloud Identity Aware Proxy.
     required: false
     type: dict
-    version_added: '2.7'
     suboptions:
       enabled:
         description:
@@ -411,7 +403,6 @@ options:
     required: false
     default: EXTERNAL
     type: str
-    version_added: '2.7'
   locality_lb_policy:
     description:
     - The load balancing algorithm used within the scope of the locality.
@@ -435,7 +426,6 @@ options:
       "ORIGINAL_DESTINATION", "MAGLEV"'
     required: false
     type: str
-    version_added: '2.10'
   name:
     description:
     - Name of the resource. Provided by the client when the resource is created. The
@@ -452,7 +442,6 @@ options:
     - This field is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       base_ejection_time:
         description:
@@ -583,7 +572,7 @@ options:
     - The protocol this BackendService uses to communicate with backends.
     - 'The default is HTTP. **NOTE**: HTTP2 is only valid for beta HTTP/2 load balancer
       types and may result in errors if used with the GA API.'
-    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "TCP", "SSL"'
+    - 'Some valid choices include: "HTTP", "HTTPS", "HTTP2", "TCP", "SSL", "GRPC"'
     required: false
     type: str
   security_policy:
@@ -591,7 +580,6 @@ options:
     - The security policy associated with this backend service.
     required: false
     type: str
-    version_added: '2.8'
   session_affinity:
     description:
     - Type of session affinity to use. The default is NONE. Session affinity is not
@@ -615,7 +603,6 @@ options:
     - If logging is enabled, logs will be exported to Stackdriver.
     required: false
     type: dict
-    version_added: '2.10'
     suboptions:
       enable:
         description:
@@ -663,6 +650,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -1032,8 +1020,8 @@ healthChecks:
   description:
   - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
     checking this BackendService. Currently at most one health check can be specified.
-  - A health check must be specified unless the backend service uses an internet NEG
-    as a backend.
+  - A health check must be specified unless the backend service uses an internet or
+    serverless NEG as a backend.
   - For internal load balancing, a URL to a HealthCheck resource must be specified
     instead.
   returned: success
@@ -1450,7 +1438,7 @@ def update_fields(module, request, response):
 def security_policy_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/global/backendServices/{name}/setSecurityPolicy"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/backendServices/{name}/setSecurityPolicy"]).format(**module.params),
         {u'securityPolicy': module.params.get('security_policy')},
     )
 
@@ -1499,11 +1487,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/backendServices/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1579,7 +1567,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

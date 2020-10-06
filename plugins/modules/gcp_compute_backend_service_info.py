@@ -33,7 +33,6 @@ module: gcp_compute_backend_service_info
 description:
 - Gather info for GCP BackendService
 short_description: Gather info for GCP BackendService
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -77,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -428,7 +429,7 @@ resources:
       - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
         checking this BackendService. Currently at most one health check can be specified.
       - A health check must be specified unless the backend service uses an internet
-        NEG as a backend.
+        or serverless NEG as a backend.
       - For internal load balancing, a URL to a HealthCheck resource must be specified
         instead.
       returned: success
@@ -680,7 +681,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -699,7 +700,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(**module.params)
 
 
 def fetch_list(module, link, query):

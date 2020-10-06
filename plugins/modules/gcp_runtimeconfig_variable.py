@@ -33,7 +33,6 @@ module: gcp_runtimeconfig_variable
 description:
 - Describes a single variable within a runtime config resource.
 short_description: Creates a GCP Variable
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -99,6 +98,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

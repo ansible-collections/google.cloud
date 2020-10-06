@@ -33,7 +33,6 @@ module: gcp_compute_image_info
 description:
 - Gather info for GCP Image
 short_description: Gather info for GCP Image
-version_added: '2.7'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -77,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -307,6 +308,21 @@ resources:
         of a given disk name.
       returned: success
       type: str
+    sourceImage:
+      description:
+      - 'URL of the source image used to create this image. In order to create an
+        image, you must provide the full or partial URL of one of the following: The
+        selfLink URL This property The rawDisk.source URL The sourceDisk URL .'
+      returned: success
+      type: dict
+    sourceSnapshot:
+      description:
+      - URL of the source snapshot used to create this image.
+      - 'In order to create an image, you must provide the full or partial URL of
+        one of the following: The selfLink URL This property The sourceImage URL The
+        rawDisk.source URL The sourceDisk URL .'
+      returned: success
+      type: dict
     sourceType:
       description:
       - The type of the image used to create this disk. The default and only value
@@ -318,7 +334,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -337,7 +353,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/images".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images".format(**module.params)
 
 
 def fetch_list(module, link, query):

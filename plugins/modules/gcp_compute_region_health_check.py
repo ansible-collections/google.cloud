@@ -41,7 +41,6 @@ description:
   successfully to some number of consecutive probes, it is marked healthy again and
   can receive new connections.
 short_description: Creates a GCP RegionHealthCheck
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -399,6 +398,49 @@ options:
         - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
         required: false
         type: str
+  grpc_health_check:
+    description:
+    - A nested object resource.
+    required: false
+    type: dict
+    suboptions:
+      port:
+        description:
+        - The port number for the health check request. Must be specified if portName
+          and portSpecification are not set or if port_specification is USE_FIXED_PORT.
+          Valid values are 1 through 65535.
+        required: false
+        type: int
+      port_name:
+        description:
+        - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+          are defined, port takes precedence.
+        required: false
+        type: str
+      port_specification:
+        description:
+        - 'Specifies how port is selected for health checking, can be one of the following
+          values: * `USE_FIXED_PORT`: The port number in `port` is used for health
+          checking.'
+        - "* `USE_NAMED_PORT`: The `portName` is used for health checking."
+        - "* `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for
+          each network endpoint is used for health checking. For other backends, the
+          port or named port specified in the Backend Service is used for health checking."
+        - If not specified, gRPC health check follows behavior specified in `port`
+          and `portName` fields.
+        - 'Some valid choices include: "USE_FIXED_PORT", "USE_NAMED_PORT", "USE_SERVING_PORT"'
+        required: false
+        type: str
+      grpc_service_name:
+        description:
+        - 'The gRPC service name for the health check. The value of grpcServiceName
+          has the following meanings by convention: - Empty serviceName means the
+          overall status of all services at the backend.'
+        - "- Non-empty serviceName means the health of that gRPC service, as defined
+          by the owner of the service."
+        - The grpcServiceName can only be ASCII.
+        required: false
+        type: str
   region:
     description:
     - The region where the regional health check resides.
@@ -435,6 +477,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -796,6 +839,47 @@ http2HealthCheck:
         and `portName` fields.
       returned: success
       type: str
+grpcHealthCheck:
+  description:
+  - A nested object resource.
+  returned: success
+  type: complex
+  contains:
+    port:
+      description:
+      - The port number for the health check request. Must be specified if portName
+        and portSpecification are not set or if port_specification is USE_FIXED_PORT.
+        Valid values are 1 through 65535.
+      returned: success
+      type: int
+    portName:
+      description:
+      - Port name as defined in InstanceGroup#NamedPort#name. If both port and port_name
+        are defined, port takes precedence.
+      returned: success
+      type: str
+    portSpecification:
+      description:
+      - 'Specifies how port is selected for health checking, can be one of the following
+        values: * `USE_FIXED_PORT`: The port number in `port` is used for health checking.'
+      - "* `USE_NAMED_PORT`: The `portName` is used for health checking."
+      - "* `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for each
+        network endpoint is used for health checking. For other backends, the port
+        or named port specified in the Backend Service is used for health checking."
+      - If not specified, gRPC health check follows behavior specified in `port` and
+        `portName` fields.
+      returned: success
+      type: str
+    grpcServiceName:
+      description:
+      - 'The gRPC service name for the health check. The value of grpcServiceName
+        has the following meanings by convention: - Empty serviceName means the overall
+        status of all services at the backend.'
+      - "- Non-empty serviceName means the health of that gRPC service, as defined
+        by the owner of the service."
+      - The grpcServiceName can only be ASCII.
+      returned: success
+      type: str
 region:
   description:
   - The region where the regional health check resides.
@@ -895,6 +979,10 @@ def main():
                     port_specification=dict(type='str'),
                 ),
             ),
+            grpc_health_check=dict(
+                type='dict',
+                options=dict(port=dict(type='int'), port_name=dict(type='str'), port_specification=dict(type='str'), grpc_service_name=dict(type='str')),
+            ),
             region=dict(type='str'),
         )
     )
@@ -961,6 +1049,7 @@ def resource_to_request(module):
         u'tcpHealthCheck': RegionHealthCheckTcphealthcheck(module.params.get('tcp_health_check', {}), module).to_request(),
         u'sslHealthCheck': RegionHealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
         u'http2HealthCheck': RegionHealthCheckHttp2healthcheck(module.params.get('http2_health_check', {}), module).to_request(),
+        u'grpcHealthCheck': RegionHealthCheckGrpchealthcheck(module.params.get('grpc_health_check', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -976,11 +1065,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1040,22 +1129,23 @@ def response_to_hash(module, response):
         u'tcpHealthCheck': RegionHealthCheckTcphealthcheck(response.get(u'tcpHealthCheck', {}), module).from_response(),
         u'sslHealthCheck': RegionHealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
         u'http2HealthCheck': RegionHealthCheckHttp2healthcheck(response.get(u'http2HealthCheck', {}), module).from_response(),
+        u'grpcHealthCheck': RegionHealthCheckGrpchealthcheck(response.get(u'grpcHealthCheck', {}), module).from_response(),
     }
 
 
 def region_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1/projects/.*/regions/.*"
+    url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)
@@ -1254,6 +1344,35 @@ class RegionHealthCheckHttp2healthcheck(object):
                 u'portName': self.request.get(u'portName'),
                 u'proxyHeader': self.request.get(u'proxyHeader'),
                 u'portSpecification': self.request.get(u'portSpecification'),
+            }
+        )
+
+
+class RegionHealthCheckGrpchealthcheck(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'port': self.request.get('port'),
+                u'portName': self.request.get('port_name'),
+                u'portSpecification': self.request.get('port_specification'),
+                u'grpcServiceName': self.request.get('grpc_service_name'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'port': self.request.get(u'port'),
+                u'portName': self.request.get(u'portName'),
+                u'portSpecification': self.request.get(u'portSpecification'),
+                u'grpcServiceName': self.request.get(u'grpcServiceName'),
             }
         )
 

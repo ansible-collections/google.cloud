@@ -42,7 +42,6 @@ description:
   a new internal IP address, either by Compute Engine or by you. External IP addresses
   can be either ephemeral or static.
 short_description: Creates a GCP Address
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -71,7 +70,6 @@ options:
     required: false
     default: EXTERNAL
     type: str
-    version_added: '2.7'
   description:
     description:
     - An optional description of this resource.
@@ -95,7 +93,6 @@ options:
     - 'Some valid choices include: "GCE_ENDPOINT"'
     required: false
     type: str
-    version_added: '2.10'
   network_tier:
     description:
     - The networking tier used for configuring this address. If this field is not
@@ -103,7 +100,6 @@ options:
     - 'Some valid choices include: "PREMIUM", "STANDARD"'
     required: false
     type: str
-    version_added: '2.8'
   subnetwork:
     description:
     - The URL of the subnetwork in which to reserve the address. If an IP address
@@ -117,7 +113,6 @@ options:
       }}"'
     required: false
     type: dict
-    version_added: '2.7'
   region:
     description:
     - URL of the region where the regional address resides.
@@ -155,6 +150,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -369,11 +365,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/addresses/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/addresses/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/addresses".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/addresses".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -436,7 +432,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

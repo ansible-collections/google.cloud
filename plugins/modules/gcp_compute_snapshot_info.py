@@ -33,7 +33,6 @@ module: gcp_compute_snapshot_info
 description:
 - Gather info for GCP Snapshot
 short_description: Gather info for GCP Snapshot
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -77,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -148,6 +149,11 @@ resources:
         number is expected to change with snapshot creation/deletion.
       returned: success
       type: int
+    storageLocations:
+      description:
+      - Cloud Storage bucket storage location of the snapshot (regional or multi-regional).
+      returned: success
+      type: list
     licenses:
       description:
       - A list of public visible licenses that apply to this snapshot. This can be
@@ -201,6 +207,13 @@ resources:
           - The name of the encryption key that is stored in Google Cloud KMS.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
     sourceDiskEncryptionKey:
       description:
       - The customer-supplied encryption key of the source snapshot. Required if the
@@ -219,12 +232,19 @@ resources:
           - The name of the encryption key that is stored in Google Cloud KMS.
           returned: success
           type: str
+        kmsKeyServiceAccount:
+          description:
+          - The service account used for the encryption request for the given KMS
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
+          returned: success
+          type: str
 '''
 
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -243,7 +263,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(**module.params)
 
 
 def fetch_list(module, link, query):

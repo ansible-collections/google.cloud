@@ -33,7 +33,6 @@ module: gcp_compute_external_vpn_gateway
 description:
 - Represents a VPN gateway managed outside of GCP.
 short_description: Creates a GCP ExternalVpnGateway
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -88,7 +87,7 @@ options:
         description:
         - IP address of the interface in the external VPN gateway.
         - Only IPv4 is supported. This IP address can be either from your on-premise
-          gateway or another Cloud provider’s VPN gateway, it cannot be an IP address
+          gateway or another Cloud provider's VPN gateway, it cannot be an IP address
           from Google Compute Engine.
         required: false
         type: str
@@ -123,6 +122,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -196,7 +196,7 @@ interfaces:
       description:
       - IP address of the interface in the external VPN gateway.
       - Only IPv4 is supported. This IP address can be either from your on-premise
-        gateway or another Cloud provider’s VPN gateway, it cannot be an IP address
+        gateway or another Cloud provider's VPN gateway, it cannot be an IP address
         from Google Compute Engine.
       returned: success
       type: str
@@ -303,11 +303,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/externalVpnGateways/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/externalVpnGateways/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/externalVpnGateways".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/externalVpnGateways".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -363,7 +363,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

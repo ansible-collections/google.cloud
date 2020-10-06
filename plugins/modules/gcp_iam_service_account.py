@@ -33,7 +33,6 @@ module: gcp_iam_service_account
 description:
 - A service account in the Identity and Access Management API.
 short_description: Creates a GCP ServiceAccount
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -89,6 +88,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

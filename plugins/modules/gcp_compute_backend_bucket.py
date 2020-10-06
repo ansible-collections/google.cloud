@@ -37,7 +37,6 @@ description:
   rather than a backend service. It can send requests for static content to a Cloud
   Storage bucket and requests for dynamic content to a virtual machine instance.
 short_description: Creates a GCP BackendBucket
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -62,7 +61,6 @@ options:
     - Cloud CDN configuration for this Backend Bucket.
     required: false
     type: dict
-    version_added: '2.8'
     suboptions:
       signed_url_cache_max_age_sec:
         description:
@@ -127,6 +125,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -329,11 +328,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/backendBuckets/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/global/backendBuckets".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -392,7 +391,7 @@ def response_to_hash(module, response):
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/global/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

@@ -38,7 +38,6 @@ description:
   manipulation of an existing bucket's access controls.
 - A bucket is always owned by the project team owners group.
 short_description: Creates a GCP Bucket
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -150,14 +149,12 @@ options:
       to the bucket.
     required: false
     type: bool
-    version_added: '2.10'
   default_object_acl:
     description:
     - Default access controls to apply to new objects when no ACL is provided.
     elements: dict
     required: false
     type: list
-    version_added: '2.7'
     suboptions:
       bucket:
         description:
@@ -252,7 +249,7 @@ options:
                 description:
                 - Objects having any of the storage classes specified by this condition
                   will be matched. Values include MULTI_REGIONAL, REGIONAL, NEARLINE,
-                  COLDLINE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
+                  COLDLINE, ARCHIVE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
                 elements: str
                 required: false
                 type: list
@@ -313,11 +310,11 @@ options:
     - The bucket's default storage class, used whenever no storageClass is specified
       for a newly-created object. This defines how objects in the bucket are stored
       and determines the SLA and the cost of storage.
-    - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, and DURABLE_REDUCED_AVAILABILITY.
-      If this value is not specified when the bucket is created, it will default to
-      STANDARD. For more information, see storage classes.
+    - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, ARCHIVE,
+      and DURABLE_REDUCED_AVAILABILITY. If this value is not specified when the bucket
+      is created, it will default to STANDARD. For more information, see storage classes.
     - 'Some valid choices include: "MULTI_REGIONAL", "REGIONAL", "STANDARD", "NEARLINE",
-      "COLDLINE", "DURABLE_REDUCED_AVAILABILITY"'
+      "COLDLINE", "ARCHIVE", "DURABLE_REDUCED_AVAILABILITY"'
     required: false
     type: str
   versioning:
@@ -359,7 +356,6 @@ options:
     - Labels applied to this bucket. A list of key->value pairs.
     required: false
     type: dict
-    version_added: '2.10'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -408,6 +404,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -662,7 +659,7 @@ lifecycle:
               description:
               - Objects having any of the storage classes specified by this condition
                 will be matched. Values include MULTI_REGIONAL, REGIONAL, NEARLINE,
-                COLDLINE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
+                COLDLINE, ARCHIVE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
               returned: success
               type: list
             numNewerVersions:
@@ -732,9 +729,9 @@ storageClass:
   - The bucket's default storage class, used whenever no storageClass is specified
     for a newly-created object. This defines how objects in the bucket are stored
     and determines the SLA and the cost of storage.
-  - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, and DURABLE_REDUCED_AVAILABILITY.
-    If this value is not specified when the bucket is created, it will default to
-    STANDARD. For more information, see storage classes.
+  - Values include MULTI_REGIONAL, REGIONAL, STANDARD, NEARLINE, COLDLINE, ARCHIVE,
+    and DURABLE_REDUCED_AVAILABILITY. If this value is not specified when the bucket
+    is created, it will default to STANDARD. For more information, see storage classes.
   returned: success
   type: str
 timeCreated:
@@ -980,11 +977,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/storage/v1/b/{name}?projection=full".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b/{name}?projection=full".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/storage/v1/b?project={project}".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b?project={project}".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

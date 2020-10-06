@@ -33,7 +33,6 @@ module: gcp_container_cluster_info
 description:
 - Gather info for GCP Cluster
 short_description: Gather info for GCP Cluster
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -48,7 +47,6 @@ options:
     aliases:
     - region
     - zone
-    version_added: '2.8'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -80,6 +78,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -763,7 +762,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################

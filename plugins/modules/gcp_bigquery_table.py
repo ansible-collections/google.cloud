@@ -33,7 +33,6 @@ module: gcp_bigquery_table
 description:
 - A Table that belongs to a Dataset .
 short_description: Creates a GCP Table
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -78,7 +77,6 @@ options:
     elements: str
     required: false
     type: list
-    version_added: '2.9'
   description:
     description:
     - A user-friendly description of the dataset.
@@ -106,7 +104,6 @@ options:
       buffer.
     required: false
     type: int
-    version_added: '2.9'
   view:
     description:
     - The view definition.
@@ -157,7 +154,6 @@ options:
           or REQUIRED.
         required: false
         type: str
-        version_added: '2.9'
       type:
         description:
         - The only type supported is DAY, which will generate one partition per day.
@@ -497,6 +493,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -1195,11 +1192,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables/{name}".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{dataset}/tables".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

@@ -37,7 +37,6 @@ description:
 - The record will include the domain/subdomain name, a type (i.e. A, AAA, CAA, MX,
   CNAME, NS, etc) .
 short_description: Creates a GCP ResourceRecordSet
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -113,6 +112,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -309,12 +309,12 @@ def self_link(module):
         'name': module.params['name'],
         'type': module.params['type'],
     }
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets?name={name}&type={type}".format(**res)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets?name={name}&type={type}".format(**res)
 
 
 def collection(module):
     res = {'project': module.params['project'], 'managed_zone': replace_resource_dict(module.params['managed_zone'], 'name')}
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/changes".format(**res)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/changes".format(**res)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):

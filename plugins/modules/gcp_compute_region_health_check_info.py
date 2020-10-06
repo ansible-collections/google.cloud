@@ -33,7 +33,6 @@ module: gcp_compute_region_health_check_info
 description:
 - Gather info for GCP RegionHealthCheck
 short_description: Gather info for GCP RegionHealthCheck
-version_added: '2.10'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -46,6 +45,7 @@ options:
     - Each additional filter in the list will act be added as an AND condition (filter1
       and filter2) .
     type: list
+    elements: str
   region:
     description:
     - The region where the regional health check resides.
@@ -82,6 +82,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -456,6 +457,49 @@ resources:
             and `portName` fields.
           returned: success
           type: str
+    grpcHealthCheck:
+      description:
+      - A nested object resource.
+      returned: success
+      type: complex
+      contains:
+        port:
+          description:
+          - The port number for the health check request. Must be specified if portName
+            and portSpecification are not set or if port_specification is USE_FIXED_PORT.
+            Valid values are 1 through 65535.
+          returned: success
+          type: int
+        portName:
+          description:
+          - Port name as defined in InstanceGroup#NamedPort#name. If both port and
+            port_name are defined, port takes precedence.
+          returned: success
+          type: str
+        portSpecification:
+          description:
+          - 'Specifies how port is selected for health checking, can be one of the
+            following values: * `USE_FIXED_PORT`: The port number in `port` is used
+            for health checking.'
+          - "* `USE_NAMED_PORT`: The `portName` is used for health checking."
+          - "* `USE_SERVING_PORT`: For NetworkEndpointGroup, the port specified for
+            each network endpoint is used for health checking. For other backends,
+            the port or named port specified in the Backend Service is used for health
+            checking."
+          - If not specified, gRPC health check follows behavior specified in `port`
+            and `portName` fields.
+          returned: success
+          type: str
+        grpcServiceName:
+          description:
+          - 'The gRPC service name for the health check. The value of grpcServiceName
+            has the following meanings by convention: - Empty serviceName means the
+            overall status of all services at the backend.'
+          - "- Non-empty serviceName means the health of that gRPC service, as defined
+            by the owner of the service."
+          - The grpcServiceName can only be ASCII.
+          returned: success
+          type: str
     region:
       description:
       - The region where the regional health check resides.
@@ -466,7 +510,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -485,7 +529,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/healthChecks".format(**module.params)
 
 
 def fetch_list(module, link, query):

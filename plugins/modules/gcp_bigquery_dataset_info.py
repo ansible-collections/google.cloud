@@ -33,7 +33,6 @@ module: gcp_bigquery_dataset_info
 description:
 - Gather info for GCP Dataset
 short_description: Gather info for GCP Dataset
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -71,6 +70,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -129,9 +129,9 @@ resources:
         role:
           description:
           - Describes the rights granted to the user specified by the other member
-            of the access object. Primitive, Predefined and custom roles are supported.
-            Predefined roles that have equivalent primitive roles are swapped by the
-            API to their Primitive counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
+            of the access object. Basic, predefined, and custom roles are supported.
+            Predefined roles that have equivalent basic roles are swapped by the API
+            to their basic counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
           returned: success
           type: str
         specialGroup:
@@ -140,7 +140,7 @@ resources:
             Owners of the enclosing project.'
           - "* `projectReaders`: Readers of the enclosing project."
           - "* `projectWriters`: Writers of the enclosing project."
-          - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
+          - "* `allAuthenticatedUsers`: All authenticated BigQuery users."
           returned: success
           type: str
         userByEmail:
@@ -298,7 +298,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 
 ################################################################################
@@ -317,7 +317,7 @@ def main():
 
 
 def collection(module):
-    return "https://www.googleapis.com/bigquery/v2/projects/{project}/datasets".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets".format(**module.params)
 
 
 def fetch_list(module, link):

@@ -43,7 +43,6 @@ description:
 - Add a persistent disk to your instance when you need reliable and affordable storage
   with consistent performance characteristics.
 short_description: Creates a GCP RegionDisk
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -195,6 +194,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -481,7 +481,7 @@ def update_fields(module, request, response):
 def label_fingerprint_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/setLabels"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/setLabels"]).format(**module.params),
         {u'labelFingerprint': response.get('labelFingerprint'), u'labels': module.params.get('labels')},
     )
 
@@ -489,7 +489,7 @@ def label_fingerprint_update(module, request, response):
 def size_gb_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
-        ''.join(["https://www.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/resize"]).format(**module.params),
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/resize"]).format(**module.params),
         {u'sizeGb': module.params.get('size_gb')},
     )
 
@@ -527,11 +527,11 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{name}".format(**module.params)
 
 
 def collection(module):
-    return "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks".format(**module.params)
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -597,25 +597,25 @@ def response_to_hash(module, response):
 def zone_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1/projects/.*/zones/.*"
+    url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1/projects/{project}/zones/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/%s".format(**params) % name
     return name
 
 
 def region_disk_type_selflink(name, params):
     if name is None:
         return
-    url = r"https://www.googleapis.com/compute/v1/projects/.*/regions/.*/diskTypes/.*"
+    url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*/diskTypes/.*"
     if not re.match(url, name):
-        name = "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/diskTypes/%s".format(**params) % name
+        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/diskTypes/%s".format(**params) % name
     return name
 
 
 def async_op_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    url = "https://www.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
+    url = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/operations/{op_id}"
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)

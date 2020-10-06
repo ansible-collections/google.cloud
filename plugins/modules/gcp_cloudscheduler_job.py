@@ -37,7 +37,6 @@ description:
   in one of the supported regions. If your project does not have an App Engine app,
   you must create one.
 short_description: Creates a GCP Job
-version_added: '2.9'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -84,6 +83,8 @@ options:
     - 'The allowed duration for this deadline is: * For HTTP targets, between 15 seconds
       and 30 minutes.'
     - "* For App Engine HTTP targets, between 15 seconds and 24 hours."
+    - "* **Note**: For PubSub targets, this field is ignored - setting it will introduce
+      an unresolvable diff."
     - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
       Example: "3.5s" .'
     required: false
@@ -324,6 +325,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -399,6 +401,8 @@ attemptDeadline:
   - 'The allowed duration for this deadline is: * For HTTP targets, between 15 seconds
     and 30 minutes.'
   - "* For App Engine HTTP targets, between 15 seconds and 24 hours."
+  - "* **Note**: For PubSub targets, this field is ignored - setting it will introduce
+    an unresolvable diff."
   - 'A duration in seconds with up to nine fractional digits, terminated by ''s''.
     Example: "3.5s" .'
   returned: success

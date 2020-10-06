@@ -33,7 +33,6 @@ module: gcp_dns_resource_record_set_info
 description:
 - Gather info for GCP ResourceRecordSet
 short_description: Gather info for GCP ResourceRecordSet
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -78,6 +77,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -144,7 +144,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
 import json
 
 ################################################################################
@@ -164,7 +164,7 @@ def main():
 
 def collection(module):
     res = {'project': module.params['project'], 'managed_zone': replace_resource_dict(module.params['managed_zone'], 'name')}
-    return "https://www.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets".format(**res)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets".format(**res)
 
 
 def fetch_list(module, link):

@@ -37,7 +37,6 @@ description:
   applied to them, which may be used to reference them during pod scheduling. They
   may also be resized up or down, to accommodate the workload.
 short_description: Creates a GCP NodePool
-version_added: '2.6'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -158,7 +157,6 @@ options:
         elements: dict
         required: false
         type: list
-        version_added: '2.9'
         suboptions:
           accelerator_count:
             description:
@@ -176,21 +174,18 @@ options:
           If unspecified, the default disk type is 'pd-standard' .
         required: false
         type: str
-        version_added: '2.9'
       min_cpu_platform:
         description:
         - Minimum CPU platform to be used by this instance. The instance may be scheduled
           on the specified or newer CPU platform .
         required: false
         type: str
-        version_added: '2.9'
       taints:
         description:
         - List of kubernetes taints to be applied to each node.
         elements: dict
         required: false
         type: list
-        version_added: '2.9'
         suboptions:
           key:
             description:
@@ -212,7 +207,6 @@ options:
         - Shielded Instance options.
         required: false
         type: dict
-        version_added: '2.10'
         suboptions:
           enable_secure_boot:
             description:
@@ -243,7 +237,6 @@ options:
     - The version of the Kubernetes of this node.
     required: false
     type: str
-    version_added: '2.8'
   autoscaling:
     description:
     - Autoscaler configuration for this NodePool. Autoscaler is enabled only if a
@@ -300,7 +293,6 @@ options:
       on a node in the node pool.
     required: false
     type: dict
-    version_added: '2.9'
     suboptions:
       max_pods_per_node:
         description:
@@ -313,7 +305,6 @@ options:
     elements: dict
     required: false
     type: list
-    version_added: '2.9'
     suboptions:
       code:
         description:
@@ -340,7 +331,6 @@ options:
     aliases:
     - region
     - zone
-    version_added: '2.8'
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -372,6 +362,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.

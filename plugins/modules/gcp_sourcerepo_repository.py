@@ -33,7 +33,6 @@ module: gcp_sourcerepo_repository
 description:
 - A repository (or repo) is a Git repository storing versioned source content.
 short_description: Creates a GCP Repository
-version_added: '2.8'
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
@@ -86,6 +85,7 @@ options:
     description:
     - Array of scopes to be used
     type: list
+    elements: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
