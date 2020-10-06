@@ -638,6 +638,7 @@ def resource_to_request(module):
         u'kind': 'compute#disk',
         u'sourceImageEncryptionKey': DiskSourceimageencryptionkey(module.params.get('source_image_encryption_key', {}), module).to_request(),
         u'diskEncryptionKey': DiskDiskencryptionkey(module.params.get('disk_encryption_key', {}), module).to_request(),
+        u'sourceSnapshot': replace_resource_dict(module.params.get(u'source_snapshot', {}), 'selfLink'),
         u'sourceSnapshotEncryptionKey': DiskSourcesnapshotencryptionkey(module.params.get('source_snapshot_encryption_key', {}), module).to_request(),
         u'description': module.params.get('description'),
         u'labels': module.params.get('labels'),
