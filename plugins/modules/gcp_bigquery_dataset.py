@@ -73,9 +73,9 @@ options:
       role:
         description:
         - Describes the rights granted to the user specified by the other member of
-          the access object. Primitive, Predefined and custom roles are supported.
-          Predefined roles that have equivalent primitive roles are swapped by the
-          API to their Primitive counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
+          the access object. Basic, predefined, and custom roles are supported. Predefined
+          roles that have equivalent basic roles are swapped by the API to their basic
+          counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
         required: false
         type: str
       special_group:
@@ -84,7 +84,7 @@ options:
           Owners of the enclosing project.'
         - "* `projectReaders`: Readers of the enclosing project."
         - "* `projectWriters`: Writers of the enclosing project."
-        - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
+        - "* `allAuthenticatedUsers`: All authenticated BigQuery users."
         required: false
         type: str
       user_by_email:
@@ -305,9 +305,9 @@ access:
     role:
       description:
       - Describes the rights granted to the user specified by the other member of
-        the access object. Primitive, Predefined and custom roles are supported. Predefined
-        roles that have equivalent primitive roles are swapped by the API to their
-        Primitive counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
+        the access object. Basic, predefined, and custom roles are supported. Predefined
+        roles that have equivalent basic roles are swapped by the API to their basic
+        counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
       returned: success
       type: str
     specialGroup:
@@ -316,7 +316,7 @@ access:
         Owners of the enclosing project.'
       - "* `projectReaders`: Readers of the enclosing project."
       - "* `projectWriters`: Writers of the enclosing project."
-      - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
+      - "* `allAuthenticatedUsers`: All authenticated BigQuery users."
       returned: success
       type: str
     userByEmail:
