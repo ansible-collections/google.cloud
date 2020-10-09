@@ -151,6 +151,19 @@ options:
           of maxBackoff up to maxAttempts times.
         required: false
         type: int
+  stackdriver_logging_config:
+    description:
+    - Configuration options for writing logs to Stackdriver Logging.
+    required: false
+    type: dict
+    suboptions:
+      sampling_ratio:
+        description:
+        - Specifies the fraction of operations to write to Stackdriver Logging.
+        - This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is
+          the default and means that no operations are logged.
+        required: true
+        type: str
   status:
     description:
     - The current state of the queue.
@@ -336,6 +349,19 @@ retryConfig:
       - The last time this queue was purged.
       returned: success
       type: str
+stackdriverLoggingConfig:
+  description:
+  - Configuration options for writing logs to Stackdriver Logging.
+  returned: success
+  type: complex
+  contains:
+    samplingRatio:
+      description:
+      - Specifies the fraction of operations to write to Stackdriver Logging.
+      - This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is the
+        default and means that no operations are logged.
+      returned: success
+      type: str
 status:
   description:
   - The current state of the queue.
@@ -387,6 +413,7 @@ def main():
                     max_doublings=dict(type='int'),
                 ),
             ),
+            stackdriver_logging_config=dict(type='dict', options=dict(sampling_ratio=dict(required=True, type='str'))),
             status=dict(type='str'),
             location=dict(required=True, type='str'),
         )
@@ -448,6 +475,8 @@ def updateMask(request, response):
         update_mask.append('rateLimits')
     if request.get('retryConfig') != response.get('retryConfig'):
         update_mask.append('retryConfig')
+    if request.get('stackdriverLoggingConfig') != response.get('stackdriverLoggingConfig'):
+        update_mask.append('stackdriverLoggingConfig')
     if request.get('status') != response.get('status'):
         update_mask.append('status')
     return ','.join(update_mask)
@@ -465,6 +494,7 @@ def resource_to_request(module):
         u'appEngineRoutingOverride': QueueAppengineroutingoverride(module.params.get('app_engine_routing_override', {}), module).to_request(),
         u'rateLimits': QueueRatelimits(module.params.get('rate_limits', {}), module).to_request(),
         u'retryConfig': QueueRetryconfig(module.params.get('retry_config', {}), module).to_request(),
+        u'stackdriverLoggingConfig': QueueStackdriverloggingconfig(module.params.get('stackdriver_logging_config', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -534,6 +564,7 @@ def response_to_hash(module, response):
         u'appEngineRoutingOverride': QueueAppengineroutingoverride(response.get(u'appEngineRoutingOverride', {}), module).from_response(),
         u'rateLimits': QueueRatelimits(response.get(u'rateLimits', {}), module).from_response(),
         u'retryConfig': QueueRetryconfig(response.get(u'retryConfig', {}), module).from_response(),
+        u'stackdriverLoggingConfig': QueueStackdriverloggingconfig(response.get(u'stackdriverLoggingConfig', {}), module).from_response(),
     }
 
 
@@ -649,6 +680,21 @@ class QueueRetryconfig(object):
                 u'maxDoublings': self.request.get(u'maxDoublings'),
             }
         )
+
+
+class QueueStackdriverloggingconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'samplingRatio': self.request.get('sampling_ratio')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'samplingRatio': self.request.get(u'samplingRatio')})
 
 
 if __name__ == '__main__':
