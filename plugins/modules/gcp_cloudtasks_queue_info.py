@@ -235,6 +235,19 @@ resources:
           - The last time this queue was purged.
           returned: success
           type: str
+    stackdriverLoggingConfig:
+      description:
+      - Configuration options for writing logs to Stackdriver Logging.
+      returned: success
+      type: complex
+      contains:
+        samplingRatio:
+          description:
+          - Specifies the fraction of operations to write to Stackdriver Logging.
+          - This field may contain any value between 0.0 and 1.0, inclusive. 0.0 is
+            the default and means that no operations are logged.
+          returned: success
+          type: str
     status:
       description:
       - The current state of the queue.
