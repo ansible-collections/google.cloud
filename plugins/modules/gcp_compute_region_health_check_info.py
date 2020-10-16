@@ -493,9 +493,9 @@ resources:
         grpcServiceName:
           description:
           - 'The gRPC service name for the health check. The value of grpcServiceName
-            has the following meanings by convention: - Empty serviceName means the
+            has the following meanings by convention: * Empty serviceName means the
             overall status of all services at the backend.'
-          - "- Non-empty serviceName means the health of that gRPC service, as defined
+          - "* Non-empty serviceName means the health of that gRPC service, as defined
             by the owner of the service."
           - The grpcServiceName can only be ASCII.
           returned: success
