@@ -414,7 +414,8 @@ def main():
             local_traffic_selector=dict(type='list', elements='str'),
             remote_traffic_selector=dict(type='list', elements='str'),
             region=dict(required=True, type='str'),
-        )
+        ),
+        mutually_exclusive=[['peer_external_gateway', 'peer_gcp_gateway']],
     )
 
     if not module.params['scopes']:
