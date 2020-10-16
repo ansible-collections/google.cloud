@@ -149,6 +149,34 @@ resources:
       - URL of the Target VPN gateway with which this VPN tunnel is associated.
       returned: success
       type: dict
+    vpnGateway:
+      description:
+      - URL of the VPN gateway with which this VPN tunnel is associated.
+      - This must be used if a High Availability VPN gateway resource is created.
+      returned: success
+      type: dict
+    vpnGatewayInterface:
+      description:
+      - The interface ID of the VPN gateway with which this VPN tunnel is associated.
+      returned: success
+      type: int
+    peerExternalGateway:
+      description:
+      - URL of the peer side external VPN gateway to which this VPN tunnel is connected.
+      returned: success
+      type: dict
+    peerExternalGatewayInterface:
+      description:
+      - The interface ID of the external VPN gateway to which this VPN tunnel is connected.
+      returned: success
+      type: int
+    peerGcpGateway:
+      description:
+      - URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
+      - If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
+        ID in the peer GCP VPN gateway.
+      returned: success
+      type: dict
     router:
       description:
       - URL of router resource to be used for dynamic routing.
