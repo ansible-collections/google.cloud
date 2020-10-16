@@ -187,8 +187,8 @@ options:
   source_image:
     description:
     - 'URL of the source image used to create this image. In order to create an image,
-      you must provide the full or partial URL of one of the following: The selfLink
-      URL This property The rawDisk.source URL The sourceDisk URL .'
+      you must provide the full or partial URL of one of the following: * The selfLink
+      URL * This property * The rawDisk.source URL * The sourceDisk URL .'
     - 'This field represents a link to a Image resource in GCP. It can be specified
       in two ways. First, you can place a dictionary with key ''selfLink'' and value
       of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
@@ -200,8 +200,8 @@ options:
     description:
     - URL of the source snapshot used to create this image.
     - 'In order to create an image, you must provide the full or partial URL of one
-      of the following: The selfLink URL This property The sourceImage URL The rawDisk.source
-      URL The sourceDisk URL .'
+      of the following: * The selfLink URL * This property * The sourceImage URL *
+      The rawDisk.source URL * The sourceDisk URL .'
     - 'This field represents a link to a Snapshot resource in GCP. It can be specified
       in two ways. First, you can place a dictionary with key ''selfLink'' and value
       of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
@@ -487,16 +487,16 @@ sourceDiskId:
 sourceImage:
   description:
   - 'URL of the source image used to create this image. In order to create an image,
-    you must provide the full or partial URL of one of the following: The selfLink
-    URL This property The rawDisk.source URL The sourceDisk URL .'
+    you must provide the full or partial URL of one of the following: * The selfLink
+    URL * This property * The rawDisk.source URL * The sourceDisk URL .'
   returned: success
   type: dict
 sourceSnapshot:
   description:
   - URL of the source snapshot used to create this image.
   - 'In order to create an image, you must provide the full or partial URL of one
-    of the following: The selfLink URL This property The sourceImage URL The rawDisk.source
-    URL The sourceDisk URL .'
+    of the following: * The selfLink URL * This property * The sourceImage URL * The
+    rawDisk.source URL * The sourceDisk URL .'
   returned: success
   type: dict
 sourceType:
