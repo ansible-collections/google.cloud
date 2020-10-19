@@ -89,6 +89,12 @@ options:
         - 'Some valid choices include: "REGIONAL", "GLOBAL"'
         required: true
         type: str
+  mtu:
+    description:
+    - Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+      and the maximum value is 1500 bytes.
+    required: false
+    type: int
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -215,6 +221,12 @@ routingConfig:
         regions.
       returned: success
       type: str
+mtu:
+  description:
+  - Maximum Transmission Unit in bytes. The minimum value for this field is 1460 and
+    the maximum value is 1500 bytes.
+  returned: success
+  type: int
 '''
 
 ################################################################################
@@ -247,6 +259,7 @@ def main():
             name=dict(required=True, type='str'),
             auto_create_subnetworks=dict(type='bool'),
             routing_config=dict(type='dict', options=dict(routing_mode=dict(required=True, type='str'))),
+            mtu=dict(type='int'),
         )
     )
 
@@ -316,6 +329,7 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
         u'routingConfig': NetworkRoutingconfig(module.params.get('routing_config', {}), module).to_request(),
+        u'mtu': module.params.get('mtu'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -389,6 +403,7 @@ def response_to_hash(module, response):
         u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'routingConfig': NetworkRoutingconfig(response.get(u'routingConfig', {}), module).from_response(),
+        u'mtu': module.params.get('mtu'),
     }
 
 
