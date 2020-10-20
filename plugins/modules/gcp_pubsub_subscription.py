@@ -650,8 +650,6 @@ def updateMask(request, response):
         update_mask.append('deadLetterPolicy')
     if request.get('retryPolicy') != response.get('retryPolicy'):
         update_mask.append('retryPolicy')
-    if request.get('enableMessageOrdering') != response.get('enableMessageOrdering'):
-        update_mask.append('enableMessageOrdering')
     return ','.join(update_mask)
 
 
@@ -750,7 +748,7 @@ def response_to_hash(module, response):
         u'filter': module.params.get('filter'),
         u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
         u'retryPolicy': SubscriptionRetrypolicy(response.get(u'retryPolicy', {}), module).from_response(),
-        u'enableMessageOrdering': response.get(u'enableMessageOrdering'),
+        u'enableMessageOrdering': module.params.get('enable_message_ordering'),
     }
 
 
