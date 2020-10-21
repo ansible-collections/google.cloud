@@ -349,7 +349,7 @@ options:
     - Indicates what kind of load balancing this regional backend service will be
       used for. A backend service created for one type of load balancing cannot be
       used with the other(s).
-    - 'Some valid choices include: "INTERNAL", "INTERNAL_MANAGED"'
+    - 'Some valid choices include: "EXTERNAL", "INTERNAL", "INTERNAL_MANAGED"'
     required: false
     default: INTERNAL
     type: str
