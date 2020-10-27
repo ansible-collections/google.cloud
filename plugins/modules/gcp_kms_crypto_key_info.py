@@ -171,6 +171,12 @@ resources:
       - 'Format: `''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''`.'
       returned: success
       type: str
+    skipInitialVersionCreation:
+      description:
+      - If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
+        You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+      returned: success
+      type: bool
 '''
 
 ################################################################################
