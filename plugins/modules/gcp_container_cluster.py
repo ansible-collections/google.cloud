@@ -306,6 +306,25 @@ options:
       If left unspecified, the default network will be used.
     required: false
     type: str
+  database_encryption:
+    description:
+    - Configuration of etcd encryption.
+    required: false
+    type: dict
+    suboptions:
+      state:
+        description:
+        - Denotes the state of etcd encryption.
+        - 'Some valid choices include: "ENCRYPTED", "DECRYPTED"'
+        required: false
+        type: str
+      key_name:
+        description:
+        - Name of CloudKMS key to use for the encryption of secrets in etcd. Ex.
+        - "`projects/my-project/locations/global/keyRings/my-ring/cryptoKeys/my-key`
+          ."
+        required: false
+        type: str
   private_cluster_config:
     description:
     - Configuration for a private cluster.
@@ -577,6 +596,43 @@ options:
         - If enabled, all container images will be validated by Binary Authorization.
         required: false
         type: bool
+  shielded_nodes:
+    description:
+    - Shielded Nodes configuration.
+    required: false
+    type: dict
+    suboptions:
+      enabled:
+        description:
+        - Whether Shielded Nodes features are enabled on all nodes in this cluster.
+        required: false
+        type: bool
+  network_config:
+    description:
+    - ReleaseChannel indicates which release channel a cluster is subscribed to.
+    - Release channels are arranged in order of risk and frequency of updates.
+    required: false
+    type: dict
+    suboptions:
+      enable_intra_node_visibility:
+        description:
+        - Whether Intra-node visibility is enabled for this cluster. This makes same
+          node pod to pod traffic visible for VPC network.
+        required: false
+        type: bool
+      default_snat_status:
+        description:
+        - Whether the cluster disables default in-node sNAT rules. In-node sNAT rules
+          will be disabled when defaultSnatStatus is disabled.
+        required: false
+        type: bool
+  enable_kubernetes_alpha:
+    description:
+    - Kubernetes alpha features are enabled on this cluster. This includes alpha API
+      groups (e.g. v1alpha1) and features that may not be production ready in the
+      kubernetes version of the master and nodes.
+    required: false
+    type: bool
   location:
     description:
     - The location where the cluster is deployed.
@@ -923,6 +979,24 @@ network:
     If left unspecified, the default network will be used.
   returned: success
   type: str
+databaseEncryption:
+  description:
+  - Configuration of etcd encryption.
+  returned: success
+  type: complex
+  contains:
+    state:
+      description:
+      - Denotes the state of etcd encryption.
+      returned: success
+      type: str
+    keyName:
+      description:
+      - Name of CloudKMS key to use for the encryption of secrets in etcd. Ex.
+      - "`projects/my-project/locations/global/keyRings/my-ring/cryptoKeys/my-key`
+        ."
+      returned: success
+      type: str
 privateClusterConfig:
   description:
   - Configuration for a private cluster.
@@ -1294,6 +1368,57 @@ binaryAuthorization:
       - If enabled, all container images will be validated by Binary Authorization.
       returned: success
       type: bool
+shieldedNodes:
+  description:
+  - Shielded Nodes configuration.
+  returned: success
+  type: complex
+  contains:
+    enabled:
+      description:
+      - Whether Shielded Nodes features are enabled on all nodes in this cluster.
+      returned: success
+      type: bool
+networkConfig:
+  description:
+  - ReleaseChannel indicates which release channel a cluster is subscribed to.
+  - Release channels are arranged in order of risk and frequency of updates.
+  returned: success
+  type: complex
+  contains:
+    enableIntraNodeVisibility:
+      description:
+      - Whether Intra-node visibility is enabled for this cluster. This makes same
+        node pod to pod traffic visible for VPC network.
+      returned: success
+      type: bool
+    network:
+      description:
+      - The relative name of the Google Compute Engine network to which the cluster
+        is connected.
+      - 'Example: projects/my-project/global/networks/my-network .'
+      returned: success
+      type: str
+    subnetwork:
+      description:
+      - The relative name of the Google Compute Engine subnetwork to which the cluster
+        is connected.
+      - 'Example: projects/my-project/regions/us-central1/subnetworks/my-subnet .'
+      returned: success
+      type: str
+    defaultSnatStatus:
+      description:
+      - Whether the cluster disables default in-node sNAT rules. In-node sNAT rules
+        will be disabled when defaultSnatStatus is disabled.
+      returned: success
+      type: bool
+enableKubernetesAlpha:
+  description:
+  - Kubernetes alpha features are enabled on this cluster. This includes alpha API
+    groups (e.g. v1alpha1) and features that may not be production ready in the kubernetes
+    version of the master and nodes.
+  returned: success
+  type: bool
 location:
   description:
   - The location where the cluster is deployed.
@@ -1377,6 +1502,7 @@ def main():
             logging_service=dict(type='str'),
             monitoring_service=dict(type='str'),
             network=dict(type='str'),
+            database_encryption=dict(type='dict', options=dict(state=dict(type='str'), key_name=dict(type='str'))),
             private_cluster_config=dict(
                 type='dict',
                 options=dict(enable_private_nodes=dict(type='bool'), enable_private_endpoint=dict(type='bool'), master_ipv4_cidr_block=dict(type='str')),
@@ -1420,6 +1546,9 @@ def main():
                 ),
             ),
             binary_authorization=dict(type='dict', options=dict(enabled=dict(type='bool'))),
+            shielded_nodes=dict(type='dict', options=dict(enabled=dict(type='bool'))),
+            network_config=dict(type='dict', options=dict(enable_intra_node_visibility=dict(type='bool'), default_snat_status=dict(type='bool'))),
+            enable_kubernetes_alpha=dict(type='bool'),
             location=dict(required=True, type='str', aliases=['zone']),
             kubectl_path=dict(type='str'),
             kubectl_context=dict(type='str'),
@@ -1484,6 +1613,7 @@ def resource_to_request(module):
         u'loggingService': module.params.get('logging_service'),
         u'monitoringService': module.params.get('monitoring_service'),
         u'network': module.params.get('network'),
+        u'databaseEncryption': ClusterDatabaseencryption(module.params.get('database_encryption', {}), module).to_request(),
         u'privateClusterConfig': ClusterPrivateclusterconfig(module.params.get('private_cluster_config', {}), module).to_request(),
         u'clusterIpv4Cidr': module.params.get('cluster_ipv4_cidr'),
         u'enableTpu': module.params.get('enable_tpu'),
@@ -1500,6 +1630,9 @@ def resource_to_request(module):
             module.params.get('master_authorized_networks_config', {}), module
         ).to_request(),
         u'binaryAuthorization': ClusterBinaryauthorization(module.params.get('binary_authorization', {}), module).to_request(),
+        u'shieldedNodes': ClusterShieldednodes(module.params.get('shielded_nodes', {}), module).to_request(),
+        u'networkConfig': ClusterNetworkconfig(module.params.get('network_config', {}), module).to_request(),
+        u'enableKubernetesAlpha': module.params.get('enable_kubernetes_alpha'),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -1574,6 +1707,7 @@ def response_to_hash(module, response):
         u'loggingService': response.get(u'loggingService'),
         u'monitoringService': response.get(u'monitoringService'),
         u'network': response.get(u'network'),
+        u'databaseEncryption': ClusterDatabaseencryption(response.get(u'databaseEncryption', {}), module).from_response(),
         u'privateClusterConfig': ClusterPrivateclusterconfig(response.get(u'privateClusterConfig', {}), module).from_response(),
         u'clusterIpv4Cidr': response.get(u'clusterIpv4Cidr'),
         u'enableTpu': response.get(u'enableTpu'),
@@ -1602,6 +1736,9 @@ def response_to_hash(module, response):
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(response.get(u'masterAuthorizedNetworksConfig', {}), module).from_response(),
         u'nodePools': ClusterNodepoolsArray(response.get(u'nodePools', []), module).from_response(),
         u'binaryAuthorization': ClusterBinaryauthorization(response.get(u'binaryAuthorization', {}), module).from_response(),
+        u'shieldedNodes': ClusterShieldednodes(response.get(u'shieldedNodes', {}), module).from_response(),
+        u'networkConfig': ClusterNetworkconfig(response.get(u'networkConfig', {}), module).from_response(),
+        u'enableKubernetesAlpha': response.get(u'enableKubernetesAlpha'),
     }
 
 
@@ -1900,6 +2037,21 @@ class ClusterClientcertificateconfig(object):
         return remove_nones_from_dict({u'issueClientCertificate': self.request.get(u'issueClientCertificate')})
 
 
+class ClusterDatabaseencryption(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'state': self.request.get('state'), u'keyName': self.request.get('key_name')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'state': self.request.get(u'state'), u'keyName': self.request.get(u'keyName')})
+
+
 class ClusterPrivateclusterconfig(object):
     def __init__(self, request, module):
         self.module = module
@@ -2196,6 +2348,40 @@ class ClusterBinaryauthorization(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'enabled': self.request.get(u'enabled')})
+
+
+class ClusterShieldednodes(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enabled': self.request.get('enabled')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enabled': self.request.get(u'enabled')})
+
+
+class ClusterNetworkconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'enableIntraNodeVisibility': self.request.get('enable_intra_node_visibility'), u'defaultSnatStatus': self.request.get('default_snat_status')}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'enableIntraNodeVisibility': self.request.get(u'enableIntraNodeVisibility'), u'defaultSnatStatus': self.request.get(u'defaultSnatStatus')}
+        )
 
 
 if __name__ == '__main__':
