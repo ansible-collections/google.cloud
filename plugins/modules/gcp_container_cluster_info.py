@@ -770,6 +770,18 @@ resources:
           - If enabled, all container images will be validated by Binary Authorization.
           returned: success
           type: bool
+    releaseChannel:
+      description:
+      - ReleaseChannel indicates which release channel a cluster is subscribed to.
+      - Release channels are arranged in order of risk and frequency of updates.
+      returned: success
+      type: complex
+      contains:
+        channel:
+          description:
+          - Which release channel the cluster is subscribed to.
+          returned: success
+          type: str
     shieldedNodes:
       description:
       - Shielded Nodes configuration.
@@ -783,8 +795,7 @@ resources:
           type: bool
     networkConfig:
       description:
-      - ReleaseChannel indicates which release channel a cluster is subscribed to.
-      - Release channels are arranged in order of risk and frequency of updates.
+      - Network configurations .
       returned: success
       type: complex
       contains:
