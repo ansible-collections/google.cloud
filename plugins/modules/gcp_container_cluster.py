@@ -596,6 +596,19 @@ options:
         - If enabled, all container images will be validated by Binary Authorization.
         required: false
         type: bool
+  release_channel:
+    description:
+    - ReleaseChannel indicates which release channel a cluster is subscribed to.
+    - Release channels are arranged in order of risk and frequency of updates.
+    required: false
+    type: dict
+    suboptions:
+      channel:
+        description:
+        - Which release channel the cluster is subscribed to.
+        - 'Some valid choices include: "UNSPECIFIED", "RAPID", "REGULAR", "STABLE"'
+        required: false
+        type: str
   shielded_nodes:
     description:
     - Shielded Nodes configuration.
@@ -609,8 +622,7 @@ options:
         type: bool
   network_config:
     description:
-    - ReleaseChannel indicates which release channel a cluster is subscribed to.
-    - Release channels are arranged in order of risk and frequency of updates.
+    - Network configurations .
     required: false
     type: dict
     suboptions:
@@ -1368,6 +1380,18 @@ binaryAuthorization:
       - If enabled, all container images will be validated by Binary Authorization.
       returned: success
       type: bool
+releaseChannel:
+  description:
+  - ReleaseChannel indicates which release channel a cluster is subscribed to.
+  - Release channels are arranged in order of risk and frequency of updates.
+  returned: success
+  type: complex
+  contains:
+    channel:
+      description:
+      - Which release channel the cluster is subscribed to.
+      returned: success
+      type: str
 shieldedNodes:
   description:
   - Shielded Nodes configuration.
@@ -1381,8 +1405,7 @@ shieldedNodes:
       type: bool
 networkConfig:
   description:
-  - ReleaseChannel indicates which release channel a cluster is subscribed to.
-  - Release channels are arranged in order of risk and frequency of updates.
+  - Network configurations .
   returned: success
   type: complex
   contains:
@@ -1546,6 +1569,7 @@ def main():
                 ),
             ),
             binary_authorization=dict(type='dict', options=dict(enabled=dict(type='bool'))),
+            release_channel=dict(type='dict', options=dict(channel=dict(type='str'))),
             shielded_nodes=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             network_config=dict(type='dict', options=dict(enable_intra_node_visibility=dict(type='bool'), default_snat_status=dict(type='bool'))),
             enable_kubernetes_alpha=dict(type='bool'),
@@ -1630,6 +1654,7 @@ def resource_to_request(module):
             module.params.get('master_authorized_networks_config', {}), module
         ).to_request(),
         u'binaryAuthorization': ClusterBinaryauthorization(module.params.get('binary_authorization', {}), module).to_request(),
+        u'releaseChannel': ClusterReleasechannel(module.params.get('release_channel', {}), module).to_request(),
         u'shieldedNodes': ClusterShieldednodes(module.params.get('shielded_nodes', {}), module).to_request(),
         u'networkConfig': ClusterNetworkconfig(module.params.get('network_config', {}), module).to_request(),
         u'enableKubernetesAlpha': module.params.get('enable_kubernetes_alpha'),
@@ -1736,6 +1761,7 @@ def response_to_hash(module, response):
         u'masterAuthorizedNetworksConfig': ClusterMasterauthorizednetworksconfig(response.get(u'masterAuthorizedNetworksConfig', {}), module).from_response(),
         u'nodePools': ClusterNodepoolsArray(response.get(u'nodePools', []), module).from_response(),
         u'binaryAuthorization': ClusterBinaryauthorization(response.get(u'binaryAuthorization', {}), module).from_response(),
+        u'releaseChannel': ClusterReleasechannel(response.get(u'releaseChannel', {}), module).from_response(),
         u'shieldedNodes': ClusterShieldednodes(response.get(u'shieldedNodes', {}), module).from_response(),
         u'networkConfig': ClusterNetworkconfig(response.get(u'networkConfig', {}), module).from_response(),
         u'enableKubernetesAlpha': response.get(u'enableKubernetesAlpha'),
@@ -2348,6 +2374,21 @@ class ClusterBinaryauthorization(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'enabled': self.request.get(u'enabled')})
+
+
+class ClusterReleasechannel(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'channel': self.request.get('channel')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'channel': self.request.get(u'channel')})
 
 
 class ClusterShieldednodes(object):
