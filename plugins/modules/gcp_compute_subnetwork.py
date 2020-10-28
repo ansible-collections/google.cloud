@@ -128,6 +128,11 @@ options:
       Google APIs and services by using Private Google Access.
     required: false
     type: bool
+  private_ipv6_google_access:
+    description:
+    - The private IPv6 google access type for the VMs in this subnet.
+    required: false
+    type: str
   region:
     description:
     - The GCP region for this subnetwork.
@@ -286,6 +291,11 @@ privateIpGoogleAccess:
     Google APIs and services by using Private Google Access.
   returned: success
   type: bool
+privateIpv6GoogleAccess:
+  description:
+  - The private IPv6 google access type for the VMs in this subnet.
+  returned: success
+  type: str
 region:
   description:
   - The GCP region for this subnetwork.
@@ -327,6 +337,7 @@ def main():
                 type='list', elements='dict', options=dict(range_name=dict(required=True, type='str'), ip_cidr_range=dict(required=True, type='str'))
             ),
             private_ip_google_access=dict(type='bool'),
+            private_ipv6_google_access=dict(type='str'),
             region=dict(required=True, type='str'),
         )
     )
@@ -379,6 +390,8 @@ def update_fields(module, request, response):
         secondary_ip_ranges_update(module, request, response)
     if response.get('privateIpGoogleAccess') != request.get('privateIpGoogleAccess'):
         private_ip_google_access_update(module, request, response)
+    if response.get('privateIpv6GoogleAccess') != request.get('privateIpv6GoogleAccess'):
+        private_ipv6_google_access_update(module, request, response)
 
 
 def ip_cidr_range_update(module, request, response):
@@ -409,6 +422,14 @@ def private_ip_google_access_update(module, request, response):
     )
 
 
+def private_ipv6_google_access_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    auth.patch(
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/subnetworks/{name}"]).format(**module.params),
+        {u'privateIpv6GoogleAccess': module.params.get('private_ipv6_google_access')},
+    )
+
+
 def delete(module, link, kind):
     auth = GcpSession(module, 'compute')
     return wait_for_operation(module, auth.delete(link))
@@ -423,6 +444,7 @@ def resource_to_request(module):
         u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
         u'secondaryIpRanges': SubnetworkSecondaryiprangesArray(module.params.get('secondary_ip_ranges', []), module).to_request(),
         u'privateIpGoogleAccess': module.params.get('private_ip_google_access'),
+        u'privateIpv6GoogleAccess': module.params.get('private_ipv6_google_access'),
         u'region': module.params.get('region'),
     }
     return_vals = {}
@@ -498,6 +520,7 @@ def response_to_hash(module, response):
         u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
         u'secondaryIpRanges': SubnetworkSecondaryiprangesArray(response.get(u'secondaryIpRanges', []), module).from_response(),
         u'privateIpGoogleAccess': response.get(u'privateIpGoogleAccess'),
+        u'privateIpv6GoogleAccess': response.get(u'privateIpv6GoogleAccess'),
         u'region': module.params.get('region'),
     }
 
