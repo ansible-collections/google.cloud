@@ -195,6 +195,11 @@ resources:
         Google APIs and services by using Private Google Access.
       returned: success
       type: bool
+    privateIpv6GoogleAccess:
+      description:
+      - The private IPv6 google access type for the VMs in this subnet.
+      returned: success
+      type: str
     region:
       description:
       - The GCP region for this subnetwork.
