@@ -3,11 +3,9 @@
 
 # Usage:
 #     vars:
-#         encrypted_myvar: "{{ var | b64encode | gcp_kms_encrypt(auth_kind='serviceaccount',
-#           service_account_file='gcp_service_account_file', projects='default',
+#         encrypted_myvar: "{{ var | b64encode | gcp_kms_encrypt(projects='default',
 #           key_ring='key_ring', crypto_key='crypto_key') }}"
-#         decrypted_myvar: "{{ encrypted_myvar | gcp_kms_decrypt(auth_kind='serviceaccount',
-#           service_account_file=gcp_service_account_file, projects='default',
+#         decrypted_myvar: "{{ encrypted_myvar | gcp_kms_decrypt(projects='default',
 #           key_ring='key_ring', crypto_key='crypto_key') }}"
 
 from __future__ import (absolute_import, division, print_function)
@@ -36,12 +34,12 @@ class GcpKmsFilter():
             'projects': kwargs.get('projects', None),
             'scopes': kwargs.get('scopes', None),
             'locations': kwargs.get('locations', 'global'),
-            'auth_kind': kwargs.get('auth_kind', None),
+            'auth_kind': kwargs.get('auth_kind', 'application'),
             'service_account_file': kwargs.get('service_account_file', None),
             'service_account_email': kwargs.get('service_account_email', None),
         }
         if not params['scopes']:
-            params['scopes'] = ['https://www.googleapis.com/auth/cloudkms']
+            params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
         fake_module = GcpMockModule(params)
         if method == "encrypt":
             return self.kms_encrypt(fake_module)

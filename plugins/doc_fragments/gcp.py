@@ -21,7 +21,7 @@ options:
             - The type of credential used.
         type: str
         required: true
-        choices: [ application, machineaccount, serviceaccount ]
+        choices: [ application, machineaccount, serviceaccount, impersonation ]
     service_account_contents:
         description:
             - The contents of a Service Account JSON file, either in a dictionary or as a JSON string that represents it.
@@ -33,7 +33,8 @@ options:
     service_account_email:
         description:
             - An optional service account email address if machineaccount is selected
-              and the user does not wish to use the default email.
+              and the user does not wish to use the default email. This field must be set
+              if auth_kind is impersonation.
         type: str
     scopes:
         description:
