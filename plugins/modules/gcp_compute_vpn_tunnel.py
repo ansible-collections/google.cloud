@@ -71,6 +71,49 @@ options:
       target_vpn_gateway field to "{{ name-of-resource }}"'
     required: false
     type: dict
+  vpn_gateway:
+    description:
+    - URL of the VPN gateway with which this VPN tunnel is associated.
+    - This must be used if a High Availability VPN gateway resource is created.
+    - 'This field represents a link to a VpnGateway resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_vpn_gateway task and then set this vpn_gateway field to "{{
+      name-of-resource }}"'
+    required: false
+    type: dict
+  vpn_gateway_interface:
+    description:
+    - The interface ID of the VPN gateway with which this VPN tunnel is associated.
+    required: false
+    type: int
+  peer_external_gateway:
+    description:
+    - URL of the peer side external VPN gateway to which this VPN tunnel is connected.
+    - 'This field represents a link to a ExternalVpnGateway resource in GCP. It can
+      be specified in two ways. First, you can place a dictionary with key ''selfLink''
+      and value of your resource''s selfLink Alternatively, you can add `register:
+      name-of-resource` to a gcp_compute_external_vpn_gateway task and then set this
+      peer_external_gateway field to "{{ name-of-resource }}"'
+    required: false
+    type: dict
+  peer_external_gateway_interface:
+    description:
+    - The interface ID of the external VPN gateway to which this VPN tunnel is connected.
+    required: false
+    type: int
+  peer_gcp_gateway:
+    description:
+    - URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
+    - If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
+      ID in the peer GCP VPN gateway.
+    - 'This field represents a link to a VpnGateway resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_vpn_gateway task and then set this peer_gcp_gateway field to
+      "{{ name-of-resource }}"'
+    required: false
+    type: dict
   router:
     description:
     - URL of router resource to be used for dynamic routing.
@@ -259,6 +302,34 @@ targetVpnGateway:
   - URL of the Target VPN gateway with which this VPN tunnel is associated.
   returned: success
   type: dict
+vpnGateway:
+  description:
+  - URL of the VPN gateway with which this VPN tunnel is associated.
+  - This must be used if a High Availability VPN gateway resource is created.
+  returned: success
+  type: dict
+vpnGatewayInterface:
+  description:
+  - The interface ID of the VPN gateway with which this VPN tunnel is associated.
+  returned: success
+  type: int
+peerExternalGateway:
+  description:
+  - URL of the peer side external VPN gateway to which this VPN tunnel is connected.
+  returned: success
+  type: dict
+peerExternalGatewayInterface:
+  description:
+  - The interface ID of the external VPN gateway to which this VPN tunnel is connected.
+  returned: success
+  type: int
+peerGcpGateway:
+  description:
+  - URL of the peer side HA GCP VPN gateway to which this VPN tunnel is connected.
+  - If provided, the VPN tunnel will automatically use the same vpn_gateway_interface
+    ID in the peer GCP VPN gateway.
+  returned: success
+  type: dict
 router:
   description:
   - URL of router resource to be used for dynamic routing.
@@ -331,6 +402,11 @@ def main():
             name=dict(required=True, type='str'),
             description=dict(type='str'),
             target_vpn_gateway=dict(type='dict'),
+            vpn_gateway=dict(type='dict'),
+            vpn_gateway_interface=dict(type='int'),
+            peer_external_gateway=dict(type='dict'),
+            peer_external_gateway_interface=dict(type='int'),
+            peer_gcp_gateway=dict(type='dict'),
             router=dict(type='dict'),
             peer_ip=dict(type='str'),
             shared_secret=dict(required=True, type='str'),
@@ -338,7 +414,8 @@ def main():
             local_traffic_selector=dict(type='list', elements='str'),
             remote_traffic_selector=dict(type='list', elements='str'),
             region=dict(required=True, type='str'),
-        )
+        ),
+        mutually_exclusive=[['peer_external_gateway', 'peer_gcp_gateway']],
     )
 
     if not module.params['scopes']:
@@ -393,6 +470,11 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
         u'targetVpnGateway': replace_resource_dict(module.params.get(u'target_vpn_gateway', {}), 'selfLink'),
+        u'vpnGateway': replace_resource_dict(module.params.get(u'vpn_gateway', {}), 'selfLink'),
+        u'vpnGatewayInterface': module.params.get('vpn_gateway_interface'),
+        u'peerExternalGateway': replace_resource_dict(module.params.get(u'peer_external_gateway', {}), 'selfLink'),
+        u'peerExternalGatewayInterface': module.params.get('peer_external_gateway_interface'),
+        u'peerGcpGateway': replace_resource_dict(module.params.get(u'peer_gcp_gateway', {}), 'selfLink'),
         u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
         u'peerIp': module.params.get('peer_ip'),
         u'sharedSecret': module.params.get('shared_secret'),
@@ -469,6 +551,11 @@ def response_to_hash(module, response):
         u'name': response.get(u'name'),
         u'description': module.params.get('description'),
         u'targetVpnGateway': replace_resource_dict(module.params.get(u'target_vpn_gateway', {}), 'selfLink'),
+        u'vpnGateway': replace_resource_dict(module.params.get(u'vpn_gateway', {}), 'selfLink'),
+        u'vpnGatewayInterface': module.params.get('vpn_gateway_interface'),
+        u'peerExternalGateway': replace_resource_dict(module.params.get(u'peer_external_gateway', {}), 'selfLink'),
+        u'peerExternalGatewayInterface': response.get(u'peerExternalGatewayInterface'),
+        u'peerGcpGateway': response.get(u'peerGcpGateway'),
         u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
         u'peerIp': response.get(u'peerIp'),
         u'sharedSecret': response.get(u'sharedSecret'),

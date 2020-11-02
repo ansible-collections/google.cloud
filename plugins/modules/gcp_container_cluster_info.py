@@ -381,6 +381,24 @@ resources:
         If left unspecified, the default network will be used.
       returned: success
       type: str
+    databaseEncryption:
+      description:
+      - Configuration of etcd encryption.
+      returned: success
+      type: complex
+      contains:
+        state:
+          description:
+          - Denotes the state of etcd encryption.
+          returned: success
+          type: str
+        keyName:
+          description:
+          - Name of CloudKMS key to use for the encryption of secrets in etcd. Ex.
+          - "`projects/my-project/locations/global/keyRings/my-ring/cryptoKeys/my-key`
+            ."
+          returned: success
+          type: str
     privateClusterConfig:
       description:
       - Configuration for a private cluster.
@@ -752,6 +770,69 @@ resources:
           - If enabled, all container images will be validated by Binary Authorization.
           returned: success
           type: bool
+    releaseChannel:
+      description:
+      - ReleaseChannel indicates which release channel a cluster is subscribed to.
+      - Release channels are arranged in order of risk and frequency of updates.
+      returned: success
+      type: complex
+      contains:
+        channel:
+          description:
+          - Which release channel the cluster is subscribed to.
+          returned: success
+          type: str
+    shieldedNodes:
+      description:
+      - Shielded Nodes configuration.
+      returned: success
+      type: complex
+      contains:
+        enabled:
+          description:
+          - Whether Shielded Nodes features are enabled on all nodes in this cluster.
+          returned: success
+          type: bool
+    networkConfig:
+      description:
+      - Network configurations .
+      returned: success
+      type: complex
+      contains:
+        enableIntraNodeVisibility:
+          description:
+          - Whether Intra-node visibility is enabled for this cluster. This makes
+            same node pod to pod traffic visible for VPC network.
+          returned: success
+          type: bool
+        network:
+          description:
+          - The relative name of the Google Compute Engine network to which the cluster
+            is connected.
+          - 'Example: projects/my-project/global/networks/my-network .'
+          returned: success
+          type: str
+        subnetwork:
+          description:
+          - The relative name of the Google Compute Engine subnetwork to which the
+            cluster is connected.
+          - 'Example: projects/my-project/regions/us-central1/subnetworks/my-subnet
+            .'
+          returned: success
+          type: str
+        defaultSnatStatus:
+          description:
+          - Whether the cluster disables default in-node sNAT rules. In-node sNAT
+            rules will be disabled when defaultSnatStatus is disabled.
+          returned: success
+          type: bool
+    enableKubernetesAlpha:
+      description:
+      - Kubernetes alpha features are enabled on this cluster. This includes alpha
+        API groups (e.g. v1alpha1) and features that may not be production ready in
+        the kubernetes version of the master and nodes.
+      returned: success
+      type: bool
     location:
       description:
       - The location where the cluster is deployed.

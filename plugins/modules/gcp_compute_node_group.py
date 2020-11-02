@@ -72,6 +72,44 @@ options:
     - The total number of nodes in the node group.
     required: true
     type: int
+  maintenance_policy:
+    description:
+    - 'Specifies how to handle instances when a node in the group undergoes maintenance.
+      Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The
+      default value is DEFAULT.'
+    required: false
+    default: DEFAULT
+    type: str
+  autoscaling_policy:
+    description:
+    - If you use sole-tenant nodes for your workloads, you can use the node group
+      autoscaler to automatically manage the sizes of your node groups.
+    required: false
+    type: dict
+    suboptions:
+      mode:
+        description:
+        - 'The autoscaling mode. Set to one of the following: - OFF: Disables the
+          autoscaler.'
+        - "- ON: Enables scaling in and scaling out."
+        - "- ONLY_SCALE_OUT: Enables only scaling out."
+        - You must use this mode if your node groups are configured to restart their
+          hosted VMs on minimal servers.
+        - 'Some valid choices include: "OFF", "ON", "ONLY_SCALE_OUT"'
+        required: true
+        type: str
+      min_nodes:
+        description:
+        - Minimum size of the node group. Must be less than or equal to max-nodes.
+          The default value is 0.
+        required: false
+        type: int
+      max_nodes:
+        description:
+        - Maximum size of the node group. Set to a value less than or equal to 100
+          and greater than or equal to min-nodes.
+        required: true
+        type: int
   zone:
     description:
     - Zone where this node group is located .
@@ -181,6 +219,41 @@ size:
   - The total number of nodes in the node group.
   returned: success
   type: int
+maintenancePolicy:
+  description:
+  - 'Specifies how to handle instances when a node in the group undergoes maintenance.
+    Set to one of: DEFAULT, RESTART_IN_PLACE, or MIGRATE_WITHIN_NODE_GROUP. The default
+    value is DEFAULT.'
+  returned: success
+  type: str
+autoscalingPolicy:
+  description:
+  - If you use sole-tenant nodes for your workloads, you can use the node group autoscaler
+    to automatically manage the sizes of your node groups.
+  returned: success
+  type: complex
+  contains:
+    mode:
+      description:
+      - 'The autoscaling mode. Set to one of the following: - OFF: Disables the autoscaler.'
+      - "- ON: Enables scaling in and scaling out."
+      - "- ONLY_SCALE_OUT: Enables only scaling out."
+      - You must use this mode if your node groups are configured to restart their
+        hosted VMs on minimal servers.
+      returned: success
+      type: str
+    minNodes:
+      description:
+      - Minimum size of the node group. Must be less than or equal to max-nodes. The
+        default value is 0.
+      returned: success
+      type: int
+    maxNodes:
+      description:
+      - Maximum size of the node group. Set to a value less than or equal to 100 and
+        greater than or equal to min-nodes.
+      returned: success
+      type: int
 zone:
   description:
   - Zone where this node group is located .
@@ -192,7 +265,14 @@ zone:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    remove_nones_from_dict,
+    replace_resource_dict,
+)
 import json
 import re
 import time
@@ -212,6 +292,10 @@ def main():
             name=dict(type='str'),
             node_template=dict(required=True, type='dict'),
             size=dict(required=True, type='int'),
+            maintenance_policy=dict(default='DEFAULT', type='str'),
+            autoscaling_policy=dict(
+                type='dict', options=dict(mode=dict(required=True, type='str'), min_nodes=dict(type='int'), max_nodes=dict(required=True, type='int'))
+            ),
             zone=dict(required=True, type='str'),
         )
     )
@@ -282,6 +366,8 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'nodeTemplate': replace_resource_dict(module.params.get(u'node_template', {}), 'selfLink'),
         u'size': module.params.get('size'),
+        u'maintenancePolicy': module.params.get('maintenance_policy'),
+        u'autoscalingPolicy': NodeGroupAutoscalingpolicy(module.params.get('autoscaling_policy', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -356,6 +442,8 @@ def response_to_hash(module, response):
         u'name': response.get(u'name'),
         u'nodeTemplate': response.get(u'nodeTemplate'),
         u'size': response.get(u'size'),
+        u'maintenancePolicy': response.get(u'maintenancePolicy'),
+        u'autoscalingPolicy': NodeGroupAutoscalingpolicy(response.get(u'autoscalingPolicy', {}), module).from_response(),
     }
 
 
@@ -410,6 +498,25 @@ def raise_if_errors(response, err_path, module):
     errors = navigate_hash(response, err_path)
     if errors is not None:
         module.fail_json(msg=errors)
+
+
+class NodeGroupAutoscalingpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'mode': self.request.get('mode'), u'minNodes': self.request.get('min_nodes'), u'maxNodes': self.request.get('max_nodes')}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'mode': self.request.get(u'mode'), u'minNodes': self.request.get(u'minNodes'), u'maxNodes': self.request.get(u'maxNodes')}
+        )
 
 
 if __name__ == '__main__':

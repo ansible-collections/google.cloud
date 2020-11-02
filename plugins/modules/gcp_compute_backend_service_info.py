@@ -429,7 +429,7 @@ resources:
       - The set of URLs to the HttpHealthCheck or HttpsHealthCheck resource for health
         checking this BackendService. Currently at most one health check can be specified.
       - A health check must be specified unless the backend service uses an internet
-        NEG as a backend.
+        or serverless NEG as a backend.
       - For internal load balancing, a URL to a HealthCheck resource must be specified
         instead.
       returned: success
@@ -475,19 +475,19 @@ resources:
     localityLbPolicy:
       description:
       - The load balancing algorithm used within the scope of the locality.
-      - The possible values are - ROUND_ROBIN - This is a simple policy in which each
-        healthy backend is selected in round robin order.
-      - LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts and
-        picks the host which has fewer active requests.
-      - RING_HASH - The ring/modulo hash load balancer implements consistent hashing
+      - The possible values are - * ROUND_ROBIN - This is a simple policy in which
+        each healthy backend is selected in round robin order.
+      - "* LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts
+        and picks the host which has fewer active requests."
+      - "* RING_HASH - The ring/modulo hash load balancer implements consistent hashing
         to backends. The algorithm has the property that the addition/removal of a
-        host from a set of N hosts only affects 1/N of the requests.
-      - RANDOM - The load balancer selects a random healthy host.
-      - ORIGINAL_DESTINATION - Backend host is selected based on the client connection
+        host from a set of N hosts only affects 1/N of the requests."
+      - "* RANDOM - The load balancer selects a random healthy host."
+      - "* ORIGINAL_DESTINATION - Backend host is selected based on the client connection
         metadata, i.e., connections are opened to the same address as the destination
         address of the incoming connection before the connection was redirected to
-        the load balancer.
-      - MAGLEV - used as a drop in replacement for the ring hash load balancer.
+        the load balancer."
+      - "* MAGLEV - used as a drop in replacement for the ring hash load balancer."
       - Maglev is not as stable as ring hash but has faster table lookup build times
         and host selection times. For more information about Maglev, refer to https://ai.google/research/pubs/pub44824
         This field is applicable only when the load_balancing_scheme is set to INTERNAL_SELF_MANAGED.

@@ -129,9 +129,9 @@ resources:
         role:
           description:
           - Describes the rights granted to the user specified by the other member
-            of the access object. Primitive, Predefined and custom roles are supported.
-            Predefined roles that have equivalent primitive roles are swapped by the
-            API to their Primitive counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
+            of the access object. Basic, predefined, and custom roles are supported.
+            Predefined roles that have equivalent basic roles are swapped by the API
+            to their basic counterparts. See [official docs](U(https://cloud.google.com/bigquery/docs/access-control)).
           returned: success
           type: str
         specialGroup:
@@ -140,7 +140,7 @@ resources:
             Owners of the enclosing project.'
           - "* `projectReaders`: Readers of the enclosing project."
           - "* `projectWriters`: Writers of the enclosing project."
-          - "* `allAuthenticatedUsers`: All authenticated BigQuery users. ."
+          - "* `allAuthenticatedUsers`: All authenticated BigQuery users."
           returned: success
           type: str
         userByEmail:
@@ -270,9 +270,6 @@ resources:
         is a specific geographic place, such as Tokyo, and a multi-regional location
         is a large geographic area, such as the United States, that contains at least
         two geographic places.
-      - 'Possible regional values include: `asia-east1`, `asia-northeast1`, `asia-southeast1`,
-        `australia-southeast1`, `europe-north1`, `europe-west2` and `us-east4`.'
-      - 'Possible multi-regional values: `EU` and `US`.'
       - The default value is multi-regional location `US`.
       - Changing this forces a new resource to be created.
       returned: success

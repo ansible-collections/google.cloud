@@ -225,6 +225,20 @@ options:
               image when the instance is created.
             required: false
             type: bool
+      workload_meta_config:
+        description:
+        - WorkloadMetadataConfig defines the metadata configuration to expose to workloads
+          on the node pool.
+        required: false
+        type: dict
+        suboptions:
+          mode:
+            description:
+            - Mode is the configuration for how to expose metadata to workloads running
+              on the node pool.
+            - 'Some valid choices include: "GCE_METADATA", "GKE_METADATA"'
+            required: false
+            type: str
   initial_node_count:
     description:
     - The initial node count for the pool. You must ensure that your Compute Engine
@@ -566,6 +580,19 @@ config:
             the instance is created.
           returned: success
           type: bool
+    workloadMetaConfig:
+      description:
+      - WorkloadMetadataConfig defines the metadata configuration to expose to workloads
+        on the node pool.
+      returned: success
+      type: complex
+      contains:
+        mode:
+          description:
+          - Mode is the configuration for how to expose metadata to workloads running
+            on the node pool.
+          returned: success
+          type: str
 initialNodeCount:
   description:
   - The initial node count for the pool. You must ensure that your Compute Engine
@@ -736,6 +763,7 @@ def main():
                     shielded_instance_config=dict(
                         type='dict', options=dict(enable_secure_boot=dict(type='bool'), enable_integrity_monitoring=dict(type='bool'))
                     ),
+                    workload_meta_config=dict(type='dict', options=dict(mode=dict(type='str'))),
                 ),
             ),
             initial_node_count=dict(required=True, type='int'),
@@ -968,6 +996,7 @@ class NodePoolConfig(object):
                 u'minCpuPlatform': self.request.get('min_cpu_platform'),
                 u'taints': NodePoolTaintsArray(self.request.get('taints', []), self.module).to_request(),
                 u'shieldedInstanceConfig': NodePoolShieldedinstanceconfig(self.request.get('shielded_instance_config', {}), self.module).to_request(),
+                u'workloadMetaConfig': NodePoolWorkloadmetaconfig(self.request.get('workload_meta_config', {}), self.module).to_request(),
             }
         )
 
@@ -989,6 +1018,7 @@ class NodePoolConfig(object):
                 u'minCpuPlatform': self.request.get(u'minCpuPlatform'),
                 u'taints': NodePoolTaintsArray(self.request.get(u'taints', []), self.module).from_response(),
                 u'shieldedInstanceConfig': NodePoolShieldedinstanceconfig(self.request.get(u'shieldedInstanceConfig', {}), self.module).from_response(),
+                u'workloadMetaConfig': NodePoolWorkloadmetaconfig(self.request.get(u'workloadMetaConfig', {}), self.module).from_response(),
             }
         )
 
@@ -1064,6 +1094,21 @@ class NodePoolShieldedinstanceconfig(object):
         return remove_nones_from_dict(
             {u'enableSecureBoot': self.request.get(u'enableSecureBoot'), u'enableIntegrityMonitoring': self.request.get(u'enableIntegrityMonitoring')}
         )
+
+
+class NodePoolWorkloadmetaconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'mode': self.request.get('mode')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'mode': self.request.get(u'mode')})
 
 
 class NodePoolAutoscaling(object):

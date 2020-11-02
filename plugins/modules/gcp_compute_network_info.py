@@ -175,6 +175,12 @@ resources:
             regions.
           returned: success
           type: str
+    mtu:
+      description:
+      - Maximum Transmission Unit in bytes. The minimum value for this field is 1460
+        and the maximum value is 1500 bytes.
+      returned: success
+      type: int
 '''
 
 ################################################################################

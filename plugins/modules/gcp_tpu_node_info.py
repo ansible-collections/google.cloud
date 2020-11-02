@@ -156,6 +156,16 @@ resources:
         job running in the Node, this account must have permissions to that data.
       returned: success
       type: str
+    useServiceNetworking:
+      description:
+      - Whether the VPC peering for the node is set up through Service Networking
+        API.
+      - The VPC Peering should be set up before provisioning the node. If this field
+        is set, cidr_block field should not be specified. If the network that you
+        want to peer the TPU Node to is a Shared VPC network, the node must be created
+        with this this field enabled.
+      returned: success
+      type: bool
     schedulingConfig:
       description:
       - Sets the scheduling options for this TPU instance.

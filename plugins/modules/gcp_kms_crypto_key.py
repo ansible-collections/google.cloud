@@ -99,6 +99,13 @@ options:
     - 'Format: `''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''`.'
     required: true
     type: str
+  skip_initial_version_creation:
+    description:
+    - If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
+      You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+    required: false
+    default: 'false'
+    type: bool
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -234,6 +241,12 @@ keyRing:
   - 'Format: `''projects/{{project}}/locations/{{location}}/keyRings/{{keyRing}}''`.'
   returned: success
   type: str
+skipInitialVersionCreation:
+  description:
+  - If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
+    You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
+  returned: success
+  type: bool
 '''
 
 ################################################################################
@@ -267,6 +280,7 @@ def main():
             rotation_period=dict(type='str'),
             version_template=dict(type='dict', options=dict(algorithm=dict(required=True, type='str'), protection_level=dict(type='str'))),
             key_ring=dict(required=True, type='str'),
+            skip_initial_version_creation=dict(type='bool'),
         )
     )
 
@@ -356,7 +370,9 @@ def collection(module):
 
 
 def create_link(module):
-    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys?cryptoKeyId={name}".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys?cryptoKeyId={name}&skipInitialVersionCreation={skip_initial_version_creation}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):

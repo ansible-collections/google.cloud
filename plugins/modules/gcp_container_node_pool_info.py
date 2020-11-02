@@ -294,6 +294,19 @@ resources:
                 image when the instance is created.
               returned: success
               type: bool
+        workloadMetaConfig:
+          description:
+          - WorkloadMetadataConfig defines the metadata configuration to expose to
+            workloads on the node pool.
+          returned: success
+          type: complex
+          contains:
+            mode:
+              description:
+              - Mode is the configuration for how to expose metadata to workloads
+                running on the node pool.
+              returned: success
+              type: str
     initialNodeCount:
       description:
       - The initial node count for the pool. You must ensure that your Compute Engine
