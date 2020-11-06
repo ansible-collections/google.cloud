@@ -241,13 +241,13 @@ resources:
               type: str
             clientCertificate:
               description:
-              - PEM representation of the slave's x509 certificate .
+              - PEM representation of the replica's x509 certificate .
               returned: success
               type: str
             clientKey:
               description:
-              - PEM representation of the slave's private key. The corresponding public
-                key is encoded in the client's certificate.
+              - PEM representation of the replica's private key. The corresponding
+                public key is encoded in the client's certificate.
               returned: success
               type: str
             connectRetryInterval:
@@ -257,7 +257,7 @@ resources:
               type: int
             dumpFilePath:
               description:
-              - Path to a SQL dump file in Google Cloud Storage from which the slave
+              - Path to a SQL dump file in Google Cloud Storage from which the replica
                 instance is to be created. The URI is in the form gs://bucketName/fileName.
                 Compressed gzip files (.gz) are also supported. Dumps should have
                 the binlog coordinates from which replication should begin. This can
