@@ -511,7 +511,7 @@ def response_to_hash(module, response):
         u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
         u'interconnect': module.params.get('interconnect'),
         u'description': response.get(u'description'),
-        u'bandwidth': module.params.get('bandwidth'),
+        u'bandwidth': response.get(u'bandwidth'),
         u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
         u'pairingKey': response.get(u'pairingKey'),
         u'partnerAsn': response.get(u'partnerAsn'),
