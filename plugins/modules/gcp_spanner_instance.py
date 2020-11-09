@@ -332,7 +332,7 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'name': module.params.get('name'),
-        u'config': response.get(u'config'),
+        u'config': module.params.get('config'),
         u'displayName': response.get(u'displayName'),
         u'nodeCount': response.get(u'nodeCount'),
         u'labels': response.get(u'labels'),
