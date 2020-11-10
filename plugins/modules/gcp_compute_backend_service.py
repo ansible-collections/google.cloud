@@ -1427,7 +1427,11 @@ def create(module, link, kind):
 def update(module, link, kind, fetch):
     update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
     auth = GcpSession(module, 'compute')
-    return wait_for_operation(module, auth.put(link, resource_to_request(module)))
+
+    request = resource_to_request(module)
+    request.update({'fingerprint': fetch.get('fingerprint')})
+
+    return wait_for_operation(module, auth.put(link, request))
 
 
 def update_fields(module, request, response):
