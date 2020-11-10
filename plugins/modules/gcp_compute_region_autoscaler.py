@@ -105,6 +105,37 @@ options:
         required: false
         default: 'ON'
         type: str
+      scale_in_control:
+        description:
+        - Defines scale in controls to reduce the risk of response latency and outages
+          due to abrupt scale-in events .
+        required: false
+        type: dict
+        suboptions:
+          max_scaled_in_replicas:
+            description:
+            - A nested object resource.
+            required: false
+            type: dict
+            suboptions:
+              fixed:
+                description:
+                - Specifies a fixed number of VM instances. This must be a positive
+                  integer.
+                required: false
+                type: int
+              percent:
+                description:
+                - Specifies a percentage of instances between 0 to 100%, inclusive.
+                - For example, specify 80 for 80%.
+                required: false
+                type: int
+          time_window_sec:
+            description:
+            - How long back autoscaling should look when computing recommendations
+              to include directives regarding slower scale down, as described above.
+            required: false
+            type: int
       cpu_utilization:
         description:
         - Defines the CPU utilization policy that allows the autoscaler to scale based
@@ -370,6 +401,37 @@ autoscalingPolicy:
       - Defines operating mode for this policy.
       returned: success
       type: str
+    scaleInControl:
+      description:
+      - Defines scale in controls to reduce the risk of response latency and outages
+        due to abrupt scale-in events .
+      returned: success
+      type: complex
+      contains:
+        maxScaledInReplicas:
+          description:
+          - A nested object resource.
+          returned: success
+          type: complex
+          contains:
+            fixed:
+              description:
+              - Specifies a fixed number of VM instances. This must be a positive
+                integer.
+              returned: success
+              type: int
+            percent:
+              description:
+              - Specifies a percentage of instances between 0 to 100%, inclusive.
+              - For example, specify 80 for 80%.
+              returned: success
+              type: int
+        timeWindowSec:
+          description:
+          - How long back autoscaling should look when computing recommendations to
+            include directives regarding slower scale down, as described above.
+          returned: success
+          type: int
     cpuUtilization:
       description:
       - Defines the CPU utilization policy that allows the autoscaler to scale based
@@ -480,6 +542,13 @@ def main():
                     max_num_replicas=dict(required=True, type='int'),
                     cool_down_period_sec=dict(default=60, type='int'),
                     mode=dict(default='ON', type='str'),
+                    scale_in_control=dict(
+                        type='dict',
+                        options=dict(
+                            max_scaled_in_replicas=dict(type='dict', options=dict(fixed=dict(type='int'), percent=dict(type='int'))),
+                            time_window_sec=dict(type='int'),
+                        ),
+                    ),
                     cpu_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str'))),
                     custom_metric_utilizations=dict(
                         type='list',
@@ -672,6 +741,7 @@ class RegionAutoscalerAutoscalingpolicy(object):
                 u'maxNumReplicas': self.request.get('max_num_replicas'),
                 u'coolDownPeriodSec': self.request.get('cool_down_period_sec'),
                 u'mode': self.request.get('mode'),
+                u'scaleInControl': RegionAutoscalerScaleincontrol(self.request.get('scale_in_control', {}), self.module).to_request(),
                 u'cpuUtilization': RegionAutoscalerCpuutilization(self.request.get('cpu_utilization', {}), self.module).to_request(),
                 u'customMetricUtilizations': RegionAutoscalerCustommetricutilizationsArray(
                     self.request.get('custom_metric_utilizations', []), self.module
@@ -689,6 +759,7 @@ class RegionAutoscalerAutoscalingpolicy(object):
                 u'maxNumReplicas': self.request.get(u'maxNumReplicas'),
                 u'coolDownPeriodSec': self.request.get(u'coolDownPeriodSec'),
                 u'mode': self.request.get(u'mode'),
+                u'scaleInControl': RegionAutoscalerScaleincontrol(self.request.get(u'scaleInControl', {}), self.module).from_response(),
                 u'cpuUtilization': RegionAutoscalerCpuutilization(self.request.get(u'cpuUtilization', {}), self.module).from_response(),
                 u'customMetricUtilizations': RegionAutoscalerCustommetricutilizationsArray(
                     self.request.get(u'customMetricUtilizations', []), self.module
@@ -698,6 +769,46 @@ class RegionAutoscalerAutoscalingpolicy(object):
                 ).from_response(),
             }
         )
+
+
+class RegionAutoscalerScaleincontrol(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'maxScaledInReplicas': RegionAutoscalerMaxscaledinreplicas(self.request.get('max_scaled_in_replicas', {}), self.module).to_request(),
+                u'timeWindowSec': self.request.get('time_window_sec'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'maxScaledInReplicas': RegionAutoscalerMaxscaledinreplicas(self.request.get(u'maxScaledInReplicas', {}), self.module).from_response(),
+                u'timeWindowSec': self.request.get(u'timeWindowSec'),
+            }
+        )
+
+
+class RegionAutoscalerMaxscaledinreplicas(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'fixed': self.request.get('fixed'), u'percent': self.request.get('percent')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'fixed': self.request.get(u'fixed'), u'percent': self.request.get(u'percent')})
 
 
 class RegionAutoscalerCpuutilization(object):

@@ -183,6 +183,37 @@ resources:
           - Defines operating mode for this policy.
           returned: success
           type: str
+        scaleInControl:
+          description:
+          - Defines scale in controls to reduce the risk of response latency and outages
+            due to abrupt scale-in events .
+          returned: success
+          type: complex
+          contains:
+            maxScaledInReplicas:
+              description:
+              - A nested object resource.
+              returned: success
+              type: complex
+              contains:
+                fixed:
+                  description:
+                  - Specifies a fixed number of VM instances. This must be a positive
+                    integer.
+                  returned: success
+                  type: int
+                percent:
+                  description:
+                  - Specifies a percentage of instances between 0 to 100%, inclusive.
+                  - For example, specify 80 for 80%.
+                  returned: success
+                  type: int
+            timeWindowSec:
+              description:
+              - How long back autoscaling should look when computing recommendations
+                to include directives regarding slower scale down, as described above.
+              returned: success
+              type: int
         cpuUtilization:
           description:
           - Defines the CPU utilization policy that allows the autoscaler to scale
