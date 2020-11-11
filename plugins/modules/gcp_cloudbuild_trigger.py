@@ -655,7 +655,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- 'API Reference: U(https://cloud.google.com/cloud-build/docs/api/reference/rest/)'
+- 'API Reference: U(https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.triggers)'
 - 'Automating builds using build triggers: U(https://cloud.google.com/cloud-build/docs/running-builds/automate-builds)'
 - for authentication, you can set service_account_file using the C(gcp_service_account_file)
   env variable.
