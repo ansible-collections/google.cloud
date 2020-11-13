@@ -257,7 +257,7 @@ options:
         description:
         - The data format.
         - 'Some valid choices include: "CSV", "GOOGLE_SHEETS", "NEWLINE_DELIMITED_JSON",
-          "AVRO", "DATASTORE_BACKUP", "BIGTABLE"'
+          "AVRO", "DATASTORE_BACKUP", "BIGTABLE", "ORC"'
         required: false
         type: str
       source_uris:
