@@ -373,7 +373,7 @@ options:
                     type: list
                   allow_origin_regexes:
                     description:
-                    - Specifies the regualar expression patterns that match allowed
+                    - Specifies the regular expression patterns that match allowed
                       origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                       An origin is allowed if it matches either allow_origins or allow_origin_regex.
                     elements: str
@@ -911,8 +911,8 @@ options:
             suboptions:
               full_path_match:
                 description:
-                - For satifying the matchRule condition, the path of the request must
-                  exactly match the value specified in fullPathMatch after removing
+                - For satisfying the matchRule condition, the path of the request
+                  must exactly match the value specified in fullPathMatch after removing
                   any query parameters and anchor that may be part of the original
                   URL. FullPathMatch must be between 1 and 1024 characters. Only one
                   of prefixMatch, fullPathMatch or regexMatch must be specified.
@@ -989,12 +989,11 @@ options:
                         type: int
                   regex_match:
                     description:
-                    - 'The value of the header must match the regualar expression
-                      specified in regexMatch. For regular expression grammar, please
-                      see: en.cppreference.com/w/cpp/regex/ecmascript For matching
-                      against a port specified in the HTTP request, use a headerMatch
-                      with headerName set to PORT and a regular expression that satisfies
-                      the RFC2616 Host header''s port specifier.'
+                    - 'The value of the header must match the regular expression specified
+                      in regexMatch. For regular expression grammar, please see: en.cppreference.com/w/cpp/regex/ecmascript
+                      For matching against a port specified in the HTTP request, use
+                      a headerMatch with headerName set to PORT and a regular expression
+                      that satisfies the RFC2616 Host header''s port specifier.'
                     - Only one of exactMatch, prefixMatch, suffixMatch, regexMatch,
                       presentMatch or rangeMatch must be set.
                     required: false
@@ -1066,10 +1065,10 @@ options:
                     type: str
               prefix_match:
                 description:
-                - For satifying the matchRule condition, the request's path must begin
-                  with the specified prefixMatch. prefixMatch must begin with a /.
-                  The value must be between 1 and 1024 characters. Only one of prefixMatch,
-                  fullPathMatch or regexMatch must be specified.
+                - For satisfying the matchRule condition, the request's path must
+                  begin with the specified prefixMatch. prefixMatch must begin with
+                  a /. The value must be between 1 and 1024 characters. Only one of
+                  prefixMatch, fullPathMatch or regexMatch must be specified.
                 required: false
                 type: str
               query_parameter_matches:
@@ -1113,10 +1112,10 @@ options:
                     type: str
               regex_match:
                 description:
-                - For satifying the matchRule condition, the path of the request must
-                  satisfy the regular expression specified in regexMatch after removing
-                  any query parameters and anchor supplied with the original URL.
-                  For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                - For satisfying the matchRule condition, the path of the request
+                  must satisfy the regular expression specified in regexMatch after
+                  removing any query parameters and anchor supplied with the original
+                  URL. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                   Only one of prefixMatch, fullPathMatch or regexMatch must be specified.
                 required: false
                 type: str
@@ -1162,7 +1161,7 @@ options:
                     type: list
                   allow_origin_regexes:
                     description:
-                    - Specifies the regualar expression patterns that match allowed
+                    - Specifies the regular expression patterns that match allowed
                       origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                       An origin is allowed if it matches either allow_origins or allow_origin_regex.
                     elements: str
@@ -1923,7 +1922,7 @@ options:
                 type: list
               allow_origin_regexes:
                 description:
-                - Specifies the regualar expression patterns that match allowed origins.
+                - Specifies the regular expression patterns that match allowed origins.
                   For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                   An origin is allowed if it matches either an item in allowOrigins
                   or an item in allowOriginRegexes.
@@ -2420,7 +2419,7 @@ options:
             type: list
           allow_origin_regexes:
             description:
-            - Specifies the regualar expression patterns that match allowed origins.
+            - Specifies the regular expression patterns that match allowed origins.
               For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
               An origin is allowed if it matches either an item in allowOrigins or
               an item in allowOriginRegexes.
@@ -2942,8 +2941,8 @@ pathMatchers:
                   type: list
                 allowOriginRegexes:
                   description:
-                  - Specifies the regualar expression patterns that match allowed
-                    origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                  - Specifies the regular expression patterns that match allowed origins.
+                    For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                     An origin is allowed if it matches either allow_origins or allow_origin_regex.
                   returned: success
                   type: list
@@ -3440,7 +3439,7 @@ pathMatchers:
           contains:
             fullPathMatch:
               description:
-              - For satifying the matchRule condition, the path of the request must
+              - For satisfying the matchRule condition, the path of the request must
                 exactly match the value specified in fullPathMatch after removing
                 any query parameters and anchor that may be part of the original URL.
                 FullPathMatch must be between 1 and 1024 characters. Only one of prefixMatch,
@@ -3516,7 +3515,7 @@ pathMatchers:
                       type: int
                 regexMatch:
                   description:
-                  - 'The value of the header must match the regualar expression specified
+                  - 'The value of the header must match the regular expression specified
                     in regexMatch. For regular expression grammar, please see: en.cppreference.com/w/cpp/regex/ecmascript
                     For matching against a port specified in the HTTP request, use
                     a headerMatch with headerName set to PORT and a regular expression
@@ -3587,7 +3586,7 @@ pathMatchers:
                   type: str
             prefixMatch:
               description:
-              - For satifying the matchRule condition, the request's path must begin
+              - For satisfying the matchRule condition, the request's path must begin
                 with the specified prefixMatch. prefixMatch must begin with a /. The
                 value must be between 1 and 1024 characters. Only one of prefixMatch,
                 fullPathMatch or regexMatch must be specified.
@@ -3632,7 +3631,7 @@ pathMatchers:
                   type: str
             regexMatch:
               description:
-              - For satifying the matchRule condition, the path of the request must
+              - For satisfying the matchRule condition, the path of the request must
                 satisfy the regular expression specified in regexMatch after removing
                 any query parameters and anchor supplied with the original URL. For
                 regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
@@ -3676,8 +3675,8 @@ pathMatchers:
                   type: list
                 allowOriginRegexes:
                   description:
-                  - Specifies the regualar expression patterns that match allowed
-                    origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                  - Specifies the regular expression patterns that match allowed origins.
+                    For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                     An origin is allowed if it matches either allow_origins or allow_origin_regex.
                   returned: success
                   type: list
@@ -4380,7 +4379,7 @@ pathMatchers:
               type: list
             allowOriginRegexes:
               description:
-              - Specifies the regualar expression patterns that match allowed origins.
+              - Specifies the regular expression patterns that match allowed origins.
                 For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                 An origin is allowed if it matches either an item in allowOrigins
                 or an item in allowOriginRegexes.
@@ -4834,7 +4833,7 @@ defaultRouteAction:
           type: list
         allowOriginRegexes:
           description:
-          - Specifies the regualar expression patterns that match allowed origins.
+          - Specifies the regular expression patterns that match allowed origins.
             For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
             An origin is allowed if it matches either an item in allowOrigins or an
             item in allowOriginRegexes.

@@ -428,7 +428,7 @@ resources:
                       type: list
                     allowOriginRegexes:
                       description:
-                      - Specifies the regualar expression patterns that match allowed
+                      - Specifies the regular expression patterns that match allowed
                         origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                         An origin is allowed if it matches either allow_origins or
                         allow_origin_regex.
@@ -933,7 +933,7 @@ resources:
               contains:
                 fullPathMatch:
                   description:
-                  - For satifying the matchRule condition, the path of the request
+                  - For satisfying the matchRule condition, the path of the request
                     must exactly match the value specified in fullPathMatch after
                     removing any query parameters and anchor that may be part of the
                     original URL. FullPathMatch must be between 1 and 1024 characters.
@@ -1009,7 +1009,7 @@ resources:
                           type: int
                     regexMatch:
                       description:
-                      - 'The value of the header must match the regualar expression
+                      - 'The value of the header must match the regular expression
                         specified in regexMatch. For regular expression grammar, please
                         see: en.cppreference.com/w/cpp/regex/ecmascript For matching
                         against a port specified in the HTTP request, use a headerMatch
@@ -1084,7 +1084,7 @@ resources:
                       type: str
                 prefixMatch:
                   description:
-                  - For satifying the matchRule condition, the request's path must
+                  - For satisfying the matchRule condition, the request's path must
                     begin with the specified prefixMatch. prefixMatch must begin with
                     a /. The value must be between 1 and 1024 characters. Only one
                     of prefixMatch, fullPathMatch or regexMatch must be specified.
@@ -1130,7 +1130,7 @@ resources:
                       type: str
                 regexMatch:
                   description:
-                  - For satifying the matchRule condition, the path of the request
+                  - For satisfying the matchRule condition, the path of the request
                     must satisfy the regular expression specified in regexMatch after
                     removing any query parameters and anchor supplied with the original
                     URL. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
@@ -1178,7 +1178,7 @@ resources:
                       type: list
                     allowOriginRegexes:
                       description:
-                      - Specifies the regualar expression patterns that match allowed
+                      - Specifies the regular expression patterns that match allowed
                         origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                         An origin is allowed if it matches either allow_origins or
                         allow_origin_regex.
@@ -1895,8 +1895,8 @@ resources:
                   type: list
                 allowOriginRegexes:
                   description:
-                  - Specifies the regualar expression patterns that match allowed
-                    origins. For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
+                  - Specifies the regular expression patterns that match allowed origins.
+                    For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                     An origin is allowed if it matches either an item in allowOrigins
                     or an item in allowOriginRegexes.
                   returned: success
@@ -2356,7 +2356,7 @@ resources:
               type: list
             allowOriginRegexes:
               description:
-              - Specifies the regualar expression patterns that match allowed origins.
+              - Specifies the regular expression patterns that match allowed origins.
                 For regular expression grammar please see en.cppreference.com/w/cpp/regex/ecmascript
                 An origin is allowed if it matches either an item in allowOrigins
                 or an item in allowOriginRegexes.
