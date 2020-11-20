@@ -331,7 +331,7 @@ options:
         type: dict
   disk_encryption_configuration:
     description:
-    - Disk encyption settings.
+    - Disk encryption settings.
     required: false
     type: dict
     suboptions:
@@ -342,7 +342,7 @@ options:
         type: str
   disk_encryption_status:
     description:
-    - Disk encyption status.
+    - Disk encryption status.
     required: false
     type: dict
     suboptions:
@@ -734,7 +734,7 @@ state:
   type: str
 diskEncryptionConfiguration:
   description:
-  - Disk encyption settings.
+  - Disk encryption settings.
   returned: success
   type: complex
   contains:
@@ -745,7 +745,7 @@ diskEncryptionConfiguration:
       type: str
 diskEncryptionStatus:
   description:
-  - Disk encyption status.
+  - Disk encryption status.
   returned: success
   type: complex
   contains:

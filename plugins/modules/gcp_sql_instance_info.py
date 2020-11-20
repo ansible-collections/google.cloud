@@ -434,7 +434,7 @@ resources:
       type: str
     diskEncryptionConfiguration:
       description:
-      - Disk encyption settings.
+      - Disk encryption settings.
       returned: success
       type: complex
       contains:
@@ -445,7 +445,7 @@ resources:
           type: str
     diskEncryptionStatus:
       description:
-      - Disk encyption status.
+      - Disk encryption status.
       returned: success
       type: complex
       contains:

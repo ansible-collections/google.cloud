@@ -248,7 +248,7 @@ resources:
       description:
       - A policy that specifies the conditions for dead lettering messages in this
         subscription. If dead_letter_policy is not set, dead lettering is disabled.
-      - The Cloud Pub/Sub service account associated with this subscriptions's parent
+      - The Cloud Pub/Sub service account associated with this subscription's parent
         project (i.e., service-{project_number}@gcp-sa-pubsub.iam.gserviceaccount.com)
         must have permission to Acknowledge() messages on this subscription.
       returned: success
