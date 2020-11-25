@@ -71,7 +71,7 @@ options:
           behave as though all responses from this backend had a "Cache-Control: public,
           max-age=[TTL]" header, regardless of any existing Cache-Control header.
           The actual headers served in responses will not be altered.'
-        required: true
+        required: false
         type: int
   description:
     description:
@@ -252,7 +252,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             bucket_name=dict(required=True, type='str'),
-            cdn_policy=dict(type='dict', options=dict(signed_url_cache_max_age_sec=dict(required=True, type='int'))),
+            cdn_policy=dict(type='dict', options=dict(signed_url_cache_max_age_sec=dict(type='int'))),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             name=dict(required=True, type='str'),
