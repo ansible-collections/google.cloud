@@ -209,6 +209,7 @@ options:
         - HTTP request body. A request body is allowed only if the HTTP method is
           POST or PUT. It will result in invalid argument error to set a body on a
           job with an incompatible HttpMethod.
+        - A base64-encoded string.
         required: false
         type: str
       headers:
@@ -241,6 +242,7 @@ options:
         - HTTP request body. A request body is allowed only if the HTTP method is
           POST, PUT, or PATCH. It is an error to set body on a job with an incompatible
           HttpMethod.
+        - A base64-encoded string.
         required: false
         type: str
       headers:
@@ -526,6 +528,7 @@ appEngineHttpTarget:
       - HTTP request body. A request body is allowed only if the HTTP method is POST
         or PUT. It will result in invalid argument error to set a body on a job with
         an incompatible HttpMethod.
+      - A base64-encoded string.
       returned: success
       type: str
     headers:
@@ -557,6 +560,7 @@ httpTarget:
       description:
       - HTTP request body. A request body is allowed only if the HTTP method is POST,
         PUT, or PATCH. It is an error to set body on a job with an incompatible HttpMethod.
+      - A base64-encoded string.
       returned: success
       type: str
     headers:
