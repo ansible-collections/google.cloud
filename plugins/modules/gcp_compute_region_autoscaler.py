@@ -506,7 +506,8 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind)
+                link="https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/autoscalers?autoscaler={name}".format(**module.params)
+                update(module, link, kind)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
