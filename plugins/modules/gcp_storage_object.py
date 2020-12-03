@@ -96,7 +96,7 @@ options:
 """
 
 EXAMPLES = """
-- name: create a object
+- name: Download an object
   google.cloud.gcp_storage_object:
     action: download
     bucket: ansible-bucket
