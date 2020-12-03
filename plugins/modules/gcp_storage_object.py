@@ -96,7 +96,7 @@ options:
 """
 
 EXAMPLES = """
-- name: create a object
+- name: Download an object
   google.cloud.gcp_storage_object:
     action: download
     bucket: ansible-bucket
@@ -105,7 +105,6 @@ EXAMPLES = """
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
-    state: present
 """
 
 RETURN = """
