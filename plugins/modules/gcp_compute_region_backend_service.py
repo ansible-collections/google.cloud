@@ -280,6 +280,66 @@ options:
         required: false
         default: '1024'
         type: int
+  cdn_policy:
+    description:
+    - Cloud CDN configuration for this BackendService.
+    required: false
+    type: dict
+    suboptions:
+      cache_key_policy:
+        description:
+        - The CacheKeyPolicy for this CdnPolicy.
+        required: false
+        type: dict
+        suboptions:
+          include_host:
+            description:
+            - If true requests to different hosts will be cached separately.
+            required: false
+            type: bool
+          include_protocol:
+            description:
+            - If true, http and https requests will be cached separately.
+            required: false
+            type: bool
+          include_query_string:
+            description:
+            - If true, include query string parameters in the cache key according
+              to query_string_whitelist and query_string_blacklist. If neither is
+              set, the entire query string will be included.
+            - If false, the query string will be excluded from the cache key entirely.
+            required: false
+            type: bool
+          query_string_blacklist:
+            description:
+            - Names of query string parameters to exclude in cache keys.
+            - All other parameters will be included. Either specify query_string_whitelist
+              or query_string_blacklist, not both.
+            - "'&' and '=' will be percent encoded and not treated as delimiters."
+            elements: str
+            required: false
+            type: list
+          query_string_whitelist:
+            description:
+            - Names of query string parameters to include in cache keys.
+            - All other parameters will be excluded. Either specify query_string_whitelist
+              or query_string_blacklist, not both.
+            - "'&' and '=' will be percent encoded and not treated as delimiters."
+            elements: str
+            required: false
+            type: list
+      signed_url_cache_max_age_sec:
+        description:
+        - Maximum number of seconds the response to a signed URL request will be considered
+          fresh, defaults to 1hr (3600s). After this time period, the response will
+          be revalidated before being served.
+        - 'When serving responses to signed URL requests, Cloud CDN will internally
+          behave as though all responses from this backend had a "Cache-Control: public,
+          max-age=[TTL]" header, regardless of any existing Cache-Control header.
+          The actual headers served in responses will not be altered.'
+        required: false
+        default: '3600'
+        type: int
   connection_draining:
     description:
     - Settings for connection draining .
@@ -335,6 +395,11 @@ options:
         - This field is only used with l4 load balancing.
         required: false
         type: str
+  enable_cdn:
+    description:
+    - If true, enable Cloud CDN for this RegionBackendService.
+    required: false
+    type: bool
   health_checks:
     description:
     - The set of URLs to HealthCheck resources for health checking this RegionBackendService.
@@ -894,6 +959,63 @@ consistentHash:
       - Defaults to 1024.
       returned: success
       type: int
+cdnPolicy:
+  description:
+  - Cloud CDN configuration for this BackendService.
+  returned: success
+  type: complex
+  contains:
+    cacheKeyPolicy:
+      description:
+      - The CacheKeyPolicy for this CdnPolicy.
+      returned: success
+      type: complex
+      contains:
+        includeHost:
+          description:
+          - If true requests to different hosts will be cached separately.
+          returned: success
+          type: bool
+        includeProtocol:
+          description:
+          - If true, http and https requests will be cached separately.
+          returned: success
+          type: bool
+        includeQueryString:
+          description:
+          - If true, include query string parameters in the cache key according to
+            query_string_whitelist and query_string_blacklist. If neither is set,
+            the entire query string will be included.
+          - If false, the query string will be excluded from the cache key entirely.
+          returned: success
+          type: bool
+        queryStringBlacklist:
+          description:
+          - Names of query string parameters to exclude in cache keys.
+          - All other parameters will be included. Either specify query_string_whitelist
+            or query_string_blacklist, not both.
+          - "'&' and '=' will be percent encoded and not treated as delimiters."
+          returned: success
+          type: list
+        queryStringWhitelist:
+          description:
+          - Names of query string parameters to include in cache keys.
+          - All other parameters will be excluded. Either specify query_string_whitelist
+            or query_string_blacklist, not both.
+          - "'&' and '=' will be percent encoded and not treated as delimiters."
+          returned: success
+          type: list
+    signedUrlCacheMaxAgeSec:
+      description:
+      - Maximum number of seconds the response to a signed URL request will be considered
+        fresh, defaults to 1hr (3600s). After this time period, the response will
+        be revalidated before being served.
+      - 'When serving responses to signed URL requests, Cloud CDN will internally
+        behave as though all responses from this backend had a "Cache-Control: public,
+        max-age=[TTL]" header, regardless of any existing Cache-Control header. The
+        actual headers served in responses will not be altered.'
+      returned: success
+      type: int
 connectionDraining:
   description:
   - Settings for connection draining .
@@ -953,6 +1075,11 @@ failoverPolicy:
       - This field is only used with l4 load balancing.
       returned: success
       type: str
+enableCDN:
+  description:
+  - If true, enable Cloud CDN for this RegionBackendService.
+  returned: success
+  type: bool
 fingerprint:
   description:
   - Fingerprint of this resource. A hash of the contents stored in this object. This
@@ -1263,6 +1390,22 @@ def main():
                     minimum_ring_size=dict(default=1024, type='int'),
                 ),
             ),
+            cdn_policy=dict(
+                type='dict',
+                options=dict(
+                    cache_key_policy=dict(
+                        type='dict',
+                        options=dict(
+                            include_host=dict(type='bool'),
+                            include_protocol=dict(type='bool'),
+                            include_query_string=dict(type='bool'),
+                            query_string_blacklist=dict(type='list', elements='str'),
+                            query_string_whitelist=dict(type='list', elements='str'),
+                        ),
+                    ),
+                    signed_url_cache_max_age_sec=dict(default=3600, type='int'),
+                ),
+            ),
             connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
             description=dict(type='str'),
             failover_policy=dict(
@@ -1271,6 +1414,7 @@ def main():
                     disable_connection_drain_on_failover=dict(type='bool'), drop_traffic_if_unhealthy=dict(type='bool'), failover_ratio=dict(type='str')
                 ),
             ),
+            enable_cdn=dict(type='bool'),
             health_checks=dict(type='list', elements='str'),
             load_balancing_scheme=dict(default='INTERNAL', type='str'),
             locality_lb_policy=dict(type='str'),
@@ -1354,9 +1498,11 @@ def resource_to_request(module):
         u'backends': RegionBackendServiceBackendsArray(module.params.get('backends', []), module).to_request(),
         u'circuitBreakers': RegionBackendServiceCircuitbreakers(module.params.get('circuit_breakers', {}), module).to_request(),
         u'consistentHash': RegionBackendServiceConsistenthash(module.params.get('consistent_hash', {}), module).to_request(),
+        u'cdnPolicy': RegionBackendServiceCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
         u'connectionDraining': RegionBackendServiceConnectiondraining(module.params.get('connection_draining', {}), module).to_request(),
         u'description': module.params.get('description'),
         u'failoverPolicy': RegionBackendServiceFailoverpolicy(module.params.get('failover_policy', {}), module).to_request(),
+        u'enableCDN': module.params.get('enable_cdn'),
         u'healthChecks': module.params.get('health_checks'),
         u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
         u'localityLbPolicy': module.params.get('locality_lb_policy'),
@@ -1437,10 +1583,12 @@ def response_to_hash(module, response):
         u'backends': RegionBackendServiceBackendsArray(response.get(u'backends', []), module).from_response(),
         u'circuitBreakers': RegionBackendServiceCircuitbreakers(response.get(u'circuitBreakers', {}), module).from_response(),
         u'consistentHash': RegionBackendServiceConsistenthash(response.get(u'consistentHash', {}), module).from_response(),
+        u'cdnPolicy': RegionBackendServiceCdnpolicy(response.get(u'cdnPolicy', {}), module).from_response(),
         u'connectionDraining': RegionBackendServiceConnectiondraining(response.get(u'connectionDraining', {}), module).from_response(),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'description': response.get(u'description'),
         u'failoverPolicy': RegionBackendServiceFailoverpolicy(response.get(u'failoverPolicy', {}), module).from_response(),
+        u'enableCDN': response.get(u'enableCDN'),
         u'fingerprint': response.get(u'fingerprint'),
         u'healthChecks': response.get(u'healthChecks'),
         u'id': response.get(u'id'),
@@ -1647,6 +1795,62 @@ class RegionBackendServiceTtl(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+
+
+class RegionBackendServiceCdnpolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'cacheKeyPolicy': RegionBackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request(),
+                u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'cacheKeyPolicy': RegionBackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response(),
+                u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
+            }
+        )
+
+
+class RegionBackendServiceCachekeypolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'includeHost': self.request.get('include_host'),
+                u'includeProtocol': self.request.get('include_protocol'),
+                u'includeQueryString': self.request.get('include_query_string'),
+                u'queryStringBlacklist': self.request.get('query_string_blacklist'),
+                u'queryStringWhitelist': self.request.get('query_string_whitelist'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'includeHost': self.request.get(u'includeHost'),
+                u'includeProtocol': self.request.get(u'includeProtocol'),
+                u'includeQueryString': self.request.get(u'includeQueryString'),
+                u'queryStringBlacklist': self.request.get(u'queryStringBlacklist'),
+                u'queryStringWhitelist': self.request.get(u'queryStringWhitelist'),
+            }
+        )
 
 
 class RegionBackendServiceConnectiondraining(object):

@@ -347,6 +347,63 @@ resources:
           - Defaults to 1024.
           returned: success
           type: int
+    cdnPolicy:
+      description:
+      - Cloud CDN configuration for this BackendService.
+      returned: success
+      type: complex
+      contains:
+        cacheKeyPolicy:
+          description:
+          - The CacheKeyPolicy for this CdnPolicy.
+          returned: success
+          type: complex
+          contains:
+            includeHost:
+              description:
+              - If true requests to different hosts will be cached separately.
+              returned: success
+              type: bool
+            includeProtocol:
+              description:
+              - If true, http and https requests will be cached separately.
+              returned: success
+              type: bool
+            includeQueryString:
+              description:
+              - If true, include query string parameters in the cache key according
+                to query_string_whitelist and query_string_blacklist. If neither is
+                set, the entire query string will be included.
+              - If false, the query string will be excluded from the cache key entirely.
+              returned: success
+              type: bool
+            queryStringBlacklist:
+              description:
+              - Names of query string parameters to exclude in cache keys.
+              - All other parameters will be included. Either specify query_string_whitelist
+                or query_string_blacklist, not both.
+              - "'&' and '=' will be percent encoded and not treated as delimiters."
+              returned: success
+              type: list
+            queryStringWhitelist:
+              description:
+              - Names of query string parameters to include in cache keys.
+              - All other parameters will be excluded. Either specify query_string_whitelist
+                or query_string_blacklist, not both.
+              - "'&' and '=' will be percent encoded and not treated as delimiters."
+              returned: success
+              type: list
+        signedUrlCacheMaxAgeSec:
+          description:
+          - Maximum number of seconds the response to a signed URL request will be
+            considered fresh, defaults to 1hr (3600s). After this time period, the
+            response will be revalidated before being served.
+          - 'When serving responses to signed URL requests, Cloud CDN will internally
+            behave as though all responses from this backend had a "Cache-Control:
+            public, max-age=[TTL]" header, regardless of any existing Cache-Control
+            header. The actual headers served in responses will not be altered.'
+          returned: success
+          type: int
     connectionDraining:
       description:
       - Settings for connection draining .
@@ -407,6 +464,11 @@ resources:
           - This field is only used with l4 load balancing.
           returned: success
           type: str
+    enableCDN:
+      description:
+      - If true, enable Cloud CDN for this RegionBackendService.
+      returned: success
+      type: bool
     fingerprint:
       description:
       - Fingerprint of this resource. A hash of the contents stored in this object.
