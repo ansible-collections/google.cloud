@@ -408,11 +408,6 @@ resources:
       - Headers that the HTTP/S load balancer should add to proxied requests.
       returned: success
       type: list
-    customResponseHeaders:
-      description:
-      - Headers that the HTTP/S load balancer should add to proxied responses.
-      returned: success
-      type: list
     fingerprint:
       description:
       - Fingerprint of this resource. A hash of the contents stored in this object.
