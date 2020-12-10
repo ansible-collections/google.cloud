@@ -89,8 +89,11 @@ options:
     - 'The purpose of this resource, which can be one of the following values: * GCE_ENDPOINT
       for addresses that are used by VM instances, alias IP ranges, internal load
       balancers, and similar resources.'
+    - "* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal
+      load balancers."
+    - "* VPC_PEERING for addresses that are reserved for VPC peer networks."
     - This should only be set when using an Internal address.
-    - 'Some valid choices include: "GCE_ENDPOINT"'
+    - 'Some valid choices include: "GCE_ENDPOINT", "VPC_PEERING", "SHARED_LOADBALANCER_VIP"'
     required: false
     type: str
   network_tier:
@@ -226,6 +229,9 @@ purpose:
   - 'The purpose of this resource, which can be one of the following values: * GCE_ENDPOINT
     for addresses that are used by VM instances, alias IP ranges, internal load balancers,
     and similar resources.'
+  - "* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal
+    load balancers."
+  - "* VPC_PEERING for addresses that are reserved for VPC peer networks."
   - This should only be set when using an Internal address.
   returned: success
   type: str
