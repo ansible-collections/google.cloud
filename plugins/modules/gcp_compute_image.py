@@ -88,7 +88,7 @@ options:
         description:
         - The type of supported feature.
         - 'Some valid choices include: "MULTI_IP_SUBNET", "SECURE_BOOT", "SEV_CAPABLE",
-          "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS"'
+          "UEFI_COMPATIBLE", "VIRTIO_SCSI_MULTIQUEUE", "WINDOWS", "GVNIC"'
         required: true
         type: str
   image_encryption_key:
