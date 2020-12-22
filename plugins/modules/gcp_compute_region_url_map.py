@@ -124,7 +124,7 @@ options:
           key ''selfLink'' and value of your resource''s selfLink Alternatively, you
           can add `register: name-of-resource` to a gcp_compute_region_backend_service
           task and then set this default_service field to "{{ name-of-resource }}"'
-        required: true
+        required: false
         type: dict
       description:
         description:
@@ -3143,7 +3143,7 @@ def main():
                 type='list',
                 elements='dict',
                 options=dict(
-                    default_service=dict(required=True, type='dict'),
+                    default_service=dict(type='dict'),
                     description=dict(type='str'),
                     name=dict(required=True, type='str'),
                     route_rules=dict(
