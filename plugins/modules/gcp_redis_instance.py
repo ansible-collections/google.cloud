@@ -54,6 +54,14 @@ options:
     - If provided, it must be a different zone from the one provided in [locationId].
     required: false
     type: str
+  auth_enabled:
+    description:
+    - Optional. Indicates whether OSS Redis AUTH is enabled for the instance. If set
+      to "true" AUTH is enabled on the instance.
+    - Default value is "false" meaning AUTH is disabled.
+    required: false
+    default: 'false'
+    type: bool
   authorized_network:
     description:
     - The full name of the Google Compute Engine network to which the instance is
@@ -222,6 +230,13 @@ alternativeLocationId:
   - If provided, it must be a different zone from the one provided in [locationId].
   returned: success
   type: str
+authEnabled:
+  description:
+  - Optional. Indicates whether OSS Redis AUTH is enabled for the instance. If set
+    to "true" AUTH is enabled on the instance.
+  - Default value is "false" meaning AUTH is disabled.
+  returned: success
+  type: bool
 authorizedNetwork:
   description:
   - The full name of the Google Compute Engine network to which the instance is connected.
@@ -350,6 +365,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             alternative_location_id=dict(type='str'),
+            auth_enabled=dict(type='bool'),
             authorized_network=dict(type='str'),
             connect_mode=dict(default='DIRECT_PEERING', type='str'),
             display_name=dict(type='str'),
@@ -410,6 +426,8 @@ def update(module, link, fetch):
 
 def updateMask(request, response):
     update_mask = []
+    if request.get('authEnabled') != response.get('authEnabled'):
+        update_mask.append('authEnabled')
     if request.get('displayName') != response.get('displayName'):
         update_mask.append('displayName')
     if request.get('labels') != response.get('labels'):
@@ -429,6 +447,7 @@ def delete(module, link):
 def resource_to_request(module):
     request = {
         u'alternativeLocationId': module.params.get('alternative_location_id'),
+        u'authEnabled': module.params.get('auth_enabled'),
         u'authorizedNetwork': module.params.get('authorized_network'),
         u'connectMode': module.params.get('connect_mode'),
         u'displayName': module.params.get('display_name'),
@@ -510,6 +529,7 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'alternativeLocationId': module.params.get('alternative_location_id'),
+        u'authEnabled': response.get(u'authEnabled'),
         u'authorizedNetwork': module.params.get('authorized_network'),
         u'connectMode': module.params.get('connect_mode'),
         u'createTime': response.get(u'createTime'),
