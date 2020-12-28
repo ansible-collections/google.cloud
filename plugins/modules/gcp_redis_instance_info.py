@@ -117,6 +117,13 @@ resources:
       - If provided, it must be a different zone from the one provided in [locationId].
       returned: success
       type: str
+    authEnabled:
+      description:
+      - Optional. Indicates whether OSS Redis AUTH is enabled for the instance. If
+        set to "true" AUTH is enabled on the instance.
+      - Default value is "false" meaning AUTH is disabled.
+      returned: success
+      type: bool
     authorizedNetwork:
       description:
       - The full name of the Google Compute Engine network to which the instance is
