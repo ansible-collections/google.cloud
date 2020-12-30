@@ -49,6 +49,15 @@ options:
     - absent
     default: present
     type: str
+  is_mirroring_collector:
+    description:
+    - Indicates whether or not this load balancer can be used as a collector for packet
+      mirroring. To prevent mirroring loops, instances behind this load balancer will
+      not have their traffic mirrored even if a PacketMirroring rule applies to them.
+      This can only be set to true for load balancers that have their loadBalancingScheme
+      set to INTERNAL.
+    required: false
+    type: bool
   description:
     description:
     - An optional description of this resource. Provide this property when you create
@@ -309,6 +318,15 @@ creationTimestamp:
   - Creation timestamp in RFC3339 text format.
   returned: success
   type: str
+isMirroringCollector:
+  description:
+  - Indicates whether or not this load balancer can be used as a collector for packet
+    mirroring. To prevent mirroring loops, instances behind this load balancer will
+    not have their traffic mirrored even if a PacketMirroring rule applies to them.
+    This can only be set to true for load balancers that have their loadBalancingScheme
+    set to INTERNAL.
+  returned: success
+  type: bool
 description:
   description:
   - An optional description of this resource. Provide this property when you create
@@ -487,6 +505,7 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
+            is_mirroring_collector=dict(type='bool'),
             description=dict(type='str'),
             ip_address=dict(type='str'),
             ip_protocol=dict(type='str'),
@@ -578,6 +597,7 @@ def delete(module, link, kind):
 def resource_to_request(module):
     request = {
         u'kind': 'compute#forwardingRule',
+        u'isMirroringCollector': module.params.get('is_mirroring_collector'),
         u'description': module.params.get('description'),
         u'IPAddress': module.params.get('ip_address'),
         u'IPProtocol': module.params.get('ip_protocol'),
@@ -659,6 +679,7 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'creationTimestamp': response.get(u'creationTimestamp'),
+        u'isMirroringCollector': response.get(u'isMirroringCollector'),
         u'description': response.get(u'description'),
         u'id': response.get(u'id'),
         u'IPAddress': response.get(u'IPAddress'),
