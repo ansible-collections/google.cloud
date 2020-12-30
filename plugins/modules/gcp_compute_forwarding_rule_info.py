@@ -125,6 +125,15 @@ resources:
       - Creation timestamp in RFC3339 text format.
       returned: success
       type: str
+    isMirroringCollector:
+      description:
+      - Indicates whether or not this load balancer can be used as a collector for
+        packet mirroring. To prevent mirroring loops, instances behind this load balancer
+        will not have their traffic mirrored even if a PacketMirroring rule applies
+        to them. This can only be set to true for load balancers that have their loadBalancingScheme
+        set to INTERNAL.
+      returned: success
+      type: bool
     description:
       description:
       - An optional description of this resource. Provide this property when you create
