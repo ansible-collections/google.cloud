@@ -409,9 +409,9 @@ resources:
         settingsVersion:
           description:
           - The version of instance settings. This is a required field for update
-            method to make sure concurrent updates are handled properly. During update,
-            use the most recent settingsVersion value for this instance and do not
-            try to update this value.
+            method to make sure concurrent updates are handled properly.
+          - During update, use the most recent settingsVersion value for this instance
+            and do not try to update this value.
           returned: success
           type: int
         userLabels:
