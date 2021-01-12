@@ -114,8 +114,8 @@ options:
     type: dict
   zone:
     description:
-    - The GCP location for the TPU.
-    required: true
+    - The GCP location for the TPU. If it is not provided, the provider zone is used.
+    required: false
     type: str
   project:
     description:
@@ -275,7 +275,7 @@ labels:
   type: dict
 zone:
   description:
-  - The GCP location for the TPU.
+  - The GCP location for the TPU. If it is not provided, the provider zone is used.
   returned: success
   type: str
 '''
@@ -315,7 +315,7 @@ def main():
             use_service_networking=dict(type='bool'),
             scheduling_config=dict(type='dict', options=dict(preemptible=dict(required=True, type='bool'))),
             labels=dict(type='dict'),
-            zone=dict(required=True, type='str'),
+            zone=dict(type='str'),
         ),
         mutually_exclusive=[['cidr_block', 'use_service_networking']],
     )
