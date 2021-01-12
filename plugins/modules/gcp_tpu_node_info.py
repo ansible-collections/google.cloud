@@ -41,8 +41,8 @@ requirements:
 options:
   zone:
     description:
-    - The GCP location for the TPU.
-    required: true
+    - The GCP location for the TPU. If it is not provided, the provider zone is used.
+    required: false
     type: str
   project:
     description:
@@ -202,7 +202,8 @@ resources:
       type: dict
     zone:
       description:
-      - The GCP location for the TPU.
+      - The GCP location for the TPU. If it is not provided, the provider zone is
+        used.
       returned: success
       type: str
 '''
@@ -219,7 +220,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(zone=dict(required=True, type='str')))
+    module = GcpModule(argument_spec=dict(zone=dict(type='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
