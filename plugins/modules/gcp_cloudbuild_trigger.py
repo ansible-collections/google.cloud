@@ -411,7 +411,8 @@ options:
               be run directly. If not, the host will attempt to pull the image first,
               using the builder service account's credentials if necessary.
             - The Docker daemon's cache will already have the latest versions of all
-              of the officially supported build steps (U(https://github.com/GoogleCloudPlatform/cloud-builders)).
+              of the officially supported build steps (see U(https://github.com/GoogleCloudPlatform/cloud-builders)
+              for images and examples).
             - The Docker daemon will also have cached many of the layers for some
               popular images, like "ubuntu", "debian", but they will be refreshed
               at the time you attempt to use them.
@@ -1118,7 +1119,8 @@ build:
             be run directly. If not, the host will attempt to pull the image first,
             using the builder service account's credentials if necessary.
           - The Docker daemon's cache will already have the latest versions of all
-            of the officially supported build steps (U(https://github.com/GoogleCloudPlatform/cloud-builders)).
+            of the officially supported build steps (see U(https://github.com/GoogleCloudPlatform/cloud-builders)
+            for images and examples).
           - The Docker daemon will also have cached many of the layers for some popular
             images, like "ubuntu", "debian", but they will be refreshed at the time
             you attempt to use them.
