@@ -717,8 +717,8 @@ def create(module, link):
 
 
 def update(module, link):
-    delete(module, self_link(module))
-    create(module, collection(module))
+    auth = GcpSession(module, 'cloudscheduler')
+    return return_if_object(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link):
@@ -807,14 +807,14 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'schedule': module.params.get('schedule'),
-        u'timeZone': module.params.get('time_zone'),
-        u'attemptDeadline': module.params.get('attempt_deadline'),
-        u'retryConfig': JobRetryconfig(module.params.get('retry_config', {}), module).to_request(),
-        u'pubsubTarget': JobPubsubtarget(module.params.get('pubsub_target', {}), module).to_request(),
-        u'appEngineHttpTarget': JobAppenginehttptarget(module.params.get('app_engine_http_target', {}), module).to_request(),
-        u'httpTarget': JobHttptarget(module.params.get('http_target', {}), module).to_request(),
+        u'description': response.get(u'description'),
+        u'schedule': response.get(u'schedule'),
+        u'timeZone': response.get(u'timeZone'),
+        u'attemptDeadline': response.get(u'attemptDeadline'),
+        u'retryConfig': JobRetryconfig(response.get(u'retryConfig', {}), module).from_response(),
+        u'pubsubTarget': JobPubsubtarget(response.get(u'pubsubTarget', {}), module).from_response(),
+        u'appEngineHttpTarget': JobAppenginehttptarget(response.get(u'appEngineHttpTarget', {}), module).from_response(),
+        u'httpTarget': JobHttptarget(response.get(u'httpTarget', {}), module).from_response(),
     }
 
 
@@ -852,11 +852,11 @@ class JobRetryconfig(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'retryCount': self.module.params.get('retry_count'),
-                u'maxRetryDuration': self.module.params.get('max_retry_duration'),
-                u'minBackoffDuration': self.module.params.get('min_backoff_duration'),
-                u'maxBackoffDuration': self.module.params.get('max_backoff_duration'),
-                u'maxDoublings': self.module.params.get('max_doublings'),
+                u'retryCount': self.request.get(u'retryCount'),
+                u'maxRetryDuration': self.request.get(u'maxRetryDuration'),
+                u'minBackoffDuration': self.request.get(u'minBackoffDuration'),
+                u'maxBackoffDuration': self.request.get(u'maxBackoffDuration'),
+                u'maxDoublings': self.request.get(u'maxDoublings'),
             }
         )
 
@@ -876,7 +876,7 @@ class JobPubsubtarget(object):
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'topicName': self.module.params.get('topic_name'), u'data': self.module.params.get('data'), u'attributes': self.module.params.get('attributes')}
+            {u'topicName': self.request.get(u'topicName'), u'data': self.request.get(u'data'), u'attributes': self.request.get(u'attributes')}
         )
 
 
@@ -902,11 +902,11 @@ class JobAppenginehttptarget(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'httpMethod': self.module.params.get('http_method'),
-                u'appEngineRouting': JobAppenginerouting(self.module.params.get('app_engine_routing', {}), self.module).to_request(),
+                u'httpMethod': self.request.get(u'httpMethod'),
+                u'appEngineRouting': JobAppenginerouting(self.request.get(u'appEngineRouting', {}), self.module).from_response(),
                 u'relativeUri': self.request.get(u'relativeUri'),
-                u'body': self.module.params.get('body'),
-                u'headers': self.module.params.get('headers'),
+                u'body': self.request.get(u'body'),
+                u'headers': self.request.get(u'headers'),
             }
         )
 
@@ -926,7 +926,7 @@ class JobAppenginerouting(object):
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'service': self.module.params.get('service'), u'version': self.module.params.get('version'), u'instance': self.module.params.get('instance')}
+            {u'service': self.request.get(u'service'), u'version': self.request.get(u'version'), u'instance': self.request.get(u'instance')}
         )
 
 
@@ -957,8 +957,8 @@ class JobHttptarget(object):
                 u'httpMethod': self.request.get(u'httpMethod'),
                 u'body': self.request.get(u'body'),
                 u'headers': self.request.get(u'headers'),
-                u'oauthToken': JobOauthtoken(self.module.params.get('oauth_token', {}), self.module).to_request(),
-                u'oidcToken': JobOidctoken(self.module.params.get('oidc_token', {}), self.module).to_request(),
+                u'oauthToken': JobOauthtoken(self.request.get(u'oauthToken', {}), self.module).from_response(),
+                u'oidcToken': JobOidctoken(self.request.get(u'oidcToken', {}), self.module).from_response(),
             }
         )
 
