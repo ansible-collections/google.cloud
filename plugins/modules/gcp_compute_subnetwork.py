@@ -386,12 +386,12 @@ def update(module, link, kind, fetch):
 def update_fields(module, request, response):
     if response.get('ipCidrRange') != request.get('ipCidrRange'):
         ip_cidr_range_update(module, request, response)
-    if response.get('secondaryIpRanges') != request.get('secondaryIpRanges'):
+    if response.get('secondaryIpRanges') != request.get('secondaryIpRanges') or response.get('privateIpv6GoogleAccess') != request.get(
+        'privateIpv6GoogleAccess'
+    ):
         secondary_ip_ranges_update(module, request, response)
     if response.get('privateIpGoogleAccess') != request.get('privateIpGoogleAccess'):
         private_ip_google_access_update(module, request, response)
-    if response.get('privateIpv6GoogleAccess') != request.get('privateIpv6GoogleAccess'):
-        private_ipv6_google_access_update(module, request, response)
 
 
 def ip_cidr_range_update(module, request, response):
@@ -408,7 +408,10 @@ def secondary_ip_ranges_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.patch(
         ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/subnetworks/{name}"]).format(**module.params),
-        {u'secondaryIpRanges': SubnetworkSecondaryiprangesArray(module.params.get('secondary_ip_ranges', []), module).to_request()},
+        {
+            u'secondaryIpRanges': SubnetworkSecondaryiprangesArray(module.params.get('secondary_ip_ranges', []), module).to_request(),
+            u'privateIpv6GoogleAccess': module.params.get('private_ipv6_google_access'),
+        },
     )
 
 
@@ -419,14 +422,6 @@ def private_ip_google_access_update(module, request, response):
             **module.params
         ),
         {u'privateIpGoogleAccess': module.params.get('private_ip_google_access')},
-    )
-
-
-def private_ipv6_google_access_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.patch(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/subnetworks/{name}"]).format(**module.params),
-        {u'privateIpv6GoogleAccess': module.params.get('private_ipv6_google_access')},
     )
 
 
