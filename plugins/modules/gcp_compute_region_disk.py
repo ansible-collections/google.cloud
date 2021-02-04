@@ -424,9 +424,9 @@ def main():
             replica_zones=dict(required=True, type='list', elements='str'),
             type=dict(type='str'),
             region=dict(required=True, type='str'),
-            disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
+            disk_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
             source_snapshot=dict(type='dict'),
-            source_snapshot_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
+            source_snapshot_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
         )
     )
 

@@ -381,10 +381,10 @@ def main():
             source_disk=dict(required=True, type='dict'),
             zone=dict(type='str'),
             snapshot_encryption_key=dict(
-                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
             ),
             source_disk_encryption_key=dict(
-                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
             ),
         )
     )
