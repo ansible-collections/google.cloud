@@ -552,14 +552,14 @@ def main():
             source_image=dict(type='str'),
             zone=dict(required=True, type='str'),
             source_image_encryption_key=dict(
-                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
             ),
             disk_encryption_key=dict(
-                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
             ),
-            source_snapshot=dict(type='dict'),
+            source_snapshot=dict(type='dict', no_log=True),
             source_snapshot_encryption_key=dict(
-                type='dict', options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
             ),
         )
     )

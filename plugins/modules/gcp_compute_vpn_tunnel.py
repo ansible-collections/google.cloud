@@ -409,7 +409,7 @@ def main():
             peer_gcp_gateway=dict(type='dict'),
             router=dict(type='dict'),
             peer_ip=dict(type='str'),
-            shared_secret=dict(required=True, type='str'),
+            shared_secret=dict(required=True, type='str', no_log=True),
             ike_version=dict(default=2, type='int'),
             local_traffic_selector=dict(type='list', elements='str'),
             remote_traffic_selector=dict(type='list', elements='str'),
