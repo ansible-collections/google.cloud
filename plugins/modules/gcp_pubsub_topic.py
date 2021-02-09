@@ -261,6 +261,8 @@ def update(module, link, fetch):
 
 def updateMask(request, response):
     update_mask = []
+    if request.get('kmsKeyName') != response.get('kmsKeyName'):
+        update_mask.append('kmsKeyName')
     if request.get('labels') != response.get('labels'):
         update_mask.append('labels')
     if request.get('messageStoragePolicy') != response.get('messageStoragePolicy'):
@@ -345,7 +347,7 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'name': name_pattern(module.params.get('name'), module),
-        u'kmsKeyName': module.params.get('kms_key_name'),
+        u'kmsKeyName': response.get(u'kmsKeyName'),
         u'labels': response.get(u'labels'),
         u'messageStoragePolicy': TopicMessagestoragepolicy(response.get(u'messageStoragePolicy', {}), module).from_response(),
     }
