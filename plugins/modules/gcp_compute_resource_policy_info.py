@@ -244,7 +244,7 @@ resources:
               type: bool
     groupPlacementPolicy:
       description:
-      - Policy for creating snapshots of persistent disks.
+      - Resource policy for instances used for placement configuration.
       returned: success
       type: complex
       contains:
