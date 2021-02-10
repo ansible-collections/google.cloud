@@ -179,7 +179,7 @@ options:
             type: bool
   group_placement_policy:
     description:
-    - Policy for creating snapshots of persistent disks.
+    - Resource policy for instances used for placement configuration.
     required: false
     type: dict
     suboptions:
@@ -391,7 +391,7 @@ snapshotSchedulePolicy:
           type: bool
 groupPlacementPolicy:
   description:
-  - Policy for creating snapshots of persistent disks.
+  - Resource policy for instances used for placement configuration.
   returned: success
   type: complex
   contains:
