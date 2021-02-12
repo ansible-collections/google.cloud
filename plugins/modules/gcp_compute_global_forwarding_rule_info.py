@@ -155,7 +155,9 @@ resources:
     IPProtocol:
       description:
       - The IP protocol to which this rule applies. When the load balancing scheme
-        is INTERNAL_SELF_MANAGED, only TCP is valid.
+        is INTERNAL_SELF_MANAGED, only TCP is valid. This field must not be set if
+        the global address is configured as a purpose of PRIVATE_SERVICE_CONNECT and
+        addressType of INTERNAL .
       returned: success
       type: str
     ipVersion:
@@ -169,7 +171,9 @@ resources:
       - 'The value of INTERNAL_SELF_MANAGED means that this will be used for Internal
         Global HTTP(S) LB. The value of EXTERNAL means that this will be used for
         External Global Load Balancing (HTTP(S) LB, External TCP/UDP LB, SSL Proxy)
-        NOTE: Currently global forwarding rules cannot be used for INTERNAL load balancing.'
+        ([Beta](U(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+        only) Note: This field must be set "" if the global address is configured
+        as a purpose of PRIVATE_SERVICE_CONNECT and addressType of INTERNAL.'
       returned: success
       type: str
     metadataFilters:
@@ -259,6 +263,9 @@ resources:
       - The forwarded traffic must be of a type appropriate to the target object.
       - For INTERNAL_SELF_MANAGED load balancing, only HTTP and HTTPS targets are
         valid.
+      - ([Beta](U(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+        only) For global address with a purpose of PRIVATE_SERVICE_CONNECT and addressType
+        of INTERNAL, only "all-apis" and "vpc-sc" are valid.
       returned: success
       type: str
 '''
