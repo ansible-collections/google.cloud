@@ -67,6 +67,13 @@ options:
     - An optional description of this resource.
     required: false
     type: str
+  mtu:
+    description:
+    - Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect
+      attachment. Currently, only 1440 and 1500 are allowed. If not specified, the
+      value will default to 1440.
+    required: false
+    type: str
   bandwidth:
     description:
     - Provisioned bandwidth capacity for the interconnect attachment.
@@ -226,6 +233,13 @@ description:
   - An optional description of this resource.
   returned: success
   type: str
+mtu:
+  description:
+  - Maximum Transmission Unit (MTU), in bytes, of packets passing through this interconnect
+    attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value
+    will default to 1440.
+  returned: success
+  type: str
 bandwidth:
   description:
   - Provisioned bandwidth capacity for the interconnect attachment.
@@ -371,6 +385,7 @@ def main():
             admin_enabled=dict(default=True, type='bool'),
             interconnect=dict(type='str'),
             description=dict(type='str'),
+            mtu=dict(type='str'),
             bandwidth=dict(type='str'),
             edge_availability_domain=dict(type='str'),
             type=dict(type='str'),
@@ -434,6 +449,7 @@ def resource_to_request(module):
         u'adminEnabled': module.params.get('admin_enabled'),
         u'interconnect': module.params.get('interconnect'),
         u'description': module.params.get('description'),
+        u'mtu': module.params.get('mtu'),
         u'bandwidth': module.params.get('bandwidth'),
         u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
         u'type': module.params.get('type'),
@@ -511,6 +527,7 @@ def response_to_hash(module, response):
         u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
         u'interconnect': module.params.get('interconnect'),
         u'description': response.get(u'description'),
+        u'mtu': response.get(u'mtu'),
         u'bandwidth': response.get(u'bandwidth'),
         u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
         u'pairingKey': response.get(u'pairingKey'),
