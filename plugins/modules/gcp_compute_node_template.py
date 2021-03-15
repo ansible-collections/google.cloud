@@ -88,6 +88,35 @@ options:
         - Physical memory available to the node, defined in MB.
         required: false
         type: str
+  server_binding:
+    description:
+    - The server binding policy for nodes using this template. Determines where the
+      nodes should restart following a maintenance event.
+    required: false
+    type: dict
+    suboptions:
+      type:
+        description:
+        - Type of server binding policy. If `RESTART_NODE_ON_ANY_SERVER`, nodes using
+          this template will restart on any physical server following a maintenance
+          event.
+        - If `RESTART_NODE_ON_MINIMAL_SERVER`, nodes using this template will restart
+          on the same physical server following a maintenance event, instead of being
+          live migrated to or restarted on a new physical server. This option may
+          be useful if you are using software licenses tied to the underlying server
+          characteristics such as physical sockets or cores, to avoid the need for
+          additional licenses when maintenance occurs. However, VMs on such nodes
+          will experience outages while maintenance is applied.
+        - 'Some valid choices include: "RESTART_NODE_ON_ANY_SERVER", "RESTART_NODE_ON_MINIMAL_SERVERS"'
+        required: true
+        type: str
+  cpu_overcommit_type:
+    description:
+    - CPU overcommit.
+    - 'Some valid choices include: "ENABLED", "NONE"'
+    required: false
+    default: NONE
+    type: str
   region:
     description:
     - Region where nodes using the node template will be created .
@@ -208,6 +237,32 @@ nodeTypeFlexibility:
       - Use local SSD .
       returned: success
       type: str
+serverBinding:
+  description:
+  - The server binding policy for nodes using this template. Determines where the
+    nodes should restart following a maintenance event.
+  returned: success
+  type: complex
+  contains:
+    type:
+      description:
+      - Type of server binding policy. If `RESTART_NODE_ON_ANY_SERVER`, nodes using
+        this template will restart on any physical server following a maintenance
+        event.
+      - If `RESTART_NODE_ON_MINIMAL_SERVER`, nodes using this template will restart
+        on the same physical server following a maintenance event, instead of being
+        live migrated to or restarted on a new physical server. This option may be
+        useful if you are using software licenses tied to the underlying server characteristics
+        such as physical sockets or cores, to avoid the need for additional licenses
+        when maintenance occurs. However, VMs on such nodes will experience outages
+        while maintenance is applied.
+      returned: success
+      type: str
+cpuOvercommitType:
+  description:
+  - CPU overcommit.
+  returned: success
+  type: str
 region:
   description:
   - Region where nodes using the node template will be created .
@@ -247,6 +302,8 @@ def main():
             node_affinity_labels=dict(type='dict'),
             node_type=dict(type='str'),
             node_type_flexibility=dict(type='dict', options=dict(cpus=dict(type='str'), memory=dict(type='str'))),
+            server_binding=dict(type='dict', options=dict(type=dict(required=True, type='str'))),
+            cpu_overcommit_type=dict(default='NONE', type='str'),
             region=dict(required=True, type='str'),
         ),
         mutually_exclusive=[['node_type', 'node_type_flexibility']],
@@ -306,6 +363,8 @@ def resource_to_request(module):
         u'nodeAffinityLabels': module.params.get('node_affinity_labels'),
         u'nodeType': module.params.get('node_type'),
         u'nodeTypeFlexibility': NodeTemplateNodetypeflexibility(module.params.get('node_type_flexibility', {}), module).to_request(),
+        u'serverBinding': NodeTemplateServerbinding(module.params.get('server_binding', {}), module).to_request(),
+        u'cpuOvercommitType': module.params.get('cpu_overcommit_type'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -377,6 +436,8 @@ def response_to_hash(module, response):
         u'nodeAffinityLabels': response.get(u'nodeAffinityLabels'),
         u'nodeType': response.get(u'nodeType'),
         u'nodeTypeFlexibility': NodeTemplateNodetypeflexibility(response.get(u'nodeTypeFlexibility', {}), module).from_response(),
+        u'serverBinding': NodeTemplateServerbinding(response.get(u'serverBinding', {}), module).from_response(),
+        u'cpuOvercommitType': response.get(u'cpuOvercommitType'),
     }
 
 
@@ -437,6 +498,21 @@ class NodeTemplateNodetypeflexibility(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'cpus': self.request.get(u'cpus'), u'memory': self.request.get(u'memory')})
+
+
+class NodeTemplateServerbinding(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'type': self.request.get('type')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'type': self.request.get(u'type')})
 
 
 if __name__ == '__main__':

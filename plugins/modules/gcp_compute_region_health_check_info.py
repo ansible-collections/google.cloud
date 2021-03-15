@@ -465,9 +465,9 @@ resources:
       contains:
         port:
           description:
-          - The port number for the health check request. Must be specified if portName
-            and portSpecification are not set or if port_specification is USE_FIXED_PORT.
-            Valid values are 1 through 65535.
+          - The port number for the health check request.
+          - Must be specified if portName and portSpecification are not set or if
+            port_specification is USE_FIXED_PORT. Valid values are 1 through 65535.
           returned: success
           type: int
         portName:
@@ -492,9 +492,9 @@ resources:
           type: str
         grpcServiceName:
           description:
-          - 'The gRPC service name for the health check. The value of grpcServiceName
-            has the following meanings by convention: * Empty serviceName means the
-            overall status of all services at the backend.'
+          - The gRPC service name for the health check.
+          - 'The value of grpcServiceName has the following meanings by convention:
+            * Empty serviceName means the overall status of all services at the backend.'
           - "* Non-empty serviceName means the health of that gRPC service, as defined
             by the owner of the service."
           - The grpcServiceName can only be ASCII.
