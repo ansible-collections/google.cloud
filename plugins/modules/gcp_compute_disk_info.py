@@ -336,7 +336,8 @@ resources:
         kmsKeyServiceAccount:
           description:
           - The service account used for the encryption request for the given KMS
-            key. If absent, the Compute Engine Service Agent service account is used.
+            key.
+          - If absent, the Compute Engine Service Agent service account is used.
           returned: success
           type: str
     sourceSnapshotId:
