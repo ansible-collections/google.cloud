@@ -79,6 +79,12 @@ options:
       field to "{{ name-of-resource }}"'
     required: true
     type: dict
+  proxy_bind:
+    description:
+    - This field only applies when the forwarding rule that references this target
+      proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+    required: false
+    type: bool
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -221,6 +227,12 @@ service:
   - A reference to the BackendService resource.
   returned: success
   type: dict
+proxyBind:
+  description:
+  - This field only applies when the forwarding rule that references this target proxy
+    has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+  returned: success
+  type: bool
 '''
 
 ################################################################################
@@ -246,6 +258,7 @@ def main():
             name=dict(required=True, type='str'),
             proxy_header=dict(type='str'),
             service=dict(required=True, type='dict'),
+            proxy_bind=dict(type='bool'),
         )
     )
 
@@ -325,6 +338,7 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'proxyHeader': module.params.get('proxy_header'),
         u'service': replace_resource_dict(module.params.get(u'service', {}), 'selfLink'),
+        u'proxyBind': module.params.get('proxy_bind'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -396,6 +410,7 @@ def response_to_hash(module, response):
         u'name': module.params.get('name'),
         u'proxyHeader': response.get(u'proxyHeader'),
         u'service': response.get(u'service'),
+        u'proxyBind': response.get(u'proxyBind'),
     }
 
 
