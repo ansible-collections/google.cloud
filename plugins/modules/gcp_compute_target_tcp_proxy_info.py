@@ -148,6 +148,12 @@ resources:
       - A reference to the BackendService resource.
       returned: success
       type: dict
+    proxyBind:
+      description:
+      - This field only applies when the forwarding rule that references this target
+        proxy has a loadBalancingScheme set to INTERNAL_SELF_MANAGED.
+      returned: success
+      type: bool
 '''
 
 ################################################################################
