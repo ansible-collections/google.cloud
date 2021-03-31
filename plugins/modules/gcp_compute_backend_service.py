@@ -1423,6 +1423,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             affinity_cookie_ttl_sec=dict(type='int'),
+            fingerprint=dict(type='str'),
             backends=dict(
                 type='list',
                 elements='dict',
@@ -1540,6 +1541,7 @@ def main():
     changed = False
 
     if fetch:
+        module.params['fingerprint'] = fetch['fingerprint']
         if state == 'present':
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
@@ -1601,6 +1603,7 @@ def resource_to_request(module):
         u'sessionAffinity': module.params.get('session_affinity'),
         u'timeoutSec': module.params.get('timeout_sec'),
         u'logConfig': BackendServiceLogconfig(module.params.get('log_config', {}), module).to_request(),
+        u'fingerprint': module.params.get('fingerprint')
     }
     return_vals = {}
     for k, v in request.items():
