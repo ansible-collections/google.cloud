@@ -4972,6 +4972,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             default_service=dict(type='dict'),
             description=dict(type='str'),
+            fingerprint=dict(type='str'),
             header_action=dict(
                 type='dict',
                 options=dict(
@@ -5486,11 +5487,11 @@ def main():
     changed = False
 
     if fetch:
+        module.params['fingerprint'] = fetch['fingerprint']
         if state == 'present':
-            if is_different(module, fetch):
-                update(module, self_link(module), kind)
-                fetch = fetch_resource(module, self_link(module), kind)
-                changed = True
+            update(module, self_link(module), kind)
+            fetch = fetch_resource(module, self_link(module), kind)
+            changed = True
         else:
             delete(module, self_link(module), kind)
             fetch = {}
@@ -5534,6 +5535,7 @@ def resource_to_request(module):
         u'tests': UrlMapTestsArray(module.params.get('tests', []), module).to_request(),
         u'defaultUrlRedirect': UrlMapDefaulturlredirect(module.params.get('default_url_redirect', {}), module).to_request(),
         u'defaultRouteAction': UrlMapDefaultrouteaction(module.params.get('default_route_action', {}), module).to_request(),
+        u'fingerprint': module.params.get('fingerprint')
     }
     return_vals = {}
     for k, v in request.items():
