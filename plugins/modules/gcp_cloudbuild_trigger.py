@@ -586,7 +586,8 @@ options:
           machine_type:
             description:
             - Compute Engine machine type on which to run the build.
-            - 'Some valid choices include: "UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32"'
+            - 'Some valid choices include: "UNSPECIFIED", "N1_HIGHCPU_8", "N1_HIGHCPU_32",
+              "E2_HIGHCPU_8", "E2_HIGHCPU_32"'
             required: false
             type: str
           disk_size_gb:
