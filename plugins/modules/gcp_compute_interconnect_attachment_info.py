@@ -155,7 +155,7 @@ resources:
         interconnect attachment. Currently, only 1440 and 1500 are allowed. If not
         specified, the value will default to 1440.
       returned: success
-      type: int
+      type: str
     bandwidth:
       description:
       - Provisioned bandwidth capacity for the interconnect attachment.

@@ -73,7 +73,7 @@ options:
       attachment. Currently, only 1440 and 1500 are allowed. If not specified, the
       value will default to 1440.
     required: false
-    type: int
+    type: str
   bandwidth:
     description:
     - Provisioned bandwidth capacity for the interconnect attachment.
@@ -239,7 +239,7 @@ mtu:
     attachment. Currently, only 1440 and 1500 are allowed. If not specified, the value
     will default to 1440.
   returned: success
-  type: int
+  type: str
 bandwidth:
   description:
   - Provisioned bandwidth capacity for the interconnect attachment.
@@ -385,7 +385,7 @@ def main():
             admin_enabled=dict(default=True, type='bool'),
             interconnect=dict(type='str'),
             description=dict(type='str'),
-            mtu=dict(type='int'),
+            mtu=dict(type='str'),
             bandwidth=dict(type='str'),
             edge_availability_domain=dict(type='str'),
             type=dict(type='str'),
