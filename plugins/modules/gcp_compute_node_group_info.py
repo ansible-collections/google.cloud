@@ -151,6 +151,19 @@ resources:
         default value is DEFAULT.'
       returned: success
       type: str
+    maintenanceWindow:
+      description:
+      - contains properties for the timeframe of maintenance .
+      returned: success
+      type: complex
+      contains:
+        startTime:
+          description:
+          - instances.start time of the window. This must be in UTC format that resolves
+            to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both
+            13:00-5 and 08:00 are valid.
+          returned: success
+          type: str
     autoscalingPolicy:
       description:
       - If you use sole-tenant nodes for your workloads, you can use the node group

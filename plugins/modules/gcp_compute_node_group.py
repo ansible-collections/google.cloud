@@ -80,6 +80,19 @@ options:
     required: false
     default: DEFAULT
     type: str
+  maintenance_window:
+    description:
+    - contains properties for the timeframe of maintenance .
+    required: false
+    type: dict
+    suboptions:
+      start_time:
+        description:
+        - instances.start time of the window. This must be in UTC format that resolves
+          to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both
+          13:00-5 and 08:00 are valid.
+        required: true
+        type: str
   autoscaling_policy:
     description:
     - If you use sole-tenant nodes for your workloads, you can use the node group
@@ -226,6 +239,19 @@ maintenancePolicy:
     value is DEFAULT.'
   returned: success
   type: str
+maintenanceWindow:
+  description:
+  - contains properties for the timeframe of maintenance .
+  returned: success
+  type: complex
+  contains:
+    startTime:
+      description:
+      - instances.start time of the window. This must be in UTC format that resolves
+        to one of 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00. For example, both 13:00-5
+        and 08:00 are valid.
+      returned: success
+      type: str
 autoscalingPolicy:
   description:
   - If you use sole-tenant nodes for your workloads, you can use the node group autoscaler
@@ -293,6 +319,7 @@ def main():
             node_template=dict(required=True, type='dict'),
             size=dict(required=True, type='int'),
             maintenance_policy=dict(default='DEFAULT', type='str'),
+            maintenance_window=dict(type='dict', options=dict(start_time=dict(required=True, type='str'))),
             autoscaling_policy=dict(
                 type='dict', options=dict(mode=dict(required=True, type='str'), min_nodes=dict(type='int'), max_nodes=dict(required=True, type='int'))
             ),
@@ -367,6 +394,7 @@ def resource_to_request(module):
         u'nodeTemplate': replace_resource_dict(module.params.get(u'node_template', {}), 'selfLink'),
         u'size': module.params.get('size'),
         u'maintenancePolicy': module.params.get('maintenance_policy'),
+        u'maintenanceWindow': NodeGroupMaintenancewindow(module.params.get('maintenance_window', {}), module).to_request(),
         u'autoscalingPolicy': NodeGroupAutoscalingpolicy(module.params.get('autoscaling_policy', {}), module).to_request(),
     }
     return_vals = {}
@@ -443,6 +471,7 @@ def response_to_hash(module, response):
         u'nodeTemplate': response.get(u'nodeTemplate'),
         u'size': response.get(u'size'),
         u'maintenancePolicy': response.get(u'maintenancePolicy'),
+        u'maintenanceWindow': NodeGroupMaintenancewindow(response.get(u'maintenanceWindow', {}), module).from_response(),
         u'autoscalingPolicy': NodeGroupAutoscalingpolicy(response.get(u'autoscalingPolicy', {}), module).from_response(),
     }
 
@@ -498,6 +527,21 @@ def raise_if_errors(response, err_path, module):
     errors = navigate_hash(response, err_path)
     if errors is not None:
         module.fail_json(msg=errors)
+
+
+class NodeGroupMaintenancewindow(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'startTime': self.request.get('start_time')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'startTime': self.request.get(u'startTime')})
 
 
 class NodeGroupAutoscalingpolicy(object):
