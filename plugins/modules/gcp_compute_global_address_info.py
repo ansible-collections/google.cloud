@@ -171,10 +171,9 @@ resources:
       type: str
     purpose:
       description:
-      - The purpose of the resource. For global internal addresses it can be * VPC_PEERING
-        - for peer networks * PRIVATE_SERVICE_CONNECT - for ([Beta](U(https://terraform.io/docs/providers/google/guides/provider_versions.html))
-        only) Private Service Connect networks This should only be set when using
-        an Internal address.
+      - 'The purpose of the resource. Possible values include: * VPC_PEERING - for
+        peer networks * PRIVATE_SERVICE_CONNECT - for ([Beta](U(https://terraform.io/docs/providers/google/guides/provider_versions.html))
+        only) Private Service Connect networks .'
       returned: success
       type: str
     network:
