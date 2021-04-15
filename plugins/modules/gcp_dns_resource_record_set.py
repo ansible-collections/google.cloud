@@ -59,8 +59,8 @@ options:
   type:
     description:
     - One of valid DNS resource types.
-    - 'Some valid choices include: "A", "AAAA", "CAA", "CNAME", "MX", "NAPTR", "NS",
-      "PTR", "SOA", "SPF", "SRV", "TLSA", "TXT"'
+    - 'Some valid choices include: "A", "AAAA", "CAA", "CNAME", "DNSKEY", "DS", "IPSECVPNKEY",
+      "MX", "NAPTR", "NS", "PTR", "SOA", "SPF", "SRV", "SSHFP", "TLSA", "TXT"'
     required: true
     type: str
   ttl:
