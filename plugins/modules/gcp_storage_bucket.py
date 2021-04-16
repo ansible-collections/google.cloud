@@ -238,6 +238,27 @@ options:
                   before midnight of the specified date in UTC.
                 required: false
                 type: str
+              custom_time_before:
+                description:
+                - A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied
+                  when the customTime metadata for the object is set to an earlier
+                  date than the date used in this lifecycle condition.
+                required: false
+                type: str
+              days_since_custom_time:
+                description:
+                - Days since the date set in the customTime metadata for the object.
+                  This condition is satisfied when the current date and time is at
+                  least the specified number of days after the customTime.
+                required: false
+                type: int
+              days_since_noncurrent_time:
+                description:
+                - Relevant only for versioned objects. This condition is satisfied
+                  when an object has been noncurrent for more than the specified number
+                  of days.
+                required: false
+                type: int
               is_live:
                 description:
                 - Relevant only for versioned objects. If the value is true, this
@@ -253,6 +274,13 @@ options:
                 elements: str
                 required: false
                 type: list
+              noncurrent_time_before:
+                description:
+                - Relevant only for versioned objects. A date in the RFC 3339 format
+                  YYYY-MM-DD. This condition is satisfied for objects that became
+                  noncurrent on a date prior to the one specified in this condition.
+                required: false
+                type: str
               num_newer_versions:
                 description:
                 - Relevant only for versioned objects. If the value is N, this condition
@@ -649,6 +677,27 @@ lifecycle:
                 of the specified date in UTC.
               returned: success
               type: str
+            customTimeBefore:
+              description:
+              - A date in the RFC 3339 format YYYY-MM-DD. This condition is satisfied
+                when the customTime metadata for the object is set to an earlier date
+                than the date used in this lifecycle condition.
+              returned: success
+              type: str
+            daysSinceCustomTime:
+              description:
+              - Days since the date set in the customTime metadata for the object.
+                This condition is satisfied when the current date and time is at least
+                the specified number of days after the customTime.
+              returned: success
+              type: int
+            daysSinceNoncurrentTime:
+              description:
+              - Relevant only for versioned objects. This condition is satisfied when
+                an object has been noncurrent for more than the specified number of
+                days.
+              returned: success
+              type: int
             isLive:
               description:
               - Relevant only for versioned objects. If the value is true, this condition
@@ -662,6 +711,13 @@ lifecycle:
                 COLDLINE, ARCHIVE, STANDARD, and DURABLE_REDUCED_AVAILABILITY.
               returned: success
               type: list
+            noncurrentTimeBefore:
+              description:
+              - Relevant only for versioned objects. A date in the RFC 3339 format
+                YYYY-MM-DD. This condition is satisfied for objects that became noncurrent
+                on a date prior to the one specified in this condition.
+              returned: success
+              type: str
             numNewerVersions:
               description:
               - Relevant only for versioned objects. If the value is N, this condition
@@ -874,8 +930,12 @@ def main():
                                 options=dict(
                                     age_days=dict(type='int'),
                                     created_before=dict(type='str'),
+                                    custom_time_before=dict(type='str'),
+                                    days_since_custom_time=dict(type='int'),
+                                    days_since_noncurrent_time=dict(type='int'),
                                     is_live=dict(type='bool'),
                                     matches_storage_class=dict(type='list', elements='str'),
+                                    noncurrent_time_before=dict(type='str'),
                                     num_newer_versions=dict(type='int'),
                                 ),
                             ),
@@ -1278,8 +1338,12 @@ class BucketCondition(object):
             {
                 u'age': self.request.get('age_days'),
                 u'createdBefore': self.request.get('created_before'),
+                u'customTimeBefore': self.request.get('custom_time_before'),
+                u'daysSinceCustomTime': self.request.get('days_since_custom_time'),
+                u'daysSinceNoncurrentTime': self.request.get('days_since_noncurrent_time'),
                 u'isLive': self.request.get('is_live'),
                 u'matchesStorageClass': self.request.get('matches_storage_class'),
+                u'noncurrentTimeBefore': self.request.get('noncurrent_time_before'),
                 u'numNewerVersions': self.request.get('num_newer_versions'),
             }
         )
@@ -1289,8 +1353,12 @@ class BucketCondition(object):
             {
                 u'age': self.request.get(u'age'),
                 u'createdBefore': self.request.get(u'createdBefore'),
+                u'customTimeBefore': self.request.get(u'customTimeBefore'),
+                u'daysSinceCustomTime': self.request.get(u'daysSinceCustomTime'),
+                u'daysSinceNoncurrentTime': self.request.get(u'daysSinceNoncurrentTime'),
                 u'isLive': self.request.get(u'isLive'),
                 u'matchesStorageClass': self.request.get(u'matchesStorageClass'),
+                u'noncurrentTimeBefore': self.request.get(u'noncurrentTimeBefore'),
                 u'numNewerVersions': self.request.get(u'numNewerVersions'),
             }
         )
