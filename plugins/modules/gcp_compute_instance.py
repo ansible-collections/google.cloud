@@ -457,6 +457,18 @@ options:
         - Defines whether the instance has integrity monitoring enabled.
         required: false
         type: bool
+  confidential_instance_config:
+    description:
+    - Configuration for confidential computing (requires setting the machine type
+      to any of the n2d-* types and a boot disk of type pd-ssd).
+    required: false
+    type: dict
+    suboptions:
+      enable_confidential_compute:
+        description:
+        - Enables confidential computing.
+        required: false
+        type: bool
   status:
     description:
     - 'The status of the instance. One of the following values: PROVISIONING, STAGING,
@@ -1010,6 +1022,18 @@ shieldedInstanceConfig:
       - Defines whether the instance has integrity monitoring enabled.
       returned: success
       type: bool
+confidentialInstanceConfig:
+  description:
+  - Configuration for confidential computing (requires setting the machine type to
+    any of the n2d-* types and a boot disk of type pd-ssd).
+  returned: success
+  type: complex
+  contains:
+    enableConfidentialCompute:
+      description:
+      - Enables confidential computing.
+      returned: success
+      type: bool
 status:
   description:
   - 'The status of the instance. One of the following values: PROVISIONING, STAGING,
@@ -1143,6 +1167,7 @@ def main():
             shielded_instance_config=dict(
                 type='dict', options=dict(enable_secure_boot=dict(type='bool'), enable_vtpm=dict(type='bool'), enable_integrity_monitoring=dict(type='bool'))
             ),
+            confidential_instance_config=dict(type='dict', options=dict(enable_confidential_compute=dict(type='bool'))),
             status=dict(type='str'),
             tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
             zone=dict(required=True, type='str'),
@@ -1244,6 +1269,7 @@ def resource_to_request(module):
         u'scheduling': InstanceScheduling(module.params.get('scheduling', {}), module).to_request(),
         u'serviceAccounts': InstanceServiceaccountsArray(module.params.get('service_accounts', []), module).to_request(),
         u'shieldedInstanceConfig': InstanceShieldedinstanceconfig(module.params.get('shielded_instance_config', {}), module).to_request(),
+        u'confidentialInstanceConfig': InstanceConfidentialinstanceconfig(module.params.get('confidential_instance_config', {}), module).to_request(),
         u'status': module.params.get('status'),
         u'tags': InstanceTags(module.params.get('tags', {}), module).to_request(),
     }
@@ -1333,6 +1359,7 @@ def response_to_hash(module, response):
         u'scheduling': InstanceScheduling(response.get(u'scheduling', {}), module).from_response(),
         u'serviceAccounts': InstanceServiceaccountsArray(response.get(u'serviceAccounts', []), module).from_response(),
         u'shieldedInstanceConfig': InstanceShieldedinstanceconfig(response.get(u'shieldedInstanceConfig', {}), module).from_response(),
+        u'confidentialInstanceConfig': InstanceConfidentialinstanceconfig(response.get(u'confidentialInstanceConfig', {}), module).from_response(),
         u'status': response.get(u'status'),
         u'statusMessage': response.get(u'statusMessage'),
         u'tags': InstanceTags(response.get(u'tags', {}), module).from_response(),
@@ -1836,6 +1863,21 @@ class InstanceShieldedinstanceconfig(object):
                 u'enableIntegrityMonitoring': self.request.get(u'enableIntegrityMonitoring'),
             }
         )
+
+
+class InstanceConfidentialinstanceconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enableConfidentialCompute': self.request.get('enable_confidential_compute')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enableConfidentialCompute': self.request.get(u'enableConfidentialCompute')})
 
 
 class InstanceTags(object):

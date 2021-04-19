@@ -534,6 +534,18 @@ resources:
           - Defines whether the instance has integrity monitoring enabled.
           returned: success
           type: bool
+    confidentialInstanceConfig:
+      description:
+      - Configuration for confidential computing (requires setting the machine type
+        to any of the n2d-* types and a boot disk of type pd-ssd).
+      returned: success
+      type: complex
+      contains:
+        enableConfidentialCompute:
+          description:
+          - Enables confidential computing.
+          returned: success
+          type: bool
     status:
       description:
       - 'The status of the instance. One of the following values: PROVISIONING, STAGING,
