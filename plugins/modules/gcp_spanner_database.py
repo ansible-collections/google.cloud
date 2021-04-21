@@ -62,6 +62,18 @@ options:
     elements: str
     required: false
     type: list
+  encryption_config:
+    description:
+    - Encryption configuration for the database .
+    required: false
+    type: dict
+    suboptions:
+      kms_key_name:
+        description:
+        - Fully qualified name of the KMS key to use to encrypt this database. This
+          key must exist in the same location as the Spanner Database.
+        required: true
+        type: str
   instance:
     description:
     - The instance to create the database on.
@@ -165,6 +177,18 @@ extraStatements:
     database is not created.'
   returned: success
   type: list
+encryptionConfig:
+  description:
+  - Encryption configuration for the database .
+  returned: success
+  type: complex
+  contains:
+    kmsKeyName:
+      description:
+      - Fully qualified name of the KMS key to use to encrypt this database. This
+        key must exist in the same location as the Spanner Database.
+      returned: success
+      type: str
 instance:
   description:
   - The instance to create the database on.
@@ -176,7 +200,14 @@ instance:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    remove_nones_from_dict,
+    replace_resource_dict,
+)
 import json
 import time
 
@@ -193,6 +224,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
             extra_statements=dict(type='list', elements='str'),
+            encryption_config=dict(type='dict', options=dict(kms_key_name=dict(required=True, type='str'))),
             instance=dict(required=True, type='dict'),
         )
     )
@@ -258,7 +290,11 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {u'name': module.params.get('name'), u'extraStatements': module.params.get('extra_statements')}
+    request = {
+        u'name': module.params.get('name'),
+        u'extraStatements': module.params.get('extra_statements'),
+        u'encryptionConfig': DatabaseEncryptionconfig(module.params.get('encryption_config', {}), module).to_request(),
+    }
     request = encode_request(request, module)
     return_vals = {}
     for k, v in request.items():
@@ -328,7 +364,11 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': module.params.get('name'), u'extraStatements': response.get(u'extraStatements')}
+    return {
+        u'name': module.params.get('name'),
+        u'extraStatements': response.get(u'extraStatements'),
+        u'encryptionConfig': DatabaseEncryptionconfig(response.get(u'encryptionConfig', {}), module).from_response(),
+    }
 
 
 def async_op_url(module, extra_data=None):
@@ -385,6 +425,21 @@ def encode_request(request, module):
     request['create_statement'] = "CREATE DATABASE `{0}`".format(module.params['name'])
     del request['name']
     return request
+
+
+class DatabaseEncryptionconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'kmsKeyName': self.request.get('kms_key_name')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'kmsKeyName': self.request.get(u'kmsKeyName')})
 
 
 if __name__ == '__main__':
