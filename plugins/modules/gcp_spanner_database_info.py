@@ -129,6 +129,18 @@ resources:
         the database is not created.'
       returned: success
       type: list
+    encryptionConfig:
+      description:
+      - Encryption configuration for the database .
+      returned: success
+      type: complex
+      contains:
+        kmsKeyName:
+          description:
+          - Fully qualified name of the KMS key to use to encrypt this database. This
+            key must exist in the same location as the Spanner Database.
+          returned: success
+          type: str
     instance:
       description:
       - The instance to create the database on.
