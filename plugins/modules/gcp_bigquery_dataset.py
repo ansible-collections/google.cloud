@@ -645,7 +645,7 @@ def response_to_hash(module, response):
         u'name': response.get(u'name'),
         u'access': DatasetAccessArray(response.get(u'access', []), module).from_response(),
         u'creationTime': response.get(u'creationTime'),
-        u'datasetReference': DatasetDatasetreference(response.get(u'datasetReference', {}), module).from_response(),
+        u'datasetReference': DatasetDatasetreference(module.params.get('dataset_reference', {}), module).to_request(),
         u'defaultTableExpirationMs': response.get(u'defaultTableExpirationMs'),
         u'defaultPartitionExpirationMs': response.get(u'defaultPartitionExpirationMs'),
         u'description': response.get(u'description'),
@@ -735,7 +735,7 @@ class DatasetDatasetreference(object):
         return remove_nones_from_dict({u'datasetId': self.request.get('dataset_id'), u'projectId': self.request.get('project_id')})
 
     def from_response(self):
-        return remove_nones_from_dict({u'datasetId': self.request.get(u'datasetId'), u'projectId': self.request.get(u'projectId')})
+        return remove_nones_from_dict({u'datasetId': self.module.params.get('dataset_id'), u'projectId': self.module.params.get('project_id')})
 
 
 class DatasetDefaultencryptionconfiguration(object):
