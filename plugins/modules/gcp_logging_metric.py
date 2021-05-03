@@ -726,7 +726,9 @@ class MetricLabelsArray(object):
         return remove_nones_from_dict({u'key': item.get('key'), u'description': item.get('description'), u'valueType': item.get('value_type')})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'key': item.get(u'key'), u'description': item.get(u'description'), u'valueType': item.get(u'valueType')})
+        return remove_nones_from_dict(
+            {u'key': self.module.params.get('key'), u'description': item.get(u'description'), u'valueType': self.module.params.get('value_type')}
+        )
 
 
 class MetricBucketoptions(object):
