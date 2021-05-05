@@ -469,7 +469,7 @@ def response_to_hash(module, response):
         u'description': response.get(u'description'),
         u'name': response.get(u'name'),
         u'nodeTemplate': response.get(u'nodeTemplate'),
-        u'size': response.get(u'size'),
+        u'size': module.params.get('size'),
         u'maintenancePolicy': response.get(u'maintenancePolicy'),
         u'maintenanceWindow': NodeGroupMaintenancewindow(response.get(u'maintenanceWindow', {}), module).from_response(),
         u'autoscalingPolicy': NodeGroupAutoscalingpolicy(response.get(u'autoscalingPolicy', {}), module).from_response(),
