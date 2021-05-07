@@ -250,6 +250,11 @@ options:
         required: false
         type: dict
         suboptions:
+          private_network:
+            description:
+            - Private network the instance need to be associated with.
+            required: false
+            type: str
           ipv4_enabled:
             description:
             - Whether the instance should be assigned an IP address or not.
@@ -859,6 +864,7 @@ def main():
                     ip_configuration=dict(
                         type='dict',
                         options=dict(
+                            private_network=dict(type='str'),
                             ipv4_enabled=dict(type='bool'),
                             authorized_networks=dict(
                                 type='list', elements='dict', options=dict(expiration_time=dict(type='str'), name=dict(type='str'), value=dict(type='str'))
@@ -1250,6 +1256,7 @@ class InstanceIpconfiguration(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
+                u'privateNetwork': self.request.get('private_network'),
                 u'ipv4Enabled': self.request.get('ipv4_enabled'),
                 u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get('authorized_networks', []), self.module).to_request(),
                 u'requireSsl': self.request.get('require_ssl'),
@@ -1259,6 +1266,7 @@ class InstanceIpconfiguration(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
+                u'privateNetwork': self.request.get(u'privateNetwork'),
                 u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
                 u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get(u'authorizedNetworks', []), self.module).from_response(),
                 u'requireSsl': self.request.get(u'requireSsl'),
