@@ -253,6 +253,7 @@ options:
           private_network:
             description:
             - Private network the instance need to be associated with.
+              Format: "projects/{{ project }}/global/networks/{{ network.name }}"
             required: false
             type: str
           ipv4_enabled:
