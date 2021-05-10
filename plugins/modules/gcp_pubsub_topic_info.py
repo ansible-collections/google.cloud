@@ -140,6 +140,25 @@ resources:
             that no regions are allowed, and is not a valid configuration.
           returned: success
           type: list
+    schemaSettings:
+      description:
+      - Settings for validating messages published against a schema.
+      returned: success
+      type: complex
+      contains:
+        schema:
+          description:
+          - The name of the schema that messages published should be validated against.
+            Format is projects/{project}/schemas/{schema}.
+          - The value of this field will be _deleted-schema_ if the schema has been
+            deleted.
+          returned: success
+          type: str
+        encoding:
+          description:
+          - The encoding of messages validated against schema.
+          returned: success
+          type: str
 '''
 
 ################################################################################
