@@ -83,6 +83,27 @@ options:
         elements: str
         required: true
         type: list
+  schema_settings:
+    description:
+    - Settings for validating messages published against a schema.
+    required: false
+    type: dict
+    suboptions:
+      schema:
+        description:
+        - The name of the schema that messages published should be validated against.
+          Format is projects/{project}/schemas/{schema}.
+        - The value of this field will be _deleted-schema_ if the schema has been
+          deleted.
+        required: true
+        type: str
+      encoding:
+        description:
+        - The encoding of messages validated against schema.
+        - 'Some valid choices include: "ENCODING_UNSPECIFIED", "JSON", "BINARY"'
+        required: false
+        default: ENCODING_UNSPECIFIED
+        type: str
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -181,6 +202,24 @@ messageStoragePolicy:
         and is not a valid configuration.
       returned: success
       type: list
+schemaSettings:
+  description:
+  - Settings for validating messages published against a schema.
+  returned: success
+  type: complex
+  contains:
+    schema:
+      description:
+      - The name of the schema that messages published should be validated against.
+        Format is projects/{project}/schemas/{schema}.
+      - The value of this field will be _deleted-schema_ if the schema has been deleted.
+      returned: success
+      type: str
+    encoding:
+      description:
+      - The encoding of messages validated against schema.
+      returned: success
+      type: str
 '''
 
 ################################################################################
@@ -213,6 +252,7 @@ def main():
             kms_key_name=dict(type='str'),
             labels=dict(type='dict'),
             message_storage_policy=dict(type='dict', options=dict(allowed_persistence_regions=dict(required=True, type='list', elements='str'))),
+            schema_settings=dict(type='dict', options=dict(schema=dict(required=True, type='str'), encoding=dict(default='ENCODING_UNSPECIFIED', type='str'))),
         )
     )
 
@@ -267,6 +307,8 @@ def updateMask(request, response):
         update_mask.append('labels')
     if request.get('messageStoragePolicy') != response.get('messageStoragePolicy'):
         update_mask.append('messageStoragePolicy')
+    if request.get('schemaSettings') != response.get('schemaSettings'):
+        update_mask.append('schemaSettings')
     return ','.join(update_mask)
 
 
@@ -281,6 +323,7 @@ def resource_to_request(module):
         u'kmsKeyName': module.params.get('kms_key_name'),
         u'labels': module.params.get('labels'),
         u'messageStoragePolicy': TopicMessagestoragepolicy(module.params.get('message_storage_policy', {}), module).to_request(),
+        u'schemaSettings': TopicSchemasettings(module.params.get('schema_settings', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -350,6 +393,7 @@ def response_to_hash(module, response):
         u'kmsKeyName': response.get(u'kmsKeyName'),
         u'labels': response.get(u'labels'),
         u'messageStoragePolicy': TopicMessagestoragepolicy(response.get(u'messageStoragePolicy', {}), module).from_response(),
+        u'schemaSettings': TopicSchemasettings(response.get(u'schemaSettings', {}), module).from_response(),
     }
 
 
@@ -378,6 +422,21 @@ class TopicMessagestoragepolicy(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'allowedPersistenceRegions': self.request.get(u'allowedPersistenceRegions')})
+
+
+class TopicSchemasettings(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'schema': self.request.get('schema'), u'encoding': self.request.get('encoding')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'schema': self.request.get(u'schema'), u'encoding': self.request.get(u'encoding')})
 
 
 if __name__ == '__main__':
