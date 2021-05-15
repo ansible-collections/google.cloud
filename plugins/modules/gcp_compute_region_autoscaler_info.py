@@ -235,6 +235,17 @@ resources:
                 or until the average utilization reaches the target utilization.
               returned: success
               type: str
+            predictiveMethod:
+              description:
+              - 'Indicates whether predictive autoscaling based on CPU metric is enabled.
+                Valid values are: - NONE (default). No predictive method is used.
+                The autoscaler scales the group to meet current demand based on real-time
+                metrics.'
+              - "- OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability
+                by monitoring daily and weekly load patterns and scaling out ahead
+                of anticipated demand."
+              returned: success
+              type: str
         customMetricUtilizations:
           description:
           - Configuration parameters of autoscaling based on a custom metric.

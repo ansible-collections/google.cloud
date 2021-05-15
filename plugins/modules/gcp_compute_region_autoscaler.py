@@ -157,6 +157,18 @@ options:
               until the average utilization reaches the target utilization.
             required: false
             type: str
+          predictive_method:
+            description:
+            - 'Indicates whether predictive autoscaling based on CPU metric is enabled.
+              Valid values are: - NONE (default). No predictive method is used. The
+              autoscaler scales the group to meet current demand based on real-time
+              metrics.'
+            - "- OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability
+              by monitoring daily and weekly load patterns and scaling out ahead of
+              anticipated demand."
+            required: false
+            default: NONE
+            type: str
       custom_metric_utilizations:
         description:
         - Configuration parameters of autoscaling based on a custom metric.
@@ -453,6 +465,17 @@ autoscalingPolicy:
             the average utilization reaches the target utilization.
           returned: success
           type: str
+        predictiveMethod:
+          description:
+          - 'Indicates whether predictive autoscaling based on CPU metric is enabled.
+            Valid values are: - NONE (default). No predictive method is used. The
+            autoscaler scales the group to meet current demand based on real-time
+            metrics.'
+          - "- OPTIMIZE_AVAILABILITY. Predictive autoscaling improves availability
+            by monitoring daily and weekly load patterns and scaling out ahead of
+            anticipated demand."
+          returned: success
+          type: str
     customMetricUtilizations:
       description:
       - Configuration parameters of autoscaling based on a custom metric.
@@ -549,7 +572,7 @@ def main():
                             time_window_sec=dict(type='int'),
                         ),
                     ),
-                    cpu_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str'))),
+                    cpu_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str'), predictive_method=dict(default='NONE', type='str'))),
                     custom_metric_utilizations=dict(
                         type='list',
                         elements='dict',
@@ -820,10 +843,14 @@ class RegionAutoscalerCpuutilization(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'utilizationTarget': self.request.get('utilization_target')})
+        return remove_nones_from_dict(
+            {u'utilizationTarget': self.request.get('utilization_target'), u'predictiveMethod': self.request.get('predictive_method')}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'utilizationTarget': self.request.get(u'utilizationTarget')})
+        return remove_nones_from_dict(
+            {u'utilizationTarget': self.request.get(u'utilizationTarget'), u'predictiveMethod': self.request.get(u'predictiveMethod')}
+        )
 
 
 class RegionAutoscalerCustommetricutilizationsArray(object):
