@@ -58,6 +58,12 @@ options:
       except the last character, which cannot be a dash.
     required: true
     type: str
+  description:
+    description:
+    - An optional description of this resource. Provide this property when you create
+      the resource.
+    required: false
+    type: str
   snapshot_schedule_policy:
     description:
     - Policy for creating snapshots of persistent disks.
@@ -206,6 +212,50 @@ options:
         - 'Some valid choices include: "COLLOCATED"'
         required: false
         type: str
+  instance_schedule_policy:
+    description:
+    - Resource policy for scheduling instance operations.
+    required: false
+    type: dict
+    suboptions:
+      vm_start_schedule:
+        description:
+        - Specifies the schedule for starting instances.
+        required: false
+        type: dict
+        suboptions:
+          schedule:
+            description:
+            - Specifies the frequency for the operation, using the unix-cron format.
+            required: true
+            type: str
+      vm_stop_schedule:
+        description:
+        - Specifies the schedule for stopping instances.
+        required: false
+        type: dict
+        suboptions:
+          schedule:
+            description:
+            - Specifies the frequency for the operation, using the unix-cron format.
+            required: true
+            type: str
+      time_zone:
+        description:
+        - 'Specifies the time zone to be used in interpreting the schedule. The value
+          of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.'
+        required: true
+        type: str
+      start_time:
+        description:
+        - The start time of the schedule. The timestamp is an RFC3339 string.
+        required: false
+        type: str
+      expiration_time:
+        description:
+        - The expiration time of the schedule. The timestamp is an RFC3339 string.
+        required: false
+        type: str
   region:
     description:
     - Region where resource policy resides.
@@ -276,6 +326,12 @@ name:
     which means the first character must be a lowercase letter, and all following
     characters must be a dash, lowercase letter, or digit, except the last character,
     which cannot be a dash.
+  returned: success
+  type: str
+description:
+  description:
+  - An optional description of this resource. Provide this property when you create
+    the resource.
   returned: success
   type: str
 snapshotSchedulePolicy:
@@ -416,6 +472,50 @@ groupPlacementPolicy:
         instances must be created at the same time with the resource policy attached.
       returned: success
       type: str
+instanceSchedulePolicy:
+  description:
+  - Resource policy for scheduling instance operations.
+  returned: success
+  type: complex
+  contains:
+    vmStartSchedule:
+      description:
+      - Specifies the schedule for starting instances.
+      returned: success
+      type: complex
+      contains:
+        schedule:
+          description:
+          - Specifies the frequency for the operation, using the unix-cron format.
+          returned: success
+          type: str
+    vmStopSchedule:
+      description:
+      - Specifies the schedule for stopping instances.
+      returned: success
+      type: complex
+      contains:
+        schedule:
+          description:
+          - Specifies the frequency for the operation, using the unix-cron format.
+          returned: success
+          type: str
+    timeZone:
+      description:
+      - 'Specifies the time zone to be used in interpreting the schedule. The value
+        of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.'
+      returned: success
+      type: str
+    startTime:
+      description:
+      - The start time of the schedule. The timestamp is an RFC3339 string.
+      returned: success
+      type: str
+    expirationTime:
+      description:
+      - The expiration time of the schedule. The timestamp is an RFC3339 string.
+      returned: success
+      type: str
 region:
   description:
   - Region where resource policy resides.
@@ -450,6 +550,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str'),
+            description=dict(type='str'),
             snapshot_schedule_policy=dict(
                 type='dict',
                 options=dict(
@@ -488,9 +589,19 @@ def main():
             group_placement_policy=dict(
                 type='dict', options=dict(vm_count=dict(type='int'), availability_domain_count=dict(type='int'), collocation=dict(type='str'))
             ),
+            instance_schedule_policy=dict(
+                type='dict',
+                options=dict(
+                    vm_start_schedule=dict(type='dict', options=dict(schedule=dict(required=True, type='str'))),
+                    vm_stop_schedule=dict(type='dict', options=dict(schedule=dict(required=True, type='str'))),
+                    time_zone=dict(required=True, type='str'),
+                    start_time=dict(type='str'),
+                    expiration_time=dict(type='str'),
+                ),
+            ),
             region=dict(required=True, type='str'),
         ),
-        mutually_exclusive=[['group_placement_policy', 'snapshot_schedule_policy']],
+        mutually_exclusive=[['group_placement_policy', 'instance_schedule_policy', 'snapshot_schedule_policy']],
     )
 
     if not module.params['scopes']:
@@ -544,8 +655,10 @@ def resource_to_request(module):
         u'kind': 'compute#resourcePolicy',
         u'region': module.params.get('region'),
         u'name': module.params.get('name'),
+        u'description': module.params.get('description'),
         u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(module.params.get('snapshot_schedule_policy', {}), module).to_request(),
         u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(module.params.get('group_placement_policy', {}), module).to_request(),
+        u'instanceSchedulePolicy': ResourcePolicyInstanceschedulepolicy(module.params.get('instance_schedule_policy', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -612,8 +725,10 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'name': response.get(u'name'),
+        u'description': response.get(u'description'),
         u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(response.get(u'snapshotSchedulePolicy', {}), module).from_response(),
         u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(response.get(u'groupPlacementPolicy', {}), module).from_response(),
+        u'instanceSchedulePolicy': ResourcePolicyInstanceschedulepolicy(response.get(u'instanceSchedulePolicy', {}), module).from_response(),
     }
 
 
@@ -841,6 +956,67 @@ class ResourcePolicyGroupplacementpolicy(object):
                 u'collocation': self.request.get(u'collocation'),
             }
         )
+
+
+class ResourcePolicyInstanceschedulepolicy(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {
+                u'vmStartSchedule': ResourcePolicyVmstartschedule(self.request.get('vm_start_schedule', {}), self.module).to_request(),
+                u'vmStopSchedule': ResourcePolicyVmstopschedule(self.request.get('vm_stop_schedule', {}), self.module).to_request(),
+                u'timeZone': self.request.get('time_zone'),
+                u'startTime': self.request.get('start_time'),
+                u'expirationTime': self.request.get('expiration_time'),
+            }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {
+                u'vmStartSchedule': ResourcePolicyVmstartschedule(self.request.get(u'vmStartSchedule', {}), self.module).from_response(),
+                u'vmStopSchedule': ResourcePolicyVmstopschedule(self.request.get(u'vmStopSchedule', {}), self.module).from_response(),
+                u'timeZone': self.request.get(u'timeZone'),
+                u'startTime': self.request.get(u'startTime'),
+                u'expirationTime': self.request.get(u'expirationTime'),
+            }
+        )
+
+
+class ResourcePolicyVmstartschedule(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'schedule': self.request.get('schedule')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'schedule': self.request.get(u'schedule')})
+
+
+class ResourcePolicyVmstopschedule(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'schedule': self.request.get('schedule')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'schedule': self.request.get(u'schedule')})
 
 
 if __name__ == '__main__':
