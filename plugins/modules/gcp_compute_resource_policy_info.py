@@ -129,6 +129,12 @@ resources:
         letter, or digit, except the last character, which cannot be a dash.
       returned: success
       type: str
+    description:
+      description:
+      - An optional description of this resource. Provide this property when you create
+        the resource.
+      returned: success
+      type: str
     snapshotSchedulePolicy:
       description:
       - Policy for creating snapshots of persistent disks.
@@ -268,6 +274,50 @@ resources:
             `vm_count`. If compute instances are created with a COLLOCATED policy,
             then exactly `vm_count` instances must be created at the same time with
             the resource policy attached.
+          returned: success
+          type: str
+    instanceSchedulePolicy:
+      description:
+      - Resource policy for scheduling instance operations.
+      returned: success
+      type: complex
+      contains:
+        vmStartSchedule:
+          description:
+          - Specifies the schedule for starting instances.
+          returned: success
+          type: complex
+          contains:
+            schedule:
+              description:
+              - Specifies the frequency for the operation, using the unix-cron format.
+              returned: success
+              type: str
+        vmStopSchedule:
+          description:
+          - Specifies the schedule for stopping instances.
+          returned: success
+          type: complex
+          contains:
+            schedule:
+              description:
+              - Specifies the frequency for the operation, using the unix-cron format.
+              returned: success
+              type: str
+        timeZone:
+          description:
+          - 'Specifies the time zone to be used in interpreting the schedule. The
+            value of this field must be a time zone name from the tz database: http://en.wikipedia.org/wiki/Tz_database.'
+          returned: success
+          type: str
+        startTime:
+          description:
+          - The start time of the schedule. The timestamp is an RFC3339 string.
+          returned: success
+          type: str
+        expirationTime:
+          description:
+          - The expiration time of the schedule. The timestamp is an RFC3339 string.
           returned: success
           type: str
     region:
