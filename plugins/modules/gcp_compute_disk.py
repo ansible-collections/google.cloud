@@ -124,6 +124,11 @@ options:
       .'
     required: false
     type: str
+  provisioned_iops:
+    description:
+    - Indicates how many IOPS must be provisioned for the disk.
+    required: false
+    type: int
   zone:
     description:
     - A reference to the zone where the disk resides.
@@ -386,6 +391,11 @@ sourceImage:
     .'
   returned: success
   type: str
+provisionedIops:
+  description:
+  - Indicates how many IOPS must be provisioned for the disk.
+  returned: success
+  type: int
 zone:
   description:
   - A reference to the zone where the disk resides.
@@ -550,6 +560,7 @@ def main():
             physical_block_size_bytes=dict(type='int'),
             type=dict(type='str'),
             source_image=dict(type='str'),
+            provisioned_iops=dict(type='int'),
             zone=dict(required=True, type='str'),
             source_image_encryption_key=dict(
                 type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
@@ -648,6 +659,7 @@ def resource_to_request(module):
         u'physicalBlockSizeBytes': module.params.get('physical_block_size_bytes'),
         u'type': disk_type_selflink(module.params.get('type'), module.params),
         u'sourceImage': module.params.get('source_image'),
+        u'provisionedIops': module.params.get('provisioned_iops'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -727,6 +739,7 @@ def response_to_hash(module, response):
         u'physicalBlockSizeBytes': response.get(u'physicalBlockSizeBytes'),
         u'type': response.get(u'type'),
         u'sourceImage': module.params.get('source_image'),
+        u'provisionedIops': response.get(u'provisionedIops'),
     }
 
 
