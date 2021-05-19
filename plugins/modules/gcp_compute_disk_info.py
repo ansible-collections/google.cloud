@@ -218,6 +218,11 @@ resources:
         .'
       returned: success
       type: str
+    provisionedIops:
+      description:
+      - Indicates how many IOPS must be provisioned for the disk.
+      returned: success
+      type: int
     zone:
       description:
       - A reference to the zone where the disk resides.
