@@ -394,7 +394,7 @@ class GcpRequest(object):
         diff = None
         # If a None is found, a difference does not exist.
         # Only differing values matter.
-        if not resp_value or resp_value == "None":
+        if not resp_value:
             return None
 
         # Can assume non-None types at this point.
