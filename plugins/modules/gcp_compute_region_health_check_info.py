@@ -500,6 +500,18 @@ resources:
           - The grpcServiceName can only be ASCII.
           returned: success
           type: str
+    logConfig:
+      description:
+      - Configure logging on this health check.
+      returned: success
+      type: complex
+      contains:
+        enable:
+          description:
+          - Indicates whether or not to export logs. This is false by default, which
+            means no health check logging will be done.
+          returned: success
+          type: bool
     region:
       description:
       - The region where the regional health check resides.
