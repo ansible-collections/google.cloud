@@ -441,6 +441,19 @@ options:
         - The grpcServiceName can only be ASCII.
         required: false
         type: str
+  log_config:
+    description:
+    - Configure logging on this health check.
+    required: false
+    type: dict
+    suboptions:
+      enable:
+        description:
+        - Indicates whether or not to export logs. This is false by default, which
+          means no health check logging will be done.
+        required: false
+        default: 'false'
+        type: bool
   region:
     description:
     - The region where the regional health check resides.
@@ -880,6 +893,18 @@ grpcHealthCheck:
       - The grpcServiceName can only be ASCII.
       returned: success
       type: str
+logConfig:
+  description:
+  - Configure logging on this health check.
+  returned: success
+  type: complex
+  contains:
+    enable:
+      description:
+      - Indicates whether or not to export logs. This is false by default, which means
+        no health check logging will be done.
+      returned: success
+      type: bool
 region:
   description:
   - The region where the regional health check resides.
@@ -983,6 +1008,7 @@ def main():
                 type='dict',
                 options=dict(port=dict(type='int'), port_name=dict(type='str'), port_specification=dict(type='str'), grpc_service_name=dict(type='str')),
             ),
+            log_config=dict(type='dict', options=dict(enable=dict(type='bool'))),
             region=dict(type='str'),
         )
     )
@@ -1050,6 +1076,7 @@ def resource_to_request(module):
         u'sslHealthCheck': RegionHealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
         u'http2HealthCheck': RegionHealthCheckHttp2healthcheck(module.params.get('http2_health_check', {}), module).to_request(),
         u'grpcHealthCheck': RegionHealthCheckGrpchealthcheck(module.params.get('grpc_health_check', {}), module).to_request(),
+        u'logConfig': RegionHealthCheckLogconfig(module.params.get('log_config', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1130,6 +1157,7 @@ def response_to_hash(module, response):
         u'sslHealthCheck': RegionHealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
         u'http2HealthCheck': RegionHealthCheckHttp2healthcheck(response.get(u'http2HealthCheck', {}), module).from_response(),
         u'grpcHealthCheck': RegionHealthCheckGrpchealthcheck(response.get(u'grpcHealthCheck', {}), module).from_response(),
+        u'logConfig': RegionHealthCheckLogconfig(response.get(u'logConfig', {}), module).from_response(),
     }
 
 
@@ -1375,6 +1403,21 @@ class RegionHealthCheckGrpchealthcheck(object):
                 u'grpcServiceName': self.request.get(u'grpcServiceName'),
             }
         )
+
+
+class RegionHealthCheckLogconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enable': self.request.get('enable')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enable': self.request.get(u'enable')})
 
 
 if __name__ == '__main__':
