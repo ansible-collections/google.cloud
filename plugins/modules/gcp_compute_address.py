@@ -92,9 +92,9 @@ options:
     - "* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal
       load balancers."
     - "* VPC_PEERING for addresses that are reserved for VPC peer networks."
-    - "* IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
-      that are reserved for a VLAN attachment in an IPsec-encrypted Cloud Interconnect
-      configuration. These addresses are regional resources."
+    - "* IPSEC_INTERCONNECT for addresses created from a private IP range that are
+      reserved for a VLAN attachment in an IPsec-encrypted Cloud Interconnect configuration.
+      These addresses are regional resources."
     - This should only be set when using an Internal address.
     required: false
     type: str
@@ -118,6 +118,22 @@ options:
       }}"'
     required: false
     type: dict
+  network:
+    description:
+    - The URL of the network in which to reserve the address. This field can only
+      be used with INTERNAL type with the VPC_PEERING and IPSEC_INTERCONNECT purposes.
+    - 'This field represents a link to a Network resource in GCP. It can be specified
+      in two ways. First, you can place a dictionary with key ''selfLink'' and value
+      of your resource''s selfLink Alternatively, you can add `register: name-of-resource`
+      to a gcp_compute_network task and then set this network field to "{{ name-of-resource
+      }}"'
+    required: false
+    type: dict
+  prefix_length:
+    description:
+    - The prefix length if the resource represents an IP range.
+    required: false
+    type: int
   region:
     description:
     - URL of the region where the regional address resides.
@@ -234,9 +250,9 @@ purpose:
   - "* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal
     load balancers."
   - "* VPC_PEERING for addresses that are reserved for VPC peer networks."
-  - "* IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP range
-    that are reserved for a VLAN attachment in an IPsec-encrypted Cloud Interconnect
-    configuration. These addresses are regional resources."
+  - "* IPSEC_INTERCONNECT for addresses created from a private IP range that are reserved
+    for a VLAN attachment in an IPsec-encrypted Cloud Interconnect configuration.
+    These addresses are regional resources."
   - This should only be set when using an Internal address.
   returned: success
   type: str
@@ -267,6 +283,17 @@ status:
     is currently being used by another resource and is not available.
   returned: success
   type: str
+network:
+  description:
+  - The URL of the network in which to reserve the address. This field can only be
+    used with INTERNAL type with the VPC_PEERING and IPSEC_INTERCONNECT purposes.
+  returned: success
+  type: dict
+prefixLength:
+  description:
+  - The prefix length if the resource represents an IP range.
+  returned: success
+  type: int
 region:
   description:
   - URL of the region where the regional address resides.
@@ -301,6 +328,8 @@ def main():
             purpose=dict(type='str'),
             network_tier=dict(type='str'),
             subnetwork=dict(type='dict'),
+            network=dict(type='dict'),
+            prefix_length=dict(type='int'),
             region=dict(required=True, type='str'),
         )
     )
@@ -361,6 +390,8 @@ def resource_to_request(module):
         u'purpose': module.params.get('purpose'),
         u'networkTier': module.params.get('network_tier'),
         u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
+        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
+        u'prefixLength': module.params.get('prefix_length'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -437,6 +468,8 @@ def response_to_hash(module, response):
         u'subnetwork': response.get(u'subnetwork'),
         u'users': response.get(u'users'),
         u'status': response.get(u'status'),
+        u'network': response.get(u'network'),
+        u'prefixLength': response.get(u'prefixLength'),
     }
 
 

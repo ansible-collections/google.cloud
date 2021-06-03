@@ -164,9 +164,9 @@ resources:
       - "* SHARED_LOADBALANCER_VIP for an address that can be used by multiple internal
         load balancers."
       - "* VPC_PEERING for addresses that are reserved for VPC peer networks."
-      - "* IPSEC_INTERCONNECT (Beta only) for addresses created from a private IP
-        range that are reserved for a VLAN attachment in an IPsec-encrypted Cloud
-        Interconnect configuration. These addresses are regional resources."
+      - "* IPSEC_INTERCONNECT for addresses created from a private IP range that are
+        reserved for a VLAN attachment in an IPsec-encrypted Cloud Interconnect configuration.
+        These addresses are regional resources."
       - This should only be set when using an Internal address.
       returned: success
       type: str
@@ -197,6 +197,17 @@ resources:
         is currently being used by another resource and is not available.
       returned: success
       type: str
+    network:
+      description:
+      - The URL of the network in which to reserve the address. This field can only
+        be used with INTERNAL type with the VPC_PEERING and IPSEC_INTERCONNECT purposes.
+      returned: success
+      type: dict
+    prefixLength:
+      description:
+      - The prefix length if the resource represents an IP range.
+      returned: success
+      type: int
     region:
       description:
       - URL of the region where the regional address resides.
