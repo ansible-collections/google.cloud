@@ -14,11 +14,13 @@
       file:
         path: /etc/systemd/system/containerd.service.d
         state: directory
+        mode: 0755
       when: ansible_service_mgr == "systemd"
     - name: override file for containerd
       copy:
         src: files/override.conf
         dest: /etc/systemd/system/containerd.service.d/override.conf
+        mode: 0644
       when: ansible_service_mgr == "systemd"
   roles:
     - role: google.cloud.gcsfuse

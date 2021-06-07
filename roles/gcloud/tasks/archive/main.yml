@@ -5,7 +5,8 @@
     path: "{{ gcloud_archive_path }}/google-cloud-sdk/VERSION"
   register: gcloud_status
 
-- debug: var=gcloud_status
+- name: gcloud | Archive | Get gcloud_status
+  debug: var=gcloud_status
 
 - name: gcloud | Archive | Set installed version if installation exists
   block:
@@ -16,9 +17,11 @@
     - name: gcloud | Archive | Setting the gcloud_installed_version variable/fact
       set_fact:
         gcloud_installed_version: "{{ (gcloud_installed_version_data.content|b64decode|trim) }}"
-    - debug:
+    - name: gcloud | Archive | get the gcloud_installed_version
+      debug:
         msg: "google-cloud-sdk: {{ gcloud_installed_version }} is installed"
-    - debug:
+    - name: gcloud | Archive | Version already installed
+      debug:
         msg: >-
           Skipping installation of google-cloud-sdk version {{ gcloud_version }} when
           {{ gcloud_installed_version }} is already installed.

@@ -5,7 +5,7 @@ gcloud_install_type: package
 # default values for gcloud apt installation
 gcloud_apt_key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
 gcloud_apt_url: http://packages.cloud.google.com/apt
-gcloud_apt_repo: cloud-sdk-{{ ansible_distribution_release }}
+gcloud_apt_repo: cloud-sdk
 
 # default values for gcloud yum installation
 gcloud_yum_baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64
