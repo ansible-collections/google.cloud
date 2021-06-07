@@ -1,6 +1,6 @@
 ---
 - name: gcloud | Archive | Ensure temp path exists
-  file: path={{ gcloud_archive_path }} state=directory
+  file: path={{ gcloud_archive_path }} state=directory mode=0755
 
 - name: gcloud | Archive | Extract Cloud SDK archive
   unarchive:

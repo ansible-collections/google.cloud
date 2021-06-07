@@ -24,6 +24,7 @@
     owner: root
     group: root
     state: directory
+    mode: 0755
 
 - name: gcloud | Archive | Link binaries to /usr/bin (like package install)
   file:

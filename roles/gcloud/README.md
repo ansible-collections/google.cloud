@@ -1,6 +1,4 @@
-# ericsysmin.gcloud
-
-[![Build Status](https://travis-ci.org/ericsysmin/ansible-role-gcloud.svg?branch=master)](https://travis-ci.org/ericsysmin/ansible-role-gcloud)
+# google.cloud.gcloud
 
 This role installs the gcloud command-line tool on a linux system.
 
@@ -48,7 +46,7 @@ All variables which can be overridden are stored in defaults/main.yml file as we
 ```yaml
 - hosts: servers
   roles:
-     - role: ericsysmin.gcloud
+     - role: google.cloud.gcloud
 ```
 
 ## License
