@@ -1416,7 +1416,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
+                update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -1440,23 +1440,9 @@ def create(module, link, kind):
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
+def update(module, link, kind):
     auth = GcpSession(module, 'compute')
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
-
-
-def update_fields(module, request, response):
-    if response.get('securityPolicy') != request.get('securityPolicy'):
-        security_policy_update(module, request, response)
-
-
-def security_policy_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/backendServices/{name}/setSecurityPolicy"]).format(**module.params),
-        {u'securityPolicy': module.params.get('security_policy')},
-    )
 
 
 def delete(module, link, kind):
