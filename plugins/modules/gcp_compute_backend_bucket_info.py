@@ -135,6 +135,11 @@ resources:
             header. The actual headers served in responses will not be altered.'
           returned: success
           type: int
+    customResponseHeaders:
+      description:
+      - Headers that the HTTP/S load balancer should add to proxied responses.
+      returned: success
+      type: list
     creationTimestamp:
       description:
       - Creation timestamp in RFC3339 text format.

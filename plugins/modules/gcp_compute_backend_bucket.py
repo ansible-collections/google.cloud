@@ -73,6 +73,12 @@ options:
           The actual headers served in responses will not be altered.'
         required: false
         type: int
+  custom_response_headers:
+    description:
+    - Headers that the HTTP/S load balancer should add to proxied responses.
+    elements: str
+    required: false
+    type: list
   description:
     description:
     - An optional textual description of the resource; provided by the client when
@@ -192,6 +198,11 @@ cdnPolicy:
         actual headers served in responses will not be altered.'
       returned: success
       type: int
+customResponseHeaders:
+  description:
+  - Headers that the HTTP/S load balancer should add to proxied responses.
+  returned: success
+  type: list
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -253,6 +264,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             bucket_name=dict(required=True, type='str'),
             cdn_policy=dict(type='dict', options=dict(signed_url_cache_max_age_sec=dict(type='int'))),
+            custom_response_headers=dict(type='list', elements='str'),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             name=dict(required=True, type='str'),
@@ -310,6 +322,7 @@ def resource_to_request(module):
         u'kind': 'compute#backendBucket',
         u'bucketName': module.params.get('bucket_name'),
         u'cdnPolicy': BackendBucketCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
+        u'customResponseHeaders': module.params.get('custom_response_headers'),
         u'description': module.params.get('description'),
         u'enableCdn': module.params.get('enable_cdn'),
         u'name': module.params.get('name'),
@@ -380,6 +393,7 @@ def response_to_hash(module, response):
     return {
         u'bucketName': response.get(u'bucketName'),
         u'cdnPolicy': BackendBucketCdnpolicy(response.get(u'cdnPolicy', {}), module).from_response(),
+        u'customResponseHeaders': response.get(u'customResponseHeaders'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'description': response.get(u'description'),
         u'enableCdn': response.get(u'enableCdn'),
