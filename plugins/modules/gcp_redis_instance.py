@@ -135,6 +135,16 @@ options:
     required: false
     default: BASIC
     type: str
+  transit_encryption_mode:
+    description:
+    - The TLS mode of the Redis instance, If not provided, TLS is disabled for the
+      instance.
+    - "- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server
+      authentcation ."
+    - 'Some valid choices include: "SERVER_AUTHENTICATION", "DISABLED"'
+    required: false
+    default: DISABLED
+    type: str
   region:
     description:
     - The name of the Redis region of the instance.
@@ -338,6 +348,44 @@ tier:
     instance - STANDARD_HA: highly available primary/replica instances .'
   returned: success
   type: str
+transitEncryptionMode:
+  description:
+  - The TLS mode of the Redis instance, If not provided, TLS is disabled for the instance.
+  - "- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with server
+    authentcation ."
+  returned: success
+  type: str
+serverCaCerts:
+  description:
+  - List of server CA certificates for the instance.
+  returned: success
+  type: complex
+  contains:
+    serialNumber:
+      description:
+      - Serial number, as extracted from the certificate.
+      returned: success
+      type: str
+    cert:
+      description:
+      - Serial number, as extracted from the certificate.
+      returned: success
+      type: str
+    createTime:
+      description:
+      - The time when the certificate was created.
+      returned: success
+      type: str
+    expireTime:
+      description:
+      - The time when the certificate expires.
+      returned: success
+      type: str
+    sha1Fingerprint:
+      description:
+      - Sha1 Fingerprint of the certificate.
+      returned: success
+      type: str
 region:
   description:
   - The name of the Redis region of the instance.
@@ -349,7 +397,14 @@ region:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    remove_nones_from_dict,
+    replace_resource_dict,
+)
 import json
 import time
 
@@ -377,6 +432,7 @@ def main():
             redis_version=dict(type='str'),
             reserved_ip_range=dict(type='str'),
             tier=dict(default='BASIC', type='str'),
+            transit_encryption_mode=dict(default='DISABLED', type='str'),
             region=dict(required=True, type='str'),
         )
     )
@@ -436,6 +492,8 @@ def updateMask(request, response):
         update_mask.append('redisConfigs')
     if request.get('memorySizeGb') != response.get('memorySizeGb'):
         update_mask.append('memorySizeGb')
+    if request.get('redisVersion') != response.get('redisVersion'):
+        update_mask.append('redisVersion')
     return ','.join(update_mask)
 
 
@@ -459,6 +517,7 @@ def resource_to_request(module):
         u'redisVersion': module.params.get('redis_version'),
         u'reservedIpRange': module.params.get('reserved_ip_range'),
         u'tier': module.params.get('tier'),
+        u'transitEncryptionMode': module.params.get('transit_encryption_mode'),
     }
     return_vals = {}
     for k, v in request.items():
@@ -543,9 +602,11 @@ def response_to_hash(module, response):
         u'memorySizeGb': response.get(u'memorySizeGb'),
         u'port': response.get(u'port'),
         u'persistenceIamIdentity': response.get(u'persistenceIamIdentity'),
-        u'redisVersion': module.params.get('redis_version'),
+        u'redisVersion': response.get(u'redisVersion'),
         u'reservedIpRange': module.params.get('reserved_ip_range'),
         u'tier': module.params.get('tier'),
+        u'transitEncryptionMode': module.params.get('transit_encryption_mode'),
+        u'serverCaCerts': InstanceServercacertsArray(response.get(u'serverCaCerts', []), module).from_response(),
     }
 
 
@@ -583,6 +644,33 @@ def raise_if_errors(response, err_path, module):
     errors = navigate_hash(response, err_path)
     if errors is not None:
         module.fail_json(msg=errors)
+
+
+class InstanceServercacertsArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({})
 
 
 if __name__ == '__main__':

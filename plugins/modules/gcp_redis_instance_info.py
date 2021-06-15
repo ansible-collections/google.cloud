@@ -227,6 +227,45 @@ resources:
         instance - STANDARD_HA: highly available primary/replica instances .'
       returned: success
       type: str
+    transitEncryptionMode:
+      description:
+      - The TLS mode of the Redis instance, If not provided, TLS is disabled for the
+        instance.
+      - "- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with
+        server authentcation ."
+      returned: success
+      type: str
+    serverCaCerts:
+      description:
+      - List of server CA certificates for the instance.
+      returned: success
+      type: complex
+      contains:
+        serialNumber:
+          description:
+          - Serial number, as extracted from the certificate.
+          returned: success
+          type: str
+        cert:
+          description:
+          - Serial number, as extracted from the certificate.
+          returned: success
+          type: str
+        createTime:
+          description:
+          - The time when the certificate was created.
+          returned: success
+          type: str
+        expireTime:
+          description:
+          - The time when the certificate expires.
+          returned: success
+          type: str
+        sha1Fingerprint:
+          description:
+          - Sha1 Fingerprint of the certificate.
+          returned: success
+          type: str
     region:
       description:
       - The name of the Redis region of the instance.
