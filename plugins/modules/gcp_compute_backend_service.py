@@ -352,6 +352,12 @@ options:
     elements: str
     required: false
     type: list
+  custom_response_headers:
+    description:
+    - Headers that the HTTP/S load balancer should add to proxied responses.
+    elements: str
+    required: false
+    type: list
   description:
     description:
     - An optional description of this resource.
@@ -1000,6 +1006,11 @@ customRequestHeaders:
   - Headers that the HTTP/S load balancer should add to proxied requests.
   returned: success
   type: list
+customResponseHeaders:
+  description:
+  - Headers that the HTTP/S load balancer should add to proxied responses.
+  returned: success
+  type: list
 fingerprint:
   description:
   - Fingerprint of this resource. A hash of the contents stored in this object. This
@@ -1353,6 +1364,7 @@ def main():
             ),
             connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
             custom_request_headers=dict(type='list', elements='str'),
+            custom_response_headers=dict(type='list', elements='str'),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             health_checks=dict(type='list', elements='str'),
@@ -1462,6 +1474,7 @@ def resource_to_request(module):
         u'cdnPolicy': BackendServiceCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
         u'connectionDraining': BackendServiceConnectiondraining(module.params.get('connection_draining', {}), module).to_request(),
         u'customRequestHeaders': module.params.get('custom_request_headers'),
+        u'customResponseHeaders': module.params.get('custom_response_headers'),
         u'description': module.params.get('description'),
         u'enableCDN': module.params.get('enable_cdn'),
         u'healthChecks': module.params.get('health_checks'),
@@ -1549,6 +1562,7 @@ def response_to_hash(module, response):
         u'connectionDraining': BackendServiceConnectiondraining(response.get(u'connectionDraining', {}), module).from_response(),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'customRequestHeaders': response.get(u'customRequestHeaders'),
+        u'customResponseHeaders': response.get(u'customResponseHeaders'),
         u'fingerprint': response.get(u'fingerprint'),
         u'description': response.get(u'description'),
         u'enableCDN': response.get(u'enableCDN'),
