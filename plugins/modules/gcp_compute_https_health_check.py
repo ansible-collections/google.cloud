@@ -85,7 +85,7 @@ options:
   port:
     description:
     - The TCP port number for the HTTPS health check request.
-    - The default value is 80.
+    - The default value is 443.
     required: false
     type: int
   request_path:
@@ -224,7 +224,7 @@ name:
 port:
   description:
   - The TCP port number for the HTTPS health check request.
-  - The default value is 80.
+  - The default value is 443.
   returned: success
   type: int
 requestPath:
