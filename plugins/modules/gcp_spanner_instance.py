@@ -56,9 +56,9 @@ options:
   config:
     description:
     - The name of the instance's configuration (similar but not quite the same as
-      a region) which defines defines the geographic placement and replication of
-      your databases in this instance. It determines where your data is stored. Values
-      are typically of the form `regional-europe-west1` , `us-central` etc.
+      a region) which defines the geographic placement and replication of your databases
+      in this instance. It determines where your data is stored. Values are typically
+      of the form `regional-europe-west1` , `us-central` etc.
     - In order to obtain a valid list please consult the [Configuration section of
       the docs](U(https://cloud.google.com/spanner/docs/instances)).
     required: true
@@ -159,9 +159,9 @@ name:
 config:
   description:
   - The name of the instance's configuration (similar but not quite the same as a
-    region) which defines defines the geographic placement and replication of your
-    databases in this instance. It determines where your data is stored. Values are
-    typically of the form `regional-europe-west1` , `us-central` etc.
+    region) which defines the geographic placement and replication of your databases
+    in this instance. It determines where your data is stored. Values are typically
+    of the form `regional-europe-west1` , `us-central` etc.
   - In order to obtain a valid list please consult the [Configuration section of the
     docs](U(https://cloud.google.com/spanner/docs/instances)).
   returned: success
