@@ -45,7 +45,8 @@ DOCUMENTATION = """
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', or 'name'.
+              'public_ip', 'private_ip', 'name' or 'hostname'. As 'hostname' may not be defined,
+              it will fallback on 'name'
           default: ['public_ip', 'private_ip', 'name']
           type: list
         auth_kind:
@@ -236,6 +237,9 @@ class GcpInstance(object):
                 name = self._get_privateip()
             elif order == "name":
                 name = self.json[u"name"]
+            elif order == "hostname":
+                # If hostname is not defined, then fallback on name
+                name = self.json[u"hostname"] if "hostname" in self.json else self.json[u"name"]
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
