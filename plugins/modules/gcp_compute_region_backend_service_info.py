@@ -404,6 +404,58 @@ resources:
             header. The actual headers served in responses will not be altered.'
           returned: success
           type: int
+        defaultTtl:
+          description:
+          - Specifies the default TTL for cached content served by this origin for
+            responses that do not have an existing valid TTL (max-age or s-max-age).
+          returned: success
+          type: int
+        maxTtl:
+          description:
+          - Specifies the maximum allowed TTL for cached content served by this origin.
+          returned: success
+          type: int
+        clientTtl:
+          description:
+          - Specifies the maximum allowed TTL for cached content served by this origin.
+          returned: success
+          type: int
+        negativeCaching:
+          description:
+          - Negative caching allows per-status code TTLs to be set, in order to apply
+            fine-grained caching for common errors or redirects.
+          returned: success
+          type: bool
+        negativeCachingPolicy:
+          description:
+          - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+            be enabled to configure negativeCachingPolicy.
+          - Omitting the policy and leaving negativeCaching enabled will use Cloud
+            CDN's default cache TTLs.
+          returned: success
+          type: complex
+          contains:
+            code:
+              description:
+              - The HTTP status code to define a TTL against. Only HTTP status codes
+                300, 301, 308, 404, 405, 410, 421, 451 and 501 can be specified as
+                values, and you cannot specify a status code more than once.
+              returned: success
+              type: int
+        cacheMode:
+          description:
+          - Specifies the cache setting for all responses from this backend.
+          - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+            .'
+          returned: success
+          type: str
+        serveWhileStale:
+          description:
+          - Serve existing content from the cache (if available) when revalidating
+            content with the origin, or when an error is encountered when refreshing
+            the cache.
+          returned: success
+          type: int
     connectionDraining:
       description:
       - Settings for connection draining .
