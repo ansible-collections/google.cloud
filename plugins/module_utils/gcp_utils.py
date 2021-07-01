@@ -235,6 +235,14 @@ class GcpSession(object):
         elif cred_type == 'machineaccount':
             return google.auth.compute_engine.Credentials(
                 self.module.params['service_account_email'])
+        elif cred_type == 'impersonation' and self.module.params['service_account_email']:
+            source_credentials, project_id = google.auth.default()
+            return google.auth.impersonated_credentials.Credentials(
+                source_credentials=source_credentials,
+                target_principal=self.module.params['service_account_email'],
+                target_scopes=self.module.params['scopes'],
+                lifetime=3600,
+                )
         else:
             self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
@@ -270,7 +278,7 @@ class GcpModule(AnsibleModule):
                 auth_kind=dict(
                     required=True,
                     fallback=(env_fallback, ['GCP_AUTH_KIND']),
-                    choices=['machineaccount', 'serviceaccount', 'application'],
+                    choices=['machineaccount', 'serviceaccount', 'application', 'impersonation'],
                     type='str'),
                 service_account_email=dict(
                     required=False,

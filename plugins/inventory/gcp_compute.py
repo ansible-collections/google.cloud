@@ -52,7 +52,7 @@ DOCUMENTATION = """
             description:
                 - The type of credential used.
             required: True
-            choices: ['application', 'serviceaccount', 'machineaccount']
+            choices: ['application', 'serviceaccount', 'machineaccount', 'impersonation']
             env:
                 - name: GCP_AUTH_KIND
                   version_added: "2.8.2"
@@ -83,7 +83,8 @@ DOCUMENTATION = """
         service_account_email:
             description:
                 - An optional service account email address if machineaccount is selected
-                  and the user does not wish to use the default email.
+                  and the user does not wish to use the default email. This field must be set
+                  if auth_kind is impersonation.
             env:
                 - name: GCP_SERVICE_ACCOUNT_EMAIL
                   version_added: "2.8.2"
