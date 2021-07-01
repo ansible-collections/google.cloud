@@ -727,7 +727,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/backendServices)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/http/backend-service)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.

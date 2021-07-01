@@ -191,7 +191,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances)'
 - 'Official Documentation: U(https://cloud.google.com/memorystore/docs/redis/)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.

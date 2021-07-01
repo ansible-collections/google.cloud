@@ -123,7 +123,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/storage/docs/json_api/v1/bucketAccessControls)'
 - 'Official Documentation: U(https://cloud.google.com/storage/docs/access-control/lists)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
