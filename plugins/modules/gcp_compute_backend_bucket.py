@@ -73,6 +73,67 @@ options:
           The actual headers served in responses will not be altered.'
         required: false
         type: int
+      default_ttl:
+        description:
+        - Specifies the default TTL for cached content served by this origin for responses
+          that do not have an existing valid TTL (max-age or s-max-age).
+        required: false
+        type: int
+      max_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      client_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      negative_caching:
+        description:
+        - Negative caching allows per-status code TTLs to be set, in order to apply
+          fine-grained caching for common errors or redirects.
+        required: false
+        type: bool
+      negative_caching_policy:
+        description:
+        - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+          be enabled to configure negativeCachingPolicy.
+        - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+          default cache TTLs.
+        elements: dict
+        required: false
+        type: list
+        suboptions:
+          code:
+            description:
+            - The HTTP status code to define a TTL against. Only HTTP status codes
+              300, 301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+              and you cannot specify a status code more than once.
+            required: false
+            type: int
+          ttl:
+            description:
+            - The TTL (in seconds) for which to cache responses with the corresponding
+              status code. The maximum allowed value is 1800s (30 minutes), noting
+              that infrequently accessed objects may be evicted from the cache before
+              the defined TTL.
+            required: false
+            type: int
+      cache_mode:
+        description:
+        - Specifies the cache setting for all responses from this backend.
+        - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+          .'
+        - 'Some valid choices include: "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"'
+        required: false
+        type: str
+      serve_while_stale:
+        description:
+        - Serve existing content from the cache (if available) when revalidating content
+          with the origin, or when an error is encountered when refreshing the cache.
+        required: false
+        type: int
   custom_response_headers:
     description:
     - Headers that the HTTP/S load balancer should add to proxied responses.
@@ -198,6 +259,65 @@ cdnPolicy:
         actual headers served in responses will not be altered.'
       returned: success
       type: int
+    defaultTtl:
+      description:
+      - Specifies the default TTL for cached content served by this origin for responses
+        that do not have an existing valid TTL (max-age or s-max-age).
+      returned: success
+      type: int
+    maxTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    clientTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    negativeCaching:
+      description:
+      - Negative caching allows per-status code TTLs to be set, in order to apply
+        fine-grained caching for common errors or redirects.
+      returned: success
+      type: bool
+    negativeCachingPolicy:
+      description:
+      - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+        be enabled to configure negativeCachingPolicy.
+      - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+        default cache TTLs.
+      returned: success
+      type: complex
+      contains:
+        code:
+          description:
+          - The HTTP status code to define a TTL against. Only HTTP status codes 300,
+            301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+            and you cannot specify a status code more than once.
+          returned: success
+          type: int
+        ttl:
+          description:
+          - The TTL (in seconds) for which to cache responses with the corresponding
+            status code. The maximum allowed value is 1800s (30 minutes), noting that
+            infrequently accessed objects may be evicted from the cache before the
+            defined TTL.
+          returned: success
+          type: int
+    cacheMode:
+      description:
+      - Specifies the cache setting for all responses from this backend.
+      - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+        .'
+      returned: success
+      type: str
+    serveWhileStale:
+      description:
+      - Serve existing content from the cache (if available) when revalidating content
+        with the origin, or when an error is encountered when refreshing the cache.
+      returned: success
+      type: int
 customResponseHeaders:
   description:
   - Headers that the HTTP/S load balancer should add to proxied responses.
@@ -263,7 +383,19 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             bucket_name=dict(required=True, type='str'),
-            cdn_policy=dict(type='dict', options=dict(signed_url_cache_max_age_sec=dict(type='int'))),
+            cdn_policy=dict(
+                type='dict',
+                options=dict(
+                    signed_url_cache_max_age_sec=dict(type='int'),
+                    default_ttl=dict(type='int'),
+                    max_ttl=dict(type='int'),
+                    client_ttl=dict(type='int'),
+                    negative_caching=dict(type='bool'),
+                    negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'), ttl=dict(type='int'))),
+                    cache_mode=dict(type='str'),
+                    serve_while_stale=dict(type='int'),
+                ),
+            ),
             custom_response_headers=dict(type='list', elements='str'),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
@@ -446,10 +578,59 @@ class BackendBucketCdnpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec')})
+        return remove_nones_from_dict(
+            {
+                u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
+                u'defaultTtl': self.request.get('default_ttl'),
+                u'maxTtl': self.request.get('max_ttl'),
+                u'clientTtl': self.request.get('client_ttl'),
+                u'negativeCaching': self.request.get('negative_caching'),
+                u'negativeCachingPolicy': BackendBucketNegativecachingpolicyArray(self.request.get('negative_caching_policy', []), self.module).to_request(),
+                u'cacheMode': self.request.get('cache_mode'),
+                u'serveWhileStale': self.request.get('serve_while_stale'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec')})
+        return remove_nones_from_dict(
+            {
+                u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
+                u'defaultTtl': self.request.get(u'defaultTtl'),
+                u'maxTtl': self.request.get(u'maxTtl'),
+                u'clientTtl': self.request.get(u'clientTtl'),
+                u'negativeCaching': self.request.get(u'negativeCaching'),
+                u'negativeCachingPolicy': BackendBucketNegativecachingpolicyArray(self.request.get(u'negativeCachingPolicy', []), self.module).from_response(),
+                u'cacheMode': self.request.get(u'cacheMode'),
+                u'serveWhileStale': self.request.get(u'serveWhileStale'),
+            }
+        )
+
+
+class BackendBucketNegativecachingpolicyArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'code': item.get('code'), u'ttl': item.get('ttl')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'code': item.get(u'code'), u'ttl': item.get(u'ttl')})
 
 
 if __name__ == '__main__':

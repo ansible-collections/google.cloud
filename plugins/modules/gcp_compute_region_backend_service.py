@@ -340,6 +340,59 @@ options:
         required: false
         default: '3600'
         type: int
+      default_ttl:
+        description:
+        - Specifies the default TTL for cached content served by this origin for responses
+          that do not have an existing valid TTL (max-age or s-max-age).
+        required: false
+        type: int
+      max_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      client_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      negative_caching:
+        description:
+        - Negative caching allows per-status code TTLs to be set, in order to apply
+          fine-grained caching for common errors or redirects.
+        required: false
+        type: bool
+      negative_caching_policy:
+        description:
+        - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+          be enabled to configure negativeCachingPolicy.
+        - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+          default cache TTLs.
+        elements: dict
+        required: false
+        type: list
+        suboptions:
+          code:
+            description:
+            - The HTTP status code to define a TTL against. Only HTTP status codes
+              300, 301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+              and you cannot specify a status code more than once.
+            required: false
+            type: int
+      cache_mode:
+        description:
+        - Specifies the cache setting for all responses from this backend.
+        - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+          .'
+        - 'Some valid choices include: "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"'
+        required: false
+        type: str
+      serve_while_stale:
+        description:
+        - Serve existing content from the cache (if available) when revalidating content
+          with the origin, or when an error is encountered when refreshing the cache.
+        required: false
+        type: int
   connection_draining:
     description:
     - Settings for connection draining .
@@ -1016,6 +1069,57 @@ cdnPolicy:
         actual headers served in responses will not be altered.'
       returned: success
       type: int
+    defaultTtl:
+      description:
+      - Specifies the default TTL for cached content served by this origin for responses
+        that do not have an existing valid TTL (max-age or s-max-age).
+      returned: success
+      type: int
+    maxTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    clientTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    negativeCaching:
+      description:
+      - Negative caching allows per-status code TTLs to be set, in order to apply
+        fine-grained caching for common errors or redirects.
+      returned: success
+      type: bool
+    negativeCachingPolicy:
+      description:
+      - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+        be enabled to configure negativeCachingPolicy.
+      - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+        default cache TTLs.
+      returned: success
+      type: complex
+      contains:
+        code:
+          description:
+          - The HTTP status code to define a TTL against. Only HTTP status codes 300,
+            301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+            and you cannot specify a status code more than once.
+          returned: success
+          type: int
+    cacheMode:
+      description:
+      - Specifies the cache setting for all responses from this backend.
+      - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+        .'
+      returned: success
+      type: str
+    serveWhileStale:
+      description:
+      - Serve existing content from the cache (if available) when revalidating content
+        with the origin, or when an error is encountered when refreshing the cache.
+      returned: success
+      type: int
 connectionDraining:
   description:
   - Settings for connection draining .
@@ -1405,6 +1509,13 @@ def main():
                         ),
                     ),
                     signed_url_cache_max_age_sec=dict(default=3600, type='int'),
+                    default_ttl=dict(type='int'),
+                    max_ttl=dict(type='int'),
+                    client_ttl=dict(type='int'),
+                    negative_caching=dict(type='bool'),
+                    negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'))),
+                    cache_mode=dict(type='str'),
+                    serve_while_stale=dict(type='int'),
                 ),
             ),
             connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
@@ -1811,6 +1922,15 @@ class RegionBackendServiceCdnpolicy(object):
             {
                 u'cacheKeyPolicy': RegionBackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request(),
                 u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
+                u'defaultTtl': self.request.get('default_ttl'),
+                u'maxTtl': self.request.get('max_ttl'),
+                u'clientTtl': self.request.get('client_ttl'),
+                u'negativeCaching': self.request.get('negative_caching'),
+                u'negativeCachingPolicy': RegionBackendServiceNegativecachingpolicyArray(
+                    self.request.get('negative_caching_policy', []), self.module
+                ).to_request(),
+                u'cacheMode': self.request.get('cache_mode'),
+                u'serveWhileStale': self.request.get('serve_while_stale'),
             }
         )
 
@@ -1819,6 +1939,15 @@ class RegionBackendServiceCdnpolicy(object):
             {
                 u'cacheKeyPolicy': RegionBackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response(),
                 u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
+                u'defaultTtl': self.request.get(u'defaultTtl'),
+                u'maxTtl': self.request.get(u'maxTtl'),
+                u'clientTtl': self.request.get(u'clientTtl'),
+                u'negativeCaching': self.request.get(u'negativeCaching'),
+                u'negativeCachingPolicy': RegionBackendServiceNegativecachingpolicyArray(
+                    self.request.get(u'negativeCachingPolicy', []), self.module
+                ).from_response(),
+                u'cacheMode': self.request.get(u'cacheMode'),
+                u'serveWhileStale': self.request.get(u'serveWhileStale'),
             }
         )
 
@@ -1852,6 +1981,33 @@ class RegionBackendServiceCachekeypolicy(object):
                 u'queryStringWhitelist': self.request.get(u'queryStringWhitelist'),
             }
         )
+
+
+class RegionBackendServiceNegativecachingpolicyArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'code': item.get('code')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'code': item.get(u'code')})
 
 
 class RegionBackendServiceConnectiondraining(object):
