@@ -182,7 +182,7 @@ notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/beta/addresses)'
 - 'Reserving a Static External IP Address: U(https://cloud.google.com/compute/docs/instances-and-network)'
 - 'Reserving a Static Internal IP Address: U(https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.

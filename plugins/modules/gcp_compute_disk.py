@@ -266,7 +266,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/disks)'
 - 'Adding a persistent disk: U(https://cloud.google.com/compute/docs/disks/add-persistent-disk)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.

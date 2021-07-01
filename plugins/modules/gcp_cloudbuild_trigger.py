@@ -726,7 +726,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.triggers)'
 - 'Automating builds using build triggers: U(https://cloud.google.com/cloud-build/docs/running-builds/automate-builds)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
