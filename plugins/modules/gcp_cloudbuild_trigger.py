@@ -229,6 +229,35 @@ options:
             - Regex of tags to match. Specify only one of branch or tag.
             required: false
             type: str
+  pubsub_config:
+    description:
+    - PubsubConfig describes the configuration of a trigger that creates a build whenever
+      a Pub/Sub message is published.
+    required: false
+    type: dict
+    suboptions:
+      topic:
+        description:
+        - The name of the topic from which this subscription is receiving messages.
+        required: true
+        type: str
+      service_account_email:
+        description:
+        - Service account that will make the push request.
+        required: false
+        type: str
+  webhook_config:
+    description:
+    - WebhookConfig describes the configuration of a trigger that creates a build
+      whenever a webhook is sent to a trigger's webhook URL.
+    required: false
+    type: dict
+    suboptions:
+      secret:
+        description:
+        - Resource name for the secret required as a URL parameter.
+        required: true
+        type: str
   build:
     description:
     - Contents of the build template. Either a filename or build template must be
@@ -945,6 +974,52 @@ github:
           - Regex of tags to match. Specify only one of branch or tag.
           returned: success
           type: str
+pubsubConfig:
+  description:
+  - PubsubConfig describes the configuration of a trigger that creates a build whenever
+    a Pub/Sub message is published.
+  returned: success
+  type: complex
+  contains:
+    subscription:
+      description:
+      - Output only. Name of the subscription.
+      returned: success
+      type: str
+    topic:
+      description:
+      - The name of the topic from which this subscription is receiving messages.
+      returned: success
+      type: str
+    service_account_email:
+      description:
+      - Service account that will make the push request.
+      returned: success
+      type: str
+    state:
+      description:
+      - Potential issues with the underlying Pub/Sub subscription configuration.
+      - Only populated on get requests.
+      returned: success
+      type: str
+webhookConfig:
+  description:
+  - WebhookConfig describes the configuration of a trigger that creates a build whenever
+    a webhook is sent to a trigger's webhook URL.
+  returned: success
+  type: complex
+  contains:
+    secret:
+      description:
+      - Resource name for the secret required as a URL parameter.
+      returned: success
+      type: str
+    state:
+      description:
+      - Potential issues with the underlying Pub/Sub subscription configuration.
+      - Only populated on get requests.
+      returned: success
+      type: str
 build:
   description:
   - Contents of the build template. Either a filename or build template must be provided.
@@ -1454,6 +1529,8 @@ def main():
                     push=dict(type='dict', options=dict(invert_regex=dict(type='bool'), branch=dict(type='str'), tag=dict(type='str'))),
                 ),
             ),
+            pubsub_config=dict(type='dict', options=dict(topic=dict(required=True, type='str'), service_account_email=dict(type='str'))),
+            webhook_config=dict(type='dict', options=dict(secret=dict(required=True, type='str'))),
             build=dict(
                 type='dict',
                 options=dict(
@@ -1593,6 +1670,8 @@ def resource_to_request(module):
         u'includedFiles': module.params.get('included_files'),
         u'triggerTemplate': TriggerTriggertemplate(module.params.get('trigger_template', {}), module).to_request(),
         u'github': TriggerGithub(module.params.get('github', {}), module).to_request(),
+        u'pubsubConfig': TriggerPubsubconfig(module.params.get('pubsub_config', {}), module).to_request(),
+        u'webhookConfig': TriggerWebhookconfig(module.params.get('webhook_config', {}), module).to_request(),
         u'build': TriggerBuild(module.params.get('build', {}), module).to_request(),
     }
     return_vals = {}
@@ -1671,6 +1750,8 @@ def response_to_hash(module, response):
         u'includedFiles': response.get(u'includedFiles'),
         u'triggerTemplate': TriggerTriggertemplate(response.get(u'triggerTemplate', {}), module).from_response(),
         u'github': TriggerGithub(response.get(u'github', {}), module).from_response(),
+        u'pubsubConfig': TriggerPubsubconfig(response.get(u'pubsubConfig', {}), module).from_response(),
+        u'webhookConfig': TriggerWebhookconfig(response.get(u'webhookConfig', {}), module).from_response(),
         u'build': TriggerBuild(response.get(u'build', {}), module).from_response(),
     }
 
@@ -1775,6 +1856,36 @@ class TriggerPush(object):
         return remove_nones_from_dict(
             {u'invertRegex': self.request.get(u'invertRegex'), u'branch': self.request.get(u'branch'), u'tag': self.request.get(u'tag')}
         )
+
+
+class TriggerPubsubconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'topic': self.request.get('topic'), u'service_account_email': self.request.get('service_account_email')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'topic': self.request.get(u'topic'), u'service_account_email': self.request.get(u'service_account_email')})
+
+
+class TriggerWebhookconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'secret': self.request.get('secret')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'secret': self.request.get(u'secret')})
 
 
 class TriggerBuild(object):

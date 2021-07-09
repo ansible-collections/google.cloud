@@ -288,6 +288,52 @@ resources:
               - Regex of tags to match. Specify only one of branch or tag.
               returned: success
               type: str
+    pubsubConfig:
+      description:
+      - PubsubConfig describes the configuration of a trigger that creates a build
+        whenever a Pub/Sub message is published.
+      returned: success
+      type: complex
+      contains:
+        subscription:
+          description:
+          - Output only. Name of the subscription.
+          returned: success
+          type: str
+        topic:
+          description:
+          - The name of the topic from which this subscription is receiving messages.
+          returned: success
+          type: str
+        service_account_email:
+          description:
+          - Service account that will make the push request.
+          returned: success
+          type: str
+        state:
+          description:
+          - Potential issues with the underlying Pub/Sub subscription configuration.
+          - Only populated on get requests.
+          returned: success
+          type: str
+    webhookConfig:
+      description:
+      - WebhookConfig describes the configuration of a trigger that creates a build
+        whenever a webhook is sent to a trigger's webhook URL.
+      returned: success
+      type: complex
+      contains:
+        secret:
+          description:
+          - Resource name for the secret required as a URL parameter.
+          returned: success
+          type: str
+        state:
+          description:
+          - Potential issues with the underlying Pub/Sub subscription configuration.
+          - Only populated on get requests.
+          returned: success
+          type: str
     build:
       description:
       - Contents of the build template. Either a filename or build template must be
