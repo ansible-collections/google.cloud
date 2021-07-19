@@ -160,9 +160,8 @@ options:
       max_utilization:
         description:
         - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
-          target for the group. The default is 0.8. Valid range is [0.0, 1.0].
+          target for the group. Valid range is [0.0, 1.0].
         required: false
-        default: '0.8'
         type: str
   circuit_breakers:
     description:
@@ -882,7 +881,7 @@ backends:
     maxUtilization:
       description:
       - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
-        target for the group. The default is 0.8. Valid range is [0.0, 1.0].
+        target for the group. Valid range is [0.0, 1.0].
       returned: success
       type: str
 circuitBreakers:
@@ -1438,7 +1437,7 @@ def main():
                     max_rate=dict(type='int'),
                     max_rate_per_instance=dict(type='str'),
                     max_rate_per_endpoint=dict(type='str'),
-                    max_utilization=dict(default=0.8, type='str'),
+                    max_utilization=dict(type='str'),
                 ),
             ),
             circuit_breakers=dict(
