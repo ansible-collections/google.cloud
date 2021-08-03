@@ -128,7 +128,14 @@ resources:
       type: str
     nodeCount:
       description:
-      - The number of nodes allocated to this instance.
+      - The number of nodes allocated to this instance. At most one of either node_count
+        or processing_units can be present in terraform. .
+      returned: success
+      type: int
+    processingUnits:
+      description:
+      - The number of processing units allocated to this instance. At most one of
+        processing_units or node_count can be present in terraform. .
       returned: success
       type: int
     labels:
