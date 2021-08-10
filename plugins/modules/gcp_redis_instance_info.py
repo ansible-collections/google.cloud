@@ -207,10 +207,9 @@ resources:
       type: str
     redisVersion:
       description:
-      - 'The version of Redis software. If not provided, latest supported version
-        will be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0
-        compatibility - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis
-        3.2 compatibility .'
+      - The version of Redis software. If not provided, latest supported version will
+        be used. Please check the API documentation linked at the top for the latest
+        valid values.
       returned: success
       type: str
     reservedIpRange:
