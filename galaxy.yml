@@ -50,7 +50,7 @@ tags:
 #dependencies: {}
 
 # The URL of the originating SCM repository
-repository: http://github.com/ansible/ansible_collections_google
+repository: https://github.com/ansible-collections/google.cloud
 
 # The URL to any online docs
 #documentation: http://docs.example.com
@@ -59,4 +59,4 @@ repository: http://github.com/ansible/ansible_collections_google
 homepage: http://cloud.google.com
 
 # The URL to the collection issue tracker
-#issues: http://example.com/issue/tracker
+issues: https://github.com/ansible-collections/google.cloud/issues
