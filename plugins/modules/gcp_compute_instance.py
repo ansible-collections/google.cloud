@@ -388,6 +388,35 @@ options:
           field to "{{ name-of-resource }}"'
         required: false
         type: dict
+  reservation_affinity:
+    description:
+    - Specifies the reservations that this instance can consume from.
+    required: false
+    type: dict
+    suboptions:
+      consume_reservation_type:
+        description:
+        - 'Specifies the type of reservation from which this instance can consume
+          resources: ANY_RESERVATION (default), SPECIFIC_RESERVATION, or NO_RESERVATION.'
+        - 'Some valid choices include: "ANY_RESERVATION", "SPECIFIC_RESERVATION",
+          "NO_RESERVATION"'
+        required: false
+        type: str
+      key:
+        description:
+        - Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION
+          by name, specify googleapis.com/reservation-name as the key and specify
+          the name of your reservation as its value.
+        required: false
+        type: str
+      values:
+        description:
+        - Corresponds to the label values of a reservation resource. This can be either
+          a name to a reservation in the same project or "projects/different-project/reservations/some-reservation-name"
+          to target a shared reservation in the same zone but in a different project.
+        elements: str
+        required: false
+        type: list
   scheduling:
     description:
     - Sets the scheduling options for this instance.
@@ -956,6 +985,32 @@ networkInterfaces:
         If the network is in custom subnet mode, then this field should be specified.
       returned: success
       type: dict
+reservationAffinity:
+  description:
+  - Specifies the reservations that this instance can consume from.
+  returned: success
+  type: complex
+  contains:
+    consumeReservationType:
+      description:
+      - 'Specifies the type of reservation from which this instance can consume resources:
+        ANY_RESERVATION (default), SPECIFIC_RESERVATION, or NO_RESERVATION.'
+      returned: success
+      type: str
+    key:
+      description:
+      - Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION
+        by name, specify googleapis.com/reservation-name as the key and specify the
+        name of your reservation as its value.
+      returned: success
+      type: str
+    values:
+      description:
+      - Corresponds to the label values of a reservation resource. This can be either
+        a name to a reservation in the same project or "projects/different-project/reservations/some-reservation-name"
+        to target a shared reservation in the same zone but in a different project.
+      returned: success
+      type: list
 scheduling:
   description:
   - Sets the scheduling options for this instance.
@@ -1160,6 +1215,9 @@ def main():
                     subnetwork=dict(type='dict'),
                 ),
             ),
+            reservation_affinity=dict(
+                type='dict', options=dict(consume_reservation_type=dict(type='str'), key=dict(type='str'), values=dict(type='list', elements='str'))
+            ),
             scheduling=dict(
                 type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
             ),
@@ -1266,6 +1324,7 @@ def resource_to_request(module):
         u'minCpuPlatform': module.params.get('min_cpu_platform'),
         u'name': module.params.get('name'),
         u'networkInterfaces': InstanceNetworkinterfacesArray(module.params.get('network_interfaces', []), module).to_request(),
+        u'reservationAffinity': InstanceReservationaffinity(module.params.get('reservation_affinity', {}), module).to_request(),
         u'scheduling': InstanceScheduling(module.params.get('scheduling', {}), module).to_request(),
         u'serviceAccounts': InstanceServiceaccountsArray(module.params.get('service_accounts', []), module).to_request(),
         u'shieldedInstanceConfig': InstanceShieldedinstanceconfig(module.params.get('shielded_instance_config', {}), module).to_request(),
@@ -1356,6 +1415,7 @@ def response_to_hash(module, response):
         u'minCpuPlatform': response.get(u'minCpuPlatform'),
         u'name': response.get(u'name'),
         u'networkInterfaces': InstanceNetworkinterfacesArray(response.get(u'networkInterfaces', []), module).from_response(),
+        u'reservationAffinity': InstanceReservationaffinity(response.get(u'reservationAffinity', {}), module).from_response(),
         u'scheduling': InstanceScheduling(response.get(u'scheduling', {}), module).from_response(),
         u'serviceAccounts': InstanceServiceaccountsArray(response.get(u'serviceAccounts', []), module).from_response(),
         u'shieldedInstanceConfig': InstanceShieldedinstanceconfig(response.get(u'shieldedInstanceConfig', {}), module).from_response(),
@@ -1782,6 +1842,25 @@ class InstanceAliasiprangesArray(object):
 
     def _response_from_item(self, item):
         return remove_nones_from_dict({u'ipCidrRange': item.get(u'ipCidrRange'), u'subnetworkRangeName': item.get(u'subnetworkRangeName')})
+
+
+class InstanceReservationaffinity(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+            {u'consumeReservationType': self.request.get('consume_reservation_type'), u'key': self.request.get('key'), u'values': self.request.get('values')}
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+            {u'consumeReservationType': self.request.get(u'consumeReservationType'), u'key': self.request.get(u'key'), u'values': self.request.get(u'values')}
+        )
 
 
 class InstanceScheduling(object):
