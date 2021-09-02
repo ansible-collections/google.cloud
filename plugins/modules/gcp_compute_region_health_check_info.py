@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -90,7 +90,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -500,6 +500,18 @@ resources:
           - The grpcServiceName can only be ASCII.
           returned: success
           type: str
+    logConfig:
+      description:
+      - Configure logging on this health check.
+      returned: success
+      type: complex
+      contains:
+        enable:
+          description:
+          - Indicates whether or not to export logs. This is false by default, which
+            means no health check logging will be done.
+          returned: success
+          type: bool
     region:
       description:
       - The region where the regional health check resides.

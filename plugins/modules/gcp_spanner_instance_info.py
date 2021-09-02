@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -78,7 +78,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -113,9 +113,9 @@ resources:
     config:
       description:
       - The name of the instance's configuration (similar but not quite the same as
-        a region) which defines defines the geographic placement and replication of
-        your databases in this instance. It determines where your data is stored.
-        Values are typically of the form `regional-europe-west1` , `us-central` etc.
+        a region) which defines the geographic placement and replication of your databases
+        in this instance. It determines where your data is stored. Values are typically
+        of the form `regional-europe-west1` , `us-central` etc.
       - In order to obtain a valid list please consult the [Configuration section
         of the docs](U(https://cloud.google.com/spanner/docs/instances)).
       returned: success
@@ -128,7 +128,14 @@ resources:
       type: str
     nodeCount:
       description:
-      - The number of nodes allocated to this instance.
+      - The number of nodes allocated to this instance. At most one of either node_count
+        or processing_units can be present in terraform. .
+      returned: success
+      type: int
+    processingUnits:
+      description:
+      - The number of processing units allocated to this instance. At most one of
+        processing_units or node_count can be present in terraform. .
       returned: success
       type: int
     labels:

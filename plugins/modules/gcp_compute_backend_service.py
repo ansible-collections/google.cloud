@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -160,9 +160,8 @@ options:
       max_utilization:
         description:
         - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
-          target for the group. The default is 0.8. Valid range is [0.0, 1.0].
+          target for the group. Valid range is [0.0, 1.0].
         required: false
-        default: '0.8'
         type: str
   circuit_breakers:
     description:
@@ -333,6 +332,67 @@ options:
         required: false
         default: '3600'
         type: int
+      default_ttl:
+        description:
+        - Specifies the default TTL for cached content served by this origin for responses
+          that do not have an existing valid TTL (max-age or s-max-age).
+        required: false
+        type: int
+      max_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      client_ttl:
+        description:
+        - Specifies the maximum allowed TTL for cached content served by this origin.
+        required: false
+        type: int
+      negative_caching:
+        description:
+        - Negative caching allows per-status code TTLs to be set, in order to apply
+          fine-grained caching for common errors or redirects.
+        required: false
+        type: bool
+      negative_caching_policy:
+        description:
+        - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+          be enabled to configure negativeCachingPolicy.
+        - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+          default cache TTLs.
+        elements: dict
+        required: false
+        type: list
+        suboptions:
+          code:
+            description:
+            - The HTTP status code to define a TTL against. Only HTTP status codes
+              300, 301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+              and you cannot specify a status code more than once.
+            required: false
+            type: int
+          ttl:
+            description:
+            - The TTL (in seconds) for which to cache responses with the corresponding
+              status code. The maximum allowed value is 1800s (30 minutes), noting
+              that infrequently accessed objects may be evicted from the cache before
+              the defined TTL.
+            required: false
+            type: int
+      cache_mode:
+        description:
+        - Specifies the cache setting for all responses from this backend.
+        - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+          .'
+        - 'Some valid choices include: "USE_ORIGIN_HEADERS", "FORCE_CACHE_ALL", "CACHE_ALL_STATIC"'
+        required: false
+        type: str
+      serve_while_stale:
+        description:
+        - Serve existing content from the cache (if available) when revalidating content
+          with the origin, or when an error is encountered when refreshing the cache.
+        required: false
+        type: int
   connection_draining:
     description:
     - Settings for connection draining .
@@ -349,6 +409,12 @@ options:
   custom_request_headers:
     description:
     - Headers that the HTTP/S load balancer should add to proxied requests.
+    elements: str
+    required: false
+    type: list
+  custom_response_headers:
+    description:
+    - Headers that the HTTP/S load balancer should add to proxied responses.
     elements: str
     required: false
     type: list
@@ -660,7 +726,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/v1/backendServices)'
 - 'Official Documentation: U(https://cloud.google.com/compute/docs/load-balancing/http/backend-service)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -815,7 +881,7 @@ backends:
     maxUtilization:
       description:
       - Used when balancingMode is UTILIZATION. This ratio defines the CPU utilization
-        target for the group. The default is 0.8. Valid range is [0.0, 1.0].
+        target for the group. Valid range is [0.0, 1.0].
       returned: success
       type: str
 circuitBreakers:
@@ -978,6 +1044,65 @@ cdnPolicy:
         actual headers served in responses will not be altered.'
       returned: success
       type: int
+    defaultTtl:
+      description:
+      - Specifies the default TTL for cached content served by this origin for responses
+        that do not have an existing valid TTL (max-age or s-max-age).
+      returned: success
+      type: int
+    maxTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    clientTtl:
+      description:
+      - Specifies the maximum allowed TTL for cached content served by this origin.
+      returned: success
+      type: int
+    negativeCaching:
+      description:
+      - Negative caching allows per-status code TTLs to be set, in order to apply
+        fine-grained caching for common errors or redirects.
+      returned: success
+      type: bool
+    negativeCachingPolicy:
+      description:
+      - Sets a cache TTL for the specified HTTP status code. negativeCaching must
+        be enabled to configure negativeCachingPolicy.
+      - Omitting the policy and leaving negativeCaching enabled will use Cloud CDN's
+        default cache TTLs.
+      returned: success
+      type: complex
+      contains:
+        code:
+          description:
+          - The HTTP status code to define a TTL against. Only HTTP status codes 300,
+            301, 308, 404, 405, 410, 421, 451 and 501 can be specified as values,
+            and you cannot specify a status code more than once.
+          returned: success
+          type: int
+        ttl:
+          description:
+          - The TTL (in seconds) for which to cache responses with the corresponding
+            status code. The maximum allowed value is 1800s (30 minutes), noting that
+            infrequently accessed objects may be evicted from the cache before the
+            defined TTL.
+          returned: success
+          type: int
+    cacheMode:
+      description:
+      - Specifies the cache setting for all responses from this backend.
+      - 'The possible values are: USE_ORIGIN_HEADERS, FORCE_CACHE_ALL and CACHE_ALL_STATIC
+        .'
+      returned: success
+      type: str
+    serveWhileStale:
+      description:
+      - Serve existing content from the cache (if available) when revalidating content
+        with the origin, or when an error is encountered when refreshing the cache.
+      returned: success
+      type: int
 connectionDraining:
   description:
   - Settings for connection draining .
@@ -998,6 +1123,11 @@ creationTimestamp:
 customRequestHeaders:
   description:
   - Headers that the HTTP/S load balancer should add to proxied requests.
+  returned: success
+  type: list
+customResponseHeaders:
+  description:
+  - Headers that the HTTP/S load balancer should add to proxied responses.
   returned: success
   type: list
 fingerprint:
@@ -1307,7 +1437,7 @@ def main():
                     max_rate=dict(type='int'),
                     max_rate_per_instance=dict(type='str'),
                     max_rate_per_endpoint=dict(type='str'),
-                    max_utilization=dict(default=0.8, type='str'),
+                    max_utilization=dict(type='str'),
                 ),
             ),
             circuit_breakers=dict(
@@ -1349,10 +1479,18 @@ def main():
                         ),
                     ),
                     signed_url_cache_max_age_sec=dict(default=3600, type='int'),
+                    default_ttl=dict(type='int'),
+                    max_ttl=dict(type='int'),
+                    client_ttl=dict(type='int'),
+                    negative_caching=dict(type='bool'),
+                    negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'), ttl=dict(type='int'))),
+                    cache_mode=dict(type='str'),
+                    serve_while_stale=dict(type='int'),
                 ),
             ),
             connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
             custom_request_headers=dict(type='list', elements='str'),
+            custom_response_headers=dict(type='list', elements='str'),
             description=dict(type='str'),
             enable_cdn=dict(type='bool'),
             health_checks=dict(type='list', elements='str'),
@@ -1404,7 +1542,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
+                update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
         else:
@@ -1428,23 +1566,9 @@ def create(module, link, kind):
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
-def update(module, link, kind, fetch):
-    update_fields(module, resource_to_request(module), response_to_hash(module, fetch))
+def update(module, link, kind):
     auth = GcpSession(module, 'compute')
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
-
-
-def update_fields(module, request, response):
-    if response.get('securityPolicy') != request.get('securityPolicy'):
-        security_policy_update(module, request, response)
-
-
-def security_policy_update(module, request, response):
-    auth = GcpSession(module, 'compute')
-    auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/backendServices/{name}/setSecurityPolicy"]).format(**module.params),
-        {u'securityPolicy': module.params.get('security_policy')},
-    )
 
 
 def delete(module, link, kind):
@@ -1462,6 +1586,7 @@ def resource_to_request(module):
         u'cdnPolicy': BackendServiceCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
         u'connectionDraining': BackendServiceConnectiondraining(module.params.get('connection_draining', {}), module).to_request(),
         u'customRequestHeaders': module.params.get('custom_request_headers'),
+        u'customResponseHeaders': module.params.get('custom_response_headers'),
         u'description': module.params.get('description'),
         u'enableCDN': module.params.get('enable_cdn'),
         u'healthChecks': module.params.get('health_checks'),
@@ -1549,6 +1674,7 @@ def response_to_hash(module, response):
         u'connectionDraining': BackendServiceConnectiondraining(response.get(u'connectionDraining', {}), module).from_response(),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'customRequestHeaders': response.get(u'customRequestHeaders'),
+        u'customResponseHeaders': response.get(u'customResponseHeaders'),
         u'fingerprint': response.get(u'fingerprint'),
         u'description': response.get(u'description'),
         u'enableCDN': response.get(u'enableCDN'),
@@ -1771,6 +1897,13 @@ class BackendServiceCdnpolicy(object):
             {
                 u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request(),
                 u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
+                u'defaultTtl': self.request.get('default_ttl'),
+                u'maxTtl': self.request.get('max_ttl'),
+                u'clientTtl': self.request.get('client_ttl'),
+                u'negativeCaching': self.request.get('negative_caching'),
+                u'negativeCachingPolicy': BackendServiceNegativecachingpolicyArray(self.request.get('negative_caching_policy', []), self.module).to_request(),
+                u'cacheMode': self.request.get('cache_mode'),
+                u'serveWhileStale': self.request.get('serve_while_stale'),
             }
         )
 
@@ -1779,6 +1912,13 @@ class BackendServiceCdnpolicy(object):
             {
                 u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response(),
                 u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
+                u'defaultTtl': self.request.get(u'defaultTtl'),
+                u'maxTtl': self.request.get(u'maxTtl'),
+                u'clientTtl': self.request.get(u'clientTtl'),
+                u'negativeCaching': self.request.get(u'negativeCaching'),
+                u'negativeCachingPolicy': BackendServiceNegativecachingpolicyArray(self.request.get(u'negativeCachingPolicy', []), self.module).from_response(),
+                u'cacheMode': self.request.get(u'cacheMode'),
+                u'serveWhileStale': self.request.get(u'serveWhileStale'),
             }
         )
 
@@ -1812,6 +1952,33 @@ class BackendServiceCachekeypolicy(object):
                 u'queryStringWhitelist': self.request.get(u'queryStringWhitelist'),
             }
         )
+
+
+class BackendServiceNegativecachingpolicyArray(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = []
+
+    def to_request(self):
+        items = []
+        for item in self.request:
+            items.append(self._request_for_item(item))
+        return items
+
+    def from_response(self):
+        items = []
+        for item in self.request:
+            items.append(self._response_from_item(item))
+        return items
+
+    def _request_for_item(self, item):
+        return remove_nones_from_dict({u'code': item.get('code'), u'ttl': item.get('ttl')})
+
+    def _response_from_item(self, item):
+        return remove_nones_from_dict({u'code': item.get(u'code'), u'ttl': item.get(u'ttl')})
 
 
 class BackendServiceConnectiondraining(object):

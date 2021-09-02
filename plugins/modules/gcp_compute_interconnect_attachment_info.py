@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -90,7 +90,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -265,6 +265,35 @@ resources:
         PARTNER type this will be managed upstream.
       returned: success
       type: int
+    ipsecInternalAddresses:
+      description:
+      - URL of addresses that have been reserved for the interconnect attachment,
+        Used only for interconnect attachment that has the encryption option as IPSEC.
+      - The addresses must be RFC 1918 IP address ranges. When creating HA VPN gateway
+        over the interconnect attachment, if the attachment is configured to use an
+        RFC 1918 IP address, then the VPN gateway's IP address will be allocated from
+        the IP address range specified here.
+      - For example, if the HA VPN gateway's interface 0 is paired to this interconnect
+        attachment, then an RFC 1918 IP address for the VPN gateway interface 0 will
+        be allocated from the IP address specified for this interconnect attachment.
+      - If this field is not specified for interconnect attachment that has encryption
+        option as IPSEC, later on when creating HA VPN gateway on this interconnect
+        attachment, the HA VPN gateway's IP address will be allocated from regional
+        external IP address pool.
+      returned: success
+      type: list
+    encryption:
+      description:
+      - 'Indicates the user-supplied encryption option of this interconnect attachment:
+        NONE is the default value, which means that the attachment carries unencrypted
+        traffic. VMs can send traffic to, or receive traffic from, this type of attachment.'
+      - IPSEC indicates that the attachment carries only traffic encrypted by an IPsec
+        device such as an HA VPN gateway. VMs cannot directly send traffic to, or
+        receive traffic from, such an attachment. To use IPsec-encrypted Cloud Interconnect
+        create the attachment using this option.
+      - Not currently available publicly.
+      returned: success
+      type: str
     region:
       description:
       - Region where the regional interconnect attachment resides.

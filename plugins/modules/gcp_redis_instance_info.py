@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -83,7 +83,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -207,10 +207,9 @@ resources:
       type: str
     redisVersion:
       description:
-      - 'The version of Redis software. If not provided, latest supported version
-        will be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0
-        compatibility - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis
-        3.2 compatibility .'
+      - The version of Redis software. If not provided, latest supported version will
+        be used. Please check the API documentation linked at the top for the latest
+        valid values.
       returned: success
       type: str
     reservedIpRange:
@@ -227,6 +226,45 @@ resources:
         instance - STANDARD_HA: highly available primary/replica instances .'
       returned: success
       type: str
+    transitEncryptionMode:
+      description:
+      - The TLS mode of the Redis instance, If not provided, TLS is disabled for the
+        instance.
+      - "- SERVER_AUTHENTICATION: Client to Server traffic encryption enabled with
+        server authentcation ."
+      returned: success
+      type: str
+    serverCaCerts:
+      description:
+      - List of server CA certificates for the instance.
+      returned: success
+      type: complex
+      contains:
+        serialNumber:
+          description:
+          - Serial number, as extracted from the certificate.
+          returned: success
+          type: str
+        cert:
+          description:
+          - Serial number, as extracted from the certificate.
+          returned: success
+          type: str
+        createTime:
+          description:
+          - The time when the certificate was created.
+          returned: success
+          type: str
+        expireTime:
+          description:
+          - The time when the certificate expires.
+          returned: success
+          type: str
+        sha1Fingerprint:
+          description:
+          - Sha1 Fingerprint of the certificate.
+          returned: success
+          type: str
     region:
       description:
       - The name of the Redis region of the instance.

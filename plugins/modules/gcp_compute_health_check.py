@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -446,6 +446,19 @@ options:
         - The grpcServiceName can only be ASCII.
         required: false
         type: str
+  log_config:
+    description:
+    - Configure logging on this health check.
+    required: false
+    type: dict
+    suboptions:
+      enable:
+        description:
+        - Indicates whether or not to export logs. This is false by default, which
+          means no health check logging will be done.
+        required: false
+        default: 'false'
+        type: bool
   project:
     description:
     - The Google Cloud Platform project to use.
@@ -487,7 +500,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/compute/docs/reference/rest/v1/healthChecks)'
 - 'Official Documentation: U(https://cloud.google.com/load-balancing/docs/health-checks)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -879,6 +892,18 @@ grpcHealthCheck:
       - The grpcServiceName can only be ASCII.
       returned: success
       type: str
+logConfig:
+  description:
+  - Configure logging on this health check.
+  returned: success
+  type: complex
+  contains:
+    enable:
+      description:
+      - Indicates whether or not to export logs. This is false by default, which means
+        no health check logging will be done.
+      returned: success
+      type: bool
 '''
 
 ################################################################################
@@ -976,6 +1001,7 @@ def main():
                 type='dict',
                 options=dict(port=dict(type='int'), port_name=dict(type='str'), port_specification=dict(type='str'), grpc_service_name=dict(type='str')),
             ),
+            log_config=dict(type='dict', options=dict(enable=dict(type='bool'))),
         )
     )
 
@@ -1041,6 +1067,7 @@ def resource_to_request(module):
         u'sslHealthCheck': HealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
         u'http2HealthCheck': HealthCheckHttp2healthcheck(module.params.get('http2_health_check', {}), module).to_request(),
         u'grpcHealthCheck': HealthCheckGrpchealthcheck(module.params.get('grpc_health_check', {}), module).to_request(),
+        u'logConfig': HealthCheckLogconfig(module.params.get('log_config', {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1121,6 +1148,7 @@ def response_to_hash(module, response):
         u'sslHealthCheck': HealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
         u'http2HealthCheck': HealthCheckHttp2healthcheck(response.get(u'http2HealthCheck', {}), module).from_response(),
         u'grpcHealthCheck': HealthCheckGrpchealthcheck(response.get(u'grpcHealthCheck', {}), module).from_response(),
+        u'logConfig': HealthCheckLogconfig(response.get(u'logConfig', {}), module).from_response(),
     }
 
 
@@ -1357,6 +1385,21 @@ class HealthCheckGrpchealthcheck(object):
                 u'grpcServiceName': self.request.get(u'grpcServiceName'),
             }
         )
+
+
+class HealthCheckLogconfig(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({u'enable': self.request.get('enable')})
+
+    def from_response(self):
+        return remove_nones_from_dict({u'enable': self.request.get(u'enable')})
 
 
 if __name__ == '__main__':
