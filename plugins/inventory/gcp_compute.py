@@ -45,8 +45,12 @@ DOCUMENTATION = """
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', or 'name'.
-          default: ['public_ip', 'private_ip', 'name']
+              'public_ip', 'private_ip', 'name', or 'custom_hostname'.
+              'name' is the instance name in GCE.
+              'custom_hostname' is the custom hostname set when creating the
+              instance. Falls back to 'name' if a custom hostname is not
+              defined.
+          default: ['public_ip', 'private_ip', 'name', 'custom_hostname']
           type: list
         auth_kind:
             description:
@@ -236,6 +240,12 @@ class GcpInstance(object):
                 name = self._get_privateip()
             elif order == "name":
                 name = self.json[u"name"]
+            elif order == "custom_hostname":
+                if "hostname" in self.json:
+                    name = self.json[u"hostname"]
+                else:
+                    name = self.json[u"name"]
+
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
