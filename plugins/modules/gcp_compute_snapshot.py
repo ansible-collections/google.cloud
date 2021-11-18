@@ -456,6 +456,10 @@ def resource_to_request(module):
         u'name': module.params.get('name'),
         u'description': module.params.get('description'),
         u'storageLocations': module.params.get('storage_locations'),
+        u'sourceDiskEncryptionKey': SnapshotSourcediskencryptionkey(module.params.get('source_disk_encryption_key', {}),
+                                                                    module).to_request(),
+        u'snapshotEncryptionKey': SnapshotSnapshotencryptionkey(module.params.get('snapshot_encryption_key', {}),
+                                                                module).to_request(),
         u'labels': module.params.get('labels'),
     }
     return_vals = {}
@@ -534,6 +538,10 @@ def response_to_hash(module, response):
         u'description': module.params.get('description'),
         u'storageBytes': response.get(u'storageBytes'),
         u'storageLocations': response.get(u'storageLocations'),
+        u'sourceDiskEncryptionKey': SnapshotSourcediskencryptionkey(module.params.get('source_disk_encryption_key', {}),
+                                                                    module).from_response(),
+        u'snapshotEncryptionKey': SnapshotSnapshotencryptionkey(module.params.get('snapshot_encryption_key', {}),
+                                                                module).from_response(),
         u'licenses': response.get(u'licenses'),
         u'labels': response.get(u'labels'),
         u'labelFingerprint': response.get(u'labelFingerprint'),
