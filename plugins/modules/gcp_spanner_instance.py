@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -71,9 +71,15 @@ options:
     type: str
   node_count:
     description:
-    - The number of nodes allocated to this instance.
+    - The number of nodes allocated to this instance. At most one of either node_count
+      or processing_units can be present in terraform. .
     required: false
-    default: '1'
+    type: int
+  processing_units:
+    description:
+    - The number of processing units allocated to this instance. At most one of processing_units
+      or node_count can be present in terraform. .
+    required: false
     type: int
   labels:
     description:
@@ -122,7 +128,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/spanner/docs/reference/rest/v1/projects.instances)'
 - 'Official Documentation: U(https://cloud.google.com/spanner/)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -174,7 +180,14 @@ displayName:
   type: str
 nodeCount:
   description:
-  - The number of nodes allocated to this instance.
+  - The number of nodes allocated to this instance. At most one of either node_count
+    or processing_units can be present in terraform. .
+  returned: success
+  type: int
+processingUnits:
+  description:
+  - The number of processing units allocated to this instance. At most one of processing_units
+    or node_count can be present in terraform. .
   returned: success
   type: int
 labels:
@@ -207,7 +220,8 @@ def main():
             name=dict(required=True, type='str'),
             config=dict(required=True, type='str'),
             display_name=dict(required=True, type='str'),
-            node_count=dict(default=1, type='int'),
+            node_count=dict(type='int'),
+            processing_units=dict(type='int'),
             labels=dict(type='dict'),
         )
     )
@@ -262,6 +276,7 @@ def resource_to_request(module):
         u'config': module.params.get('config'),
         u'displayName': module.params.get('display_name'),
         u'nodeCount': module.params.get('node_count'),
+        u'processingUnits': module.params.get('processing_units'),
         u'labels': module.params.get('labels'),
     }
     return_vals = {}
@@ -335,6 +350,7 @@ def response_to_hash(module, response):
         u'config': module.params.get('config'),
         u'displayName': response.get(u'displayName'),
         u'nodeCount': response.get(u'nodeCount'),
+        u'processingUnits': response.get(u'processingUnits'),
         u'labels': response.get(u'labels'),
     }
 
@@ -386,7 +402,7 @@ def resource_to_update(module):
     instance = resource_to_request(module)
     instance['name'] = "projects/{0}/instances/{1}".format(module.params['project'], module.params['name'])
     instance['config'] = "projects/{0}/instanceConfigs/{1}".format(module.params['project'], instance['config'])
-    return {'instance': instance, 'fieldMask': "'name' ,'config' ,'displayName' ,'nodeCount' ,'labels'"}
+    return {'instance': instance, 'fieldMask': "'name' ,'config' ,'displayName' ,'nodeCount' ,'processingUnits' ,'labels'"}
 
 
 def decode_response(response, module):

@@ -22,7 +22,7 @@ DOCUMENTATION = """
         plugin:
             description: token that ensures this is a source file for the 'gcp_compute' plugin.
             required: True
-            choices: ['gcp_compute']
+            choices: ['google.cloud.gcp_compute']
         zones:
           description: A list of regions in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
@@ -45,8 +45,9 @@ DOCUMENTATION = """
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', 'name' or 'hostname'. As 'hostname' may not be defined,
-              it will fallback on 'name'
+              'public_ip', 'private_ip', 'name', 'labels.vm_name' or 'hostname'.
+              As 'hostname' may not be defined,
+              it will fallback on 'name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
         auth_kind:
@@ -231,7 +232,9 @@ class GcpInstance(object):
         """
         for order in self.hostname_ordering:
             name = None
-            if order == "public_ip":
+            if order.startswith("labels."):
+                name = self.json[u"labels"].get(order[7:])
+            elif order == "public_ip":
                 name = self._get_publicip()
             elif order == "private_ip":
                 name = self._get_privateip()

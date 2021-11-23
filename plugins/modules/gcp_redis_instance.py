@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -113,10 +113,9 @@ options:
     type: int
   redis_version:
     description:
-    - 'The version of Redis software. If not provided, latest supported version will
-      be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0 compatibility
-      - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis 3.2 compatibility
-      .'
+    - The version of Redis software. If not provided, latest supported version will
+      be used. Please check the API documentation linked at the top for the latest
+      valid values.
     required: false
     type: str
   reserved_ip_range:
@@ -191,7 +190,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/memorystore/docs/redis/reference/rest/v1/projects.locations.instances)'
 - 'Official Documentation: U(https://cloud.google.com/memorystore/docs/redis/)'
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -328,10 +327,9 @@ persistenceIamIdentity:
   type: str
 redisVersion:
   description:
-  - 'The version of Redis software. If not provided, latest supported version will
-    be used. Currently, the supported values are: - REDIS_5_0 for Redis 5.0 compatibility
-    - REDIS_4_0 for Redis 4.0 compatibility - REDIS_3_2 for Redis 3.2 compatibility
-    .'
+  - The version of Redis software. If not provided, latest supported version will
+    be used. Please check the API documentation linked at the top for the latest valid
+    values.
   returned: success
   type: str
 reservedIpRange:

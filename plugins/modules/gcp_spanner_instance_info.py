@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -78,7 +78,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -128,7 +128,14 @@ resources:
       type: str
     nodeCount:
       description:
-      - The number of nodes allocated to this instance.
+      - The number of nodes allocated to this instance. At most one of either node_count
+        or processing_units can be present in terraform. .
+      returned: success
+      type: int
+    processingUnits:
+      description:
+      - The number of processing units allocated to this instance. At most one of
+        processing_units or node_count can be present in terraform. .
       returned: success
       type: int
     labels:

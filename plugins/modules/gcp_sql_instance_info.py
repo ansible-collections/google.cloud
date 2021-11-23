@@ -5,7 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
-#     ***     AUTO GENERATED CODE    ***    AUTO GENERATED CODE     ***
+#     ***     AUTO GENERATED CODE    ***    Type: MMv1     ***
 #
 # ----------------------------------------------------------------------------
 #
@@ -78,7 +78,7 @@ options:
     - This only alters the User Agent string for any API requests.
     type: str
 notes:
-- for authentication, you can set service_account_file using the C(gcp_service_account_file)
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
@@ -339,6 +339,12 @@ resources:
               - Whether the instance should be assigned an IP address or not.
               returned: success
               type: bool
+            privateNetwork:
+              description:
+              - The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP
+                (e.g /projects/myProject/global/networks/default)
+              returned: success
+              type: str
             authorizedNetworks:
               description:
               - The list of external networks that are allowed to connect to the instance
