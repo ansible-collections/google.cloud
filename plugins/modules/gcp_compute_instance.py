@@ -1233,11 +1233,16 @@ def update_fields(module, request, response):
         tag_fingerprint_update(module,request,response)
 
 
+
+
 def tag_fingerprint_update(module, request, response):
     auth = GcpSession(module, 'compute')
+    if not module.params.get('tags'):
+        module.params['tags'] = {}
+    module.params['tags']['fingerprint'] = response.get('tags', {}).get('fingerprint')
     auth.post(
         ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/instances/{name}/setTags"]).format(**module.params),
-        {u'fingerprint': response.get('tags',{}).get('fingerprint'), u'items': module.params.get('tags', {}).get('items')},
+        InstanceTags(module.params.get('tags', {}), module).to_request(),
     )
 
 def label_fingerprint_update(module, request, response):
