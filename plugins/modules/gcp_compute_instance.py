@@ -1229,7 +1229,16 @@ def update_fields(module, request, response):
         machine_type_update(module, request, response)
     if response.get('shieldedInstanceConfig') != request.get('shieldedInstanceConfig'):
         shielded_instance_config_update(module, request, response)
+    if response.get("tags") != request.get("tags"):
+        tag_fingerprint_update(module,request,response)
 
+
+def tag_fingerprint_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    auth.post(
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/instances/{name}/setTags"]).format(**module.params),
+        {u'fingerprint': response.get('tags',{}).get('fingerprint'), u'items': module.params.get('tags', {}).get('items')},
+    )
 
 def label_fingerprint_update(module, request, response):
     auth = GcpSession(module, 'compute')
