@@ -69,7 +69,7 @@ _raw:
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import GcpSecretLookup
+from ansible_collections.google.cloud.plugins.plugin_utils.gcp_utils import GcpSecretLookup
 
 try:
     from google.cloud import secretmanager
