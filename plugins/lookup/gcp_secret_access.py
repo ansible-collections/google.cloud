@@ -12,7 +12,7 @@ author:
 short_description: Retrieve secrets from GCP Secret Manager
 requirements:
 - python >= 2.7
-- google-auth >= 1.3.0
+- google-auth >= 1.26.0
 - google-cloud-secret-manager >= 1.0.0
 description:
 - Retrieve secret contents from GCP Secret Manager.
@@ -33,6 +33,12 @@ options:
     type: str
     env:
     - name: GCP_PROJECT
+  access_token:
+    description:
+    - The Google Cloud access token. If specified, C(service_account_file) will be ignored.
+    type: path
+    env:
+    - name: GCP_ACCESS_TOKEN
   service_account_file:
     description:
     - The path of a Service Account JSON file if serviceaccount is selected as type.

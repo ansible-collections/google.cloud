@@ -2,10 +2,14 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
+import io
+import json
 import os
 import re
 
 try:
+    import google.oauth2.credentials
+    from google.auth import identity_pool
     from google.oauth2 import service_account
     HAS_GOOGLE_LIBRARIES = True
 except ImportError:
@@ -24,6 +28,7 @@ class GcpSecretLookup():
         self.secret_id = None
         self.version_id = None
         self.project_id = None
+        self.access_token = None
         self.service_account_file = None
         self.scope = ["https://www.googleapis.com/auth/cloud-platform"]
 
@@ -31,9 +36,37 @@ class GcpSecretLookup():
         self.plugin_name = name
 
     def client(self, secretmanager):
+        if self.access_token is not None:
+            credentials=google.oauth2.credentials.Credentials(self.access_token)
+            return secretmanager.SecretManagerServiceClient(credentials=credentials)
+
         if self.service_account_file is not None:
             path = os.path.realpath(os.path.expanduser(self.service_account_file))
-            credentials = service_account.Credentials.from_service_account_file(path).with_scopes(self.scope)
+            if not os.path.exists(path):
+                raise AnsibleError("File {} was not found.".format(path))
+
+            with io.open(path, "r") as file_obj:
+                try:
+                    info = json.load(file_obj)
+                except ValueError as e:
+                    raise AnsibleError("File {} is not a valid json file.".format(path))
+
+            credential_type = info.get("type")
+            if credential_type == "authorized_user":
+                credentials = google.oauth2.credentials.Credentials.from_authorized_user_info(info, scopes=self.scope)
+            elif credential_type == "service_account":
+                credentials = service_account.Credentials.from_service_account_info(info, scopes=self.scope)
+            elif credential_type == "external_account":
+                if info.get("subject_token_type") == "urn:ietf:params:aws:token-type:aws4_request":
+                    from google.auth import aws
+                    credentials = aws.Credentials.from_info(info, scopes=self.scope)
+                else:
+                    credentials = identity_pool.Credentials.from_info(info, scopes=self.scope)
+            else:
+                raise AnsibleError(
+                    "Type is {}, expected one of authorized_user, service_account, external_account.".format(credential_type)
+                )
+
             return secretmanager.SecretManagerServiceClient(credentials=credentials)
 
         return secretmanager.SecretManagerServiceClient()
@@ -42,6 +75,7 @@ class GcpSecretLookup():
         self.secret_id = kwargs.get('secret')
         self.version_id = kwargs.get('version', 'latest')
         self.project_id = kwargs.get('project', os.getenv('GCP_PROJECT'))
+        self.access_token = kwargs.get('access_token', os.getenv('GCP_ACCESS_TOKEN'))
         self.service_account_file = kwargs.get('service_account_file', os.getenv('GOOGLE_APPLICATION_CREDENTIALS'))
 
         if len(terms) > 1:
