@@ -35,7 +35,7 @@ options:
   access_token:
     description:
     - The Google Cloud access token. If specified, C(service_account_file) will be ignored.
-    type: path
+    type: str
     env:
     - name: GCP_ACCESS_TOKEN
   service_account_file:
