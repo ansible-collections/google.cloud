@@ -339,6 +339,12 @@ resources:
               - Whether the instance should be assigned an IP address or not.
               returned: success
               type: bool
+            privateNetwork:
+              description:
+              - The resource link for the VPC network from which the Cloud SQL instance is accessible for private IP
+                (e.g /projects/myProject/global/networks/default)
+              returned: success
+              type: str
             authorizedNetworks:
               description:
               - The list of external networks that are allowed to connect to the instance

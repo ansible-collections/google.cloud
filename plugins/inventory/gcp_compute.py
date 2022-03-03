@@ -45,7 +45,7 @@ DOCUMENTATION = """
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', or 'name'.
+              'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
         auth_kind:
@@ -230,7 +230,9 @@ class GcpInstance(object):
         """
         for order in self.hostname_ordering:
             name = None
-            if order == "public_ip":
+            if order.startswith("labels."):
+                name = self.json[u"labels"].get(order[7:])
+            elif order == "public_ip":
                 name = self._get_publicip()
             elif order == "private_ip":
                 name = self._get_privateip()
