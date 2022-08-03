@@ -105,7 +105,6 @@ EXAMPLES = """
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
-    state: present
 """
 
 RETURN = """
