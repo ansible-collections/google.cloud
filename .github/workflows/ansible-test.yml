@@ -1,0 +1,56 @@
+name: "Run tests for the cloud.google collection"
+on: [pull_request]
+jobs:
+  # sanity tests cannot be turned on until #498 is resolved.
+  # sanity:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ansible_collections/google/cloud
+  #   strategy:
+  #     matrix:
+  #       ansible_version:
+  #         - stable-2.13
+  #         - stable-2.11
+  #   steps:
+  #     - name: check out code
+  #       uses: actions/checkout@v2
+  #       with:
+  #         path: ansible_collections/google/cloud
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: '3.8'  # this is the minimum version required for Ansible 2.11
+  #     - name: Install ansible-base (${{ matrix.ansible_version }})
+  #       uses: nick-invision/retry@v2
+  #       with:
+  #         timeout_minutes: 3
+  #         max_attempts: 3
+  #         command: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+  #     - name: Run sanity tests
+  #       run: ansible-test sanity --docker -v --color --python 3.8
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/google/cloud
+    strategy:
+      matrix:
+        ansible_version:
+          - stable-2.13
+          - stable-2.11
+    steps:
+      - name: check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/google/cloud
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'  # this is the minimum version required for Ansible 2.11
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install ansible-base (${{ matrix.ansible_version }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      - name: Run unit tests
+        run: ansible-test units --docker -v --color --python 3.8
