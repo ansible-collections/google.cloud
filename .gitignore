@@ -1,0 +1,5 @@
+# personal credentials are added here: do not check in.
+tests/integration/cloud-config-gcp.ini
+# running ansible integration tests adds files here.
+tests/integration/inventory
+tests/output/
