@@ -1,5 +1,12 @@
 # Contributing to the google.cloud collection
 
+## Workflow summary
+
+1. [Clone the repository](#cloning).
+1. Make the desired code change.
+1. [Run integration tests locally and ensure they pass](running-integration-tests).
+1. Create a PR.
+
 ## Cloning
 
 The `ansible-test` command expects that the repository is in a directory that matches it's collection,

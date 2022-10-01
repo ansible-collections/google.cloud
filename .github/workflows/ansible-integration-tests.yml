@@ -1,0 +1,48 @@
+name: "Run integration tests for the cloud.google collection"
+on:
+  # NOTE: GitHub does not allow secrets to be used
+  # in PRs sent from forks. As such, this configuration is for
+  # PRs that the maintainers would like to send to test.
+  pull_request: {}
+  push:
+    branches: master
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/google/cloud
+    strategy:
+      matrix:
+        ansible_version:
+          # - stable-2.13
+          - stable-2.11
+    steps:
+      - name: check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/google/cloud
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'  # this is the minimum version required for Ansible 2.11
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install ansible-base (${{ matrix.ansible_version }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      - name: Write integration-test configuration files
+        env:
+          CI_SERVICE_ACCOUNT_FILE_CONTENTS: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
+        run: |
+          echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS" > /tmp/service-account-key.json
+          echo "[default]
+          gcp_project: ansible-gcp-ci
+          gcp_cred_file: /tmp/service-account-key.json
+          gcp_cred_kind: serviceaccount
+          gcp_cred_email: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
+          " > ./tests/integration/cloud-config-gcp.ini
+      - name: test secrets
+        env: ${{ secrets }}
+        run: echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS"
+      - name: Run integration tests
+        run: ansible-test integration -vvv --color --python 3.8 --venv-system-site-packages
