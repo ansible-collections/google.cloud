@@ -40,6 +40,20 @@ gcp_cred_kind: @CRED_KIND
 gcp_cred_email: @EMAIL
 ```
 
+#### Setting up the project for testing
+
+Some of the setup of the project itself is done outside of the test,
+and is expected to be configured beforehand.
+
+For convenience, a bootstrap script is provided.
+
+NOTE: running this script will make irreversible changes in your
+GCP project (e.g. create an AppEngine project):
+
+```bash
+bash ./scripts/bootstrap-project.sh $PROJECT_ID $SERVICE_ACCOUNT_NAME
+```
+
 ### Running
 
 Run `ansible-test integration`. Currently some tests are disabled as [test are being verified and added](https://github.com/ansible-collections/google.cloud/issues/499).

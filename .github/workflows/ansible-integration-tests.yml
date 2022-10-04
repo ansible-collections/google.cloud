@@ -45,4 +45,5 @@ jobs:
         env: ${{ secrets }}
         run: echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS"
       - name: Run integration tests
-        run: ansible-test integration -vvv --color --python 3.8 --venv-system-site-packages
+        # Add the -vvv flag to print out more output
+        run: ansible-test integration -v --color --python 3.8 --venv-system-site-packages
