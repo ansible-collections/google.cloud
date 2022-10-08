@@ -90,7 +90,9 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | length == 0
+      # there is a default firewall rule that cannot be
+      # deleted, so the length should be 1.
+      - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
 - name: delete a firewall rule that does not exist
   google.cloud.gcp_appengine_firewall_rule:
