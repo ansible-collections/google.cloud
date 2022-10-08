@@ -80,7 +80,7 @@
       boot: 'true'
       source: "{{ disk }}"
     - auto_delete: 'true'
-      interface: SCS
+      interface: NVME
       type: SCRATCH
       initialize_params:
         disk_type: local-ssd

@@ -56,10 +56,10 @@ fi
 BUCKET_NAME="gs://${PROJECT_ID}-ansible-testing"
 
 if ! gcloud storage buckets describe "${BUCKET_NAME}" > /dev/null; then
-    gcloud storage buckets create "gs://${PROJECT_ID}-ansible-testing" --project="${PROJECT_ID}"
+    gcloud storage buckets create "${BUCKET_NAME}" --project="${PROJECT_ID}"
 fi
 
-gsutil cp ./test-fixtures/cloud-function.zip "gs://${PROJECT_ID}-ansible-testing"
+gsutil cp ./test-fixtures/cloud-function.zip "${BUCKET_NAME}"
 
 
 # The following is hard to automate, so echo
