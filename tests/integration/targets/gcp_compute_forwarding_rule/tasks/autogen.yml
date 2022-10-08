@@ -35,7 +35,7 @@
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
-    target: "{{ targetpool }}"
+    target: "{{ targetpool.selfLink }}"
     ip_protocol: TCP
     port_range: 80-80
     ip_address: "{{ address.address }}"
@@ -48,7 +48,7 @@
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
-    target: "{{ targetpool }}"
+    target: "{{ targetpool.selfLink }}"
     ip_protocol: TCP
     port_range: 80-80
     ip_address: "{{ address.address }}"
@@ -81,7 +81,7 @@
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
-    target: "{{ targetpool }}"
+    target: "{{ targetpool.selfLink }}"
     ip_protocol: TCP
     port_range: 80-80
     ip_address: "{{ address.address }}"
@@ -99,7 +99,7 @@
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
-    target: "{{ targetpool }}"
+    target: "{{ targetpool.selfLink }}"
     ip_protocol: TCP
     port_range: 80-80
     ip_address: "{{ address.address }}"
@@ -132,7 +132,7 @@
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
-    target: "{{ targetpool }}"
+    target: "{{ targetpool.selfLink }}"
     ip_protocol: TCP
     port_range: 80-80
     ip_address: "{{ address.address }}"
