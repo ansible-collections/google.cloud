@@ -1,2 +1,2 @@
 ---
-resource_name: "{{ resource_prefix }}"
+resource_name: "{{ gcp_project }}-ansible-test-bucket"
