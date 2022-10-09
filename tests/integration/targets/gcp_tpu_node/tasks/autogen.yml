@@ -17,8 +17,8 @@
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
     zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    accelerator_type: v2-8
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -29,8 +29,8 @@
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
     zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    accelerator_type: v2-8
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -59,8 +59,8 @@
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
     zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    accelerator_type: v2-8
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -76,8 +76,8 @@
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
     zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    accelerator_type: v2-8
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -106,8 +106,8 @@
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
     zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    accelerator_type: v2-8
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

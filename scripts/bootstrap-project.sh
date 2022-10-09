@@ -33,7 +33,6 @@ SERVICE_LIST=(
 REQUIRED_ROLE_LIST=(
     "roles/storage.objectAdmin"
     "roles/source.admin"
-    "roles/resourcemanager.projects.create"
 )
 
 for SERVICE in "${SERVICE_LIST[@]}"; do
