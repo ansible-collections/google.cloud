@@ -21,6 +21,7 @@ SERVICE_LIST=(
     "dns"
     "file.googleapis.com"
     "ml.googleapis.com"
+    "redis.googleapis.com"
     "runtimeconfig.googleapis.com"
     "sourcerepo.googleapis.com"
     "spanner.googleapis.com"
