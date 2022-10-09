@@ -133,7 +133,6 @@ EXAMPLES = '''
 - name: create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: test_object
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
