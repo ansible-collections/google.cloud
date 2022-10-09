@@ -11,6 +11,7 @@ SERVICE_ACCOUNT_NAME="${2}"
 SERVICE_LIST=(
     "appengine"
     "bigtable"
+    "cloudbuild.googleapis.com"
     "cloudfunctions"
     "cloudkms.googleapis.com"
     "cloudresourcemanager.googleapis.com"
@@ -50,11 +51,16 @@ if ! gcloud app describe --project="$PROJECT_ID" > /dev/null; then
     gcloud app create --project="$PROJECT_ID" --region=us-central
 fi
 
+# create and upload cloud function for testing
 
+BUCKET_NAME="gs://${PROJECT_ID}-ansible-testing"
 
-# Add bindings
+if ! gcloud storage buckets describe "${BUCKET_NAME}" > /dev/null; then
+    gcloud storage buckets create "${BUCKET_NAME}" --project="${PROJECT_ID}"
+fi
 
-# roles/storage.objectAdmin
+gsutil cp ./test-fixtures/cloud-function.zip "${BUCKET_NAME}"
+
 
 # The following is hard to automate, so echo
 echo "Done! It may take up to 10 minutes for some of the changes to fully propagate."

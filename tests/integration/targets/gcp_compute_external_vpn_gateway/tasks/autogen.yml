@@ -17,7 +17,7 @@
   google.cloud.gcp_compute_external_vpn_gateway:
     name: "{{ resource_name }}"
     redundancy_type: SINGLE_IP_INTERNALLY_REDUNDANT
-    descrpition: An externalyl managed VPN gateway
+    description: An externaly managed VPN gateway
     interfaces:
     - id: 0
       ip_address: 8.8.8.8
@@ -30,7 +30,7 @@
   google.cloud.gcp_compute_external_vpn_gateway:
     name: "{{ resource_name }}"
     redundancy_type: SINGLE_IP_INTERNALLY_REDUNDANT
-    descrpition: An externalyl managed VPN gateway
+    description: An externalyl managed VPN gateway
     interfaces:
     - id: 0
       ip_address: 8.8.8.8
@@ -62,7 +62,7 @@
   google.cloud.gcp_compute_external_vpn_gateway:
     name: "{{ resource_name }}"
     redundancy_type: SINGLE_IP_INTERNALLY_REDUNDANT
-    descrpition: An externalyl managed VPN gateway
+    description: An externalyl managed VPN gateway
     interfaces:
     - id: 0
       ip_address: 8.8.8.8
@@ -80,7 +80,7 @@
   google.cloud.gcp_compute_external_vpn_gateway:
     name: "{{ resource_name }}"
     redundancy_type: SINGLE_IP_INTERNALLY_REDUNDANT
-    descrpition: An externalyl managed VPN gateway
+    description: An externalyl managed VPN gateway
     interfaces:
     - id: 0
       ip_address: 8.8.8.8
@@ -112,7 +112,7 @@
   google.cloud.gcp_compute_external_vpn_gateway:
     name: "{{ resource_name }}"
     redundancy_type: SINGLE_IP_INTERNALLY_REDUNDANT
-    descrpition: An externalyl managed VPN gateway
+    description: An externalyl managed VPN gateway
     interfaces:
     - id: 0
       ip_address: 8.8.8.8

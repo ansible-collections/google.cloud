@@ -18,9 +18,10 @@
     name: "{{ resource_name }}"
     location: us-central1
     entry_point: helloGET
-    source_archive_url: gs://ansible-cloudfunctions-bucket/function.zip
+    source_archive_url: gs://{{ gcp_project }}-ansible-testing/cloud-function.zip
     trigger_http: 'true'
     project: "{{ gcp_project }}"
+    runtime: "python310"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
     state: absent
@@ -30,9 +31,10 @@
     name: "{{ resource_name }}"
     location: us-central1
     entry_point: helloGET
-    source_archive_url: gs://ansible-cloudfunctions-bucket/function.zip
+    source_archive_url: gs://{{ gcp_project }}-ansible-testing/cloud-function.zip
     trigger_http: 'true'
     project: "{{ gcp_project }}"
+    runtime: "python310"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
     state: present
@@ -60,10 +62,13 @@
     name: "{{ resource_name }}"
     location: us-central1
     entry_point: helloGET
-    source_archive_url: gs://ansible-cloudfunctions-bucket/function.zip
+    source_archive_url: gs://{{ gcp_project }}-ansible-testing/cloud-function.zip
     trigger_http: 'true'
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
+    # runtime is not sent as it is optional for
+    # existing functions.
+    # runtime: "python310"
     service_account_file: "{{ gcp_cred_file }}"
     state: present
   register: result
@@ -77,7 +82,7 @@
     name: "{{ resource_name }}"
     location: us-central1
     entry_point: helloGET
-    source_archive_url: gs://ansible-cloudfunctions-bucket/function.zip
+    source_archive_url: gs://{{ gcp_project }}-ansible-testing/cloud-function.zip
     trigger_http: 'true'
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -107,7 +112,7 @@
     name: "{{ resource_name }}"
     location: us-central1
     entry_point: helloGET
-    source_archive_url: gs://ansible-cloudfunctions-bucket/function.zip
+    source_archive_url: gs://{{ gcp_project }}-ansible-testing/cloud-function.zip
     trigger_http: 'true'
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
