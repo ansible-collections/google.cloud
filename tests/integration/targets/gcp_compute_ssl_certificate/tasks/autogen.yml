@@ -16,7 +16,6 @@
 - name: delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
@@ -50,7 +49,6 @@
 - name: create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
@@ -103,7 +101,6 @@
 - name: create a SSL certificate that already exists
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
@@ -142,7 +139,6 @@
 - name: delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
@@ -195,7 +191,6 @@
 - name: delete a SSL certificate that does not exist
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----

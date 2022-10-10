@@ -71,6 +71,11 @@
   assert:
     that:
       - result.changed == true
+# TODO(@toumorokoshi): investigate if the pause helps
+# prevent quota issues.
+# - name: Pause for 1 minute to keep from hitting quota limit
+#   ansible.builtin.pause:
+#     minutes: 1
 - name: verify that service was deleted
   google.cloud.gcp_serviceusage_service_info:
       project: "{{ gcp_project }}"

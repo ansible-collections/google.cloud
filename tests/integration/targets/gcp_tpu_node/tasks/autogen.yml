@@ -16,9 +16,9 @@
 - name: delete a node
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
-    zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    zone: us-central1-a
+    accelerator_type: "v2-32"
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -28,9 +28,9 @@
 - name: create a node
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
-    zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    zone: us-central1-a
+    accelerator_type: "v2-32"
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -43,7 +43,7 @@
       - result.changed == true
 - name: verify that node was created
   google.cloud.gcp_tpu_node_info:
-      zone: us-central1-b
+      zone: us-central1-a
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
       service_account_file: "{{ gcp_cred_file }}"
@@ -58,9 +58,9 @@
 - name: create a node that already exists
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
-    zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    zone: us-central1-a
+    accelerator_type: "v2-32"
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -75,9 +75,9 @@
 - name: delete a node
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
-    zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    zone: us-central1-a
+    accelerator_type: "v2-32"
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -90,7 +90,7 @@
       - result.changed == true
 - name: verify that node was deleted
   google.cloud.gcp_tpu_node_info:
-      zone: us-central1-b
+      zone: us-central1-a
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
       service_account_file: "{{ gcp_cred_file }}"
@@ -105,9 +105,9 @@
 - name: delete a node that does not exist
   google.cloud.gcp_tpu_node:
     name: "{{ resource_name }}"
-    zone: us-central1-b
-    accelerator_type: v3-8
-    tensorflow_version: '1.11'
+    zone: us-central1-a
+    accelerator_type: "v2-32"
+    tensorflow_version: '2.10.0'
     cidr_block: 10.2.0.0/29
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

@@ -134,7 +134,7 @@ EXAMPLES = '''
 - name: create a project
   google.cloud.gcp_resourcemanager_project:
     name: My Sample Project
-    id: alextest-{{ 10000000000 | random }}
+    id: ansible-test-{{ 10000000000 | random }}
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     parent:

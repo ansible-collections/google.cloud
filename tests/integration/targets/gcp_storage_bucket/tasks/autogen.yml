@@ -15,7 +15,7 @@
 # Pre-test setup
 - name: delete a bucket
   google.cloud.gcp_storage_bucket:
-    name: ansible-storage-module
+    name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -23,7 +23,7 @@
 #----------------------------------------------------------
 - name: create a bucket
   google.cloud.gcp_storage_bucket:
-    name: ansible-storage-module
+    name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -36,7 +36,7 @@
 # ----------------------------------------------------------------------------
 - name: create a bucket that already exists
   google.cloud.gcp_storage_bucket:
-    name: ansible-storage-module
+    name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -49,7 +49,7 @@
 #----------------------------------------------------------
 - name: delete a bucket
   google.cloud.gcp_storage_bucket:
-    name: ansible-storage-module
+    name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -62,7 +62,7 @@
 # ----------------------------------------------------------------------------
 - name: delete a bucket that does not exist
   google.cloud.gcp_storage_bucket:
-    name: ansible-storage-module
+    name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
