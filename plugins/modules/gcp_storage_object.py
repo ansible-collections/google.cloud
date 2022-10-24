@@ -28,7 +28,7 @@ requirements:
 - python >= 2.6
 - requests >= 2.18.4
 - google-auth >= 1.3.0
-- google-cloud-storage >= 1.2..0
+- google-cloud-storage >= 1.2.0
 options:
   action:
     description:
