@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_backend_service
 description:
@@ -736,9 +740,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-backendservice
@@ -774,9 +778,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 affinityCookieTtlSec:
   description:
   - Lifetime of cookies in seconds if session_affinity is GENERATED_COOKIE. If set
@@ -1394,7 +1398,7 @@ logConfig:
       - The default value is 1.0.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -1421,128 +1425,159 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            affinity_cookie_ttl_sec=dict(type='int'),
-            fingerprint=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            affinity_cookie_ttl_sec=dict(type="int"),
+            fingerprint=dict(type="str"),
             backends=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    balancing_mode=dict(default='UTILIZATION', type='str'),
-                    capacity_scaler=dict(default=1.0, type='str'),
-                    description=dict(type='str'),
-                    group=dict(required=True, type='str'),
-                    max_connections=dict(type='int'),
-                    max_connections_per_instance=dict(type='int'),
-                    max_connections_per_endpoint=dict(type='int'),
-                    max_rate=dict(type='int'),
-                    max_rate_per_instance=dict(type='str'),
-                    max_rate_per_endpoint=dict(type='str'),
-                    max_utilization=dict(type='str'),
+                    balancing_mode=dict(default="UTILIZATION", type="str"),
+                    # TODO: capacity_scaler does some value normalization 
+                    # server-side, so there needs to be a way to do proper
+                    # value comparison.
+                    capacity_scaler=dict(default="1", type="str"),
+                    description=dict(type="str"),
+                    group=dict(required=True, type="str"),
+                    max_connections=dict(type="int"),
+                    max_connections_per_instance=dict(type="int"),
+                    max_connections_per_endpoint=dict(type="int"),
+                    max_rate=dict(type="int"),
+                    max_rate_per_instance=dict(type="str"),
+                    max_rate_per_endpoint=dict(type="str"),
+                    max_utilization=dict(type="str"),
                 ),
             ),
             circuit_breakers=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    max_requests_per_connection=dict(type='int'),
-                    max_connections=dict(default=1024, type='int'),
-                    max_pending_requests=dict(default=1024, type='int'),
-                    max_requests=dict(default=1024, type='int'),
-                    max_retries=dict(default=3, type='int'),
+                    max_requests_per_connection=dict(type="int"),
+                    max_connections=dict(default=1024, type="int"),
+                    max_pending_requests=dict(default=1024, type="int"),
+                    max_requests=dict(default=1024, type="int"),
+                    max_retries=dict(default=3, type="int"),
                 ),
             ),
             consistent_hash=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     http_cookie=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            ttl=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
-                            name=dict(type='str'),
-                            path=dict(type='str'),
+                            ttl=dict(
+                                type="dict",
+                                options=dict(
+                                    seconds=dict(required=True, type="int"),
+                                    nanos=dict(type="int"),
+                                ),
+                            ),
+                            name=dict(type="str"),
+                            path=dict(type="str"),
                         ),
                     ),
-                    http_header_name=dict(type='str'),
-                    minimum_ring_size=dict(default=1024, type='int'),
+                    http_header_name=dict(type="str"),
+                    minimum_ring_size=dict(default=1024, type="int"),
                 ),
             ),
             cdn_policy=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     cache_key_policy=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            include_host=dict(type='bool'),
-                            include_protocol=dict(type='bool'),
-                            include_query_string=dict(type='bool'),
-                            query_string_blacklist=dict(type='list', elements='str'),
-                            query_string_whitelist=dict(type='list', elements='str'),
+                            include_host=dict(type="bool"),
+                            include_protocol=dict(type="bool"),
+                            include_query_string=dict(type="bool"),
+                            query_string_blacklist=dict(type="list", elements="str"),
+                            query_string_whitelist=dict(type="list", elements="str"),
                         ),
                     ),
-                    signed_url_cache_max_age_sec=dict(default=3600, type='int'),
-                    default_ttl=dict(type='int'),
-                    max_ttl=dict(type='int'),
-                    client_ttl=dict(type='int'),
-                    negative_caching=dict(type='bool'),
-                    negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'), ttl=dict(type='int'))),
-                    cache_mode=dict(type='str'),
-                    serve_while_stale=dict(type='int'),
+                    signed_url_cache_max_age_sec=dict(default=3600, type="int"),
+                    default_ttl=dict(type="int"),
+                    max_ttl=dict(type="int"),
+                    client_ttl=dict(type="int"),
+                    negative_caching=dict(type="bool"),
+                    negative_caching_policy=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(code=dict(type="int"), ttl=dict(type="int")),
+                    ),
+                    cache_mode=dict(type="str"),
+                    serve_while_stale=dict(type="int"),
                 ),
             ),
-            connection_draining=dict(type='dict', options=dict(draining_timeout_sec=dict(default=300, type='int'))),
-            custom_request_headers=dict(type='list', elements='str'),
-            custom_response_headers=dict(type='list', elements='str'),
-            description=dict(type='str'),
-            enable_cdn=dict(type='bool'),
-            health_checks=dict(type='list', elements='str'),
+            connection_draining=dict(
+                type="dict",
+                options=dict(draining_timeout_sec=dict(default=300, type="int")),
+            ),
+            custom_request_headers=dict(type="list", elements="str"),
+            custom_response_headers=dict(type="list", elements="str"),
+            description=dict(type="str"),
+            enable_cdn=dict(type="bool"),
+            health_checks=dict(type="list", elements="str"),
             iap=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    enabled=dict(type='bool'),
-                    oauth2_client_id=dict(required=True, type='str'),
-                    oauth2_client_secret=dict(required=True, type='str', no_log=True),
+                    enabled=dict(type="bool"),
+                    oauth2_client_id=dict(required=True, type="str"),
+                    oauth2_client_secret=dict(required=True, type="str", no_log=True),
                 ),
             ),
-            load_balancing_scheme=dict(default='EXTERNAL', type='str'),
-            locality_lb_policy=dict(type='str'),
-            name=dict(required=True, type='str'),
+            load_balancing_scheme=dict(default="EXTERNAL", type="str"),
+            locality_lb_policy=dict(type="str"),
+            name=dict(required=True, type="str"),
             outlier_detection=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    base_ejection_time=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
-                    consecutive_errors=dict(default=5, type='int'),
-                    consecutive_gateway_failure=dict(default=5, type='int'),
-                    enforcing_consecutive_errors=dict(default=100, type='int'),
-                    enforcing_consecutive_gateway_failure=dict(default=0, type='int'),
-                    enforcing_success_rate=dict(default=100, type='int'),
-                    interval=dict(type='dict', options=dict(seconds=dict(required=True, type='int'), nanos=dict(type='int'))),
-                    max_ejection_percent=dict(default=10, type='int'),
-                    success_rate_minimum_hosts=dict(default=5, type='int'),
-                    success_rate_request_volume=dict(default=100, type='int'),
-                    success_rate_stdev_factor=dict(default=1900, type='int'),
+                    base_ejection_time=dict(
+                        type="dict",
+                        options=dict(
+                            seconds=dict(required=True, type="int"),
+                            nanos=dict(type="int"),
+                        ),
+                    ),
+                    consecutive_errors=dict(default=5, type="int"),
+                    consecutive_gateway_failure=dict(default=5, type="int"),
+                    enforcing_consecutive_errors=dict(default=100, type="int"),
+                    enforcing_consecutive_gateway_failure=dict(default=0, type="int"),
+                    enforcing_success_rate=dict(default=100, type="int"),
+                    interval=dict(
+                        type="dict",
+                        options=dict(
+                            seconds=dict(required=True, type="int"),
+                            nanos=dict(type="int"),
+                        ),
+                    ),
+                    max_ejection_percent=dict(default=10, type="int"),
+                    success_rate_minimum_hosts=dict(default=5, type="int"),
+                    success_rate_request_volume=dict(default=100, type="int"),
+                    success_rate_stdev_factor=dict(default=1900, type="int"),
                 ),
             ),
-            port_name=dict(type='str'),
-            protocol=dict(type='str'),
-            security_policy=dict(type='str'),
-            session_affinity=dict(type='str'),
-            timeout_sec=dict(type='int', aliases=['timeout_seconds']),
-            log_config=dict(type='dict', options=dict(enable=dict(type='bool'), sample_rate=dict(type='str'))),
+            port_name=dict(type="str"),
+            protocol=dict(type="str"),
+            security_policy=dict(type="str"),
+            session_affinity=dict(type="str"),
+            timeout_sec=dict(type="int", aliases=["timeout_seconds"]),
+            log_config=dict(
+                type="dict",
+                options=dict(enable=dict(type="bool"), sample_rate=dict(type="str")),
+            ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#backendService'
+    state = module.params["state"]
+    kind = "compute#backendService"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        module.params['fingerprint'] = fetch['fingerprint']
-        if state == 'present':
+        module.params["fingerprint"] = fetch["fingerprint"]
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -1552,58 +1587,72 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#backendService',
-        u'affinityCookieTtlSec': module.params.get('affinity_cookie_ttl_sec'),
-        u'backends': BackendServiceBackendsArray(module.params.get('backends', []), module).to_request(),
-        u'circuitBreakers': BackendServiceCircuitbreakers(module.params.get('circuit_breakers', {}), module).to_request(),
-        u'consistentHash': BackendServiceConsistenthash(module.params.get('consistent_hash', {}), module).to_request(),
-        u'cdnPolicy': BackendServiceCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
-        u'connectionDraining': BackendServiceConnectiondraining(module.params.get('connection_draining', {}), module).to_request(),
-        u'customRequestHeaders': module.params.get('custom_request_headers'),
-        u'customResponseHeaders': module.params.get('custom_response_headers'),
-        u'description': module.params.get('description'),
-        u'enableCDN': module.params.get('enable_cdn'),
-        u'healthChecks': module.params.get('health_checks'),
-        u'iap': BackendServiceIap(module.params.get('iap', {}), module).to_request(),
-        u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
-        u'localityLbPolicy': module.params.get('locality_lb_policy'),
-        u'name': module.params.get('name'),
-        u'outlierDetection': BackendServiceOutlierdetection(module.params.get('outlier_detection', {}), module).to_request(),
-        u'portName': module.params.get('port_name'),
-        u'protocol': module.params.get('protocol'),
-        u'securityPolicy': module.params.get('security_policy'),
-        u'sessionAffinity': module.params.get('session_affinity'),
-        u'timeoutSec': module.params.get('timeout_sec'),
-        u'logConfig': BackendServiceLogconfig(module.params.get('log_config', {}), module).to_request(),
-        u'fingerprint': module.params.get('fingerprint')
+        "kind": "compute#backendService",
+        "affinityCookieTtlSec": module.params.get("affinity_cookie_ttl_sec"),
+        "backends": BackendServiceBackendsArray(
+            module.params.get("backends", []), module
+        ).to_request(),
+        "circuitBreakers": BackendServiceCircuitbreakers(
+            module.params.get("circuit_breakers", {}), module
+        ).to_request(),
+        "consistentHash": BackendServiceConsistenthash(
+            module.params.get("consistent_hash", {}), module
+        ).to_request(),
+        "cdnPolicy": BackendServiceCdnpolicy(
+            module.params.get("cdn_policy", {}), module
+        ).to_request(),
+        "connectionDraining": BackendServiceConnectiondraining(
+            module.params.get("connection_draining", {}), module
+        ).to_request(),
+        "customRequestHeaders": module.params.get("custom_request_headers"),
+        "customResponseHeaders": module.params.get("custom_response_headers"),
+        "description": module.params.get("description"),
+        "enableCDN": module.params.get("enable_cdn"),
+        "healthChecks": module.params.get("health_checks"),
+        "iap": BackendServiceIap(module.params.get("iap", {}), module).to_request(),
+        "loadBalancingScheme": module.params.get("load_balancing_scheme"),
+        "localityLbPolicy": module.params.get("locality_lb_policy"),
+        "name": module.params.get("name"),
+        "outlierDetection": BackendServiceOutlierdetection(
+            module.params.get("outlier_detection", {}), module
+        ).to_request(),
+        "portName": module.params.get("port_name"),
+        "protocol": module.params.get("protocol"),
+        "securityPolicy": module.params.get("security_policy"),
+        "sessionAffinity": module.params.get("session_affinity"),
+        "timeoutSec": module.params.get("timeout_sec"),
+        "logConfig": BackendServiceLogconfig(
+            module.params.get("log_config", {}), module
+        ).to_request(),
+        "fingerprint": module.params.get("fingerprint"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1614,16 +1663,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendServices".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1638,11 +1691,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1662,6 +1715,9 @@ def is_different(module, response):
         if k in response:
             request_vals[k] = v
 
+    # req = GcpRequest(request_vals)
+    # res = GcpRequest(response_vals)
+    # import epdb; epdb.serve()
     return GcpRequest(request_vals) != GcpRequest(response_vals)
 
 
@@ -1669,31 +1725,45 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'affinityCookieTtlSec': response.get(u'affinityCookieTtlSec'),
-        u'backends': BackendServiceBackendsArray(response.get(u'backends', []), module).from_response(),
-        u'circuitBreakers': BackendServiceCircuitbreakers(response.get(u'circuitBreakers', {}), module).from_response(),
-        u'consistentHash': BackendServiceConsistenthash(response.get(u'consistentHash', {}), module).from_response(),
-        u'cdnPolicy': BackendServiceCdnpolicy(response.get(u'cdnPolicy', {}), module).from_response(),
-        u'connectionDraining': BackendServiceConnectiondraining(response.get(u'connectionDraining', {}), module).from_response(),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'customRequestHeaders': response.get(u'customRequestHeaders'),
-        u'customResponseHeaders': response.get(u'customResponseHeaders'),
-        u'fingerprint': response.get(u'fingerprint'),
-        u'description': response.get(u'description'),
-        u'enableCDN': response.get(u'enableCDN'),
-        u'healthChecks': response.get(u'healthChecks'),
-        u'id': response.get(u'id'),
-        u'iap': BackendServiceIap(response.get(u'iap', {}), module).from_response(),
-        u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
-        u'localityLbPolicy': response.get(u'localityLbPolicy'),
-        u'name': module.params.get('name'),
-        u'outlierDetection': BackendServiceOutlierdetection(response.get(u'outlierDetection', {}), module).from_response(),
-        u'portName': response.get(u'portName'),
-        u'protocol': response.get(u'protocol'),
-        u'securityPolicy': response.get(u'securityPolicy'),
-        u'sessionAffinity': response.get(u'sessionAffinity'),
-        u'timeoutSec': response.get(u'timeoutSec'),
-        u'logConfig': BackendServiceLogconfig(response.get(u'logConfig', {}), module).from_response(),
+        "affinityCookieTtlSec": response.get("affinityCookieTtlSec"),
+        "backends": BackendServiceBackendsArray(
+            response.get("backends", []), module
+        ).from_response(),
+        "circuitBreakers": BackendServiceCircuitbreakers(
+            response.get("circuitBreakers", {}), module
+        ).from_response(),
+        "consistentHash": BackendServiceConsistenthash(
+            response.get("consistentHash", {}), module
+        ).from_response(),
+        "cdnPolicy": BackendServiceCdnpolicy(
+            response.get("cdnPolicy", {}), module
+        ).from_response(),
+        "connectionDraining": BackendServiceConnectiondraining(
+            response.get("connectionDraining", {}), module
+        ).from_response(),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "customRequestHeaders": response.get("customRequestHeaders"),
+        "customResponseHeaders": response.get("customResponseHeaders"),
+        "fingerprint": response.get("fingerprint"),
+        "description": response.get("description"),
+        "enableCDN": response.get("enableCDN"),
+        "healthChecks": response.get("healthChecks"),
+        "id": response.get("id"),
+        "iap": BackendServiceIap(response.get("iap", {}), module).from_response(),
+        "loadBalancingScheme": module.params.get("load_balancing_scheme"),
+        "localityLbPolicy": response.get("localityLbPolicy"),
+        "name": module.params.get("name"),
+        "outlierDetection": BackendServiceOutlierdetection(
+            response.get("outlierDetection", {}), module
+        ).from_response(),
+        "portName": response.get("portName"),
+        "protocol": response.get("protocol"),
+        "securityPolicy": response.get("securityPolicy"),
+        "sessionAffinity": response.get("sessionAffinity"),
+        "timeoutSec": response.get("timeoutSec"),
+        "logConfig": BackendServiceLogconfig(
+            response.get("logConfig", {}), module
+        ).from_response(),
     }
 
 
@@ -1707,22 +1777,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#backendService')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#backendService"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -1755,34 +1827,34 @@ class BackendServiceBackendsArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'balancingMode': item.get('balancing_mode'),
-                u'capacityScaler': item.get('capacity_scaler'),
-                u'description': item.get('description'),
-                u'group': item.get('group'),
-                u'maxConnections': item.get('max_connections'),
-                u'maxConnectionsPerInstance': item.get('max_connections_per_instance'),
-                u'maxConnectionsPerEndpoint': item.get('max_connections_per_endpoint'),
-                u'maxRate': item.get('max_rate'),
-                u'maxRatePerInstance': item.get('max_rate_per_instance'),
-                u'maxRatePerEndpoint': item.get('max_rate_per_endpoint'),
-                u'maxUtilization': item.get('max_utilization'),
+                "balancingMode": item.get("balancing_mode"),
+                "capacityScaler": item.get("capacity_scaler"),
+                "description": item.get("description"),
+                "group": item.get("group"),
+                "maxConnections": item.get("max_connections"),
+                "maxConnectionsPerInstance": item.get("max_connections_per_instance"),
+                "maxConnectionsPerEndpoint": item.get("max_connections_per_endpoint"),
+                "maxRate": item.get("max_rate"),
+                "maxRatePerInstance": item.get("max_rate_per_instance"),
+                "maxRatePerEndpoint": item.get("max_rate_per_endpoint"),
+                "maxUtilization": item.get("max_utilization"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'balancingMode': item.get(u'balancingMode'),
-                u'capacityScaler': item.get(u'capacityScaler'),
-                u'description': item.get(u'description'),
-                u'group': item.get(u'group'),
-                u'maxConnections': item.get(u'maxConnections'),
-                u'maxConnectionsPerInstance': item.get(u'maxConnectionsPerInstance'),
-                u'maxConnectionsPerEndpoint': item.get(u'maxConnectionsPerEndpoint'),
-                u'maxRate': item.get(u'maxRate'),
-                u'maxRatePerInstance': item.get(u'maxRatePerInstance'),
-                u'maxRatePerEndpoint': item.get(u'maxRatePerEndpoint'),
-                u'maxUtilization': item.get(u'maxUtilization'),
+                "balancingMode": item.get("balancingMode"),
+                "capacityScaler": item.get("capacityScaler"),
+                "description": item.get("description"),
+                "group": item.get("group"),
+                "maxConnections": item.get("maxConnections"),
+                "maxConnectionsPerInstance": item.get("maxConnectionsPerInstance"),
+                "maxConnectionsPerEndpoint": item.get("maxConnectionsPerEndpoint"),
+                "maxRate": item.get("maxRate"),
+                "maxRatePerInstance": item.get("maxRatePerInstance"),
+                "maxRatePerEndpoint": item.get("maxRatePerEndpoint"),
+                "maxUtilization": item.get("maxUtilization"),
             }
         )
 
@@ -1798,22 +1870,26 @@ class BackendServiceCircuitbreakers(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'maxRequestsPerConnection': self.request.get('max_requests_per_connection'),
-                u'maxConnections': self.request.get('max_connections'),
-                u'maxPendingRequests': self.request.get('max_pending_requests'),
-                u'maxRequests': self.request.get('max_requests'),
-                u'maxRetries': self.request.get('max_retries'),
+                "maxRequestsPerConnection": self.request.get(
+                    "max_requests_per_connection"
+                ),
+                "maxConnections": self.request.get("max_connections"),
+                "maxPendingRequests": self.request.get("max_pending_requests"),
+                "maxRequests": self.request.get("max_requests"),
+                "maxRetries": self.request.get("max_retries"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'maxRequestsPerConnection': self.request.get(u'maxRequestsPerConnection'),
-                u'maxConnections': self.request.get(u'maxConnections'),
-                u'maxPendingRequests': self.request.get(u'maxPendingRequests'),
-                u'maxRequests': self.request.get(u'maxRequests'),
-                u'maxRetries': self.request.get(u'maxRetries'),
+                "maxRequestsPerConnection": self.request.get(
+                    "maxRequestsPerConnection"
+                ),
+                "maxConnections": self.request.get("maxConnections"),
+                "maxPendingRequests": self.request.get("maxPendingRequests"),
+                "maxRequests": self.request.get("maxRequests"),
+                "maxRetries": self.request.get("maxRetries"),
             }
         )
 
@@ -1829,18 +1905,22 @@ class BackendServiceConsistenthash(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'httpCookie': BackendServiceHttpcookie(self.request.get('http_cookie', {}), self.module).to_request(),
-                u'httpHeaderName': self.request.get('http_header_name'),
-                u'minimumRingSize': self.request.get('minimum_ring_size'),
+                "httpCookie": BackendServiceHttpcookie(
+                    self.request.get("http_cookie", {}), self.module
+                ).to_request(),
+                "httpHeaderName": self.request.get("http_header_name"),
+                "minimumRingSize": self.request.get("minimum_ring_size"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'httpCookie': BackendServiceHttpcookie(self.request.get(u'httpCookie', {}), self.module).from_response(),
-                u'httpHeaderName': self.request.get(u'httpHeaderName'),
-                u'minimumRingSize': self.request.get(u'minimumRingSize'),
+                "httpCookie": BackendServiceHttpcookie(
+                    self.request.get("httpCookie", {}), self.module
+                ).from_response(),
+                "httpHeaderName": self.request.get("httpHeaderName"),
+                "minimumRingSize": self.request.get("minimumRingSize"),
             }
         )
 
@@ -1856,18 +1936,22 @@ class BackendServiceHttpcookie(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'ttl': BackendServiceTtl(self.request.get('ttl', {}), self.module).to_request(),
-                u'name': self.request.get('name'),
-                u'path': self.request.get('path'),
+                "ttl": BackendServiceTtl(
+                    self.request.get("ttl", {}), self.module
+                ).to_request(),
+                "name": self.request.get("name"),
+                "path": self.request.get("path"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'ttl': BackendServiceTtl(self.request.get(u'ttl', {}), self.module).from_response(),
-                u'name': self.request.get(u'name'),
-                u'path': self.request.get(u'path'),
+                "ttl": BackendServiceTtl(
+                    self.request.get("ttl", {}), self.module
+                ).from_response(),
+                "name": self.request.get("name"),
+                "path": self.request.get("path"),
             }
         )
 
@@ -1881,10 +1965,14 @@ class BackendServiceTtl(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class BackendServiceCdnpolicy(object):
@@ -1898,30 +1986,40 @@ class BackendServiceCdnpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get('cache_key_policy', {}), self.module).to_request(),
-                u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
-                u'defaultTtl': self.request.get('default_ttl'),
-                u'maxTtl': self.request.get('max_ttl'),
-                u'clientTtl': self.request.get('client_ttl'),
-                u'negativeCaching': self.request.get('negative_caching'),
-                u'negativeCachingPolicy': BackendServiceNegativecachingpolicyArray(self.request.get('negative_caching_policy', []), self.module).to_request(),
-                u'cacheMode': self.request.get('cache_mode'),
-                u'serveWhileStale': self.request.get('serve_while_stale'),
+                "cacheKeyPolicy": BackendServiceCachekeypolicy(
+                    self.request.get("cache_key_policy", {}), self.module
+                ).to_request(),
+                "signedUrlCacheMaxAgeSec": self.request.get(
+                    "signed_url_cache_max_age_sec"
+                ),
+                "defaultTtl": self.request.get("default_ttl"),
+                "maxTtl": self.request.get("max_ttl"),
+                "clientTtl": self.request.get("client_ttl"),
+                "negativeCaching": self.request.get("negative_caching"),
+                "negativeCachingPolicy": BackendServiceNegativecachingpolicyArray(
+                    self.request.get("negative_caching_policy", []), self.module
+                ).to_request(),
+                "cacheMode": self.request.get("cache_mode"),
+                "serveWhileStale": self.request.get("serve_while_stale"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'cacheKeyPolicy': BackendServiceCachekeypolicy(self.request.get(u'cacheKeyPolicy', {}), self.module).from_response(),
-                u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
-                u'defaultTtl': self.request.get(u'defaultTtl'),
-                u'maxTtl': self.request.get(u'maxTtl'),
-                u'clientTtl': self.request.get(u'clientTtl'),
-                u'negativeCaching': self.request.get(u'negativeCaching'),
-                u'negativeCachingPolicy': BackendServiceNegativecachingpolicyArray(self.request.get(u'negativeCachingPolicy', []), self.module).from_response(),
-                u'cacheMode': self.request.get(u'cacheMode'),
-                u'serveWhileStale': self.request.get(u'serveWhileStale'),
+                "cacheKeyPolicy": BackendServiceCachekeypolicy(
+                    self.request.get("cacheKeyPolicy", {}), self.module
+                ).from_response(),
+                "signedUrlCacheMaxAgeSec": self.request.get("signedUrlCacheMaxAgeSec"),
+                "defaultTtl": self.request.get("defaultTtl"),
+                "maxTtl": self.request.get("maxTtl"),
+                "clientTtl": self.request.get("clientTtl"),
+                "negativeCaching": self.request.get("negativeCaching"),
+                "negativeCachingPolicy": BackendServiceNegativecachingpolicyArray(
+                    self.request.get("negativeCachingPolicy", []), self.module
+                ).from_response(),
+                "cacheMode": self.request.get("cacheMode"),
+                "serveWhileStale": self.request.get("serveWhileStale"),
             }
         )
 
@@ -1937,22 +2035,22 @@ class BackendServiceCachekeypolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'includeHost': self.request.get('include_host'),
-                u'includeProtocol': self.request.get('include_protocol'),
-                u'includeQueryString': self.request.get('include_query_string'),
-                u'queryStringBlacklist': self.request.get('query_string_blacklist'),
-                u'queryStringWhitelist': self.request.get('query_string_whitelist'),
+                "includeHost": self.request.get("include_host"),
+                "includeProtocol": self.request.get("include_protocol"),
+                "includeQueryString": self.request.get("include_query_string"),
+                "queryStringBlacklist": self.request.get("query_string_blacklist"),
+                "queryStringWhitelist": self.request.get("query_string_whitelist"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'includeHost': self.request.get(u'includeHost'),
-                u'includeProtocol': self.request.get(u'includeProtocol'),
-                u'includeQueryString': self.request.get(u'includeQueryString'),
-                u'queryStringBlacklist': self.request.get(u'queryStringBlacklist'),
-                u'queryStringWhitelist': self.request.get(u'queryStringWhitelist'),
+                "includeHost": self.request.get("includeHost"),
+                "includeProtocol": self.request.get("includeProtocol"),
+                "includeQueryString": self.request.get("includeQueryString"),
+                "queryStringBlacklist": self.request.get("queryStringBlacklist"),
+                "queryStringWhitelist": self.request.get("queryStringWhitelist"),
             }
         )
 
@@ -1978,10 +2076,14 @@ class BackendServiceNegativecachingpolicyArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'code': item.get('code'), u'ttl': item.get('ttl')})
+        return remove_nones_from_dict(
+            {"code": item.get("code"), "ttl": item.get("ttl")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'code': item.get(u'code'), u'ttl': item.get(u'ttl')})
+        return remove_nones_from_dict(
+            {"code": item.get("code"), "ttl": item.get("ttl")}
+        )
 
 
 class BackendServiceConnectiondraining(object):
@@ -1993,10 +2095,14 @@ class BackendServiceConnectiondraining(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'drainingTimeoutSec': self.request.get('draining_timeout_sec')})
+        return remove_nones_from_dict(
+            {"drainingTimeoutSec": self.request.get("draining_timeout_sec")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'drainingTimeoutSec': self.request.get(u'drainingTimeoutSec')})
+        return remove_nones_from_dict(
+            {"drainingTimeoutSec": self.request.get("drainingTimeoutSec")}
+        )
 
 
 class BackendServiceIap(object):
@@ -2010,18 +2116,18 @@ class BackendServiceIap(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'enabled': self.request.get('enabled'),
-                u'oauth2ClientId': self.request.get('oauth2_client_id'),
-                u'oauth2ClientSecret': self.request.get('oauth2_client_secret'),
+                "enabled": self.request.get("enabled"),
+                "oauth2ClientId": self.request.get("oauth2_client_id"),
+                "oauth2ClientSecret": self.request.get("oauth2_client_secret"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'enabled': self.request.get(u'enabled'),
-                u'oauth2ClientId': self.request.get(u'oauth2ClientId'),
-                u'oauth2ClientSecret': self.request.get(u'oauth2ClientSecret'),
+                "enabled": self.request.get("enabled"),
+                "oauth2ClientId": self.request.get("oauth2ClientId"),
+                "oauth2ClientSecret": self.request.get("oauth2ClientSecret"),
             }
         )
 
@@ -2037,34 +2143,60 @@ class BackendServiceOutlierdetection(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'baseEjectionTime': BackendServiceBaseejectiontime(self.request.get('base_ejection_time', {}), self.module).to_request(),
-                u'consecutiveErrors': self.request.get('consecutive_errors'),
-                u'consecutiveGatewayFailure': self.request.get('consecutive_gateway_failure'),
-                u'enforcingConsecutiveErrors': self.request.get('enforcing_consecutive_errors'),
-                u'enforcingConsecutiveGatewayFailure': self.request.get('enforcing_consecutive_gateway_failure'),
-                u'enforcingSuccessRate': self.request.get('enforcing_success_rate'),
-                u'interval': BackendServiceInterval(self.request.get('interval', {}), self.module).to_request(),
-                u'maxEjectionPercent': self.request.get('max_ejection_percent'),
-                u'successRateMinimumHosts': self.request.get('success_rate_minimum_hosts'),
-                u'successRateRequestVolume': self.request.get('success_rate_request_volume'),
-                u'successRateStdevFactor': self.request.get('success_rate_stdev_factor'),
+                "baseEjectionTime": BackendServiceBaseejectiontime(
+                    self.request.get("base_ejection_time", {}), self.module
+                ).to_request(),
+                "consecutiveErrors": self.request.get("consecutive_errors"),
+                "consecutiveGatewayFailure": self.request.get(
+                    "consecutive_gateway_failure"
+                ),
+                "enforcingConsecutiveErrors": self.request.get(
+                    "enforcing_consecutive_errors"
+                ),
+                "enforcingConsecutiveGatewayFailure": self.request.get(
+                    "enforcing_consecutive_gateway_failure"
+                ),
+                "enforcingSuccessRate": self.request.get("enforcing_success_rate"),
+                "interval": BackendServiceInterval(
+                    self.request.get("interval", {}), self.module
+                ).to_request(),
+                "maxEjectionPercent": self.request.get("max_ejection_percent"),
+                "successRateMinimumHosts": self.request.get(
+                    "success_rate_minimum_hosts"
+                ),
+                "successRateRequestVolume": self.request.get(
+                    "success_rate_request_volume"
+                ),
+                "successRateStdevFactor": self.request.get("success_rate_stdev_factor"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'baseEjectionTime': BackendServiceBaseejectiontime(self.request.get(u'baseEjectionTime', {}), self.module).from_response(),
-                u'consecutiveErrors': self.request.get(u'consecutiveErrors'),
-                u'consecutiveGatewayFailure': self.request.get(u'consecutiveGatewayFailure'),
-                u'enforcingConsecutiveErrors': self.request.get(u'enforcingConsecutiveErrors'),
-                u'enforcingConsecutiveGatewayFailure': self.request.get(u'enforcingConsecutiveGatewayFailure'),
-                u'enforcingSuccessRate': self.request.get(u'enforcingSuccessRate'),
-                u'interval': BackendServiceInterval(self.request.get(u'interval', {}), self.module).from_response(),
-                u'maxEjectionPercent': self.request.get(u'maxEjectionPercent'),
-                u'successRateMinimumHosts': self.request.get(u'successRateMinimumHosts'),
-                u'successRateRequestVolume': self.request.get(u'successRateRequestVolume'),
-                u'successRateStdevFactor': self.request.get(u'successRateStdevFactor'),
+                "baseEjectionTime": BackendServiceBaseejectiontime(
+                    self.request.get("baseEjectionTime", {}), self.module
+                ).from_response(),
+                "consecutiveErrors": self.request.get("consecutiveErrors"),
+                "consecutiveGatewayFailure": self.request.get(
+                    "consecutiveGatewayFailure"
+                ),
+                "enforcingConsecutiveErrors": self.request.get(
+                    "enforcingConsecutiveErrors"
+                ),
+                "enforcingConsecutiveGatewayFailure": self.request.get(
+                    "enforcingConsecutiveGatewayFailure"
+                ),
+                "enforcingSuccessRate": self.request.get("enforcingSuccessRate"),
+                "interval": BackendServiceInterval(
+                    self.request.get("interval", {}), self.module
+                ).from_response(),
+                "maxEjectionPercent": self.request.get("maxEjectionPercent"),
+                "successRateMinimumHosts": self.request.get("successRateMinimumHosts"),
+                "successRateRequestVolume": self.request.get(
+                    "successRateRequestVolume"
+                ),
+                "successRateStdevFactor": self.request.get("successRateStdevFactor"),
             }
         )
 
@@ -2078,10 +2210,14 @@ class BackendServiceBaseejectiontime(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class BackendServiceInterval(object):
@@ -2093,10 +2229,14 @@ class BackendServiceInterval(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class BackendServiceLogconfig(object):
@@ -2108,11 +2248,21 @@ class BackendServiceLogconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'enable': self.request.get('enable'), u'sampleRate': self.request.get('sample_rate')})
+        return remove_nones_from_dict(
+            {
+                "enable": self.request.get("enable"),
+                "sampleRate": self.request.get("sample_rate"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'enable': self.request.get(u'enable'), u'sampleRate': self.request.get(u'sampleRate')})
+        return remove_nones_from_dict(
+            {
+                "enable": self.request.get("enable"),
+                "sampleRate": self.request.get("sampleRate"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
