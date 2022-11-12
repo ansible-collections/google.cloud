@@ -5489,6 +5489,7 @@ def main():
     if fetch:
         module.params['fingerprint'] = fetch['fingerprint']
         if state == 'present':
+          if is_different(module, fetch):
             update(module, self_link(module), kind)
             fetch = fetch_resource(module, self_link(module), kind)
             changed = True
