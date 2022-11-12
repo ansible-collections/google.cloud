@@ -6,6 +6,9 @@ on:
   pull_request: {}
   push:
     branches: master
+env:
+  GCP_SERVICE_ACCOUNT: "github-ci@ansible-gcp-ci.iam.gserviceaccount.com"
+  GCP_PROJECT: "ansible-gcp-ci"
 jobs:
   integration:
     runs-on: ubuntu-latest
@@ -30,20 +33,31 @@ jobs:
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      # bootstrap integration env
       - name: Write integration-test configuration files
         env:
           CI_SERVICE_ACCOUNT_FILE_CONTENTS: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
         run: |
           echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS" > /tmp/service-account-key.json
           echo "[default]
-          gcp_project: ansible-gcp-ci
+          gcp_project: $GCP_PROJECT
           gcp_cred_file: /tmp/service-account-key.json
           gcp_cred_kind: serviceaccount
-          gcp_cred_email: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
+          gcp_cred_email: $GCP_SERVICE_ACCOUNT
           " > ./tests/integration/cloud-config-gcp.ini
-      - name: test secrets
-        env: ${{ secrets }}
-        run: echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS"
+      # cleanup test environment
+      - name: Auth to Gcloud
+        uses: google-github-actions/auth@v1
+        env:
+          CI_SERVICE_ACCOUNT_FILE_CONTENTS: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
+        with:
+          service_account: "$GCP_SERVICE_ACCOUNT"
+          credentials_json: "${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}"
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+      - name: Run cleanup
+        run:  ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
+      # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
         run: ansible-test integration -v --color --python 3.8 --venv-system-site-packages
