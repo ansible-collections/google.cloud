@@ -38,7 +38,7 @@
       - auto_delete: 'true'
         boot: 'true'
         initialize_params:
-          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
       machine_type: n1-standard-1
       network_interfaces:
       - network: "{{ network }}"
@@ -216,7 +216,7 @@
       - auto_delete: 'true'
         boot: 'true'
         initialize_params:
-          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
       machine_type: n1-standard-1
       network_interfaces:
       - network: "{{ network }}"

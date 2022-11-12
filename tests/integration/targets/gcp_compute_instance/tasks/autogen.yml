@@ -263,7 +263,7 @@
   google.cloud.gcp_compute_disk:
     name: "{{ resource_prefix }}"
     size_gb: 50
-    source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+    source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
     zone: us-central1-a
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"

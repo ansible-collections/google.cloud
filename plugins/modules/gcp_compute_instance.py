@@ -1379,9 +1379,9 @@ def disk_type_selflink(name, params):
 def machine_type_selflink(name, params):
     if name is None:
         return
-    url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*/machineTypes/.*"
+    url = r"https://www.googleapis.com/compute/v1/projects/.*/zones/.*/machineTypes/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/machineTypes/%s".format(**params) % name
+        name = "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/machineTypes/%s".format(**params) % name
     return name
 
 
