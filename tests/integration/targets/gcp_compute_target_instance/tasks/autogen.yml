@@ -19,6 +19,7 @@
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    auto_create_subnetworks: true
     state: present
   register: network
 - name: create a instance
@@ -29,7 +30,7 @@
     - auto_delete: 'true'
       boot: 'true'
       initialize_params:
-        source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+        source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
     labels:
       environment: production
     network_interfaces:
@@ -150,7 +151,7 @@
     - auto_delete: 'true'
       boot: 'true'
       initialize_params:
-        source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+        source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
     labels:
       environment: production
     network_interfaces:
@@ -168,6 +169,7 @@
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    auto_create_subnetworks: true
     state: absent
   register: network
   ignore_errors: true
