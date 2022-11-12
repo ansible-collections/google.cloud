@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_global_forwarding_rule
 description:
@@ -242,9 +246,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a global address
   google.cloud.gcp_compute_global_address:
     name: globaladdress-globalforwardingrule
@@ -322,9 +326,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -475,7 +479,7 @@ target:
     of INTERNAL, only "all-apis" and "vpc-sc" are valid.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -502,40 +506,46 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            ip_address=dict(type='str'),
-            ip_protocol=dict(type='str'),
-            ip_version=dict(type='str'),
-            load_balancing_scheme=dict(default='EXTERNAL', type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            ip_address=dict(type="str"),
+            ip_protocol=dict(type="str"),
+            ip_version=dict(type="str"),
+            load_balancing_scheme=dict(default="EXTERNAL", type="str"),
             metadata_filters=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    filter_match_criteria=dict(required=True, type='str'),
+                    filter_match_criteria=dict(required=True, type="str"),
                     filter_labels=dict(
-                        required=True, type='list', elements='dict', options=dict(name=dict(required=True, type='str'), value=dict(required=True, type='str'))
+                        required=True,
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            name=dict(required=True, type="str"),
+                            value=dict(required=True, type="str"),
+                        ),
                     ),
                 ),
             ),
-            name=dict(required=True, type='str'),
-            network=dict(type='dict'),
-            port_range=dict(type='str'),
-            target=dict(required=True, type='str'),
+            name=dict(required=True, type="str"),
+            network=dict(type="dict"),
+            port_range=dict(type="str"),
+            target=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#forwardingRule'
+    state = module.params["state"]
+    kind = "compute#forwardingRule"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -545,19 +555,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -567,36 +577,43 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('target') != request.get('target'):
+    if response.get("target") != request.get("target"):
         target_update(module, request, response)
 
 
 def target_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/forwardingRules/{name}/setTarget"]).format(**module.params),
-        {u'target': module.params.get('target')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/global/forwardingRules/{name}/setTarget",
+            ]
+        ).format(**module.params),
+        {"target": module.params.get("target")},
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#forwardingRule',
-        u'description': module.params.get('description'),
-        u'IPAddress': module.params.get('ip_address'),
-        u'IPProtocol': module.params.get('ip_protocol'),
-        u'ipVersion': module.params.get('ip_version'),
-        u'loadBalancingScheme': module.params.get('load_balancing_scheme'),
-        u'metadataFilters': GlobalForwardingRuleMetadatafiltersArray(module.params.get('metadata_filters', []), module).to_request(),
-        u'name': module.params.get('name'),
-        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
-        u'portRange': module.params.get('port_range'),
-        u'target': module.params.get('target'),
+        "kind": "compute#forwardingRule",
+        "description": module.params.get("description"),
+        "IPAddress": module.params.get("ip_address"),
+        "IPProtocol": module.params.get("ip_protocol"),
+        "ipVersion": module.params.get("ip_version"),
+        "loadBalancingScheme": module.params.get("load_balancing_scheme"),
+        "metadataFilters": GlobalForwardingRuleMetadatafiltersArray(
+            module.params.get("metadata_filters", []), module
+        ).to_request(),
+        "name": module.params.get("name"),
+        "network": replace_resource_dict(module.params.get("network", {}), "selfLink"),
+        "portRange": module.params.get("port_range"),
+        "target": module.params.get("target"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -607,16 +624,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/forwardingRules/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/forwardingRules/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/forwardingRules".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/forwardingRules".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -631,11 +652,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -662,18 +683,20 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'id': response.get(u'id'),
-        u'IPAddress': response.get(u'IPAddress'),
-        u'IPProtocol': response.get(u'IPProtocol'),
-        u'ipVersion': response.get(u'ipVersion'),
-        u'loadBalancingScheme': response.get(u'loadBalancingScheme'),
-        u'metadataFilters': GlobalForwardingRuleMetadatafiltersArray(response.get(u'metadataFilters', []), module).from_response(),
-        u'name': response.get(u'name'),
-        u'network': response.get(u'network'),
-        u'portRange': response.get(u'portRange'),
-        u'target': response.get(u'target'),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "id": response.get("id"),
+        "IPAddress": response.get("IPAddress"),
+        "IPProtocol": response.get("IPProtocol"),
+        "ipVersion": response.get("ipVersion"),
+        "loadBalancingScheme": response.get("loadBalancingScheme"),
+        "metadataFilters": GlobalForwardingRuleMetadatafiltersArray(
+            response.get("metadataFilters", []), module
+        ).from_response(),
+        "name": response.get("name"),
+        "network": response.get("network"),
+        "portRange": response.get("portRange"),
+        "target": response.get("target"),
     }
 
 
@@ -687,22 +710,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#forwardingRule')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#forwardingRule"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -735,16 +760,20 @@ class GlobalForwardingRuleMetadatafiltersArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'filterMatchCriteria': item.get('filter_match_criteria'),
-                u'filterLabels': GlobalForwardingRuleFilterlabelsArray(item.get('filter_labels', []), self.module).to_request(),
+                "filterMatchCriteria": item.get("filter_match_criteria"),
+                "filterLabels": GlobalForwardingRuleFilterlabelsArray(
+                    item.get("filter_labels", []), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'filterMatchCriteria': item.get(u'filterMatchCriteria'),
-                u'filterLabels': GlobalForwardingRuleFilterlabelsArray(item.get(u'filterLabels', []), self.module).from_response(),
+                "filterMatchCriteria": item.get("filterMatchCriteria"),
+                "filterLabels": GlobalForwardingRuleFilterlabelsArray(
+                    item.get("filterLabels", []), self.module
+                ).from_response(),
             }
         )
 
@@ -770,11 +799,15 @@ class GlobalForwardingRuleFilterlabelsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'value': item.get('value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'value': item.get(u'value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_spanner_database
 description:
@@ -135,9 +139,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance
   google.cloud.gcp_spanner_instance:
     name: instance-database
@@ -160,9 +164,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - A unique identifier for the database, which cannot be changed after the instance
@@ -194,7 +198,7 @@ instance:
   - The instance to create the database on.
   returned: success
   type: dict
-'''
+"""
 
 ################################################################################
 # Imports
@@ -221,27 +225,31 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            extra_statements=dict(type='list', elements='str'),
-            encryption_config=dict(type='dict', options=dict(kms_key_name=dict(required=True, type='str'))),
-            instance=dict(required=True, type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            extra_statements=dict(type="list", elements="str"),
+            encryption_config=dict(
+                type="dict", options=dict(kms_key_name=dict(required=True, type="str"))
+            ),
+            instance=dict(required=True, type="dict"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/spanner.admin']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/spanner.admin"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
-    if 'instance' in module.params and 'name' in module.params['instance']:
-        module.params['instance']['name'] = module.params['instance']['name'].split('/')[-1]
+    if "instance" in module.params and "name" in module.params["instance"]:
+        module.params["instance"]["name"] = module.params["instance"]["name"].split(
+            "/"
+        )[-1]
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -251,19 +259,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -272,28 +280,35 @@ def update(module, link, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('extraStatements') != request.get('extraStatements'):
+    if response.get("extraStatements") != request.get("extraStatements"):
         extra_statements_update(module, request, response)
 
 
 def extra_statements_update(module, request, response):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     auth.patch(
-        ''.join(["https://spanner.googleapis.com/v1/", "projects/{project}/instances/{instance}/databases/{name}/ddl"]).format(**module.params),
-        {u'extraStatements': module.params.get('extra_statements')},
+        "".join(
+            [
+                "https://spanner.googleapis.com/v1/",
+                "projects/{project}/instances/{instance}/databases/{name}/ddl",
+            ]
+        ).format(**module.params),
+        {"extraStatements": module.params.get("extra_statements")},
     )
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'extraStatements': module.params.get('extra_statements'),
-        u'encryptionConfig': DatabaseEncryptionconfig(module.params.get('encryption_config', {}), module).to_request(),
+        "name": module.params.get("name"),
+        "extraStatements": module.params.get("extra_statements"),
+        "encryptionConfig": DatabaseEncryptionconfig(
+            module.params.get("encryption_config", {}), module
+        ).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -305,18 +320,29 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name'), 'name': module.params['name']}
-    return "https://spanner.googleapis.com/v1/projects/{project}/instances/{instance}/databases/{name}".format(**res)
+    res = {
+        "project": module.params["project"],
+        "instance": replace_resource_dict(module.params["instance"], "name"),
+        "name": module.params["name"],
+    }
+    return "https://spanner.googleapis.com/v1/projects/{project}/instances/{instance}/databases/{name}".format(
+        **res
+    )
 
 
 def collection(module):
-    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name')}
-    return "https://spanner.googleapis.com/v1/projects/{project}/instances/{instance}/databases".format(**res)
+    res = {
+        "project": module.params["project"],
+        "instance": replace_resource_dict(module.params["instance"], "name"),
+    }
+    return "https://spanner.googleapis.com/v1/projects/{project}/instances/{instance}/databases".format(
+        **res
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -331,13 +357,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -365,9 +391,11 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'extraStatements': response.get(u'extraStatements'),
-        u'encryptionConfig': DatabaseEncryptionconfig(response.get(u'encryptionConfig', {}), module).from_response(),
+        "name": module.params.get("name"),
+        "extraStatements": response.get("extraStatements"),
+        "encryptionConfig": DatabaseEncryptionconfig(
+            response.get("encryptionConfig", {}), module
+        ).from_response(),
     }
 
 
@@ -384,20 +412,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -411,19 +439,19 @@ def decode_response(response, module):
     if not response:
         return response
 
-    if 'name' not in response:
+    if "name" not in response:
         return response
 
-    if '/operations/' in response['name']:
+    if "/operations/" in response["name"]:
         return response
 
-    response['name'] = response['name'].split('/')[-1]
+    response["name"] = response["name"].split("/")[-1]
     return response
 
 
 def encode_request(request, module):
-    request['create_statement'] = "CREATE DATABASE `{0}`".format(module.params['name'])
-    del request['name']
+    request["create_statement"] = "CREATE DATABASE `{0}`".format(module.params["name"])
+    del request["name"]
     return request
 
 
@@ -436,11 +464,11 @@ class DatabaseEncryptionconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kms_key_name")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kmsKeyName")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

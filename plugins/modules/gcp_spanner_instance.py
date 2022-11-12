@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_spanner_instance
 description:
@@ -138,9 +142,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance
   google.cloud.gcp_spanner_instance:
     name: testinstance
@@ -153,9 +157,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - A unique identifier for the instance, which cannot be changed after the instance
@@ -196,13 +200,19 @@ labels:
   - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
   returned: success
   type: dict
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 import time
 
@@ -216,26 +226,26 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            config=dict(required=True, type='str'),
-            display_name=dict(required=True, type='str'),
-            node_count=dict(type='int'),
-            processing_units=dict(type='int'),
-            labels=dict(type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            config=dict(required=True, type="str"),
+            display_name=dict(required=True, type="str"),
+            node_count=dict(type="int"),
+            processing_units=dict(type="int"),
+            labels=dict(type="dict"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/spanner.admin']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/spanner.admin"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -245,19 +255,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return wait_for_operation(module, auth.post(link, resource_to_create(module)))
 
 
@@ -266,18 +276,18 @@ def update(module, link):
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'config': module.params.get('config'),
-        u'displayName': module.params.get('display_name'),
-        u'nodeCount': module.params.get('node_count'),
-        u'processingUnits': module.params.get('processing_units'),
-        u'labels': module.params.get('labels'),
+        "name": module.params.get("name"),
+        "config": module.params.get("config"),
+        "displayName": module.params.get("display_name"),
+        "nodeCount": module.params.get("node_count"),
+        "processingUnits": module.params.get("processing_units"),
+        "labels": module.params.get("labels"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -288,16 +298,22 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'spanner')
+    auth = GcpSession(module, "spanner")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://spanner.googleapis.com/v1/projects/{project}/instances/{name}".format(**module.params)
+    return (
+        "https://spanner.googleapis.com/v1/projects/{project}/instances/{name}".format(
+            **module.params
+        )
+    )
 
 
 def collection(module):
-    return "https://spanner.googleapis.com/v1/projects/{project}/instances".format(**module.params)
+    return "https://spanner.googleapis.com/v1/projects/{project}/instances".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -312,13 +328,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -346,12 +362,12 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'config': module.params.get('config'),
-        u'displayName': response.get(u'displayName'),
-        u'nodeCount': response.get(u'nodeCount'),
-        u'processingUnits': response.get(u'processingUnits'),
-        u'labels': response.get(u'labels'),
+        "name": module.params.get("name"),
+        "config": module.params.get("config"),
+        "displayName": response.get("displayName"),
+        "nodeCount": response.get("nodeCount"),
+        "processingUnits": response.get("processingUnits"),
+        "labels": response.get("labels"),
     }
 
 
@@ -368,20 +384,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -393,29 +409,40 @@ def raise_if_errors(response, err_path, module):
 
 def resource_to_create(module):
     instance = resource_to_request(module)
-    instance['name'] = "projects/{0}/instances/{1}".format(module.params['project'], module.params['name'])
-    instance['config'] = "projects/{0}/instanceConfigs/{1}".format(module.params['project'], instance['config'])
-    return {'instanceId': module.params['name'], 'instance': instance}
+    instance["name"] = "projects/{0}/instances/{1}".format(
+        module.params["project"], module.params["name"]
+    )
+    instance["config"] = "projects/{0}/instanceConfigs/{1}".format(
+        module.params["project"], instance["config"]
+    )
+    return {"instanceId": module.params["name"], "instance": instance}
 
 
 def resource_to_update(module):
     instance = resource_to_request(module)
-    instance['name'] = "projects/{0}/instances/{1}".format(module.params['project'], module.params['name'])
-    instance['config'] = "projects/{0}/instanceConfigs/{1}".format(module.params['project'], instance['config'])
-    return {'instance': instance, 'fieldMask': "'name' ,'config' ,'displayName' ,'nodeCount' ,'processingUnits' ,'labels'"}
+    instance["name"] = "projects/{0}/instances/{1}".format(
+        module.params["project"], module.params["name"]
+    )
+    instance["config"] = "projects/{0}/instanceConfigs/{1}".format(
+        module.params["project"], instance["config"]
+    )
+    return {
+        "instance": instance,
+        "fieldMask": "'name' ,'config' ,'displayName' ,'nodeCount' ,'processingUnits' ,'labels'",
+    }
 
 
 def decode_response(response, module):
     if not response:
         return response
 
-    if '/operations/' in response['name']:
+    if "/operations/" in response["name"]:
         return response
 
-    response['name'] = response['name'].split('/')[-1]
-    response['config'] = response['config'].split('/')[-1]
+    response["name"] = response["name"].split("/")[-1]
+    response["config"] = response["config"].split("/")[-1]
     return response
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

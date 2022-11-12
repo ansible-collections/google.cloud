@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_vpn_tunnel
 description:
@@ -217,9 +221,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-vpn-tunnel
@@ -270,9 +274,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 id:
   description:
   - The unique identifier for the resource. This identifier is defined by the server.
@@ -378,13 +382,19 @@ region:
   - The region where the tunnel is located.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 import time
 
@@ -398,37 +408,37 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            target_vpn_gateway=dict(type='dict'),
-            vpn_gateway=dict(type='dict'),
-            vpn_gateway_interface=dict(type='int'),
-            peer_external_gateway=dict(type='dict'),
-            peer_external_gateway_interface=dict(type='int'),
-            peer_gcp_gateway=dict(type='dict'),
-            router=dict(type='dict'),
-            peer_ip=dict(type='str'),
-            shared_secret=dict(required=True, type='str', no_log=True),
-            ike_version=dict(default=2, type='int'),
-            local_traffic_selector=dict(type='list', elements='str'),
-            remote_traffic_selector=dict(type='list', elements='str'),
-            region=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            target_vpn_gateway=dict(type="dict"),
+            vpn_gateway=dict(type="dict"),
+            vpn_gateway_interface=dict(type="int"),
+            peer_external_gateway=dict(type="dict"),
+            peer_external_gateway_interface=dict(type="int"),
+            peer_gcp_gateway=dict(type="dict"),
+            router=dict(type="dict"),
+            peer_ip=dict(type="str"),
+            shared_secret=dict(required=True, type="str", no_log=True),
+            ike_version=dict(default=2, type="int"),
+            local_traffic_selector=dict(type="list", elements="str"),
+            remote_traffic_selector=dict(type="list", elements="str"),
+            region=dict(required=True, type="str"),
         ),
-        mutually_exclusive=[['peer_external_gateway', 'peer_gcp_gateway']],
+        mutually_exclusive=[["peer_external_gateway", "peer_gcp_gateway"]],
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#vpnTunnel'
+    state = module.params["state"]
+    kind = "compute#vpnTunnel"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -438,19 +448,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -460,27 +470,37 @@ def update(module, link, kind):
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#vpnTunnel',
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'targetVpnGateway': replace_resource_dict(module.params.get(u'target_vpn_gateway', {}), 'selfLink'),
-        u'vpnGateway': replace_resource_dict(module.params.get(u'vpn_gateway', {}), 'selfLink'),
-        u'vpnGatewayInterface': module.params.get('vpn_gateway_interface'),
-        u'peerExternalGateway': replace_resource_dict(module.params.get(u'peer_external_gateway', {}), 'selfLink'),
-        u'peerExternalGatewayInterface': module.params.get('peer_external_gateway_interface'),
-        u'peerGcpGateway': replace_resource_dict(module.params.get(u'peer_gcp_gateway', {}), 'selfLink'),
-        u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
-        u'peerIp': module.params.get('peer_ip'),
-        u'sharedSecret': module.params.get('shared_secret'),
-        u'ikeVersion': module.params.get('ike_version'),
-        u'localTrafficSelector': module.params.get('local_traffic_selector'),
-        u'remoteTrafficSelector': module.params.get('remote_traffic_selector'),
+        "kind": "compute#vpnTunnel",
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "targetVpnGateway": replace_resource_dict(
+            module.params.get("target_vpn_gateway", {}), "selfLink"
+        ),
+        "vpnGateway": replace_resource_dict(
+            module.params.get("vpn_gateway", {}), "selfLink"
+        ),
+        "vpnGatewayInterface": module.params.get("vpn_gateway_interface"),
+        "peerExternalGateway": replace_resource_dict(
+            module.params.get("peer_external_gateway", {}), "selfLink"
+        ),
+        "peerExternalGatewayInterface": module.params.get(
+            "peer_external_gateway_interface"
+        ),
+        "peerGcpGateway": replace_resource_dict(
+            module.params.get("peer_gcp_gateway", {}), "selfLink"
+        ),
+        "router": replace_resource_dict(module.params.get("router", {}), "selfLink"),
+        "peerIp": module.params.get("peer_ip"),
+        "sharedSecret": module.params.get("shared_secret"),
+        "ikeVersion": module.params.get("ike_version"),
+        "localTrafficSelector": module.params.get("local_traffic_selector"),
+        "remoteTrafficSelector": module.params.get("remote_traffic_selector"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -491,16 +511,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/vpnTunnels/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/vpnTunnels/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/vpnTunnels".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/vpnTunnels".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -515,11 +539,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -546,23 +570,29 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'id': response.get(u'id'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'name': response.get(u'name'),
-        u'description': module.params.get('description'),
-        u'targetVpnGateway': replace_resource_dict(module.params.get(u'target_vpn_gateway', {}), 'selfLink'),
-        u'vpnGateway': replace_resource_dict(module.params.get(u'vpn_gateway', {}), 'selfLink'),
-        u'vpnGatewayInterface': module.params.get('vpn_gateway_interface'),
-        u'peerExternalGateway': replace_resource_dict(module.params.get(u'peer_external_gateway', {}), 'selfLink'),
-        u'peerExternalGatewayInterface': response.get(u'peerExternalGatewayInterface'),
-        u'peerGcpGateway': response.get(u'peerGcpGateway'),
-        u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
-        u'peerIp': response.get(u'peerIp'),
-        u'sharedSecret': response.get(u'sharedSecret'),
-        u'sharedSecretHash': response.get(u'sharedSecretHash'),
-        u'ikeVersion': response.get(u'ikeVersion'),
-        u'localTrafficSelector': response.get(u'localTrafficSelector'),
-        u'remoteTrafficSelector': response.get(u'remoteTrafficSelector'),
+        "id": response.get("id"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "name": response.get("name"),
+        "description": module.params.get("description"),
+        "targetVpnGateway": replace_resource_dict(
+            module.params.get("target_vpn_gateway", {}), "selfLink"
+        ),
+        "vpnGateway": replace_resource_dict(
+            module.params.get("vpn_gateway", {}), "selfLink"
+        ),
+        "vpnGatewayInterface": module.params.get("vpn_gateway_interface"),
+        "peerExternalGateway": replace_resource_dict(
+            module.params.get("peer_external_gateway", {}), "selfLink"
+        ),
+        "peerExternalGatewayInterface": response.get("peerExternalGatewayInterface"),
+        "peerGcpGateway": response.get("peerGcpGateway"),
+        "router": replace_resource_dict(module.params.get("router", {}), "selfLink"),
+        "peerIp": response.get("peerIp"),
+        "sharedSecret": response.get("sharedSecret"),
+        "sharedSecretHash": response.get("sharedSecretHash"),
+        "ikeVersion": response.get("ikeVersion"),
+        "localTrafficSelector": response.get("localTrafficSelector"),
+        "remoteTrafficSelector": response.get("remoteTrafficSelector"),
     }
 
 
@@ -576,22 +606,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#vpnTunnel')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#vpnTunnel"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -601,5 +633,5 @@ def raise_if_errors(response, err_path, module):
         module.fail_json(msg=errors)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

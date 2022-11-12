@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_tpu_node
 description:
@@ -168,9 +172,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a node
   google.cloud.gcp_tpu_node:
     name: test_object
@@ -182,9 +186,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The immutable name of the TPU.
@@ -278,7 +282,7 @@ zone:
   - The GCP location for the TPU. If it is not provided, the provider zone is used.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -305,31 +309,33 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            accelerator_type=dict(required=True, type='str'),
-            tensorflow_version=dict(required=True, type='str'),
-            network=dict(type='str'),
-            cidr_block=dict(type='str'),
-            use_service_networking=dict(type='bool'),
-            scheduling_config=dict(type='dict', options=dict(preemptible=dict(required=True, type='bool'))),
-            labels=dict(type='dict'),
-            zone=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            accelerator_type=dict(required=True, type="str"),
+            tensorflow_version=dict(required=True, type="str"),
+            network=dict(type="str"),
+            cidr_block=dict(type="str"),
+            use_service_networking=dict(type="bool"),
+            scheduling_config=dict(
+                type="dict", options=dict(preemptible=dict(required=True, type="bool"))
+            ),
+            labels=dict(type="dict"),
+            zone=dict(type="str"),
         ),
-        mutually_exclusive=[['cidr_block', 'use_service_networking']],
+        mutually_exclusive=[["cidr_block", "use_service_networking"]],
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -339,19 +345,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'tpu')
+    auth = GcpSession(module, "tpu")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -361,34 +367,41 @@ def update(module, link, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('tensorflowVersion') != request.get('tensorflowVersion'):
+    if response.get("tensorflowVersion") != request.get("tensorflowVersion"):
         tensorflow_version_update(module, request, response)
 
 
 def tensorflow_version_update(module, request, response):
-    auth = GcpSession(module, 'tpu')
+    auth = GcpSession(module, "tpu")
     auth.post(
-        ''.join(["https://tpu.googleapis.com/v1/", "projects/{project}/locations/{zone}/nodes/{name}:reimage"]).format(**module.params),
-        {u'tensorflowVersion': module.params.get('tensorflow_version')},
+        "".join(
+            [
+                "https://tpu.googleapis.com/v1/",
+                "projects/{project}/locations/{zone}/nodes/{name}:reimage",
+            ]
+        ).format(**module.params),
+        {"tensorflowVersion": module.params.get("tensorflow_version")},
     )
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'tpu')
+    auth = GcpSession(module, "tpu")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'acceleratorType': module.params.get('accelerator_type'),
-        u'tensorflowVersion': module.params.get('tensorflow_version'),
-        u'network': module.params.get('network'),
-        u'cidrBlock': module.params.get('cidr_block'),
-        u'useServiceNetworking': module.params.get('use_service_networking'),
-        u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
-        u'labels': module.params.get('labels'),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "acceleratorType": module.params.get("accelerator_type"),
+        "tensorflowVersion": module.params.get("tensorflow_version"),
+        "network": module.params.get("network"),
+        "cidrBlock": module.params.get("cidr_block"),
+        "useServiceNetworking": module.params.get("use_service_networking"),
+        "schedulingConfig": NodeSchedulingconfig(
+            module.params.get("scheduling_config", {}), module
+        ).to_request(),
+        "labels": module.params.get("labels"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -399,20 +412,26 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'tpu')
+    auth = GcpSession(module, "tpu")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes/{name}".format(**module.params)
+    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes".format(**module.params)
+    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes?nodeId={name}".format(**module.params)
+    return "https://tpu.googleapis.com/v1/projects/{project}/locations/{zone}/nodes?nodeId={name}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -427,11 +446,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -458,17 +477,21 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'acceleratorType': module.params.get('accelerator_type'),
-        u'tensorflowVersion': response.get(u'tensorflowVersion'),
-        u'network': module.params.get('network'),
-        u'cidrBlock': module.params.get('cidr_block'),
-        u'serviceAccount': response.get(u'serviceAccount'),
-        u'useServiceNetworking': module.params.get('use_service_networking'),
-        u'schedulingConfig': NodeSchedulingconfig(module.params.get('scheduling_config', {}), module).to_request(),
-        u'networkEndpoints': NodeNetworkendpointsArray(response.get(u'networkEndpoints', []), module).from_response(),
-        u'labels': module.params.get('labels'),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "acceleratorType": module.params.get("accelerator_type"),
+        "tensorflowVersion": response.get("tensorflowVersion"),
+        "network": module.params.get("network"),
+        "cidrBlock": module.params.get("cidr_block"),
+        "serviceAccount": response.get("serviceAccount"),
+        "useServiceNetworking": module.params.get("use_service_networking"),
+        "schedulingConfig": NodeSchedulingconfig(
+            module.params.get("scheduling_config", {}), module
+        ).to_request(),
+        "networkEndpoints": NodeNetworkendpointsArray(
+            response.get("networkEndpoints", []), module
+        ).from_response(),
+        "labels": module.params.get("labels"),
     }
 
 
@@ -485,20 +508,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -517,10 +540,10 @@ class NodeSchedulingconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'preemptible': self.request.get('preemptible')})
+        return remove_nones_from_dict({"preemptible": self.request.get("preemptible")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'preemptible': self.request.get(u'preemptible')})
+        return remove_nones_from_dict({"preemptible": self.request.get("preemptible")})
 
 
 class NodeNetworkendpointsArray(object):
@@ -550,5 +573,5 @@ class NodeNetworkendpointsArray(object):
         return remove_nones_from_dict({})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

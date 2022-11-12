@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_bigquery_dataset
 description:
@@ -262,9 +266,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a dataset
   google.cloud.gcp_bigquery_dataset:
     name: my_example_dataset
@@ -274,9 +278,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - Dataset name.
@@ -460,7 +464,7 @@ defaultEncryptionConfiguration:
         requires access to this encryption key.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -486,47 +490,58 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
             access=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    domain=dict(type='str'),
-                    group_by_email=dict(type='str'),
-                    role=dict(type='str'),
-                    special_group=dict(type='str'),
-                    user_by_email=dict(type='str'),
+                    domain=dict(type="str"),
+                    group_by_email=dict(type="str"),
+                    role=dict(type="str"),
+                    special_group=dict(type="str"),
+                    user_by_email=dict(type="str"),
                     view=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            dataset_id=dict(required=True, type='str'), project_id=dict(required=True, type='str'), table_id=dict(required=True, type='str')
+                            dataset_id=dict(required=True, type="str"),
+                            project_id=dict(required=True, type="str"),
+                            table_id=dict(required=True, type="str"),
                         ),
                     ),
                 ),
             ),
-            dataset_reference=dict(required=True, type='dict', options=dict(dataset_id=dict(required=True, type='str'), project_id=dict(type='str'))),
-            default_table_expiration_ms=dict(type='int'),
-            default_partition_expiration_ms=dict(type='int'),
-            description=dict(type='str'),
-            friendly_name=dict(type='str'),
-            labels=dict(type='dict'),
-            location=dict(default='US', type='str'),
-            default_encryption_configuration=dict(type='dict', options=dict(kms_key_name=dict(required=True, type='str'))),
+            dataset_reference=dict(
+                required=True,
+                type="dict",
+                options=dict(
+                    dataset_id=dict(required=True, type="str"),
+                    project_id=dict(type="str"),
+                ),
+            ),
+            default_table_expiration_ms=dict(type="int"),
+            default_partition_expiration_ms=dict(type="int"),
+            description=dict(type="str"),
+            friendly_name=dict(type="str"),
+            labels=dict(type="dict"),
+            location=dict(default="US", type="str"),
+            default_encryption_configuration=dict(
+                type="dict", options=dict(kms_key_name=dict(required=True, type="str"))
+            ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/bigquery']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/bigquery"]
 
-    state = module.params['state']
-    kind = 'bigquery#dataset'
+    state = module.params["state"]
+    kind = "bigquery#dataset"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -536,46 +551,52 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'bigquery')
+    auth = GcpSession(module, "bigquery")
     return return_if_object(module, auth.post(link, resource_to_request(module)), kind)
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'bigquery')
+    auth = GcpSession(module, "bigquery")
     return return_if_object(module, auth.put(link, resource_to_request(module)), kind)
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'bigquery')
+    auth = GcpSession(module, "bigquery")
     return return_if_object(module, auth.delete(link), kind)
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'bigquery#dataset',
-        u'name': module.params.get('name'),
-        u'access': DatasetAccessArray(module.params.get('access', []), module).to_request(),
-        u'datasetReference': DatasetDatasetreference(module.params.get('dataset_reference', {}), module).to_request(),
-        u'defaultTableExpirationMs': module.params.get('default_table_expiration_ms'),
-        u'defaultPartitionExpirationMs': module.params.get('default_partition_expiration_ms'),
-        u'description': module.params.get('description'),
-        u'friendlyName': module.params.get('friendly_name'),
-        u'labels': module.params.get('labels'),
-        u'location': module.params.get('location'),
-        u'defaultEncryptionConfiguration': DatasetDefaultencryptionconfiguration(
-            module.params.get('default_encryption_configuration', {}), module
+        "kind": "bigquery#dataset",
+        "name": module.params.get("name"),
+        "access": DatasetAccessArray(
+            module.params.get("access", []), module
+        ).to_request(),
+        "datasetReference": DatasetDatasetreference(
+            module.params.get("dataset_reference", {}), module
+        ).to_request(),
+        "defaultTableExpirationMs": module.params.get("default_table_expiration_ms"),
+        "defaultPartitionExpirationMs": module.params.get(
+            "default_partition_expiration_ms"
+        ),
+        "description": module.params.get("description"),
+        "friendlyName": module.params.get("friendly_name"),
+        "labels": module.params.get("labels"),
+        "location": module.params.get("location"),
+        "defaultEncryptionConfiguration": DatasetDefaultencryptionconfiguration(
+            module.params.get("default_encryption_configuration", {}), module
         ).to_request(),
     }
     return_vals = {}
@@ -587,16 +608,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'bigquery')
+    auth = GcpSession(module, "bigquery")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{name}".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets".format(**module.params)
+    return "https://bigquery.googleapis.com/bigquery/v2/projects/{project}/datasets".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -611,11 +636,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -642,20 +667,26 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'access': DatasetAccessArray(response.get(u'access', []), module).from_response(),
-        u'creationTime': response.get(u'creationTime'),
-        u'datasetReference': DatasetDatasetreference(module.params.get('dataset_reference', {}), module).to_request(),
-        u'defaultTableExpirationMs': response.get(u'defaultTableExpirationMs'),
-        u'defaultPartitionExpirationMs': response.get(u'defaultPartitionExpirationMs'),
-        u'description': response.get(u'description'),
-        u'etag': response.get(u'etag'),
-        u'friendlyName': response.get(u'friendlyName'),
-        u'id': response.get(u'id'),
-        u'labels': response.get(u'labels'),
-        u'lastModifiedTime': response.get(u'lastModifiedTime'),
-        u'location': response.get(u'location'),
-        u'defaultEncryptionConfiguration': DatasetDefaultencryptionconfiguration(response.get(u'defaultEncryptionConfiguration', {}), module).from_response(),
+        "name": response.get("name"),
+        "access": DatasetAccessArray(
+            response.get("access", []), module
+        ).from_response(),
+        "creationTime": response.get("creationTime"),
+        "datasetReference": DatasetDatasetreference(
+            module.params.get("dataset_reference", {}), module
+        ).to_request(),
+        "defaultTableExpirationMs": response.get("defaultTableExpirationMs"),
+        "defaultPartitionExpirationMs": response.get("defaultPartitionExpirationMs"),
+        "description": response.get("description"),
+        "etag": response.get("etag"),
+        "friendlyName": response.get("friendlyName"),
+        "id": response.get("id"),
+        "labels": response.get("labels"),
+        "lastModifiedTime": response.get("lastModifiedTime"),
+        "location": response.get("location"),
+        "defaultEncryptionConfiguration": DatasetDefaultencryptionconfiguration(
+            response.get("defaultEncryptionConfiguration", {}), module
+        ).from_response(),
     }
 
 
@@ -682,24 +713,24 @@ class DatasetAccessArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'domain': item.get('domain'),
-                u'groupByEmail': item.get('group_by_email'),
-                u'role': item.get('role'),
-                u'specialGroup': item.get('special_group'),
-                u'userByEmail': item.get('user_by_email'),
-                u'view': DatasetView(item.get('view', {}), self.module).to_request(),
+                "domain": item.get("domain"),
+                "groupByEmail": item.get("group_by_email"),
+                "role": item.get("role"),
+                "specialGroup": item.get("special_group"),
+                "userByEmail": item.get("user_by_email"),
+                "view": DatasetView(item.get("view", {}), self.module).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'domain': item.get(u'domain'),
-                u'groupByEmail': item.get(u'groupByEmail'),
-                u'role': item.get(u'role'),
-                u'specialGroup': item.get(u'specialGroup'),
-                u'userByEmail': item.get(u'userByEmail'),
-                u'view': DatasetView(item.get(u'view', {}), self.module).from_response(),
+                "domain": item.get("domain"),
+                "groupByEmail": item.get("groupByEmail"),
+                "role": item.get("role"),
+                "specialGroup": item.get("specialGroup"),
+                "userByEmail": item.get("userByEmail"),
+                "view": DatasetView(item.get("view", {}), self.module).from_response(),
             }
         )
 
@@ -714,12 +745,20 @@ class DatasetView(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'datasetId': self.request.get('dataset_id'), u'projectId': self.request.get('project_id'), u'tableId': self.request.get('table_id')}
+            {
+                "datasetId": self.request.get("dataset_id"),
+                "projectId": self.request.get("project_id"),
+                "tableId": self.request.get("table_id"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'datasetId': self.request.get(u'datasetId'), u'projectId': self.request.get(u'projectId'), u'tableId': self.request.get(u'tableId')}
+            {
+                "datasetId": self.request.get("datasetId"),
+                "projectId": self.request.get("projectId"),
+                "tableId": self.request.get("tableId"),
+            }
         )
 
 
@@ -732,10 +771,20 @@ class DatasetDatasetreference(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'datasetId': self.request.get('dataset_id'), u'projectId': self.request.get('project_id')})
+        return remove_nones_from_dict(
+            {
+                "datasetId": self.request.get("dataset_id"),
+                "projectId": self.request.get("project_id"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'datasetId': self.module.params.get('dataset_id'), u'projectId': self.module.params.get('project_id')})
+        return remove_nones_from_dict(
+            {
+                "datasetId": self.module.params.get("dataset_id"),
+                "projectId": self.module.params.get("project_id"),
+            }
+        )
 
 
 class DatasetDefaultencryptionconfiguration(object):
@@ -747,11 +796,11 @@ class DatasetDefaultencryptionconfiguration(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kms_key_name")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kmsKeyName")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

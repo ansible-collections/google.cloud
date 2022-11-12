@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_sql_instance
 description:
@@ -395,9 +399,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance
   google.cloud.gcp_sql_instance:
     name: "{{resource_name}}-2"
@@ -412,9 +416,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 backendType:
   description:
   - "* FIRST_GEN: First Generation instance. MySQL only."
@@ -797,7 +801,7 @@ serverCaCert:
       - SHA-1 fingerprint of the certificate.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -824,79 +828,98 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            backend_type=dict(type='str'),
-            connection_name=dict(type='str'),
-            database_version=dict(type='str'),
-            failover_replica=dict(type='dict', options=dict(name=dict(type='str'))),
-            instance_type=dict(type='str'),
-            ipv6_address=dict(type='str'),
-            master_instance_name=dict(type='str'),
-            max_disk_size=dict(type='int'),
-            name=dict(required=True, type='str'),
-            region=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            backend_type=dict(type="str"),
+            connection_name=dict(type="str"),
+            database_version=dict(type="str"),
+            failover_replica=dict(type="dict", options=dict(name=dict(type="str"))),
+            instance_type=dict(type="str"),
+            ipv6_address=dict(type="str"),
+            master_instance_name=dict(type="str"),
+            max_disk_size=dict(type="int"),
+            name=dict(required=True, type="str"),
+            region=dict(type="str"),
             replica_configuration=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    failover_target=dict(type='bool'),
+                    failover_target=dict(type="bool"),
                     mysql_replica_configuration=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            ca_certificate=dict(type='str'),
-                            client_certificate=dict(type='str'),
-                            client_key=dict(type='str'),
-                            connect_retry_interval=dict(type='int'),
-                            dump_file_path=dict(type='str'),
-                            master_heartbeat_period=dict(type='int'),
-                            password=dict(type='str'),
-                            ssl_cipher=dict(type='str'),
-                            username=dict(type='str'),
-                            verify_server_certificate=dict(type='bool'),
+                            ca_certificate=dict(type="str"),
+                            client_certificate=dict(type="str"),
+                            client_key=dict(type="str"),
+                            connect_retry_interval=dict(type="int"),
+                            dump_file_path=dict(type="str"),
+                            master_heartbeat_period=dict(type="int"),
+                            password=dict(type="str"),
+                            ssl_cipher=dict(type="str"),
+                            username=dict(type="str"),
+                            verify_server_certificate=dict(type="bool"),
                         ),
                     ),
-                    replica_names=dict(type='list', elements='str'),
-                    service_account_email_address=dict(type='str'),
+                    replica_names=dict(type="list", elements="str"),
+                    service_account_email_address=dict(type="str"),
                 ),
             ),
             settings=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    database_flags=dict(type='list', elements='dict', options=dict(name=dict(type='str'), value=dict(type='str'))),
+                    database_flags=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(name=dict(type="str"), value=dict(type="str")),
+                    ),
                     ip_configuration=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            ipv4_enabled=dict(type='bool'),
-                            private_network=dict(type='str'),
+                            ipv4_enabled=dict(type="bool"),
+                            private_network=dict(type="str"),
                             authorized_networks=dict(
-                                type='list', elements='dict', options=dict(expiration_time=dict(type='str'), name=dict(type='str'), value=dict(type='str'))
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    expiration_time=dict(type="str"),
+                                    name=dict(type="str"),
+                                    value=dict(type="str"),
+                                ),
                             ),
-                            require_ssl=dict(type='bool'),
+                            require_ssl=dict(type="bool"),
                         ),
                     ),
-                    tier=dict(type='str'),
-                    availability_type=dict(type='str'),
+                    tier=dict(type="str"),
+                    availability_type=dict(type="str"),
                     backup_configuration=dict(
-                        type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'))
+                        type="dict",
+                        options=dict(
+                            enabled=dict(type="bool"),
+                            binary_log_enabled=dict(type="bool"),
+                            start_time=dict(type="str"),
+                        ),
                     ),
-                    user_labels=dict(type='dict'),
+                    user_labels=dict(type="dict"),
                 ),
             ),
-            disk_encryption_configuration=dict(type='dict', options=dict(kms_key_name=dict(type='str'))),
-            disk_encryption_status=dict(type='dict', options=dict(kms_key_version_name=dict(type='str'))),
+            disk_encryption_configuration=dict(
+                type="dict", options=dict(kms_key_name=dict(type="str"))
+            ),
+            disk_encryption_status=dict(
+                type="dict", options=dict(kms_key_version_name=dict(type="str"))
+            ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/sqlservice.admin']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/sqlservice.admin"]
 
-    state = module.params['state']
-    kind = 'sql#instance'
+    state = module.params["state"]
+    kind = "sql#instance"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -906,19 +929,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'sql')
+    auth = GcpSession(module, "sql")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -927,27 +950,37 @@ def update(module, link, kind, fetch):
 
 
 def delete(module, link, kind, fetch):
-    auth = GcpSession(module, 'sql')
+    auth = GcpSession(module, "sql")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'sql#instance',
-        u'backendType': module.params.get('backend_type'),
-        u'connectionName': module.params.get('connection_name'),
-        u'databaseVersion': module.params.get('database_version'),
-        u'failoverReplica': InstanceFailoverreplica(module.params.get('failover_replica', {}), module).to_request(),
-        u'instanceType': module.params.get('instance_type'),
-        u'ipv6Address': module.params.get('ipv6_address'),
-        u'masterInstanceName': module.params.get('master_instance_name'),
-        u'maxDiskSize': module.params.get('max_disk_size'),
-        u'name': module.params.get('name'),
-        u'region': module.params.get('region'),
-        u'replicaConfiguration': InstanceReplicaconfiguration(module.params.get('replica_configuration', {}), module).to_request(),
-        u'settings': InstanceSettings(module.params.get('settings', {}), module).to_request(),
-        u'diskEncryptionConfiguration': InstanceDiskencryptionconfiguration(module.params.get('disk_encryption_configuration', {}), module).to_request(),
-        u'diskEncryptionStatus': InstanceDiskencryptionstatus(module.params.get('disk_encryption_status', {}), module).to_request(),
+        "kind": "sql#instance",
+        "backendType": module.params.get("backend_type"),
+        "connectionName": module.params.get("connection_name"),
+        "databaseVersion": module.params.get("database_version"),
+        "failoverReplica": InstanceFailoverreplica(
+            module.params.get("failover_replica", {}), module
+        ).to_request(),
+        "instanceType": module.params.get("instance_type"),
+        "ipv6Address": module.params.get("ipv6_address"),
+        "masterInstanceName": module.params.get("master_instance_name"),
+        "maxDiskSize": module.params.get("max_disk_size"),
+        "name": module.params.get("name"),
+        "region": module.params.get("region"),
+        "replicaConfiguration": InstanceReplicaconfiguration(
+            module.params.get("replica_configuration", {}), module
+        ).to_request(),
+        "settings": InstanceSettings(
+            module.params.get("settings", {}), module
+        ).to_request(),
+        "diskEncryptionConfiguration": InstanceDiskencryptionconfiguration(
+            module.params.get("disk_encryption_configuration", {}), module
+        ).to_request(),
+        "diskEncryptionStatus": InstanceDiskencryptionstatus(
+            module.params.get("disk_encryption_status", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -958,16 +991,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'sql')
+    auth = GcpSession(module, "sql")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances/{name}".format(**module.params)
+    return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances".format(**module.params)
+    return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -985,11 +1022,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
 
     try:
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+    except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1016,24 +1053,38 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'backendType': response.get(u'backendType'),
-        u'connectionName': response.get(u'connectionName'),
-        u'databaseVersion': response.get(u'databaseVersion'),
-        u'failoverReplica': InstanceFailoverreplica(response.get(u'failoverReplica', {}), module).from_response(),
-        u'instanceType': response.get(u'instanceType'),
-        u'ipAddresses': InstanceIpaddressesArray(response.get(u'ipAddresses', []), module).from_response(),
-        u'ipv6Address': response.get(u'ipv6Address'),
-        u'masterInstanceName': response.get(u'masterInstanceName'),
-        u'maxDiskSize': response.get(u'maxDiskSize'),
-        u'name': response.get(u'name'),
-        u'region': response.get(u'region'),
-        u'replicaConfiguration': InstanceReplicaconfiguration(response.get(u'replicaConfiguration', {}), module).from_response(),
-        u'settings': InstanceSettings(response.get(u'settings', {}), module).from_response(),
-        u'gceZone': response.get(u'gceZone'),
-        u'state': response.get(u'state'),
-        u'diskEncryptionConfiguration': InstanceDiskencryptionconfiguration(response.get(u'diskEncryptionConfiguration', {}), module).from_response(),
-        u'diskEncryptionStatus': InstanceDiskencryptionstatus(response.get(u'diskEncryptionStatus', {}), module).from_response(),
-        u'serverCaCert': InstanceServercacert(response.get(u'serverCaCert', {}), module).from_response(),
+        "backendType": response.get("backendType"),
+        "connectionName": response.get("connectionName"),
+        "databaseVersion": response.get("databaseVersion"),
+        "failoverReplica": InstanceFailoverreplica(
+            response.get("failoverReplica", {}), module
+        ).from_response(),
+        "instanceType": response.get("instanceType"),
+        "ipAddresses": InstanceIpaddressesArray(
+            response.get("ipAddresses", []), module
+        ).from_response(),
+        "ipv6Address": response.get("ipv6Address"),
+        "masterInstanceName": response.get("masterInstanceName"),
+        "maxDiskSize": response.get("maxDiskSize"),
+        "name": response.get("name"),
+        "region": response.get("region"),
+        "replicaConfiguration": InstanceReplicaconfiguration(
+            response.get("replicaConfiguration", {}), module
+        ).from_response(),
+        "settings": InstanceSettings(
+            response.get("settings", {}), module
+        ).from_response(),
+        "gceZone": response.get("gceZone"),
+        "state": response.get("state"),
+        "diskEncryptionConfiguration": InstanceDiskencryptionconfiguration(
+            response.get("diskEncryptionConfiguration", {}), module
+        ).from_response(),
+        "diskEncryptionStatus": InstanceDiskencryptionstatus(
+            response.get("diskEncryptionStatus", {}), module
+        ).from_response(),
+        "serverCaCert": InstanceServercacert(
+            response.get("serverCaCert", {}), module
+        ).from_response(),
     }
 
 
@@ -1047,22 +1098,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'sql#operation')
+    op_result = return_if_object(module, response, "sql#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'sql#instance')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "sql#instance"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'sql#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "sql#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -1081,10 +1134,10 @@ class InstanceFailoverreplica(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'name': self.request.get('name')})
+        return remove_nones_from_dict({"name": self.request.get("name")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'name': self.request.get(u'name')})
+        return remove_nones_from_dict({"name": self.request.get("name")})
 
 
 class InstanceIpaddressesArray(object):
@@ -1108,10 +1161,22 @@ class InstanceIpaddressesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'ipAddress': item.get('ip_address'), u'timeToRetire': item.get('time_to_retire'), u'type': item.get('type')})
+        return remove_nones_from_dict(
+            {
+                "ipAddress": item.get("ip_address"),
+                "timeToRetire": item.get("time_to_retire"),
+                "type": item.get("type"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'ipAddress': item.get(u'ipAddress'), u'timeToRetire': item.get(u'timeToRetire'), u'type': item.get(u'type')})
+        return remove_nones_from_dict(
+            {
+                "ipAddress": item.get("ipAddress"),
+                "timeToRetire": item.get("timeToRetire"),
+                "type": item.get("type"),
+            }
+        )
 
 
 class InstanceReplicaconfiguration(object):
@@ -1125,22 +1190,28 @@ class InstanceReplicaconfiguration(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'failoverTarget': self.request.get('failover_target'),
-                u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(self.request.get('mysql_replica_configuration', {}), self.module).to_request(),
-                u'replicaNames': self.request.get('replica_names'),
-                u'serviceAccountEmailAddress': self.request.get('service_account_email_address'),
+                "failoverTarget": self.request.get("failover_target"),
+                "mysqlReplicaConfiguration": InstanceMysqlreplicaconfiguration(
+                    self.request.get("mysql_replica_configuration", {}), self.module
+                ).to_request(),
+                "replicaNames": self.request.get("replica_names"),
+                "serviceAccountEmailAddress": self.request.get(
+                    "service_account_email_address"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'failoverTarget': self.request.get(u'failoverTarget'),
-                u'mysqlReplicaConfiguration': InstanceMysqlreplicaconfiguration(
-                    self.request.get(u'mysqlReplicaConfiguration', {}), self.module
+                "failoverTarget": self.request.get("failoverTarget"),
+                "mysqlReplicaConfiguration": InstanceMysqlreplicaconfiguration(
+                    self.request.get("mysqlReplicaConfiguration", {}), self.module
                 ).from_response(),
-                u'replicaNames': self.request.get(u'replicaNames'),
-                u'serviceAccountEmailAddress': self.request.get(u'serviceAccountEmailAddress'),
+                "replicaNames": self.request.get("replicaNames"),
+                "serviceAccountEmailAddress": self.request.get(
+                    "serviceAccountEmailAddress"
+                ),
             }
         )
 
@@ -1156,32 +1227,34 @@ class InstanceMysqlreplicaconfiguration(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'caCertificate': self.request.get('ca_certificate'),
-                u'clientCertificate': self.request.get('client_certificate'),
-                u'clientKey': self.request.get('client_key'),
-                u'connectRetryInterval': self.request.get('connect_retry_interval'),
-                u'dumpFilePath': self.request.get('dump_file_path'),
-                u'masterHeartbeatPeriod': self.request.get('master_heartbeat_period'),
-                u'password': self.request.get('password'),
-                u'sslCipher': self.request.get('ssl_cipher'),
-                u'username': self.request.get('username'),
-                u'verifyServerCertificate': self.request.get('verify_server_certificate'),
+                "caCertificate": self.request.get("ca_certificate"),
+                "clientCertificate": self.request.get("client_certificate"),
+                "clientKey": self.request.get("client_key"),
+                "connectRetryInterval": self.request.get("connect_retry_interval"),
+                "dumpFilePath": self.request.get("dump_file_path"),
+                "masterHeartbeatPeriod": self.request.get("master_heartbeat_period"),
+                "password": self.request.get("password"),
+                "sslCipher": self.request.get("ssl_cipher"),
+                "username": self.request.get("username"),
+                "verifyServerCertificate": self.request.get(
+                    "verify_server_certificate"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'caCertificate': self.request.get(u'caCertificate'),
-                u'clientCertificate': self.request.get(u'clientCertificate'),
-                u'clientKey': self.request.get(u'clientKey'),
-                u'connectRetryInterval': self.request.get(u'connectRetryInterval'),
-                u'dumpFilePath': self.request.get(u'dumpFilePath'),
-                u'masterHeartbeatPeriod': self.request.get(u'masterHeartbeatPeriod'),
-                u'password': self.request.get(u'password'),
-                u'sslCipher': self.request.get(u'sslCipher'),
-                u'username': self.request.get(u'username'),
-                u'verifyServerCertificate': self.request.get(u'verifyServerCertificate'),
+                "caCertificate": self.request.get("caCertificate"),
+                "clientCertificate": self.request.get("clientCertificate"),
+                "clientKey": self.request.get("clientKey"),
+                "connectRetryInterval": self.request.get("connectRetryInterval"),
+                "dumpFilePath": self.request.get("dumpFilePath"),
+                "masterHeartbeatPeriod": self.request.get("masterHeartbeatPeriod"),
+                "password": self.request.get("password"),
+                "sslCipher": self.request.get("sslCipher"),
+                "username": self.request.get("username"),
+                "verifyServerCertificate": self.request.get("verifyServerCertificate"),
             }
         )
 
@@ -1197,24 +1270,36 @@ class InstanceSettings(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'databaseFlags': InstanceDatabaseflagsArray(self.request.get('database_flags', []), self.module).to_request(),
-                u'ipConfiguration': InstanceIpconfiguration(self.request.get('ip_configuration', {}), self.module).to_request(),
-                u'tier': self.request.get('tier'),
-                u'availabilityType': self.request.get('availability_type'),
-                u'backupConfiguration': InstanceBackupconfiguration(self.request.get('backup_configuration', {}), self.module).to_request(),
-                u'userLabels': self.request.get('user_labels'),
+                "databaseFlags": InstanceDatabaseflagsArray(
+                    self.request.get("database_flags", []), self.module
+                ).to_request(),
+                "ipConfiguration": InstanceIpconfiguration(
+                    self.request.get("ip_configuration", {}), self.module
+                ).to_request(),
+                "tier": self.request.get("tier"),
+                "availabilityType": self.request.get("availability_type"),
+                "backupConfiguration": InstanceBackupconfiguration(
+                    self.request.get("backup_configuration", {}), self.module
+                ).to_request(),
+                "userLabels": self.request.get("user_labels"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'databaseFlags': InstanceDatabaseflagsArray(self.request.get(u'databaseFlags', []), self.module).from_response(),
-                u'ipConfiguration': InstanceIpconfiguration(self.request.get(u'ipConfiguration', {}), self.module).from_response(),
-                u'tier': self.request.get(u'tier'),
-                u'availabilityType': self.request.get(u'availabilityType'),
-                u'backupConfiguration': InstanceBackupconfiguration(self.request.get(u'backupConfiguration', {}), self.module).from_response(),
-                u'userLabels': self.request.get(u'userLabels'),
+                "databaseFlags": InstanceDatabaseflagsArray(
+                    self.request.get("databaseFlags", []), self.module
+                ).from_response(),
+                "ipConfiguration": InstanceIpconfiguration(
+                    self.request.get("ipConfiguration", {}), self.module
+                ).from_response(),
+                "tier": self.request.get("tier"),
+                "availabilityType": self.request.get("availabilityType"),
+                "backupConfiguration": InstanceBackupconfiguration(
+                    self.request.get("backupConfiguration", {}), self.module
+                ).from_response(),
+                "userLabels": self.request.get("userLabels"),
             }
         )
 
@@ -1240,10 +1325,14 @@ class InstanceDatabaseflagsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'value': item.get('value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'value': item.get(u'value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
 
 class InstanceIpconfiguration(object):
@@ -1257,20 +1346,24 @@ class InstanceIpconfiguration(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'ipv4Enabled': self.request.get('ipv4_enabled'),
-                u'privateNetwork': self.request.get('private_network'),
-                u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get('authorized_networks', []), self.module).to_request(),
-                u'requireSsl': self.request.get('require_ssl'),
+                "ipv4Enabled": self.request.get("ipv4_enabled"),
+                "privateNetwork": self.request.get("private_network"),
+                "authorizedNetworks": InstanceAuthorizednetworksArray(
+                    self.request.get("authorized_networks", []), self.module
+                ).to_request(),
+                "requireSsl": self.request.get("require_ssl"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
-                u'privateNetwork': self.request.get(u'privateNetwork'),
-                u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get(u'authorizedNetworks', []), self.module).from_response(),
-                u'requireSsl': self.request.get(u'requireSsl'),
+                "ipv4Enabled": self.request.get("ipv4Enabled"),
+                "privateNetwork": self.request.get("privateNetwork"),
+                "authorizedNetworks": InstanceAuthorizednetworksArray(
+                    self.request.get("authorizedNetworks", []), self.module
+                ).from_response(),
+                "requireSsl": self.request.get("requireSsl"),
             }
         )
 
@@ -1296,10 +1389,22 @@ class InstanceAuthorizednetworksArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'expirationTime': item.get('expiration_time'), u'name': item.get('name'), u'value': item.get('value')})
+        return remove_nones_from_dict(
+            {
+                "expirationTime": item.get("expiration_time"),
+                "name": item.get("name"),
+                "value": item.get("value"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'expirationTime': item.get(u'expirationTime'), u'name': item.get(u'name'), u'value': item.get(u'value')})
+        return remove_nones_from_dict(
+            {
+                "expirationTime": item.get("expirationTime"),
+                "name": item.get("name"),
+                "value": item.get("value"),
+            }
+        )
 
 
 class InstanceBackupconfiguration(object):
@@ -1312,12 +1417,20 @@ class InstanceBackupconfiguration(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get('enabled'), u'binaryLogEnabled': self.request.get('binary_log_enabled'), u'startTime': self.request.get('start_time')}
+            {
+                "enabled": self.request.get("enabled"),
+                "binaryLogEnabled": self.request.get("binary_log_enabled"),
+                "startTime": self.request.get("start_time"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get(u'enabled'), u'binaryLogEnabled': self.request.get(u'binaryLogEnabled'), u'startTime': self.request.get(u'startTime')}
+            {
+                "enabled": self.request.get("enabled"),
+                "binaryLogEnabled": self.request.get("binaryLogEnabled"),
+                "startTime": self.request.get("startTime"),
+            }
         )
 
 
@@ -1330,10 +1443,10 @@ class InstanceDiskencryptionconfiguration(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get('kms_key_name')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kms_key_name")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'kmsKeyName': self.request.get(u'kmsKeyName')})
+        return remove_nones_from_dict({"kmsKeyName": self.request.get("kmsKeyName")})
 
 
 class InstanceDiskencryptionstatus(object):
@@ -1345,10 +1458,14 @@ class InstanceDiskencryptionstatus(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'kmsKeyVersionName': self.request.get('kms_key_version_name')})
+        return remove_nones_from_dict(
+            {"kmsKeyVersionName": self.request.get("kms_key_version_name")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'kmsKeyVersionName': self.request.get(u'kmsKeyVersionName')})
+        return remove_nones_from_dict(
+            {"kmsKeyVersionName": self.request.get("kmsKeyVersionName")}
+        )
 
 
 class InstanceServercacert(object):
@@ -1362,27 +1479,27 @@ class InstanceServercacert(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'cert': self.request.get('cert'),
-                u'certSerialNumber': self.request.get('cert_serial_number'),
-                u'commonName': self.request.get('common_name'),
-                u'createTime': self.request.get('create_time'),
-                u'expirationTime': self.request.get('expiration_time'),
-                u'sha1Fingerprint': self.request.get('sha1_fingerprint'),
+                "cert": self.request.get("cert"),
+                "certSerialNumber": self.request.get("cert_serial_number"),
+                "commonName": self.request.get("common_name"),
+                "createTime": self.request.get("create_time"),
+                "expirationTime": self.request.get("expiration_time"),
+                "sha1Fingerprint": self.request.get("sha1_fingerprint"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'cert': self.request.get(u'cert'),
-                u'certSerialNumber': self.request.get(u'certSerialNumber'),
-                u'commonName': self.request.get(u'commonName'),
-                u'createTime': self.request.get(u'createTime'),
-                u'expirationTime': self.request.get(u'expirationTime'),
-                u'sha1Fingerprint': self.request.get(u'sha1Fingerprint'),
+                "cert": self.request.get("cert"),
+                "certSerialNumber": self.request.get("certSerialNumber"),
+                "commonName": self.request.get("commonName"),
+                "createTime": self.request.get("createTime"),
+                "expirationTime": self.request.get("expirationTime"),
+                "sha1Fingerprint": self.request.get("sha1Fingerprint"),
             }
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

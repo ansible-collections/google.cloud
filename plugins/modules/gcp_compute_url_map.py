@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_url_map
 description:
@@ -2584,9 +2588,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-urlmap
@@ -2632,9 +2636,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -4942,7 +4946,7 @@ defaultRouteAction:
               - The value must be between 0.0 and 100.0 inclusive.
               returned: success
               type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -4969,416 +4973,650 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            default_service=dict(type='dict'),
-            description=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            default_service=dict(type="dict"),
+            description=dict(type="str"),
             header_action=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     request_headers_to_add=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            header_name=dict(required=True, type='str'), header_value=dict(required=True, type='str'), replace=dict(required=True, type='bool')
+                            header_name=dict(required=True, type="str"),
+                            header_value=dict(required=True, type="str"),
+                            replace=dict(required=True, type="bool"),
                         ),
                     ),
-                    request_headers_to_remove=dict(type='list', elements='str'),
+                    request_headers_to_remove=dict(type="list", elements="str"),
                     response_headers_to_add=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            header_name=dict(required=True, type='str'), header_value=dict(required=True, type='str'), replace=dict(required=True, type='bool')
+                            header_name=dict(required=True, type="str"),
+                            header_value=dict(required=True, type="str"),
+                            replace=dict(required=True, type="bool"),
                         ),
                     ),
-                    response_headers_to_remove=dict(type='list', elements='str'),
+                    response_headers_to_remove=dict(type="list", elements="str"),
                 ),
             ),
             host_rules=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    description=dict(type='str'), hosts=dict(required=True, type='list', elements='str'), path_matcher=dict(required=True, type='str')
+                    description=dict(type="str"),
+                    hosts=dict(required=True, type="list", elements="str"),
+                    path_matcher=dict(required=True, type="str"),
                 ),
             ),
-            name=dict(required=True, type='str'),
+            name=dict(required=True, type="str"),
             path_matchers=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    default_service=dict(type='dict'),
-                    description=dict(type='str'),
+                    default_service=dict(type="dict"),
+                    description=dict(type="str"),
                     header_action=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
                             request_headers_to_add=dict(
-                                type='list',
-                                elements='dict',
+                                type="list",
+                                elements="dict",
                                 options=dict(
-                                    header_name=dict(required=True, type='str'),
-                                    header_value=dict(required=True, type='str'),
-                                    replace=dict(required=True, type='bool'),
+                                    header_name=dict(required=True, type="str"),
+                                    header_value=dict(required=True, type="str"),
+                                    replace=dict(required=True, type="bool"),
                                 ),
                             ),
-                            request_headers_to_remove=dict(type='list', elements='str'),
+                            request_headers_to_remove=dict(type="list", elements="str"),
                             response_headers_to_add=dict(
-                                type='list',
-                                elements='dict',
+                                type="list",
+                                elements="dict",
                                 options=dict(
-                                    header_name=dict(required=True, type='str'),
-                                    header_value=dict(required=True, type='str'),
-                                    replace=dict(required=True, type='bool'),
+                                    header_name=dict(required=True, type="str"),
+                                    header_value=dict(required=True, type="str"),
+                                    replace=dict(required=True, type="bool"),
                                 ),
                             ),
-                            response_headers_to_remove=dict(type='list', elements='str'),
+                            response_headers_to_remove=dict(
+                                type="list", elements="str"
+                            ),
                         ),
                     ),
-                    name=dict(required=True, type='str'),
+                    name=dict(required=True, type="str"),
                     path_rules=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            service=dict(type='dict'),
-                            paths=dict(required=True, type='list', elements='str'),
+                            service=dict(type="dict"),
+                            paths=dict(required=True, type="list", elements="str"),
                             route_action=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
                                     cors_policy=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
-                                            allow_credentials=dict(type='bool'),
-                                            allow_headers=dict(type='list', elements='str'),
-                                            allow_methods=dict(type='list', elements='str'),
-                                            allow_origin_regexes=dict(type='list', elements='str'),
-                                            allow_origins=dict(type='list', elements='str'),
-                                            disabled=dict(required=True, type='bool'),
-                                            expose_headers=dict(type='list', elements='str'),
-                                            max_age=dict(type='int'),
+                                            allow_credentials=dict(type="bool"),
+                                            allow_headers=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_methods=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_origin_regexes=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_origins=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            disabled=dict(required=True, type="bool"),
+                                            expose_headers=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            max_age=dict(type="int"),
                                         ),
                                     ),
                                     fault_injection_policy=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
                                             abort=dict(
-                                                type='dict',
-                                                options=dict(http_status=dict(required=True, type='int'), percentage=dict(required=True, type='str')),
+                                                type="dict",
+                                                options=dict(
+                                                    http_status=dict(
+                                                        required=True, type="int"
+                                                    ),
+                                                    percentage=dict(
+                                                        required=True, type="str"
+                                                    ),
+                                                ),
                                             ),
                                             delay=dict(
-                                                type='dict',
+                                                type="dict",
                                                 options=dict(
                                                     fixed_delay=dict(
                                                         required=True,
-                                                        type='dict',
-                                                        options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str')),
+                                                        type="dict",
+                                                        options=dict(
+                                                            nanos=dict(type="int"),
+                                                            seconds=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                        ),
                                                     ),
-                                                    percentage=dict(required=True, type='str'),
+                                                    percentage=dict(
+                                                        required=True, type="str"
+                                                    ),
                                                 ),
                                             ),
                                         ),
                                     ),
-                                    request_mirror_policy=dict(type='dict', options=dict(backend_service=dict(required=True, type='dict'))),
-                                    retry_policy=dict(
-                                        type='dict',
+                                    request_mirror_policy=dict(
+                                        type="dict",
                                         options=dict(
-                                            num_retries=dict(type='int'),
-                                            per_try_timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
-                                            retry_conditions=dict(type='list', elements='str'),
+                                            backend_service=dict(
+                                                required=True, type="dict"
+                                            )
                                         ),
                                     ),
-                                    timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
-                                    url_rewrite=dict(type='dict', options=dict(host_rewrite=dict(type='str'), path_prefix_rewrite=dict(type='str'))),
-                                    weighted_backend_services=dict(
-                                        type='list',
-                                        elements='dict',
+                                    retry_policy=dict(
+                                        type="dict",
                                         options=dict(
-                                            backend_service=dict(required=True, type='dict'),
+                                            num_retries=dict(type="int"),
+                                            per_try_timeout=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    nanos=dict(type="int"),
+                                                    seconds=dict(
+                                                        required=True, type="str"
+                                                    ),
+                                                ),
+                                            ),
+                                            retry_conditions=dict(
+                                                type="list", elements="str"
+                                            ),
+                                        ),
+                                    ),
+                                    timeout=dict(
+                                        type="dict",
+                                        options=dict(
+                                            nanos=dict(type="int"),
+                                            seconds=dict(required=True, type="str"),
+                                        ),
+                                    ),
+                                    url_rewrite=dict(
+                                        type="dict",
+                                        options=dict(
+                                            host_rewrite=dict(type="str"),
+                                            path_prefix_rewrite=dict(type="str"),
+                                        ),
+                                    ),
+                                    weighted_backend_services=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            backend_service=dict(
+                                                required=True, type="dict"
+                                            ),
                                             header_action=dict(
-                                                type='dict',
+                                                type="dict",
                                                 options=dict(
                                                     request_headers_to_add=dict(
-                                                        type='list',
-                                                        elements='dict',
+                                                        type="list",
+                                                        elements="dict",
                                                         options=dict(
-                                                            header_name=dict(required=True, type='str'),
-                                                            header_value=dict(required=True, type='str'),
-                                                            replace=dict(required=True, type='bool'),
+                                                            header_name=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            header_value=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            replace=dict(
+                                                                required=True,
+                                                                type="bool",
+                                                            ),
                                                         ),
                                                     ),
-                                                    request_headers_to_remove=dict(type='list', elements='str'),
+                                                    request_headers_to_remove=dict(
+                                                        type="list", elements="str"
+                                                    ),
                                                     response_headers_to_add=dict(
-                                                        type='list',
-                                                        elements='dict',
+                                                        type="list",
+                                                        elements="dict",
                                                         options=dict(
-                                                            header_name=dict(required=True, type='str'),
-                                                            header_value=dict(required=True, type='str'),
-                                                            replace=dict(required=True, type='bool'),
+                                                            header_name=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            header_value=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            replace=dict(
+                                                                required=True,
+                                                                type="bool",
+                                                            ),
                                                         ),
                                                     ),
-                                                    response_headers_to_remove=dict(type='list', elements='str'),
+                                                    response_headers_to_remove=dict(
+                                                        type="list", elements="str"
+                                                    ),
                                                 ),
                                             ),
-                                            weight=dict(required=True, type='int'),
+                                            weight=dict(required=True, type="int"),
                                         ),
                                     ),
                                 ),
                             ),
                             url_redirect=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
-                                    host_redirect=dict(type='str'),
-                                    https_redirect=dict(type='bool'),
-                                    path_redirect=dict(type='str'),
-                                    prefix_redirect=dict(type='str'),
-                                    redirect_response_code=dict(type='str'),
-                                    strip_query=dict(type='bool'),
+                                    host_redirect=dict(type="str"),
+                                    https_redirect=dict(type="bool"),
+                                    path_redirect=dict(type="str"),
+                                    prefix_redirect=dict(type="str"),
+                                    redirect_response_code=dict(type="str"),
+                                    strip_query=dict(type="bool"),
                                 ),
                             ),
                         ),
                     ),
                     route_rules=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            priority=dict(required=True, type='int'),
-                            service=dict(type='dict'),
+                            priority=dict(required=True, type="int"),
+                            service=dict(type="dict"),
                             header_action=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
                                     request_headers_to_add=dict(
-                                        type='list',
-                                        elements='dict',
+                                        type="list",
+                                        elements="dict",
                                         options=dict(
-                                            header_name=dict(required=True, type='str'),
-                                            header_value=dict(required=True, type='str'),
-                                            replace=dict(required=True, type='bool'),
+                                            header_name=dict(required=True, type="str"),
+                                            header_value=dict(
+                                                required=True, type="str"
+                                            ),
+                                            replace=dict(required=True, type="bool"),
                                         ),
                                     ),
-                                    request_headers_to_remove=dict(type='list', elements='str'),
+                                    request_headers_to_remove=dict(
+                                        type="list", elements="str"
+                                    ),
                                     response_headers_to_add=dict(
-                                        type='list',
-                                        elements='dict',
+                                        type="list",
+                                        elements="dict",
                                         options=dict(
-                                            header_name=dict(required=True, type='str'),
-                                            header_value=dict(required=True, type='str'),
-                                            replace=dict(required=True, type='bool'),
+                                            header_name=dict(required=True, type="str"),
+                                            header_value=dict(
+                                                required=True, type="str"
+                                            ),
+                                            replace=dict(required=True, type="bool"),
                                         ),
                                     ),
-                                    response_headers_to_remove=dict(type='list', elements='str'),
+                                    response_headers_to_remove=dict(
+                                        type="list", elements="str"
+                                    ),
                                 ),
                             ),
                             match_rules=dict(
-                                type='list',
-                                elements='dict',
+                                type="list",
+                                elements="dict",
                                 options=dict(
-                                    full_path_match=dict(type='str'),
+                                    full_path_match=dict(type="str"),
                                     header_matches=dict(
-                                        type='list',
-                                        elements='dict',
+                                        type="list",
+                                        elements="dict",
                                         options=dict(
-                                            exact_match=dict(type='str'),
-                                            header_name=dict(required=True, type='str'),
-                                            invert_match=dict(type='bool'),
-                                            prefix_match=dict(type='str'),
-                                            present_match=dict(type='bool'),
+                                            exact_match=dict(type="str"),
+                                            header_name=dict(required=True, type="str"),
+                                            invert_match=dict(type="bool"),
+                                            prefix_match=dict(type="str"),
+                                            present_match=dict(type="bool"),
                                             range_match=dict(
-                                                type='dict',
-                                                options=dict(range_end=dict(required=True, type='int'), range_start=dict(required=True, type='int')),
+                                                type="dict",
+                                                options=dict(
+                                                    range_end=dict(
+                                                        required=True, type="int"
+                                                    ),
+                                                    range_start=dict(
+                                                        required=True, type="int"
+                                                    ),
+                                                ),
                                             ),
-                                            regex_match=dict(type='str'),
-                                            suffix_match=dict(type='str'),
+                                            regex_match=dict(type="str"),
+                                            suffix_match=dict(type="str"),
                                         ),
                                     ),
-                                    ignore_case=dict(type='bool'),
+                                    ignore_case=dict(type="bool"),
                                     metadata_filters=dict(
-                                        type='list',
-                                        elements='dict',
+                                        type="list",
+                                        elements="dict",
                                         options=dict(
                                             filter_labels=dict(
                                                 required=True,
-                                                type='list',
-                                                elements='dict',
-                                                options=dict(name=dict(required=True, type='str'), value=dict(required=True, type='str')),
+                                                type="list",
+                                                elements="dict",
+                                                options=dict(
+                                                    name=dict(
+                                                        required=True, type="str"
+                                                    ),
+                                                    value=dict(
+                                                        required=True, type="str"
+                                                    ),
+                                                ),
                                             ),
-                                            filter_match_criteria=dict(required=True, type='str'),
+                                            filter_match_criteria=dict(
+                                                required=True, type="str"
+                                            ),
                                         ),
                                     ),
-                                    prefix_match=dict(type='str'),
+                                    prefix_match=dict(type="str"),
                                     query_parameter_matches=dict(
-                                        type='list',
-                                        elements='dict',
+                                        type="list",
+                                        elements="dict",
                                         options=dict(
-                                            exact_match=dict(type='str'),
-                                            name=dict(required=True, type='str'),
-                                            present_match=dict(type='bool'),
-                                            regex_match=dict(type='str'),
+                                            exact_match=dict(type="str"),
+                                            name=dict(required=True, type="str"),
+                                            present_match=dict(type="bool"),
+                                            regex_match=dict(type="str"),
                                         ),
                                     ),
-                                    regex_match=dict(type='str'),
+                                    regex_match=dict(type="str"),
                                 ),
                             ),
                             route_action=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
                                     cors_policy=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
-                                            allow_credentials=dict(type='bool'),
-                                            allow_headers=dict(type='list', elements='str'),
-                                            allow_methods=dict(type='list', elements='str'),
-                                            allow_origin_regexes=dict(type='list', elements='str'),
-                                            allow_origins=dict(type='list', elements='str'),
-                                            disabled=dict(type='bool'),
-                                            expose_headers=dict(type='list', elements='str'),
-                                            max_age=dict(type='int'),
+                                            allow_credentials=dict(type="bool"),
+                                            allow_headers=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_methods=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_origin_regexes=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            allow_origins=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            disabled=dict(type="bool"),
+                                            expose_headers=dict(
+                                                type="list", elements="str"
+                                            ),
+                                            max_age=dict(type="int"),
                                         ),
                                     ),
                                     fault_injection_policy=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
-                                            abort=dict(type='dict', options=dict(http_status=dict(type='int'), percentage=dict(type='str'))),
+                                            abort=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    http_status=dict(type="int"),
+                                                    percentage=dict(type="str"),
+                                                ),
+                                            ),
                                             delay=dict(
-                                                type='dict',
+                                                type="dict",
                                                 options=dict(
                                                     fixed_delay=dict(
-                                                        type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))
+                                                        type="dict",
+                                                        options=dict(
+                                                            nanos=dict(type="int"),
+                                                            seconds=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                        ),
                                                     ),
-                                                    percentage=dict(type='str'),
+                                                    percentage=dict(type="str"),
                                                 ),
                                             ),
                                         ),
                                     ),
-                                    request_mirror_policy=dict(type='dict', options=dict(backend_service=dict(required=True, type='dict'))),
-                                    retry_policy=dict(
-                                        type='dict',
+                                    request_mirror_policy=dict(
+                                        type="dict",
                                         options=dict(
-                                            num_retries=dict(required=True, type='int'),
-                                            per_try_timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
-                                            retry_conditions=dict(type='list', elements='str'),
+                                            backend_service=dict(
+                                                required=True, type="dict"
+                                            )
                                         ),
                                     ),
-                                    timeout=dict(type='dict', options=dict(nanos=dict(type='int'), seconds=dict(required=True, type='str'))),
-                                    url_rewrite=dict(type='dict', options=dict(host_rewrite=dict(type='str'), path_prefix_rewrite=dict(type='str'))),
-                                    weighted_backend_services=dict(
-                                        type='list',
-                                        elements='dict',
+                                    retry_policy=dict(
+                                        type="dict",
                                         options=dict(
-                                            backend_service=dict(required=True, type='dict'),
+                                            num_retries=dict(required=True, type="int"),
+                                            per_try_timeout=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    nanos=dict(type="int"),
+                                                    seconds=dict(
+                                                        required=True, type="str"
+                                                    ),
+                                                ),
+                                            ),
+                                            retry_conditions=dict(
+                                                type="list", elements="str"
+                                            ),
+                                        ),
+                                    ),
+                                    timeout=dict(
+                                        type="dict",
+                                        options=dict(
+                                            nanos=dict(type="int"),
+                                            seconds=dict(required=True, type="str"),
+                                        ),
+                                    ),
+                                    url_rewrite=dict(
+                                        type="dict",
+                                        options=dict(
+                                            host_rewrite=dict(type="str"),
+                                            path_prefix_rewrite=dict(type="str"),
+                                        ),
+                                    ),
+                                    weighted_backend_services=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            backend_service=dict(
+                                                required=True, type="dict"
+                                            ),
                                             header_action=dict(
-                                                type='dict',
+                                                type="dict",
                                                 options=dict(
                                                     request_headers_to_add=dict(
-                                                        type='list',
-                                                        elements='dict',
+                                                        type="list",
+                                                        elements="dict",
                                                         options=dict(
-                                                            header_name=dict(required=True, type='str'),
-                                                            header_value=dict(required=True, type='str'),
-                                                            replace=dict(required=True, type='bool'),
+                                                            header_name=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            header_value=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            replace=dict(
+                                                                required=True,
+                                                                type="bool",
+                                                            ),
                                                         ),
                                                     ),
-                                                    request_headers_to_remove=dict(type='list', elements='str'),
+                                                    request_headers_to_remove=dict(
+                                                        type="list", elements="str"
+                                                    ),
                                                     response_headers_to_add=dict(
-                                                        type='list',
-                                                        elements='dict',
+                                                        type="list",
+                                                        elements="dict",
                                                         options=dict(
-                                                            header_name=dict(required=True, type='str'),
-                                                            header_value=dict(required=True, type='str'),
-                                                            replace=dict(required=True, type='bool'),
+                                                            header_name=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            header_value=dict(
+                                                                required=True,
+                                                                type="str",
+                                                            ),
+                                                            replace=dict(
+                                                                required=True,
+                                                                type="bool",
+                                                            ),
                                                         ),
                                                     ),
-                                                    response_headers_to_remove=dict(type='list', elements='str'),
+                                                    response_headers_to_remove=dict(
+                                                        type="list", elements="str"
+                                                    ),
                                                 ),
                                             ),
-                                            weight=dict(required=True, type='int'),
+                                            weight=dict(required=True, type="int"),
                                         ),
                                     ),
                                 ),
                             ),
                             url_redirect=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
-                                    host_redirect=dict(type='str'),
-                                    https_redirect=dict(type='bool'),
-                                    path_redirect=dict(type='str'),
-                                    prefix_redirect=dict(type='str'),
-                                    redirect_response_code=dict(type='str'),
-                                    strip_query=dict(type='bool'),
+                                    host_redirect=dict(type="str"),
+                                    https_redirect=dict(type="bool"),
+                                    path_redirect=dict(type="str"),
+                                    prefix_redirect=dict(type="str"),
+                                    redirect_response_code=dict(type="str"),
+                                    strip_query=dict(type="bool"),
                                 ),
                             ),
                         ),
                     ),
                     default_url_redirect=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            host_redirect=dict(type='str'),
-                            https_redirect=dict(type='bool'),
-                            path_redirect=dict(type='str'),
-                            prefix_redirect=dict(type='str'),
-                            redirect_response_code=dict(type='str'),
-                            strip_query=dict(type='bool'),
+                            host_redirect=dict(type="str"),
+                            https_redirect=dict(type="bool"),
+                            path_redirect=dict(type="str"),
+                            prefix_redirect=dict(type="str"),
+                            redirect_response_code=dict(type="str"),
+                            strip_query=dict(type="bool"),
                         ),
                     ),
                     default_route_action=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
                             weighted_backend_services=dict(
-                                type='list',
-                                elements='dict',
+                                type="list",
+                                elements="dict",
                                 options=dict(
-                                    backend_service=dict(type='dict'),
-                                    weight=dict(type='int'),
+                                    backend_service=dict(type="dict"),
+                                    weight=dict(type="int"),
                                     header_action=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
-                                            request_headers_to_remove=dict(type='list', elements='str'),
-                                            request_headers_to_add=dict(
-                                                type='list',
-                                                elements='dict',
-                                                options=dict(header_name=dict(type='str'), header_value=dict(type='str'), replace=dict(type='bool')),
+                                            request_headers_to_remove=dict(
+                                                type="list", elements="str"
                                             ),
-                                            response_headers_to_remove=dict(type='list', elements='str'),
+                                            request_headers_to_add=dict(
+                                                type="list",
+                                                elements="dict",
+                                                options=dict(
+                                                    header_name=dict(type="str"),
+                                                    header_value=dict(type="str"),
+                                                    replace=dict(type="bool"),
+                                                ),
+                                            ),
+                                            response_headers_to_remove=dict(
+                                                type="list", elements="str"
+                                            ),
                                             response_headers_to_add=dict(
-                                                type='list',
-                                                elements='dict',
-                                                options=dict(header_name=dict(type='str'), header_value=dict(type='str'), replace=dict(type='bool')),
+                                                type="list",
+                                                elements="dict",
+                                                options=dict(
+                                                    header_name=dict(type="str"),
+                                                    header_value=dict(type="str"),
+                                                    replace=dict(type="bool"),
+                                                ),
                                             ),
                                         ),
                                     ),
                                 ),
                             ),
-                            url_rewrite=dict(type='dict', options=dict(path_prefix_rewrite=dict(type='str'), host_rewrite=dict(type='str'))),
-                            timeout=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))),
-                            retry_policy=dict(
-                                type='dict',
+                            url_rewrite=dict(
+                                type="dict",
                                 options=dict(
-                                    retry_conditions=dict(type='list', elements='str'),
-                                    num_retries=dict(default=1, type='int'),
-                                    per_try_timeout=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))),
+                                    path_prefix_rewrite=dict(type="str"),
+                                    host_rewrite=dict(type="str"),
                                 ),
                             ),
-                            request_mirror_policy=dict(type='dict', options=dict(backend_service=dict(required=True, type='dict'))),
-                            cors_policy=dict(
-                                type='dict',
+                            timeout=dict(
+                                type="dict",
                                 options=dict(
-                                    allow_origins=dict(type='list', elements='str'),
-                                    allow_origin_regexes=dict(type='list', elements='str'),
-                                    allow_methods=dict(type='list', elements='str'),
-                                    allow_headers=dict(type='list', elements='str'),
-                                    expose_headers=dict(type='list', elements='str'),
-                                    max_age=dict(type='int'),
-                                    allow_credentials=dict(type='bool'),
-                                    disabled=dict(type='bool'),
+                                    seconds=dict(type="str"), nanos=dict(type="int")
+                                ),
+                            ),
+                            retry_policy=dict(
+                                type="dict",
+                                options=dict(
+                                    retry_conditions=dict(type="list", elements="str"),
+                                    num_retries=dict(default=1, type="int"),
+                                    per_try_timeout=dict(
+                                        type="dict",
+                                        options=dict(
+                                            seconds=dict(type="str"),
+                                            nanos=dict(type="int"),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            request_mirror_policy=dict(
+                                type="dict",
+                                options=dict(
+                                    backend_service=dict(required=True, type="dict")
+                                ),
+                            ),
+                            cors_policy=dict(
+                                type="dict",
+                                options=dict(
+                                    allow_origins=dict(type="list", elements="str"),
+                                    allow_origin_regexes=dict(
+                                        type="list", elements="str"
+                                    ),
+                                    allow_methods=dict(type="list", elements="str"),
+                                    allow_headers=dict(type="list", elements="str"),
+                                    expose_headers=dict(type="list", elements="str"),
+                                    max_age=dict(type="int"),
+                                    allow_credentials=dict(type="bool"),
+                                    disabled=dict(type="bool"),
                                 ),
                             ),
                             fault_injection_policy=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
                                     delay=dict(
-                                        type='dict',
+                                        type="dict",
                                         options=dict(
-                                            fixed_delay=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))),
-                                            percentage=dict(type='str'),
+                                            fixed_delay=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    seconds=dict(type="str"),
+                                                    nanos=dict(type="int"),
+                                                ),
+                                            ),
+                                            percentage=dict(type="str"),
                                         ),
                                     ),
-                                    abort=dict(type='dict', options=dict(http_status=dict(type='int'), percentage=dict(type='str'))),
+                                    abort=dict(
+                                        type="dict",
+                                        options=dict(
+                                            http_status=dict(type="int"),
+                                            percentage=dict(type="str"),
+                                        ),
+                                    ),
                                 ),
                             ),
                         ),
@@ -5386,107 +5624,149 @@ def main():
                 ),
             ),
             tests=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    description=dict(type='str'),
-                    host=dict(required=True, type='str'),
-                    path=dict(required=True, type='str'),
-                    service=dict(required=True, type='dict'),
+                    description=dict(type="str"),
+                    host=dict(required=True, type="str"),
+                    path=dict(required=True, type="str"),
+                    service=dict(required=True, type="dict"),
                 ),
             ),
             default_url_redirect=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    host_redirect=dict(type='str'),
-                    https_redirect=dict(type='bool'),
-                    path_redirect=dict(type='str'),
-                    prefix_redirect=dict(type='str'),
-                    redirect_response_code=dict(type='str'),
-                    strip_query=dict(type='bool'),
+                    host_redirect=dict(type="str"),
+                    https_redirect=dict(type="bool"),
+                    path_redirect=dict(type="str"),
+                    prefix_redirect=dict(type="str"),
+                    redirect_response_code=dict(type="str"),
+                    strip_query=dict(type="bool"),
                 ),
             ),
             default_route_action=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     weighted_backend_services=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            backend_service=dict(type='dict'),
-                            weight=dict(type='int'),
+                            backend_service=dict(type="dict"),
+                            weight=dict(type="int"),
                             header_action=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
-                                    request_headers_to_remove=dict(type='list', elements='str'),
-                                    request_headers_to_add=dict(
-                                        type='list',
-                                        elements='dict',
-                                        options=dict(header_name=dict(type='str'), header_value=dict(type='str'), replace=dict(type='bool')),
+                                    request_headers_to_remove=dict(
+                                        type="list", elements="str"
                                     ),
-                                    response_headers_to_remove=dict(type='list', elements='str'),
+                                    request_headers_to_add=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            header_name=dict(type="str"),
+                                            header_value=dict(type="str"),
+                                            replace=dict(type="bool"),
+                                        ),
+                                    ),
+                                    response_headers_to_remove=dict(
+                                        type="list", elements="str"
+                                    ),
                                     response_headers_to_add=dict(
-                                        type='list',
-                                        elements='dict',
-                                        options=dict(header_name=dict(type='str'), header_value=dict(type='str'), replace=dict(type='bool')),
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            header_name=dict(type="str"),
+                                            header_value=dict(type="str"),
+                                            replace=dict(type="bool"),
+                                        ),
                                     ),
                                 ),
                             ),
                         ),
                     ),
-                    url_rewrite=dict(type='dict', options=dict(path_prefix_rewrite=dict(type='str'), host_rewrite=dict(type='str'))),
-                    timeout=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))),
-                    retry_policy=dict(
-                        type='dict',
+                    url_rewrite=dict(
+                        type="dict",
                         options=dict(
-                            retry_conditions=dict(type='list', elements='str'),
-                            num_retries=dict(default=1, type='int'),
-                            per_try_timeout=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))),
+                            path_prefix_rewrite=dict(type="str"),
+                            host_rewrite=dict(type="str"),
                         ),
                     ),
-                    request_mirror_policy=dict(type='dict', options=dict(backend_service=dict(required=True, type='dict'))),
-                    cors_policy=dict(
-                        type='dict',
+                    timeout=dict(
+                        type="dict",
+                        options=dict(seconds=dict(type="str"), nanos=dict(type="int")),
+                    ),
+                    retry_policy=dict(
+                        type="dict",
                         options=dict(
-                            allow_origins=dict(type='list', elements='str'),
-                            allow_origin_regexes=dict(type='list', elements='str'),
-                            allow_methods=dict(type='list', elements='str'),
-                            allow_headers=dict(type='list', elements='str'),
-                            expose_headers=dict(type='list', elements='str'),
-                            max_age=dict(type='int'),
-                            allow_credentials=dict(type='bool'),
-                            disabled=dict(type='bool'),
+                            retry_conditions=dict(type="list", elements="str"),
+                            num_retries=dict(default=1, type="int"),
+                            per_try_timeout=dict(
+                                type="dict",
+                                options=dict(
+                                    seconds=dict(type="str"), nanos=dict(type="int")
+                                ),
+                            ),
+                        ),
+                    ),
+                    request_mirror_policy=dict(
+                        type="dict",
+                        options=dict(backend_service=dict(required=True, type="dict")),
+                    ),
+                    cors_policy=dict(
+                        type="dict",
+                        options=dict(
+                            allow_origins=dict(type="list", elements="str"),
+                            allow_origin_regexes=dict(type="list", elements="str"),
+                            allow_methods=dict(type="list", elements="str"),
+                            allow_headers=dict(type="list", elements="str"),
+                            expose_headers=dict(type="list", elements="str"),
+                            max_age=dict(type="int"),
+                            allow_credentials=dict(type="bool"),
+                            disabled=dict(type="bool"),
                         ),
                     ),
                     fault_injection_policy=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
                             delay=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
-                                    fixed_delay=dict(type='dict', options=dict(seconds=dict(type='str'), nanos=dict(type='int'))), percentage=dict(type='str')
+                                    fixed_delay=dict(
+                                        type="dict",
+                                        options=dict(
+                                            seconds=dict(type="str"),
+                                            nanos=dict(type="int"),
+                                        ),
+                                    ),
+                                    percentage=dict(type="str"),
                                 ),
                             ),
-                            abort=dict(type='dict', options=dict(http_status=dict(type='int'), percentage=dict(type='str'))),
+                            abort=dict(
+                                type="dict",
+                                options=dict(
+                                    http_status=dict(type="int"),
+                                    percentage=dict(type="str"),
+                                ),
+                            ),
                         ),
                     ),
                 ),
             ),
         ),
-        mutually_exclusive=[['default_route_action', 'default_url_redirect']],
+        mutually_exclusive=[["default_route_action", "default_url_redirect"]],
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#urlMap'
+    state = module.params["state"]
+    kind = "compute#urlMap"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -5496,44 +5776,56 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#urlMap',
-        u'defaultService': replace_resource_dict(module.params.get(u'default_service', {}), 'selfLink'),
-        u'description': module.params.get('description'),
-        u'headerAction': UrlMapHeaderaction(module.params.get('header_action', {}), module).to_request(),
-        u'hostRules': UrlMapHostrulesArray(module.params.get('host_rules', []), module).to_request(),
-        u'name': module.params.get('name'),
-        u'pathMatchers': UrlMapPathmatchersArray(module.params.get('path_matchers', []), module).to_request(),
-        u'tests': UrlMapTestsArray(module.params.get('tests', []), module).to_request(),
-        u'defaultUrlRedirect': UrlMapDefaulturlredirect(module.params.get('default_url_redirect', {}), module).to_request(),
-        u'defaultRouteAction': UrlMapDefaultrouteaction(module.params.get('default_route_action', {}), module).to_request(),
+        "kind": "compute#urlMap",
+        "defaultService": replace_resource_dict(
+            module.params.get("default_service", {}), "selfLink"
+        ),
+        "description": module.params.get("description"),
+        "headerAction": UrlMapHeaderaction(
+            module.params.get("header_action", {}), module
+        ).to_request(),
+        "hostRules": UrlMapHostrulesArray(
+            module.params.get("host_rules", []), module
+        ).to_request(),
+        "name": module.params.get("name"),
+        "pathMatchers": UrlMapPathmatchersArray(
+            module.params.get("path_matchers", []), module
+        ).to_request(),
+        "tests": UrlMapTestsArray(module.params.get("tests", []), module).to_request(),
+        "defaultUrlRedirect": UrlMapDefaulturlredirect(
+            module.params.get("default_url_redirect", {}), module
+        ).to_request(),
+        "defaultRouteAction": UrlMapDefaultrouteaction(
+            module.params.get("default_route_action", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -5544,16 +5836,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/urlMaps/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/urlMaps/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/urlMaps".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/urlMaps".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -5568,11 +5864,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -5599,18 +5895,28 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'defaultService': response.get(u'defaultService'),
-        u'description': response.get(u'description'),
-        u'id': response.get(u'id'),
-        u'fingerprint': response.get(u'fingerprint'),
-        u'headerAction': UrlMapHeaderaction(response.get(u'headerAction', {}), module).from_response(),
-        u'hostRules': UrlMapHostrulesArray(response.get(u'hostRules', []), module).from_response(),
-        u'name': module.params.get('name'),
-        u'pathMatchers': UrlMapPathmatchersArray(response.get(u'pathMatchers', []), module).from_response(),
-        u'tests': UrlMapTestsArray(response.get(u'tests', []), module).from_response(),
-        u'defaultUrlRedirect': UrlMapDefaulturlredirect(response.get(u'defaultUrlRedirect', {}), module).from_response(),
-        u'defaultRouteAction': UrlMapDefaultrouteaction(response.get(u'defaultRouteAction', {}), module).from_response(),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "defaultService": response.get("defaultService"),
+        "description": response.get("description"),
+        "id": response.get("id"),
+        "fingerprint": response.get("fingerprint"),
+        "headerAction": UrlMapHeaderaction(
+            response.get("headerAction", {}), module
+        ).from_response(),
+        "hostRules": UrlMapHostrulesArray(
+            response.get("hostRules", []), module
+        ).from_response(),
+        "name": module.params.get("name"),
+        "pathMatchers": UrlMapPathmatchersArray(
+            response.get("pathMatchers", []), module
+        ).from_response(),
+        "tests": UrlMapTestsArray(response.get("tests", []), module).from_response(),
+        "defaultUrlRedirect": UrlMapDefaulturlredirect(
+            response.get("defaultUrlRedirect", {}), module
+        ).from_response(),
+        "defaultRouteAction": UrlMapDefaultrouteaction(
+            response.get("defaultRouteAction", {}), module
+        ).from_response(),
     }
 
 
@@ -5624,22 +5930,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#urlMap')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#urlMap"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -5660,20 +5968,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
             }
         )
 
@@ -5699,10 +6017,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -5726,10 +6056,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapHostrulesArray(object):
@@ -5753,10 +6095,22 @@ class UrlMapHostrulesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'description': item.get('description'), u'hosts': item.get('hosts'), u'pathMatcher': item.get('path_matcher')})
+        return remove_nones_from_dict(
+            {
+                "description": item.get("description"),
+                "hosts": item.get("hosts"),
+                "pathMatcher": item.get("path_matcher"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'description': item.get(u'description'), u'hosts': item.get(u'hosts'), u'pathMatcher': item.get(u'pathMatcher')})
+        return remove_nones_from_dict(
+            {
+                "description": item.get("description"),
+                "hosts": item.get("hosts"),
+                "pathMatcher": item.get("pathMatcher"),
+            }
+        )
 
 
 class UrlMapPathmatchersArray(object):
@@ -5782,28 +6136,50 @@ class UrlMapPathmatchersArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'defaultService': replace_resource_dict(item.get(u'default_service', {}), 'selfLink'),
-                u'description': item.get('description'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
-                u'name': item.get('name'),
-                u'pathRules': UrlMapPathrulesArray(item.get('path_rules', []), self.module).to_request(),
-                u'routeRules': UrlMapRouterulesArray(item.get('route_rules', []), self.module).to_request(),
-                u'defaultUrlRedirect': UrlMapDefaulturlredirect(item.get('default_url_redirect', {}), self.module).to_request(),
-                u'defaultRouteAction': UrlMapDefaultrouteaction(item.get('default_route_action', {}), self.module).to_request(),
+                "defaultService": replace_resource_dict(
+                    item.get("default_service", {}), "selfLink"
+                ),
+                "description": item.get("description"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
+                "name": item.get("name"),
+                "pathRules": UrlMapPathrulesArray(
+                    item.get("path_rules", []), self.module
+                ).to_request(),
+                "routeRules": UrlMapRouterulesArray(
+                    item.get("route_rules", []), self.module
+                ).to_request(),
+                "defaultUrlRedirect": UrlMapDefaulturlredirect(
+                    item.get("default_url_redirect", {}), self.module
+                ).to_request(),
+                "defaultRouteAction": UrlMapDefaultrouteaction(
+                    item.get("default_route_action", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'defaultService': item.get(u'defaultService'),
-                u'description': item.get(u'description'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
-                u'name': item.get(u'name'),
-                u'pathRules': UrlMapPathrulesArray(item.get(u'pathRules', []), self.module).from_response(),
-                u'routeRules': UrlMapRouterulesArray(item.get(u'routeRules', []), self.module).from_response(),
-                u'defaultUrlRedirect': UrlMapDefaulturlredirect(item.get(u'defaultUrlRedirect', {}), self.module).from_response(),
-                u'defaultRouteAction': UrlMapDefaultrouteaction(item.get(u'defaultRouteAction', {}), self.module).from_response(),
+                "defaultService": item.get("defaultService"),
+                "description": item.get("description"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
+                "name": item.get("name"),
+                "pathRules": UrlMapPathrulesArray(
+                    item.get("pathRules", []), self.module
+                ).from_response(),
+                "routeRules": UrlMapRouterulesArray(
+                    item.get("routeRules", []), self.module
+                ).from_response(),
+                "defaultUrlRedirect": UrlMapDefaulturlredirect(
+                    item.get("defaultUrlRedirect", {}), self.module
+                ).from_response(),
+                "defaultRouteAction": UrlMapDefaultrouteaction(
+                    item.get("defaultRouteAction", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -5819,20 +6195,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
             }
         )
 
@@ -5858,10 +6244,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -5885,10 +6283,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapPathrulesArray(object):
@@ -5914,20 +6324,28 @@ class UrlMapPathrulesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'),
-                u'paths': item.get('paths'),
-                u'routeAction': UrlMapRouteaction(item.get('route_action', {}), self.module).to_request(),
-                u'urlRedirect': UrlMapUrlredirect(item.get('url_redirect', {}), self.module).to_request(),
+                "service": replace_resource_dict(item.get("service", {}), "selfLink"),
+                "paths": item.get("paths"),
+                "routeAction": UrlMapRouteaction(
+                    item.get("route_action", {}), self.module
+                ).to_request(),
+                "urlRedirect": UrlMapUrlredirect(
+                    item.get("url_redirect", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'service': item.get(u'service'),
-                u'paths': item.get(u'paths'),
-                u'routeAction': UrlMapRouteaction(item.get(u'routeAction', {}), self.module).from_response(),
-                u'urlRedirect': UrlMapUrlredirect(item.get(u'urlRedirect', {}), self.module).from_response(),
+                "service": item.get("service"),
+                "paths": item.get("paths"),
+                "routeAction": UrlMapRouteaction(
+                    item.get("routeAction", {}), self.module
+                ).from_response(),
+                "urlRedirect": UrlMapUrlredirect(
+                    item.get("urlRedirect", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -5943,26 +6361,54 @@ class UrlMapRouteaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'corsPolicy': UrlMapCorspolicy(self.request.get('cors_policy', {}), self.module).to_request(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get('fault_injection_policy', {}), self.module).to_request(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get('request_mirror_policy', {}), self.module).to_request(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get('retry_policy', {}), self.module).to_request(),
-                u'timeout': UrlMapTimeout(self.request.get('timeout', {}), self.module).to_request(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get('url_rewrite', {}), self.module).to_request(),
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get('weighted_backend_services', []), self.module).to_request(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("cors_policy", {}), self.module
+                ).to_request(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("fault_injection_policy", {}), self.module
+                ).to_request(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("request_mirror_policy", {}), self.module
+                ).to_request(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retry_policy", {}), self.module
+                ).to_request(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).to_request(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("url_rewrite", {}), self.module
+                ).to_request(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weighted_backend_services", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'corsPolicy': UrlMapCorspolicy(self.request.get(u'corsPolicy', {}), self.module).from_response(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get(u'faultInjectionPolicy', {}), self.module).from_response(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get(u'requestMirrorPolicy', {}), self.module).from_response(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get(u'retryPolicy', {}), self.module).from_response(),
-                u'timeout': UrlMapTimeout(self.request.get(u'timeout', {}), self.module).from_response(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get(u'urlRewrite', {}), self.module).from_response(),
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get(u'weightedBackendServices', []), self.module).from_response(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("corsPolicy", {}), self.module
+                ).from_response(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("faultInjectionPolicy", {}), self.module
+                ).from_response(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("requestMirrorPolicy", {}), self.module
+                ).from_response(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retryPolicy", {}), self.module
+                ).from_response(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).from_response(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("urlRewrite", {}), self.module
+                ).from_response(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weightedBackendServices", []), self.module
+                ).from_response(),
             }
         )
 
@@ -5978,28 +6424,28 @@ class UrlMapCorspolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'allowCredentials': self.request.get('allow_credentials'),
-                u'allowHeaders': self.request.get('allow_headers'),
-                u'allowMethods': self.request.get('allow_methods'),
-                u'allowOriginRegexes': self.request.get('allow_origin_regexes'),
-                u'allowOrigins': self.request.get('allow_origins'),
-                u'disabled': self.request.get('disabled'),
-                u'exposeHeaders': self.request.get('expose_headers'),
-                u'maxAge': self.request.get('max_age'),
+                "allowCredentials": self.request.get("allow_credentials"),
+                "allowHeaders": self.request.get("allow_headers"),
+                "allowMethods": self.request.get("allow_methods"),
+                "allowOriginRegexes": self.request.get("allow_origin_regexes"),
+                "allowOrigins": self.request.get("allow_origins"),
+                "disabled": self.request.get("disabled"),
+                "exposeHeaders": self.request.get("expose_headers"),
+                "maxAge": self.request.get("max_age"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'allowCredentials': self.request.get(u'allowCredentials'),
-                u'allowHeaders': self.request.get(u'allowHeaders'),
-                u'allowMethods': self.request.get(u'allowMethods'),
-                u'allowOriginRegexes': self.request.get(u'allowOriginRegexes'),
-                u'allowOrigins': self.request.get(u'allowOrigins'),
-                u'disabled': self.request.get(u'disabled'),
-                u'exposeHeaders': self.request.get(u'exposeHeaders'),
-                u'maxAge': self.request.get(u'maxAge'),
+                "allowCredentials": self.request.get("allowCredentials"),
+                "allowHeaders": self.request.get("allowHeaders"),
+                "allowMethods": self.request.get("allowMethods"),
+                "allowOriginRegexes": self.request.get("allowOriginRegexes"),
+                "allowOrigins": self.request.get("allowOrigins"),
+                "disabled": self.request.get("disabled"),
+                "exposeHeaders": self.request.get("exposeHeaders"),
+                "maxAge": self.request.get("maxAge"),
             }
         )
 
@@ -6015,16 +6461,24 @@ class UrlMapFaultinjectionpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'abort': UrlMapAbort(self.request.get('abort', {}), self.module).to_request(),
-                u'delay': UrlMapDelay(self.request.get('delay', {}), self.module).to_request(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).to_request(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'abort': UrlMapAbort(self.request.get(u'abort', {}), self.module).from_response(),
-                u'delay': UrlMapDelay(self.request.get(u'delay', {}), self.module).from_response(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).from_response(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -6038,10 +6492,20 @@ class UrlMapAbort(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get('http_status'), u'percentage': self.request.get('percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("http_status"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get(u'httpStatus'), u'percentage': self.request.get(u'percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("httpStatus"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
 
 class UrlMapDelay(object):
@@ -6054,12 +6518,22 @@ class UrlMapDelay(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get('fixed_delay', {}), self.module).to_request(), u'percentage': self.request.get('percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixed_delay", {}), self.module
+                ).to_request(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get(u'fixedDelay', {}), self.module).from_response(), u'percentage': self.request.get(u'percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixedDelay", {}), self.module
+                ).from_response(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
 
@@ -6072,10 +6546,14 @@ class UrlMapFixeddelay(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapRequestmirrorpolicy(object):
@@ -6087,10 +6565,18 @@ class UrlMapRequestmirrorpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'backendService': replace_resource_dict(self.request.get(u'backend_service', {}), 'selfLink')})
+        return remove_nones_from_dict(
+            {
+                "backendService": replace_resource_dict(
+                    self.request.get("backend_service", {}), "selfLink"
+                )
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'backendService': self.request.get(u'backendService')})
+        return remove_nones_from_dict(
+            {"backendService": self.request.get("backendService")}
+        )
 
 
 class UrlMapRetrypolicy(object):
@@ -6104,18 +6590,22 @@ class UrlMapRetrypolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'numRetries': self.request.get('num_retries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get('per_try_timeout', {}), self.module).to_request(),
-                u'retryConditions': self.request.get('retry_conditions'),
+                "numRetries": self.request.get("num_retries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("per_try_timeout", {}), self.module
+                ).to_request(),
+                "retryConditions": self.request.get("retry_conditions"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'numRetries': self.request.get(u'numRetries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get(u'perTryTimeout', {}), self.module).from_response(),
-                u'retryConditions': self.request.get(u'retryConditions'),
+                "numRetries": self.request.get("numRetries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("perTryTimeout", {}), self.module
+                ).from_response(),
+                "retryConditions": self.request.get("retryConditions"),
             }
         )
 
@@ -6129,10 +6619,14 @@ class UrlMapPertrytimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapTimeout(object):
@@ -6144,10 +6638,14 @@ class UrlMapTimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapUrlrewrite(object):
@@ -6159,10 +6657,20 @@ class UrlMapUrlrewrite(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'hostRewrite': self.request.get('host_rewrite'), u'pathPrefixRewrite': self.request.get('path_prefix_rewrite')})
+        return remove_nones_from_dict(
+            {
+                "hostRewrite": self.request.get("host_rewrite"),
+                "pathPrefixRewrite": self.request.get("path_prefix_rewrite"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'hostRewrite': self.request.get(u'hostRewrite'), u'pathPrefixRewrite': self.request.get(u'pathPrefixRewrite')})
+        return remove_nones_from_dict(
+            {
+                "hostRewrite": self.request.get("hostRewrite"),
+                "pathPrefixRewrite": self.request.get("pathPrefixRewrite"),
+            }
+        )
 
 
 class UrlMapWeightedbackendservicesArray(object):
@@ -6188,18 +6696,24 @@ class UrlMapWeightedbackendservicesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': replace_resource_dict(item.get(u'backend_service', {}), 'selfLink'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
-                u'weight': item.get('weight'),
+                "backendService": replace_resource_dict(
+                    item.get("backend_service", {}), "selfLink"
+                ),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
+                "weight": item.get("weight"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': item.get(u'backendService'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
-                u'weight': item.get(u'weight'),
+                "backendService": item.get("backendService"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
+                "weight": item.get("weight"),
             }
         )
 
@@ -6215,20 +6729,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
             }
         )
 
@@ -6254,10 +6778,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -6281,10 +6817,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapUrlredirect(object):
@@ -6298,24 +6846,24 @@ class UrlMapUrlredirect(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get('host_redirect'),
-                u'httpsRedirect': self.request.get('https_redirect'),
-                u'pathRedirect': self.request.get('path_redirect'),
-                u'prefixRedirect': self.request.get('prefix_redirect'),
-                u'redirectResponseCode': self.request.get('redirect_response_code'),
-                u'stripQuery': self.request.get('strip_query'),
+                "hostRedirect": self.request.get("host_redirect"),
+                "httpsRedirect": self.request.get("https_redirect"),
+                "pathRedirect": self.request.get("path_redirect"),
+                "prefixRedirect": self.request.get("prefix_redirect"),
+                "redirectResponseCode": self.request.get("redirect_response_code"),
+                "stripQuery": self.request.get("strip_query"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get(u'hostRedirect'),
-                u'httpsRedirect': self.request.get(u'httpsRedirect'),
-                u'pathRedirect': self.request.get(u'pathRedirect'),
-                u'prefixRedirect': self.request.get(u'prefixRedirect'),
-                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
-                u'stripQuery': self.request.get(u'stripQuery'),
+                "hostRedirect": self.request.get("hostRedirect"),
+                "httpsRedirect": self.request.get("httpsRedirect"),
+                "pathRedirect": self.request.get("pathRedirect"),
+                "prefixRedirect": self.request.get("prefixRedirect"),
+                "redirectResponseCode": self.request.get("redirectResponseCode"),
+                "stripQuery": self.request.get("stripQuery"),
             }
         )
 
@@ -6343,24 +6891,40 @@ class UrlMapRouterulesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'priority': item.get('priority'),
-                u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
-                u'matchRules': UrlMapMatchrulesArray(item.get('match_rules', []), self.module).to_request(),
-                u'routeAction': UrlMapRouteaction(item.get('route_action', {}), self.module).to_request(),
-                u'urlRedirect': UrlMapUrlredirect(item.get('url_redirect', {}), self.module).to_request(),
+                "priority": item.get("priority"),
+                "service": replace_resource_dict(item.get("service", {}), "selfLink"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
+                "matchRules": UrlMapMatchrulesArray(
+                    item.get("match_rules", []), self.module
+                ).to_request(),
+                "routeAction": UrlMapRouteaction(
+                    item.get("route_action", {}), self.module
+                ).to_request(),
+                "urlRedirect": UrlMapUrlredirect(
+                    item.get("url_redirect", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'priority': item.get(u'priority'),
-                u'service': item.get(u'service'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
-                u'matchRules': UrlMapMatchrulesArray(item.get(u'matchRules', []), self.module).from_response(),
-                u'routeAction': UrlMapRouteaction(item.get(u'routeAction', {}), self.module).from_response(),
-                u'urlRedirect': UrlMapUrlredirect(item.get(u'urlRedirect', {}), self.module).from_response(),
+                "priority": item.get("priority"),
+                "service": item.get("service"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
+                "matchRules": UrlMapMatchrulesArray(
+                    item.get("matchRules", []), self.module
+                ).from_response(),
+                "routeAction": UrlMapRouteaction(
+                    item.get("routeAction", {}), self.module
+                ).from_response(),
+                "urlRedirect": UrlMapUrlredirect(
+                    item.get("urlRedirect", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -6376,20 +6940,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
             }
         )
 
@@ -6415,10 +6989,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -6442,10 +7028,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapMatchrulesArray(object):
@@ -6471,26 +7069,38 @@ class UrlMapMatchrulesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'fullPathMatch': item.get('full_path_match'),
-                u'headerMatches': UrlMapHeadermatchesArray(item.get('header_matches', []), self.module).to_request(),
-                u'ignoreCase': item.get('ignore_case'),
-                u'metadataFilters': UrlMapMetadatafiltersArray(item.get('metadata_filters', []), self.module).to_request(),
-                u'prefixMatch': item.get('prefix_match'),
-                u'queryParameterMatches': UrlMapQueryparametermatchesArray(item.get('query_parameter_matches', []), self.module).to_request(),
-                u'regexMatch': item.get('regex_match'),
+                "fullPathMatch": item.get("full_path_match"),
+                "headerMatches": UrlMapHeadermatchesArray(
+                    item.get("header_matches", []), self.module
+                ).to_request(),
+                "ignoreCase": item.get("ignore_case"),
+                "metadataFilters": UrlMapMetadatafiltersArray(
+                    item.get("metadata_filters", []), self.module
+                ).to_request(),
+                "prefixMatch": item.get("prefix_match"),
+                "queryParameterMatches": UrlMapQueryparametermatchesArray(
+                    item.get("query_parameter_matches", []), self.module
+                ).to_request(),
+                "regexMatch": item.get("regex_match"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'fullPathMatch': item.get(u'fullPathMatch'),
-                u'headerMatches': UrlMapHeadermatchesArray(item.get(u'headerMatches', []), self.module).from_response(),
-                u'ignoreCase': item.get(u'ignoreCase'),
-                u'metadataFilters': UrlMapMetadatafiltersArray(item.get(u'metadataFilters', []), self.module).from_response(),
-                u'prefixMatch': item.get(u'prefixMatch'),
-                u'queryParameterMatches': UrlMapQueryparametermatchesArray(item.get(u'queryParameterMatches', []), self.module).from_response(),
-                u'regexMatch': item.get(u'regexMatch'),
+                "fullPathMatch": item.get("fullPathMatch"),
+                "headerMatches": UrlMapHeadermatchesArray(
+                    item.get("headerMatches", []), self.module
+                ).from_response(),
+                "ignoreCase": item.get("ignoreCase"),
+                "metadataFilters": UrlMapMetadatafiltersArray(
+                    item.get("metadataFilters", []), self.module
+                ).from_response(),
+                "prefixMatch": item.get("prefixMatch"),
+                "queryParameterMatches": UrlMapQueryparametermatchesArray(
+                    item.get("queryParameterMatches", []), self.module
+                ).from_response(),
+                "regexMatch": item.get("regexMatch"),
             }
         )
 
@@ -6518,28 +7128,32 @@ class UrlMapHeadermatchesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'exactMatch': item.get('exact_match'),
-                u'headerName': item.get('header_name'),
-                u'invertMatch': item.get('invert_match'),
-                u'prefixMatch': item.get('prefix_match'),
-                u'presentMatch': item.get('present_match'),
-                u'rangeMatch': UrlMapRangematch(item.get('range_match', {}), self.module).to_request(),
-                u'regexMatch': item.get('regex_match'),
-                u'suffixMatch': item.get('suffix_match'),
+                "exactMatch": item.get("exact_match"),
+                "headerName": item.get("header_name"),
+                "invertMatch": item.get("invert_match"),
+                "prefixMatch": item.get("prefix_match"),
+                "presentMatch": item.get("present_match"),
+                "rangeMatch": UrlMapRangematch(
+                    item.get("range_match", {}), self.module
+                ).to_request(),
+                "regexMatch": item.get("regex_match"),
+                "suffixMatch": item.get("suffix_match"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'exactMatch': item.get(u'exactMatch'),
-                u'headerName': item.get(u'headerName'),
-                u'invertMatch': item.get(u'invertMatch'),
-                u'prefixMatch': item.get(u'prefixMatch'),
-                u'presentMatch': item.get(u'presentMatch'),
-                u'rangeMatch': UrlMapRangematch(item.get(u'rangeMatch', {}), self.module).from_response(),
-                u'regexMatch': item.get(u'regexMatch'),
-                u'suffixMatch': item.get(u'suffixMatch'),
+                "exactMatch": item.get("exactMatch"),
+                "headerName": item.get("headerName"),
+                "invertMatch": item.get("invertMatch"),
+                "prefixMatch": item.get("prefixMatch"),
+                "presentMatch": item.get("presentMatch"),
+                "rangeMatch": UrlMapRangematch(
+                    item.get("rangeMatch", {}), self.module
+                ).from_response(),
+                "regexMatch": item.get("regexMatch"),
+                "suffixMatch": item.get("suffixMatch"),
             }
         )
 
@@ -6553,10 +7167,20 @@ class UrlMapRangematch(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rangeEnd': self.request.get('range_end'), u'rangeStart': self.request.get('range_start')})
+        return remove_nones_from_dict(
+            {
+                "rangeEnd": self.request.get("range_end"),
+                "rangeStart": self.request.get("range_start"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rangeEnd': self.request.get(u'rangeEnd'), u'rangeStart': self.request.get(u'rangeStart')})
+        return remove_nones_from_dict(
+            {
+                "rangeEnd": self.request.get("rangeEnd"),
+                "rangeStart": self.request.get("rangeStart"),
+            }
+        )
 
 
 class UrlMapMetadatafiltersArray(object):
@@ -6582,16 +7206,20 @@ class UrlMapMetadatafiltersArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'filterLabels': UrlMapFilterlabelsArray(item.get('filter_labels', []), self.module).to_request(),
-                u'filterMatchCriteria': item.get('filter_match_criteria'),
+                "filterLabels": UrlMapFilterlabelsArray(
+                    item.get("filter_labels", []), self.module
+                ).to_request(),
+                "filterMatchCriteria": item.get("filter_match_criteria"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'filterLabels': UrlMapFilterlabelsArray(item.get(u'filterLabels', []), self.module).from_response(),
-                u'filterMatchCriteria': item.get(u'filterMatchCriteria'),
+                "filterLabels": UrlMapFilterlabelsArray(
+                    item.get("filterLabels", []), self.module
+                ).from_response(),
+                "filterMatchCriteria": item.get("filterMatchCriteria"),
             }
         )
 
@@ -6617,10 +7245,14 @@ class UrlMapFilterlabelsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'value': item.get('value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'value': item.get(u'value')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "value": item.get("value")}
+        )
 
 
 class UrlMapQueryparametermatchesArray(object):
@@ -6646,20 +7278,20 @@ class UrlMapQueryparametermatchesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'exactMatch': item.get('exact_match'),
-                u'name': item.get('name'),
-                u'presentMatch': item.get('present_match'),
-                u'regexMatch': item.get('regex_match'),
+                "exactMatch": item.get("exact_match"),
+                "name": item.get("name"),
+                "presentMatch": item.get("present_match"),
+                "regexMatch": item.get("regex_match"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'exactMatch': item.get(u'exactMatch'),
-                u'name': item.get(u'name'),
-                u'presentMatch': item.get(u'presentMatch'),
-                u'regexMatch': item.get(u'regexMatch'),
+                "exactMatch": item.get("exactMatch"),
+                "name": item.get("name"),
+                "presentMatch": item.get("presentMatch"),
+                "regexMatch": item.get("regexMatch"),
             }
         )
 
@@ -6675,26 +7307,54 @@ class UrlMapRouteaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'corsPolicy': UrlMapCorspolicy(self.request.get('cors_policy', {}), self.module).to_request(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get('fault_injection_policy', {}), self.module).to_request(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get('request_mirror_policy', {}), self.module).to_request(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get('retry_policy', {}), self.module).to_request(),
-                u'timeout': UrlMapTimeout(self.request.get('timeout', {}), self.module).to_request(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get('url_rewrite', {}), self.module).to_request(),
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get('weighted_backend_services', []), self.module).to_request(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("cors_policy", {}), self.module
+                ).to_request(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("fault_injection_policy", {}), self.module
+                ).to_request(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("request_mirror_policy", {}), self.module
+                ).to_request(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retry_policy", {}), self.module
+                ).to_request(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).to_request(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("url_rewrite", {}), self.module
+                ).to_request(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weighted_backend_services", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'corsPolicy': UrlMapCorspolicy(self.request.get(u'corsPolicy', {}), self.module).from_response(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get(u'faultInjectionPolicy', {}), self.module).from_response(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get(u'requestMirrorPolicy', {}), self.module).from_response(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get(u'retryPolicy', {}), self.module).from_response(),
-                u'timeout': UrlMapTimeout(self.request.get(u'timeout', {}), self.module).from_response(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get(u'urlRewrite', {}), self.module).from_response(),
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get(u'weightedBackendServices', []), self.module).from_response(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("corsPolicy", {}), self.module
+                ).from_response(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("faultInjectionPolicy", {}), self.module
+                ).from_response(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("requestMirrorPolicy", {}), self.module
+                ).from_response(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retryPolicy", {}), self.module
+                ).from_response(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).from_response(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("urlRewrite", {}), self.module
+                ).from_response(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weightedBackendServices", []), self.module
+                ).from_response(),
             }
         )
 
@@ -6710,28 +7370,28 @@ class UrlMapCorspolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'allowCredentials': self.request.get('allow_credentials'),
-                u'allowHeaders': self.request.get('allow_headers'),
-                u'allowMethods': self.request.get('allow_methods'),
-                u'allowOriginRegexes': self.request.get('allow_origin_regexes'),
-                u'allowOrigins': self.request.get('allow_origins'),
-                u'disabled': self.request.get('disabled'),
-                u'exposeHeaders': self.request.get('expose_headers'),
-                u'maxAge': self.request.get('max_age'),
+                "allowCredentials": self.request.get("allow_credentials"),
+                "allowHeaders": self.request.get("allow_headers"),
+                "allowMethods": self.request.get("allow_methods"),
+                "allowOriginRegexes": self.request.get("allow_origin_regexes"),
+                "allowOrigins": self.request.get("allow_origins"),
+                "disabled": self.request.get("disabled"),
+                "exposeHeaders": self.request.get("expose_headers"),
+                "maxAge": self.request.get("max_age"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'allowCredentials': self.request.get(u'allowCredentials'),
-                u'allowHeaders': self.request.get(u'allowHeaders'),
-                u'allowMethods': self.request.get(u'allowMethods'),
-                u'allowOriginRegexes': self.request.get(u'allowOriginRegexes'),
-                u'allowOrigins': self.request.get(u'allowOrigins'),
-                u'disabled': self.request.get(u'disabled'),
-                u'exposeHeaders': self.request.get(u'exposeHeaders'),
-                u'maxAge': self.request.get(u'maxAge'),
+                "allowCredentials": self.request.get("allowCredentials"),
+                "allowHeaders": self.request.get("allowHeaders"),
+                "allowMethods": self.request.get("allowMethods"),
+                "allowOriginRegexes": self.request.get("allowOriginRegexes"),
+                "allowOrigins": self.request.get("allowOrigins"),
+                "disabled": self.request.get("disabled"),
+                "exposeHeaders": self.request.get("exposeHeaders"),
+                "maxAge": self.request.get("maxAge"),
             }
         )
 
@@ -6747,16 +7407,24 @@ class UrlMapFaultinjectionpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'abort': UrlMapAbort(self.request.get('abort', {}), self.module).to_request(),
-                u'delay': UrlMapDelay(self.request.get('delay', {}), self.module).to_request(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).to_request(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'abort': UrlMapAbort(self.request.get(u'abort', {}), self.module).from_response(),
-                u'delay': UrlMapDelay(self.request.get(u'delay', {}), self.module).from_response(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).from_response(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -6770,10 +7438,20 @@ class UrlMapAbort(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get('http_status'), u'percentage': self.request.get('percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("http_status"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get(u'httpStatus'), u'percentage': self.request.get(u'percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("httpStatus"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
 
 class UrlMapDelay(object):
@@ -6786,12 +7464,22 @@ class UrlMapDelay(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get('fixed_delay', {}), self.module).to_request(), u'percentage': self.request.get('percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixed_delay", {}), self.module
+                ).to_request(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get(u'fixedDelay', {}), self.module).from_response(), u'percentage': self.request.get(u'percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixedDelay", {}), self.module
+                ).from_response(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
 
@@ -6804,10 +7492,14 @@ class UrlMapFixeddelay(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapRequestmirrorpolicy(object):
@@ -6819,10 +7511,18 @@ class UrlMapRequestmirrorpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'backendService': replace_resource_dict(self.request.get(u'backend_service', {}), 'selfLink')})
+        return remove_nones_from_dict(
+            {
+                "backendService": replace_resource_dict(
+                    self.request.get("backend_service", {}), "selfLink"
+                )
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'backendService': self.request.get(u'backendService')})
+        return remove_nones_from_dict(
+            {"backendService": self.request.get("backendService")}
+        )
 
 
 class UrlMapRetrypolicy(object):
@@ -6836,18 +7536,22 @@ class UrlMapRetrypolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'numRetries': self.request.get('num_retries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get('per_try_timeout', {}), self.module).to_request(),
-                u'retryConditions': self.request.get('retry_conditions'),
+                "numRetries": self.request.get("num_retries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("per_try_timeout", {}), self.module
+                ).to_request(),
+                "retryConditions": self.request.get("retry_conditions"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'numRetries': self.request.get(u'numRetries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get(u'perTryTimeout', {}), self.module).from_response(),
-                u'retryConditions': self.request.get(u'retryConditions'),
+                "numRetries": self.request.get("numRetries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("perTryTimeout", {}), self.module
+                ).from_response(),
+                "retryConditions": self.request.get("retryConditions"),
             }
         )
 
@@ -6861,10 +7565,14 @@ class UrlMapPertrytimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapTimeout(object):
@@ -6876,10 +7584,14 @@ class UrlMapTimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nanos': self.request.get('nanos'), u'seconds': self.request.get('seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'nanos': self.request.get(u'nanos'), u'seconds': self.request.get(u'seconds')})
+        return remove_nones_from_dict(
+            {"nanos": self.request.get("nanos"), "seconds": self.request.get("seconds")}
+        )
 
 
 class UrlMapUrlrewrite(object):
@@ -6891,10 +7603,20 @@ class UrlMapUrlrewrite(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'hostRewrite': self.request.get('host_rewrite'), u'pathPrefixRewrite': self.request.get('path_prefix_rewrite')})
+        return remove_nones_from_dict(
+            {
+                "hostRewrite": self.request.get("host_rewrite"),
+                "pathPrefixRewrite": self.request.get("path_prefix_rewrite"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'hostRewrite': self.request.get(u'hostRewrite'), u'pathPrefixRewrite': self.request.get(u'pathPrefixRewrite')})
+        return remove_nones_from_dict(
+            {
+                "hostRewrite": self.request.get("hostRewrite"),
+                "pathPrefixRewrite": self.request.get("pathPrefixRewrite"),
+            }
+        )
 
 
 class UrlMapWeightedbackendservicesArray(object):
@@ -6920,18 +7642,24 @@ class UrlMapWeightedbackendservicesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': replace_resource_dict(item.get(u'backend_service', {}), 'selfLink'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
-                u'weight': item.get('weight'),
+                "backendService": replace_resource_dict(
+                    item.get("backend_service", {}), "selfLink"
+                ),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
+                "weight": item.get("weight"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': item.get(u'backendService'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
-                u'weight': item.get(u'weight'),
+                "backendService": item.get("backendService"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
+                "weight": item.get("weight"),
             }
         )
 
@@ -6947,20 +7675,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
             }
         )
 
@@ -6986,10 +7724,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -7013,10 +7763,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapUrlredirect(object):
@@ -7030,24 +7792,24 @@ class UrlMapUrlredirect(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get('host_redirect'),
-                u'httpsRedirect': self.request.get('https_redirect'),
-                u'pathRedirect': self.request.get('path_redirect'),
-                u'prefixRedirect': self.request.get('prefix_redirect'),
-                u'redirectResponseCode': self.request.get('redirect_response_code'),
-                u'stripQuery': self.request.get('strip_query'),
+                "hostRedirect": self.request.get("host_redirect"),
+                "httpsRedirect": self.request.get("https_redirect"),
+                "pathRedirect": self.request.get("path_redirect"),
+                "prefixRedirect": self.request.get("prefix_redirect"),
+                "redirectResponseCode": self.request.get("redirect_response_code"),
+                "stripQuery": self.request.get("strip_query"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get(u'hostRedirect'),
-                u'httpsRedirect': self.request.get(u'httpsRedirect'),
-                u'pathRedirect': self.request.get(u'pathRedirect'),
-                u'prefixRedirect': self.request.get(u'prefixRedirect'),
-                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
-                u'stripQuery': self.request.get(u'stripQuery'),
+                "hostRedirect": self.request.get("hostRedirect"),
+                "httpsRedirect": self.request.get("httpsRedirect"),
+                "pathRedirect": self.request.get("pathRedirect"),
+                "prefixRedirect": self.request.get("prefixRedirect"),
+                "redirectResponseCode": self.request.get("redirectResponseCode"),
+                "stripQuery": self.request.get("stripQuery"),
             }
         )
 
@@ -7063,24 +7825,24 @@ class UrlMapDefaulturlredirect(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get('host_redirect'),
-                u'httpsRedirect': self.request.get('https_redirect'),
-                u'pathRedirect': self.request.get('path_redirect'),
-                u'prefixRedirect': self.request.get('prefix_redirect'),
-                u'redirectResponseCode': self.request.get('redirect_response_code'),
-                u'stripQuery': self.request.get('strip_query'),
+                "hostRedirect": self.request.get("host_redirect"),
+                "httpsRedirect": self.request.get("https_redirect"),
+                "pathRedirect": self.request.get("path_redirect"),
+                "prefixRedirect": self.request.get("prefix_redirect"),
+                "redirectResponseCode": self.request.get("redirect_response_code"),
+                "stripQuery": self.request.get("strip_query"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get(u'hostRedirect'),
-                u'httpsRedirect': self.request.get(u'httpsRedirect'),
-                u'pathRedirect': self.request.get(u'pathRedirect'),
-                u'prefixRedirect': self.request.get(u'prefixRedirect'),
-                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
-                u'stripQuery': self.request.get(u'stripQuery'),
+                "hostRedirect": self.request.get("hostRedirect"),
+                "httpsRedirect": self.request.get("httpsRedirect"),
+                "pathRedirect": self.request.get("pathRedirect"),
+                "prefixRedirect": self.request.get("prefixRedirect"),
+                "redirectResponseCode": self.request.get("redirectResponseCode"),
+                "stripQuery": self.request.get("stripQuery"),
             }
         )
 
@@ -7096,26 +7858,54 @@ class UrlMapDefaultrouteaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get('weighted_backend_services', []), self.module).to_request(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get('url_rewrite', {}), self.module).to_request(),
-                u'timeout': UrlMapTimeout(self.request.get('timeout', {}), self.module).to_request(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get('retry_policy', {}), self.module).to_request(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get('request_mirror_policy', {}), self.module).to_request(),
-                u'corsPolicy': UrlMapCorspolicy(self.request.get('cors_policy', {}), self.module).to_request(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get('fault_injection_policy', {}), self.module).to_request(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weighted_backend_services", []), self.module
+                ).to_request(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("url_rewrite", {}), self.module
+                ).to_request(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).to_request(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retry_policy", {}), self.module
+                ).to_request(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("request_mirror_policy", {}), self.module
+                ).to_request(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("cors_policy", {}), self.module
+                ).to_request(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("fault_injection_policy", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get(u'weightedBackendServices', []), self.module).from_response(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get(u'urlRewrite', {}), self.module).from_response(),
-                u'timeout': UrlMapTimeout(self.request.get(u'timeout', {}), self.module).from_response(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get(u'retryPolicy', {}), self.module).from_response(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get(u'requestMirrorPolicy', {}), self.module).from_response(),
-                u'corsPolicy': UrlMapCorspolicy(self.request.get(u'corsPolicy', {}), self.module).from_response(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get(u'faultInjectionPolicy', {}), self.module).from_response(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weightedBackendServices", []), self.module
+                ).from_response(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("urlRewrite", {}), self.module
+                ).from_response(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).from_response(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retryPolicy", {}), self.module
+                ).from_response(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("requestMirrorPolicy", {}), self.module
+                ).from_response(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("corsPolicy", {}), self.module
+                ).from_response(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("faultInjectionPolicy", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7143,18 +7933,24 @@ class UrlMapWeightedbackendservicesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': replace_resource_dict(item.get(u'backend_service', {}), 'selfLink'),
-                u'weight': item.get('weight'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
+                "backendService": replace_resource_dict(
+                    item.get("backend_service", {}), "selfLink"
+                ),
+                "weight": item.get("weight"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': item.get(u'backendService'),
-                u'weight': item.get(u'weight'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
+                "backendService": item.get("backendService"),
+                "weight": item.get("weight"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7170,20 +7966,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
             }
         )
 
@@ -7209,10 +8015,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -7236,10 +8054,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapUrlrewrite(object):
@@ -7251,10 +8081,20 @@ class UrlMapUrlrewrite(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'pathPrefixRewrite': self.request.get('path_prefix_rewrite'), u'hostRewrite': self.request.get('host_rewrite')})
+        return remove_nones_from_dict(
+            {
+                "pathPrefixRewrite": self.request.get("path_prefix_rewrite"),
+                "hostRewrite": self.request.get("host_rewrite"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'pathPrefixRewrite': self.request.get(u'pathPrefixRewrite'), u'hostRewrite': self.request.get(u'hostRewrite')})
+        return remove_nones_from_dict(
+            {
+                "pathPrefixRewrite": self.request.get("pathPrefixRewrite"),
+                "hostRewrite": self.request.get("hostRewrite"),
+            }
+        )
 
 
 class UrlMapTimeout(object):
@@ -7266,10 +8106,14 @@ class UrlMapTimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapRetrypolicy(object):
@@ -7283,18 +8127,22 @@ class UrlMapRetrypolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'retryConditions': self.request.get('retry_conditions'),
-                u'numRetries': self.request.get('num_retries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get('per_try_timeout', {}), self.module).to_request(),
+                "retryConditions": self.request.get("retry_conditions"),
+                "numRetries": self.request.get("num_retries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("per_try_timeout", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'retryConditions': self.request.get(u'retryConditions'),
-                u'numRetries': self.request.get(u'numRetries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get(u'perTryTimeout', {}), self.module).from_response(),
+                "retryConditions": self.request.get("retryConditions"),
+                "numRetries": self.request.get("numRetries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("perTryTimeout", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7308,10 +8156,14 @@ class UrlMapPertrytimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapRequestmirrorpolicy(object):
@@ -7323,10 +8175,18 @@ class UrlMapRequestmirrorpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'backendService': replace_resource_dict(self.request.get(u'backend_service', {}), 'selfLink')})
+        return remove_nones_from_dict(
+            {
+                "backendService": replace_resource_dict(
+                    self.request.get("backend_service", {}), "selfLink"
+                )
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'backendService': self.request.get(u'backendService')})
+        return remove_nones_from_dict(
+            {"backendService": self.request.get("backendService")}
+        )
 
 
 class UrlMapCorspolicy(object):
@@ -7340,28 +8200,28 @@ class UrlMapCorspolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'allowOrigins': self.request.get('allow_origins'),
-                u'allowOriginRegexes': self.request.get('allow_origin_regexes'),
-                u'allowMethods': self.request.get('allow_methods'),
-                u'allowHeaders': self.request.get('allow_headers'),
-                u'exposeHeaders': self.request.get('expose_headers'),
-                u'maxAge': self.request.get('max_age'),
-                u'allowCredentials': self.request.get('allow_credentials'),
-                u'disabled': self.request.get('disabled'),
+                "allowOrigins": self.request.get("allow_origins"),
+                "allowOriginRegexes": self.request.get("allow_origin_regexes"),
+                "allowMethods": self.request.get("allow_methods"),
+                "allowHeaders": self.request.get("allow_headers"),
+                "exposeHeaders": self.request.get("expose_headers"),
+                "maxAge": self.request.get("max_age"),
+                "allowCredentials": self.request.get("allow_credentials"),
+                "disabled": self.request.get("disabled"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'allowOrigins': self.request.get(u'allowOrigins'),
-                u'allowOriginRegexes': self.request.get(u'allowOriginRegexes'),
-                u'allowMethods': self.request.get(u'allowMethods'),
-                u'allowHeaders': self.request.get(u'allowHeaders'),
-                u'exposeHeaders': self.request.get(u'exposeHeaders'),
-                u'maxAge': self.request.get(u'maxAge'),
-                u'allowCredentials': self.request.get(u'allowCredentials'),
-                u'disabled': self.request.get(u'disabled'),
+                "allowOrigins": self.request.get("allowOrigins"),
+                "allowOriginRegexes": self.request.get("allowOriginRegexes"),
+                "allowMethods": self.request.get("allowMethods"),
+                "allowHeaders": self.request.get("allowHeaders"),
+                "exposeHeaders": self.request.get("exposeHeaders"),
+                "maxAge": self.request.get("maxAge"),
+                "allowCredentials": self.request.get("allowCredentials"),
+                "disabled": self.request.get("disabled"),
             }
         )
 
@@ -7377,16 +8237,24 @@ class UrlMapFaultinjectionpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'delay': UrlMapDelay(self.request.get('delay', {}), self.module).to_request(),
-                u'abort': UrlMapAbort(self.request.get('abort', {}), self.module).to_request(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).to_request(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'delay': UrlMapDelay(self.request.get(u'delay', {}), self.module).from_response(),
-                u'abort': UrlMapAbort(self.request.get(u'abort', {}), self.module).from_response(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).from_response(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7401,12 +8269,22 @@ class UrlMapDelay(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get('fixed_delay', {}), self.module).to_request(), u'percentage': self.request.get('percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixed_delay", {}), self.module
+                ).to_request(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get(u'fixedDelay', {}), self.module).from_response(), u'percentage': self.request.get(u'percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixedDelay", {}), self.module
+                ).from_response(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
 
@@ -7419,10 +8297,14 @@ class UrlMapFixeddelay(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapAbort(object):
@@ -7434,10 +8316,20 @@ class UrlMapAbort(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get('http_status'), u'percentage': self.request.get('percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("http_status"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get(u'httpStatus'), u'percentage': self.request.get(u'percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("httpStatus"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
 
 class UrlMapTestsArray(object):
@@ -7463,16 +8355,21 @@ class UrlMapTestsArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'description': item.get('description'),
-                u'host': item.get('host'),
-                u'path': item.get('path'),
-                u'service': replace_resource_dict(item.get(u'service', {}), 'selfLink'),
+                "description": item.get("description"),
+                "host": item.get("host"),
+                "path": item.get("path"),
+                "service": replace_resource_dict(item.get("service", {}), "selfLink"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'description': item.get(u'description'), u'host': item.get(u'host'), u'path': item.get(u'path'), u'service': item.get(u'service')}
+            {
+                "description": item.get("description"),
+                "host": item.get("host"),
+                "path": item.get("path"),
+                "service": item.get("service"),
+            }
         )
 
 
@@ -7487,24 +8384,24 @@ class UrlMapDefaulturlredirect(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get('host_redirect'),
-                u'httpsRedirect': self.request.get('https_redirect'),
-                u'pathRedirect': self.request.get('path_redirect'),
-                u'prefixRedirect': self.request.get('prefix_redirect'),
-                u'redirectResponseCode': self.request.get('redirect_response_code'),
-                u'stripQuery': self.request.get('strip_query'),
+                "hostRedirect": self.request.get("host_redirect"),
+                "httpsRedirect": self.request.get("https_redirect"),
+                "pathRedirect": self.request.get("path_redirect"),
+                "prefixRedirect": self.request.get("prefix_redirect"),
+                "redirectResponseCode": self.request.get("redirect_response_code"),
+                "stripQuery": self.request.get("strip_query"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'hostRedirect': self.request.get(u'hostRedirect'),
-                u'httpsRedirect': self.request.get(u'httpsRedirect'),
-                u'pathRedirect': self.request.get(u'pathRedirect'),
-                u'prefixRedirect': self.request.get(u'prefixRedirect'),
-                u'redirectResponseCode': self.request.get(u'redirectResponseCode'),
-                u'stripQuery': self.request.get(u'stripQuery'),
+                "hostRedirect": self.request.get("hostRedirect"),
+                "httpsRedirect": self.request.get("httpsRedirect"),
+                "pathRedirect": self.request.get("pathRedirect"),
+                "prefixRedirect": self.request.get("prefixRedirect"),
+                "redirectResponseCode": self.request.get("redirectResponseCode"),
+                "stripQuery": self.request.get("stripQuery"),
             }
         )
 
@@ -7520,26 +8417,54 @@ class UrlMapDefaultrouteaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get('weighted_backend_services', []), self.module).to_request(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get('url_rewrite', {}), self.module).to_request(),
-                u'timeout': UrlMapTimeout(self.request.get('timeout', {}), self.module).to_request(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get('retry_policy', {}), self.module).to_request(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get('request_mirror_policy', {}), self.module).to_request(),
-                u'corsPolicy': UrlMapCorspolicy(self.request.get('cors_policy', {}), self.module).to_request(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get('fault_injection_policy', {}), self.module).to_request(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weighted_backend_services", []), self.module
+                ).to_request(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("url_rewrite", {}), self.module
+                ).to_request(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).to_request(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retry_policy", {}), self.module
+                ).to_request(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("request_mirror_policy", {}), self.module
+                ).to_request(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("cors_policy", {}), self.module
+                ).to_request(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("fault_injection_policy", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'weightedBackendServices': UrlMapWeightedbackendservicesArray(self.request.get(u'weightedBackendServices', []), self.module).from_response(),
-                u'urlRewrite': UrlMapUrlrewrite(self.request.get(u'urlRewrite', {}), self.module).from_response(),
-                u'timeout': UrlMapTimeout(self.request.get(u'timeout', {}), self.module).from_response(),
-                u'retryPolicy': UrlMapRetrypolicy(self.request.get(u'retryPolicy', {}), self.module).from_response(),
-                u'requestMirrorPolicy': UrlMapRequestmirrorpolicy(self.request.get(u'requestMirrorPolicy', {}), self.module).from_response(),
-                u'corsPolicy': UrlMapCorspolicy(self.request.get(u'corsPolicy', {}), self.module).from_response(),
-                u'faultInjectionPolicy': UrlMapFaultinjectionpolicy(self.request.get(u'faultInjectionPolicy', {}), self.module).from_response(),
+                "weightedBackendServices": UrlMapWeightedbackendservicesArray(
+                    self.request.get("weightedBackendServices", []), self.module
+                ).from_response(),
+                "urlRewrite": UrlMapUrlrewrite(
+                    self.request.get("urlRewrite", {}), self.module
+                ).from_response(),
+                "timeout": UrlMapTimeout(
+                    self.request.get("timeout", {}), self.module
+                ).from_response(),
+                "retryPolicy": UrlMapRetrypolicy(
+                    self.request.get("retryPolicy", {}), self.module
+                ).from_response(),
+                "requestMirrorPolicy": UrlMapRequestmirrorpolicy(
+                    self.request.get("requestMirrorPolicy", {}), self.module
+                ).from_response(),
+                "corsPolicy": UrlMapCorspolicy(
+                    self.request.get("corsPolicy", {}), self.module
+                ).from_response(),
+                "faultInjectionPolicy": UrlMapFaultinjectionpolicy(
+                    self.request.get("faultInjectionPolicy", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7567,18 +8492,24 @@ class UrlMapWeightedbackendservicesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': replace_resource_dict(item.get(u'backend_service', {}), 'selfLink'),
-                u'weight': item.get('weight'),
-                u'headerAction': UrlMapHeaderaction(item.get('header_action', {}), self.module).to_request(),
+                "backendService": replace_resource_dict(
+                    item.get("backend_service", {}), "selfLink"
+                ),
+                "weight": item.get("weight"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("header_action", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'backendService': item.get(u'backendService'),
-                u'weight': item.get(u'weight'),
-                u'headerAction': UrlMapHeaderaction(item.get(u'headerAction', {}), self.module).from_response(),
+                "backendService": item.get("backendService"),
+                "weight": item.get("weight"),
+                "headerAction": UrlMapHeaderaction(
+                    item.get("headerAction", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7594,20 +8525,30 @@ class UrlMapHeaderaction(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToRemove': self.request.get('request_headers_to_remove'),
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get('request_headers_to_add', []), self.module).to_request(),
-                u'responseHeadersToRemove': self.request.get('response_headers_to_remove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get('response_headers_to_add', []), self.module).to_request(),
+                "requestHeadersToRemove": self.request.get("request_headers_to_remove"),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("request_headers_to_add", []), self.module
+                ).to_request(),
+                "responseHeadersToRemove": self.request.get(
+                    "response_headers_to_remove"
+                ),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("response_headers_to_add", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'requestHeadersToRemove': self.request.get(u'requestHeadersToRemove'),
-                u'requestHeadersToAdd': UrlMapRequestheaderstoaddArray(self.request.get(u'requestHeadersToAdd', []), self.module).from_response(),
-                u'responseHeadersToRemove': self.request.get(u'responseHeadersToRemove'),
-                u'responseHeadersToAdd': UrlMapResponseheaderstoaddArray(self.request.get(u'responseHeadersToAdd', []), self.module).from_response(),
+                "requestHeadersToRemove": self.request.get("requestHeadersToRemove"),
+                "requestHeadersToAdd": UrlMapRequestheaderstoaddArray(
+                    self.request.get("requestHeadersToAdd", []), self.module
+                ).from_response(),
+                "responseHeadersToRemove": self.request.get("responseHeadersToRemove"),
+                "responseHeadersToAdd": UrlMapResponseheaderstoaddArray(
+                    self.request.get("responseHeadersToAdd", []), self.module
+                ).from_response(),
             }
         )
 
@@ -7633,10 +8574,22 @@ class UrlMapRequestheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapResponseheaderstoaddArray(object):
@@ -7660,10 +8613,22 @@ class UrlMapResponseheaderstoaddArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get('header_name'), u'headerValue': item.get('header_value'), u'replace': item.get('replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("header_name"),
+                "headerValue": item.get("header_value"),
+                "replace": item.get("replace"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'headerName': item.get(u'headerName'), u'headerValue': item.get(u'headerValue'), u'replace': item.get(u'replace')})
+        return remove_nones_from_dict(
+            {
+                "headerName": item.get("headerName"),
+                "headerValue": item.get("headerValue"),
+                "replace": item.get("replace"),
+            }
+        )
 
 
 class UrlMapUrlrewrite(object):
@@ -7675,10 +8640,20 @@ class UrlMapUrlrewrite(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'pathPrefixRewrite': self.request.get('path_prefix_rewrite'), u'hostRewrite': self.request.get('host_rewrite')})
+        return remove_nones_from_dict(
+            {
+                "pathPrefixRewrite": self.request.get("path_prefix_rewrite"),
+                "hostRewrite": self.request.get("host_rewrite"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'pathPrefixRewrite': self.request.get(u'pathPrefixRewrite'), u'hostRewrite': self.request.get(u'hostRewrite')})
+        return remove_nones_from_dict(
+            {
+                "pathPrefixRewrite": self.request.get("pathPrefixRewrite"),
+                "hostRewrite": self.request.get("hostRewrite"),
+            }
+        )
 
 
 class UrlMapTimeout(object):
@@ -7690,10 +8665,14 @@ class UrlMapTimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapRetrypolicy(object):
@@ -7707,18 +8686,22 @@ class UrlMapRetrypolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'retryConditions': self.request.get('retry_conditions'),
-                u'numRetries': self.request.get('num_retries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get('per_try_timeout', {}), self.module).to_request(),
+                "retryConditions": self.request.get("retry_conditions"),
+                "numRetries": self.request.get("num_retries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("per_try_timeout", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'retryConditions': self.request.get(u'retryConditions'),
-                u'numRetries': self.request.get(u'numRetries'),
-                u'perTryTimeout': UrlMapPertrytimeout(self.request.get(u'perTryTimeout', {}), self.module).from_response(),
+                "retryConditions": self.request.get("retryConditions"),
+                "numRetries": self.request.get("numRetries"),
+                "perTryTimeout": UrlMapPertrytimeout(
+                    self.request.get("perTryTimeout", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7732,10 +8715,14 @@ class UrlMapPertrytimeout(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapRequestmirrorpolicy(object):
@@ -7747,10 +8734,18 @@ class UrlMapRequestmirrorpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'backendService': replace_resource_dict(self.request.get(u'backend_service', {}), 'selfLink')})
+        return remove_nones_from_dict(
+            {
+                "backendService": replace_resource_dict(
+                    self.request.get("backend_service", {}), "selfLink"
+                )
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'backendService': self.request.get(u'backendService')})
+        return remove_nones_from_dict(
+            {"backendService": self.request.get("backendService")}
+        )
 
 
 class UrlMapCorspolicy(object):
@@ -7764,28 +8759,28 @@ class UrlMapCorspolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'allowOrigins': self.request.get('allow_origins'),
-                u'allowOriginRegexes': self.request.get('allow_origin_regexes'),
-                u'allowMethods': self.request.get('allow_methods'),
-                u'allowHeaders': self.request.get('allow_headers'),
-                u'exposeHeaders': self.request.get('expose_headers'),
-                u'maxAge': self.request.get('max_age'),
-                u'allowCredentials': self.request.get('allow_credentials'),
-                u'disabled': self.request.get('disabled'),
+                "allowOrigins": self.request.get("allow_origins"),
+                "allowOriginRegexes": self.request.get("allow_origin_regexes"),
+                "allowMethods": self.request.get("allow_methods"),
+                "allowHeaders": self.request.get("allow_headers"),
+                "exposeHeaders": self.request.get("expose_headers"),
+                "maxAge": self.request.get("max_age"),
+                "allowCredentials": self.request.get("allow_credentials"),
+                "disabled": self.request.get("disabled"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'allowOrigins': self.request.get(u'allowOrigins'),
-                u'allowOriginRegexes': self.request.get(u'allowOriginRegexes'),
-                u'allowMethods': self.request.get(u'allowMethods'),
-                u'allowHeaders': self.request.get(u'allowHeaders'),
-                u'exposeHeaders': self.request.get(u'exposeHeaders'),
-                u'maxAge': self.request.get(u'maxAge'),
-                u'allowCredentials': self.request.get(u'allowCredentials'),
-                u'disabled': self.request.get(u'disabled'),
+                "allowOrigins": self.request.get("allowOrigins"),
+                "allowOriginRegexes": self.request.get("allowOriginRegexes"),
+                "allowMethods": self.request.get("allowMethods"),
+                "allowHeaders": self.request.get("allowHeaders"),
+                "exposeHeaders": self.request.get("exposeHeaders"),
+                "maxAge": self.request.get("maxAge"),
+                "allowCredentials": self.request.get("allowCredentials"),
+                "disabled": self.request.get("disabled"),
             }
         )
 
@@ -7801,16 +8796,24 @@ class UrlMapFaultinjectionpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'delay': UrlMapDelay(self.request.get('delay', {}), self.module).to_request(),
-                u'abort': UrlMapAbort(self.request.get('abort', {}), self.module).to_request(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).to_request(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'delay': UrlMapDelay(self.request.get(u'delay', {}), self.module).from_response(),
-                u'abort': UrlMapAbort(self.request.get(u'abort', {}), self.module).from_response(),
+                "delay": UrlMapDelay(
+                    self.request.get("delay", {}), self.module
+                ).from_response(),
+                "abort": UrlMapAbort(
+                    self.request.get("abort", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -7825,12 +8828,22 @@ class UrlMapDelay(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get('fixed_delay', {}), self.module).to_request(), u'percentage': self.request.get('percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixed_delay", {}), self.module
+                ).to_request(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'fixedDelay': UrlMapFixeddelay(self.request.get(u'fixedDelay', {}), self.module).from_response(), u'percentage': self.request.get(u'percentage')}
+            {
+                "fixedDelay": UrlMapFixeddelay(
+                    self.request.get("fixedDelay", {}), self.module
+                ).from_response(),
+                "percentage": self.request.get("percentage"),
+            }
         )
 
 
@@ -7843,10 +8856,14 @@ class UrlMapFixeddelay(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'seconds': self.request.get('seconds'), u'nanos': self.request.get('nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'seconds': self.request.get(u'seconds'), u'nanos': self.request.get(u'nanos')})
+        return remove_nones_from_dict(
+            {"seconds": self.request.get("seconds"), "nanos": self.request.get("nanos")}
+        )
 
 
 class UrlMapAbort(object):
@@ -7858,11 +8875,21 @@ class UrlMapAbort(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get('http_status'), u'percentage': self.request.get('percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("http_status"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'httpStatus': self.request.get(u'httpStatus'), u'percentage': self.request.get(u'percentage')})
+        return remove_nones_from_dict(
+            {
+                "httpStatus": self.request.get("httpStatus"),
+                "percentage": self.request.get("percentage"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

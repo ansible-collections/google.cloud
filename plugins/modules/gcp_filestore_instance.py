@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_filestore_instance
 description:
@@ -171,9 +175,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance
   google.cloud.gcp_filestore_instance:
     name: test_object
@@ -190,9 +194,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The resource name of the instance.
@@ -275,7 +279,7 @@ zone:
   - The name of the Filestore zone of the instance.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -303,36 +307,44 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            tier=dict(required=True, type='str'),
-            labels=dict(type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            tier=dict(required=True, type="str"),
+            labels=dict(type="dict"),
             file_shares=dict(
-                required=True, type='list', elements='dict', options=dict(name=dict(required=True, type='str'), capacity_gb=dict(required=True, type='int'))
+                required=True,
+                type="list",
+                elements="dict",
+                options=dict(
+                    name=dict(required=True, type="str"),
+                    capacity_gb=dict(required=True, type="int"),
+                ),
             ),
             networks=dict(
                 required=True,
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    network=dict(required=True, type='str'), modes=dict(required=True, type='list', elements='str'), reserved_ip_range=dict(type='str')
+                    network=dict(required=True, type="str"),
+                    modes=dict(required=True, type="list", elements="str"),
+                    reserved_ip_range=dict(type="str"),
                 ),
             ),
-            zone=dict(required=True, type='str'),
+            zone=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -342,52 +354,60 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'filestore')
+    auth = GcpSession(module, "filestore")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'filestore')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "filestore")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
     return wait_for_operation(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('description') != response.get('description'):
-        update_mask.append('description')
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('fileShares') != response.get('fileShares'):
-        update_mask.append('fileShares')
-    return ','.join(update_mask)
+    if request.get("description") != response.get("description"):
+        update_mask.append("description")
+    if request.get("labels") != response.get("labels"):
+        update_mask.append("labels")
+    if request.get("fileShares") != response.get("fileShares"):
+        update_mask.append("fileShares")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'filestore')
+    auth = GcpSession(module, "filestore")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'description': module.params.get('description'),
-        u'tier': module.params.get('tier'),
-        u'labels': module.params.get('labels'),
-        u'fileShares': InstanceFilesharesArray(module.params.get('file_shares', []), module).to_request(),
-        u'networks': InstanceNetworksArray(module.params.get('networks', []), module).to_request(),
+        "description": module.params.get("description"),
+        "tier": module.params.get("tier"),
+        "labels": module.params.get("labels"),
+        "fileShares": InstanceFilesharesArray(
+            module.params.get("file_shares", []), module
+        ).to_request(),
+        "networks": InstanceNetworksArray(
+            module.params.get("networks", []), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -398,20 +418,26 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'filestore')
+    auth = GcpSession(module, "filestore")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances/{name}".format(**module.params)
+    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances".format(**module.params)
+    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances?instanceId={name}".format(**module.params)
+    return "https://file.googleapis.com/v1/projects/{project}/locations/{zone}/instances?instanceId={name}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -426,11 +452,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -457,14 +483,18 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'createTime': response.get(u'createTime'),
-        u'tier': module.params.get('tier'),
-        u'labels': response.get(u'labels'),
-        u'fileShares': InstanceFilesharesArray(response.get(u'fileShares', []), module).from_response(),
-        u'networks': InstanceNetworksArray(module.params.get('networks', []), module).to_request(),
-        u'etag': response.get(u'etag'),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "createTime": response.get("createTime"),
+        "tier": module.params.get("tier"),
+        "labels": response.get("labels"),
+        "fileShares": InstanceFilesharesArray(
+            response.get("fileShares", []), module
+        ).from_response(),
+        "networks": InstanceNetworksArray(
+            module.params.get("networks", []), module
+        ).to_request(),
+        "etag": response.get("etag"),
     }
 
 
@@ -475,7 +505,9 @@ def name_pattern(name, module):
     regex = r"projects/.*/locations/.*/instances/.*"
 
     if not re.match(regex, name):
-        name = "projects/{project}/locations/{zone}/instances/{name}".format(**module.params)
+        name = "projects/{project}/locations/{zone}/instances/{name}".format(
+            **module.params
+        )
 
     return name
 
@@ -493,20 +525,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -537,10 +569,14 @@ class InstanceFilesharesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'capacityGb': item.get('capacity_gb')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "capacityGb": item.get("capacity_gb")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'capacityGb': item.get(u'capacityGb')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "capacityGb": item.get("capacityGb")}
+        )
 
 
 class InstanceNetworksArray(object):
@@ -564,13 +600,23 @@ class InstanceNetworksArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'network': item.get('network'), u'modes': item.get('modes'), u'reservedIpRange': item.get('reserved_ip_range')})
+        return remove_nones_from_dict(
+            {
+                "network": item.get("network"),
+                "modes": item.get("modes"),
+                "reservedIpRange": item.get("reserved_ip_range"),
+            }
+        )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'network': self.module.params.get('network'), u'modes': self.module.params.get('modes'), u'reservedIpRange': item.get(u'reservedIpRange')}
+            {
+                "network": self.module.params.get("network"),
+                "modes": self.module.params.get("modes"),
+                "reservedIpRange": item.get("reservedIpRange"),
+            }
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

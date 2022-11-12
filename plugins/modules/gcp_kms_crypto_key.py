@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_kms_crypto_key
 description:
@@ -156,9 +160,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a key ring
   google.cloud.gcp_kms_key_ring:
     name: key-key-ring
@@ -177,9 +181,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The resource name for the CryptoKey.
@@ -246,7 +250,7 @@ skipInitialVersionCreation:
     You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
   returned: success
   type: bool
-'''
+"""
 
 ################################################################################
 # Imports
@@ -272,27 +276,33 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            labels=dict(type='dict'),
-            purpose=dict(default='ENCRYPT_DECRYPT', type='str'),
-            rotation_period=dict(type='str'),
-            version_template=dict(type='dict', options=dict(algorithm=dict(required=True, type='str'), protection_level=dict(type='str'))),
-            key_ring=dict(required=True, type='str'),
-            skip_initial_version_creation=dict(type='bool'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            labels=dict(type="dict"),
+            purpose=dict(default="ENCRYPT_DECRYPT", type="str"),
+            rotation_period=dict(type="str"),
+            version_template=dict(
+                type="dict",
+                options=dict(
+                    algorithm=dict(required=True, type="str"),
+                    protection_level=dict(type="str"),
+                ),
+            ),
+            key_ring=dict(required=True, type="str"),
+            skip_initial_version_creation=dict(type="bool"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloudkms']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloudkms"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -302,38 +312,42 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'kms')
+    auth = GcpSession(module, "kms")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'kms')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "kms")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('rotationPeriod') != response.get('rotationPeriod'):
-        update_mask.append('rotationPeriod')
-    if request.get('versionTemplate') != response.get('versionTemplate'):
-        update_mask.append('versionTemplate')
-    return ','.join(update_mask)
+    if request.get("labels") != response.get("labels"):
+        update_mask.append("labels")
+    if request.get("rotationPeriod") != response.get("rotationPeriod"):
+        update_mask.append("rotationPeriod")
+    if request.get("versionTemplate") != response.get("versionTemplate"):
+        update_mask.append("versionTemplate")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
@@ -342,10 +356,12 @@ def delete(module, link):
 
 def resource_to_request(module):
     request = {
-        u'labels': module.params.get('labels'),
-        u'purpose': module.params.get('purpose'),
-        u'rotationPeriod': module.params.get('rotation_period'),
-        u'versionTemplate': CryptoKeyVersiontemplate(module.params.get('version_template', {}), module).to_request(),
+        "labels": module.params.get("labels"),
+        "purpose": module.params.get("purpose"),
+        "rotationPeriod": module.params.get("rotation_period"),
+        "versionTemplate": CryptoKeyVersiontemplate(
+            module.params.get("version_template", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -356,16 +372,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'kms')
+    auth = GcpSession(module, "kms")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys/{name}".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/{key_ring}/cryptoKeys".format(
+        **module.params
+    )
 
 
 def create_link(module):
@@ -386,13 +406,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -420,19 +440,21 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'createTime': response.get(u'createTime'),
-        u'labels': response.get(u'labels'),
-        u'purpose': module.params.get('purpose'),
-        u'rotationPeriod': response.get(u'rotationPeriod'),
-        u'versionTemplate': CryptoKeyVersiontemplate(response.get(u'versionTemplate', {}), module).from_response(),
-        u'nextRotationTime': response.get(u'nextRotationTime'),
+        "name": module.params.get("name"),
+        "createTime": response.get("createTime"),
+        "labels": response.get("labels"),
+        "purpose": module.params.get("purpose"),
+        "rotationPeriod": response.get("rotationPeriod"),
+        "versionTemplate": CryptoKeyVersiontemplate(
+            response.get("versionTemplate", {}), module
+        ).from_response(),
+        "nextRotationTime": response.get("nextRotationTime"),
     }
 
 
 def decode_response(response, module):
-    if 'name' in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response:
+        response["name"] = response["name"].split("/")[-1]
     return response
 
 
@@ -445,11 +467,21 @@ class CryptoKeyVersiontemplate(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'algorithm': self.request.get('algorithm'), u'protectionLevel': self.request.get('protection_level')})
+        return remove_nones_from_dict(
+            {
+                "algorithm": self.request.get("algorithm"),
+                "protectionLevel": self.request.get("protection_level"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'algorithm': self.request.get(u'algorithm'), u'protectionLevel': self.module.params.get('protection_level')})
+        return remove_nones_from_dict(
+            {
+                "algorithm": self.request.get("algorithm"),
+                "protectionLevel": self.module.params.get("protection_level"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

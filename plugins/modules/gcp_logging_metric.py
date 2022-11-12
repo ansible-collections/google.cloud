@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_logging_metric
 description:
@@ -277,9 +281,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a metric
   google.cloud.gcp_logging_metric:
     name: test_object
@@ -304,9 +308,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The client-assigned metric identifier. Examples - "error_count", "nginx/requests".
@@ -482,7 +486,7 @@ bucketOptions:
           - The values must be monotonically increasing.
           returned: success
           type: list
-'''
+"""
 
 ################################################################################
 # Imports
@@ -508,50 +512,71 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            filter=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            filter=dict(required=True, type="str"),
             metric_descriptor=dict(
                 required=True,
-                type='dict',
+                type="dict",
                 options=dict(
-                    unit=dict(default='1', type='str'),
-                    value_type=dict(required=True, type='str'),
-                    metric_kind=dict(required=True, type='str'),
+                    unit=dict(default="1", type="str"),
+                    value_type=dict(required=True, type="str"),
+                    metric_kind=dict(required=True, type="str"),
                     labels=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(key=dict(required=True, type='str'), description=dict(type='str'), value_type=dict(default='STRING', type='str')),
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            key=dict(required=True, type="str"),
+                            description=dict(type="str"),
+                            value_type=dict(default="STRING", type="str"),
+                        ),
                     ),
-                    display_name=dict(type='str'),
+                    display_name=dict(type="str"),
                 ),
             ),
-            label_extractors=dict(type='dict'),
-            value_extractor=dict(type='str'),
+            label_extractors=dict(type="dict"),
+            value_extractor=dict(type="str"),
             bucket_options=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    linear_buckets=dict(type='dict', options=dict(num_finite_buckets=dict(type='int'), width=dict(type='int'), offset=dict(type='str'))),
-                    exponential_buckets=dict(
-                        type='dict', options=dict(num_finite_buckets=dict(type='int'), growth_factor=dict(type='str'), scale=dict(type='str'))
+                    linear_buckets=dict(
+                        type="dict",
+                        options=dict(
+                            num_finite_buckets=dict(type="int"),
+                            width=dict(type="int"),
+                            offset=dict(type="str"),
+                        ),
                     ),
-                    explicit_buckets=dict(type='dict', options=dict(bounds=dict(required=True, type='list', elements='str'))),
+                    exponential_buckets=dict(
+                        type="dict",
+                        options=dict(
+                            num_finite_buckets=dict(type="int"),
+                            growth_factor=dict(type="str"),
+                            scale=dict(type="str"),
+                        ),
+                    ),
+                    explicit_buckets=dict(
+                        type="dict",
+                        options=dict(
+                            bounds=dict(required=True, type="list", elements="str")
+                        ),
+                    ),
                 ),
             ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -561,41 +586,45 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'logging')
+    auth = GcpSession(module, "logging")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'logging')
+    auth = GcpSession(module, "logging")
     return return_if_object(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'logging')
+    auth = GcpSession(module, "logging")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'filter': module.params.get('filter'),
-        u'metricDescriptor': MetricMetricdescriptor(module.params.get('metric_descriptor', {}), module).to_request(),
-        u'labelExtractors': module.params.get('label_extractors'),
-        u'valueExtractor': module.params.get('value_extractor'),
-        u'bucketOptions': MetricBucketoptions(module.params.get('bucket_options', {}), module).to_request(),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "filter": module.params.get("filter"),
+        "metricDescriptor": MetricMetricdescriptor(
+            module.params.get("metric_descriptor", {}), module
+        ).to_request(),
+        "labelExtractors": module.params.get("label_extractors"),
+        "valueExtractor": module.params.get("value_extractor"),
+        "bucketOptions": MetricBucketoptions(
+            module.params.get("bucket_options", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -606,16 +635,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'logging')
+    auth = GcpSession(module, "logging")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://logging.googleapis.com/v2/projects/{project}/metrics/{name}".format(**module.params)
+    return "https://logging.googleapis.com/v2/projects/{project}/metrics/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://logging.googleapis.com/v2/projects/{project}/metrics".format(**module.params)
+    return "https://logging.googleapis.com/v2/projects/{project}/metrics".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -630,11 +663,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -661,13 +694,17 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'filter': response.get(u'filter'),
-        u'metricDescriptor': MetricMetricdescriptor(response.get(u'metricDescriptor', {}), module).from_response(),
-        u'labelExtractors': response.get(u'labelExtractors'),
-        u'valueExtractor': response.get(u'valueExtractor'),
-        u'bucketOptions': MetricBucketoptions(response.get(u'bucketOptions', {}), module).from_response(),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "filter": response.get("filter"),
+        "metricDescriptor": MetricMetricdescriptor(
+            response.get("metricDescriptor", {}), module
+        ).from_response(),
+        "labelExtractors": response.get("labelExtractors"),
+        "valueExtractor": response.get("valueExtractor"),
+        "bucketOptions": MetricBucketoptions(
+            response.get("bucketOptions", {}), module
+        ).from_response(),
     }
 
 
@@ -682,22 +719,26 @@ class MetricMetricdescriptor(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'unit': self.request.get('unit'),
-                u'valueType': self.request.get('value_type'),
-                u'metricKind': self.request.get('metric_kind'),
-                u'labels': MetricLabelsArray(self.request.get('labels', []), self.module).to_request(),
-                u'displayName': self.request.get('display_name'),
+                "unit": self.request.get("unit"),
+                "valueType": self.request.get("value_type"),
+                "metricKind": self.request.get("metric_kind"),
+                "labels": MetricLabelsArray(
+                    self.request.get("labels", []), self.module
+                ).to_request(),
+                "displayName": self.request.get("display_name"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'unit': self.request.get(u'unit'),
-                u'valueType': self.request.get(u'valueType'),
-                u'metricKind': self.request.get(u'metricKind'),
-                u'labels': MetricLabelsArray(self.request.get(u'labels', []), self.module).from_response(),
-                u'displayName': self.request.get(u'displayName'),
+                "unit": self.request.get("unit"),
+                "valueType": self.request.get("valueType"),
+                "metricKind": self.request.get("metricKind"),
+                "labels": MetricLabelsArray(
+                    self.request.get("labels", []), self.module
+                ).from_response(),
+                "displayName": self.request.get("displayName"),
             }
         )
 
@@ -723,11 +764,21 @@ class MetricLabelsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'key': item.get('key'), u'description': item.get('description'), u'valueType': item.get('value_type')})
+        return remove_nones_from_dict(
+            {
+                "key": item.get("key"),
+                "description": item.get("description"),
+                "valueType": item.get("value_type"),
+            }
+        )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'key': self.module.params.get('key'), u'description': item.get(u'description'), u'valueType': self.module.params.get('value_type')}
+            {
+                "key": self.module.params.get("key"),
+                "description": item.get("description"),
+                "valueType": self.module.params.get("value_type"),
+            }
         )
 
 
@@ -742,18 +793,30 @@ class MetricBucketoptions(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'linearBuckets': MetricLinearbuckets(self.request.get('linear_buckets', {}), self.module).to_request(),
-                u'exponentialBuckets': MetricExponentialbuckets(self.request.get('exponential_buckets', {}), self.module).to_request(),
-                u'explicitBuckets': MetricExplicitbuckets(self.request.get('explicit_buckets', {}), self.module).to_request(),
+                "linearBuckets": MetricLinearbuckets(
+                    self.request.get("linear_buckets", {}), self.module
+                ).to_request(),
+                "exponentialBuckets": MetricExponentialbuckets(
+                    self.request.get("exponential_buckets", {}), self.module
+                ).to_request(),
+                "explicitBuckets": MetricExplicitbuckets(
+                    self.request.get("explicit_buckets", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'linearBuckets': MetricLinearbuckets(self.request.get(u'linearBuckets', {}), self.module).from_response(),
-                u'exponentialBuckets': MetricExponentialbuckets(self.request.get(u'exponentialBuckets', {}), self.module).from_response(),
-                u'explicitBuckets': MetricExplicitbuckets(self.request.get(u'explicitBuckets', {}), self.module).from_response(),
+                "linearBuckets": MetricLinearbuckets(
+                    self.request.get("linearBuckets", {}), self.module
+                ).from_response(),
+                "exponentialBuckets": MetricExponentialbuckets(
+                    self.request.get("exponentialBuckets", {}), self.module
+                ).from_response(),
+                "explicitBuckets": MetricExplicitbuckets(
+                    self.request.get("explicitBuckets", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -768,12 +831,20 @@ class MetricLinearbuckets(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'numFiniteBuckets': self.request.get('num_finite_buckets'), u'width': self.request.get('width'), u'offset': self.request.get('offset')}
+            {
+                "numFiniteBuckets": self.request.get("num_finite_buckets"),
+                "width": self.request.get("width"),
+                "offset": self.request.get("offset"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'numFiniteBuckets': self.request.get(u'numFiniteBuckets'), u'width': self.request.get(u'width'), u'offset': self.request.get(u'offset')}
+            {
+                "numFiniteBuckets": self.request.get("numFiniteBuckets"),
+                "width": self.request.get("width"),
+                "offset": self.request.get("offset"),
+            }
         )
 
 
@@ -788,18 +859,18 @@ class MetricExponentialbuckets(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'numFiniteBuckets': self.request.get('num_finite_buckets'),
-                u'growthFactor': self.request.get('growth_factor'),
-                u'scale': self.request.get('scale'),
+                "numFiniteBuckets": self.request.get("num_finite_buckets"),
+                "growthFactor": self.request.get("growth_factor"),
+                "scale": self.request.get("scale"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'numFiniteBuckets': self.request.get(u'numFiniteBuckets'),
-                u'growthFactor': self.request.get(u'growthFactor'),
-                u'scale': self.request.get(u'scale'),
+                "numFiniteBuckets": self.request.get("numFiniteBuckets"),
+                "growthFactor": self.request.get("growthFactor"),
+                "scale": self.request.get("scale"),
             }
         )
 
@@ -813,11 +884,11 @@ class MetricExplicitbuckets(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'bounds': self.request.get('bounds')})
+        return remove_nones_from_dict({"bounds": self.request.get("bounds")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'bounds': self.request.get(u'bounds')})
+        return remove_nones_from_dict({"bounds": self.request.get("bounds")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

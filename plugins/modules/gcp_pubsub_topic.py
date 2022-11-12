@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_pubsub_topic
 description:
@@ -155,9 +159,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a topic
   google.cloud.gcp_pubsub_topic:
     name: test-topic1
@@ -165,9 +169,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - Name of the topic.
@@ -220,7 +224,7 @@ schemaSettings:
       - The encoding of messages validated against schema.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -247,25 +251,38 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            kms_key_name=dict(type='str'),
-            labels=dict(type='dict'),
-            message_storage_policy=dict(type='dict', options=dict(allowed_persistence_regions=dict(required=True, type='list', elements='str'))),
-            schema_settings=dict(type='dict', options=dict(schema=dict(required=True, type='str'), encoding=dict(default='ENCODING_UNSPECIFIED', type='str'))),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            kms_key_name=dict(type="str"),
+            labels=dict(type="dict"),
+            message_storage_policy=dict(
+                type="dict",
+                options=dict(
+                    allowed_persistence_regions=dict(
+                        required=True, type="list", elements="str"
+                    )
+                ),
+            ),
+            schema_settings=dict(
+                type="dict",
+                options=dict(
+                    schema=dict(required=True, type="str"),
+                    encoding=dict(default="ENCODING_UNSPECIFIED", type="str"),
+                ),
+            ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/pubsub']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/pubsub"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -275,55 +292,63 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, self_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.put(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'pubsub')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "pubsub")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
-    del request['name']
+    del request["name"]
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('kmsKeyName') != response.get('kmsKeyName'):
-        update_mask.append('kmsKeyName')
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('messageStoragePolicy') != response.get('messageStoragePolicy'):
-        update_mask.append('messageStoragePolicy')
-    if request.get('schemaSettings') != response.get('schemaSettings'):
-        update_mask.append('schemaSettings')
-    return ','.join(update_mask)
+    if request.get("kmsKeyName") != response.get("kmsKeyName"):
+        update_mask.append("kmsKeyName")
+    if request.get("labels") != response.get("labels"):
+        update_mask.append("labels")
+    if request.get("messageStoragePolicy") != response.get("messageStoragePolicy"):
+        update_mask.append("messageStoragePolicy")
+    if request.get("schemaSettings") != response.get("schemaSettings"):
+        update_mask.append("schemaSettings")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': name_pattern(module.params.get('name'), module),
-        u'kmsKeyName': module.params.get('kms_key_name'),
-        u'labels': module.params.get('labels'),
-        u'messageStoragePolicy': TopicMessagestoragepolicy(module.params.get('message_storage_policy', {}), module).to_request(),
-        u'schemaSettings': TopicSchemasettings(module.params.get('schema_settings', {}), module).to_request(),
+        "name": name_pattern(module.params.get("name"), module),
+        "kmsKeyName": module.params.get("kms_key_name"),
+        "labels": module.params.get("labels"),
+        "messageStoragePolicy": TopicMessagestoragepolicy(
+            module.params.get("message_storage_policy", {}), module
+        ).to_request(),
+        "schemaSettings": TopicSchemasettings(
+            module.params.get("schema_settings", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -334,16 +359,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://pubsub.googleapis.com/v1/projects/{project}/topics/{name}".format(**module.params)
+    return "https://pubsub.googleapis.com/v1/projects/{project}/topics/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://pubsub.googleapis.com/v1/projects/{project}/topics".format(**module.params)
+    return "https://pubsub.googleapis.com/v1/projects/{project}/topics".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -358,11 +387,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -389,11 +418,15 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': name_pattern(module.params.get('name'), module),
-        u'kmsKeyName': response.get(u'kmsKeyName'),
-        u'labels': response.get(u'labels'),
-        u'messageStoragePolicy': TopicMessagestoragepolicy(response.get(u'messageStoragePolicy', {}), module).from_response(),
-        u'schemaSettings': TopicSchemasettings(response.get(u'schemaSettings', {}), module).from_response(),
+        "name": name_pattern(module.params.get("name"), module),
+        "kmsKeyName": response.get("kmsKeyName"),
+        "labels": response.get("labels"),
+        "messageStoragePolicy": TopicMessagestoragepolicy(
+            response.get("messageStoragePolicy", {}), module
+        ).from_response(),
+        "schemaSettings": TopicSchemasettings(
+            response.get("schemaSettings", {}), module
+        ).from_response(),
     }
 
 
@@ -418,10 +451,18 @@ class TopicMessagestoragepolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'allowedPersistenceRegions': self.request.get('allowed_persistence_regions')})
+        return remove_nones_from_dict(
+            {
+                "allowedPersistenceRegions": self.request.get(
+                    "allowed_persistence_regions"
+                )
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'allowedPersistenceRegions': self.request.get(u'allowedPersistenceRegions')})
+        return remove_nones_from_dict(
+            {"allowedPersistenceRegions": self.request.get("allowedPersistenceRegions")}
+        )
 
 
 class TopicSchemasettings(object):
@@ -433,11 +474,21 @@ class TopicSchemasettings(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'schema': self.request.get('schema'), u'encoding': self.request.get('encoding')})
+        return remove_nones_from_dict(
+            {
+                "schema": self.request.get("schema"),
+                "encoding": self.request.get("encoding"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'schema': self.request.get(u'schema'), u'encoding': self.request.get(u'encoding')})
+        return remove_nones_from_dict(
+            {
+                "schema": self.request.get("schema"),
+                "encoding": self.request.get("encoding"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

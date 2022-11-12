@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_health_check
 description:
@@ -510,9 +514,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a health check
   google.cloud.gcp_compute_health_check:
     name: test_object
@@ -528,9 +532,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 checkIntervalSec:
   description:
   - How often (in seconds) to send a health check. The default value is 5 seconds.
@@ -904,7 +908,7 @@ logConfig:
         no health check logging will be done.
       returned: success
       type: bool
-'''
+"""
 
 ################################################################################
 # Imports
@@ -931,91 +935,96 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            check_interval_sec=dict(default=5, type='int'),
-            description=dict(type='str'),
-            healthy_threshold=dict(default=2, type='int'),
-            name=dict(required=True, type='str'),
-            timeout_sec=dict(default=5, type='int', aliases=['timeout_seconds']),
-            unhealthy_threshold=dict(default=2, type='int'),
-            type=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            check_interval_sec=dict(default=5, type="int"),
+            description=dict(type="str"),
+            healthy_threshold=dict(default=2, type="int"),
+            name=dict(required=True, type="str"),
+            timeout_sec=dict(default=5, type="int", aliases=["timeout_seconds"]),
+            unhealthy_threshold=dict(default=2, type="int"),
+            type=dict(type="str"),
             http_health_check=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    host=dict(type='str'),
-                    request_path=dict(default='/', type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str'),
-                    port_specification=dict(type='str'),
+                    host=dict(type="str"),
+                    request_path=dict(default="/", type="str"),
+                    response=dict(type="str"),
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    proxy_header=dict(default="NONE", type="str"),
+                    port_specification=dict(type="str"),
                 ),
             ),
             https_health_check=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    host=dict(type='str'),
-                    request_path=dict(default='/', type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str'),
-                    port_specification=dict(type='str'),
+                    host=dict(type="str"),
+                    request_path=dict(default="/", type="str"),
+                    response=dict(type="str"),
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    proxy_header=dict(default="NONE", type="str"),
+                    port_specification=dict(type="str"),
                 ),
             ),
             tcp_health_check=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    request=dict(type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str'),
-                    port_specification=dict(type='str'),
+                    request=dict(type="str"),
+                    response=dict(type="str"),
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    proxy_header=dict(default="NONE", type="str"),
+                    port_specification=dict(type="str"),
                 ),
             ),
             ssl_health_check=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    request=dict(type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str'),
-                    port_specification=dict(type='str'),
+                    request=dict(type="str"),
+                    response=dict(type="str"),
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    proxy_header=dict(default="NONE", type="str"),
+                    port_specification=dict(type="str"),
                 ),
             ),
             http2_health_check=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    host=dict(type='str'),
-                    request_path=dict(default='/', type='str'),
-                    response=dict(type='str'),
-                    port=dict(type='int'),
-                    port_name=dict(type='str'),
-                    proxy_header=dict(default='NONE', type='str'),
-                    port_specification=dict(type='str'),
+                    host=dict(type="str"),
+                    request_path=dict(default="/", type="str"),
+                    response=dict(type="str"),
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    proxy_header=dict(default="NONE", type="str"),
+                    port_specification=dict(type="str"),
                 ),
             ),
             grpc_health_check=dict(
-                type='dict',
-                options=dict(port=dict(type='int'), port_name=dict(type='str'), port_specification=dict(type='str'), grpc_service_name=dict(type='str')),
+                type="dict",
+                options=dict(
+                    port=dict(type="int"),
+                    port_name=dict(type="str"),
+                    port_specification=dict(type="str"),
+                    grpc_service_name=dict(type="str"),
+                ),
             ),
-            log_config=dict(type='dict', options=dict(enable=dict(type='bool'))),
+            log_config=dict(type="dict", options=dict(enable=dict(type="bool"))),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#healthCheck'
+    state = module.params["state"]
+    kind = "compute#healthCheck"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -1025,49 +1034,63 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#healthCheck',
-        u'checkIntervalSec': module.params.get('check_interval_sec'),
-        u'description': module.params.get('description'),
-        u'healthyThreshold': module.params.get('healthy_threshold'),
-        u'name': module.params.get('name'),
-        u'timeoutSec': module.params.get('timeout_sec'),
-        u'unhealthyThreshold': module.params.get('unhealthy_threshold'),
-        u'type': module.params.get('type'),
-        u'httpHealthCheck': HealthCheckHttphealthcheck(module.params.get('http_health_check', {}), module).to_request(),
-        u'httpsHealthCheck': HealthCheckHttpshealthcheck(module.params.get('https_health_check', {}), module).to_request(),
-        u'tcpHealthCheck': HealthCheckTcphealthcheck(module.params.get('tcp_health_check', {}), module).to_request(),
-        u'sslHealthCheck': HealthCheckSslhealthcheck(module.params.get('ssl_health_check', {}), module).to_request(),
-        u'http2HealthCheck': HealthCheckHttp2healthcheck(module.params.get('http2_health_check', {}), module).to_request(),
-        u'grpcHealthCheck': HealthCheckGrpchealthcheck(module.params.get('grpc_health_check', {}), module).to_request(),
-        u'logConfig': HealthCheckLogconfig(module.params.get('log_config', {}), module).to_request(),
+        "kind": "compute#healthCheck",
+        "checkIntervalSec": module.params.get("check_interval_sec"),
+        "description": module.params.get("description"),
+        "healthyThreshold": module.params.get("healthy_threshold"),
+        "name": module.params.get("name"),
+        "timeoutSec": module.params.get("timeout_sec"),
+        "unhealthyThreshold": module.params.get("unhealthy_threshold"),
+        "type": module.params.get("type"),
+        "httpHealthCheck": HealthCheckHttphealthcheck(
+            module.params.get("http_health_check", {}), module
+        ).to_request(),
+        "httpsHealthCheck": HealthCheckHttpshealthcheck(
+            module.params.get("https_health_check", {}), module
+        ).to_request(),
+        "tcpHealthCheck": HealthCheckTcphealthcheck(
+            module.params.get("tcp_health_check", {}), module
+        ).to_request(),
+        "sslHealthCheck": HealthCheckSslhealthcheck(
+            module.params.get("ssl_health_check", {}), module
+        ).to_request(),
+        "http2HealthCheck": HealthCheckHttp2healthcheck(
+            module.params.get("http2_health_check", {}), module
+        ).to_request(),
+        "grpcHealthCheck": HealthCheckGrpchealthcheck(
+            module.params.get("grpc_health_check", {}), module
+        ).to_request(),
+        "logConfig": HealthCheckLogconfig(
+            module.params.get("log_config", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1078,16 +1101,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/healthChecks/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/healthChecks/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/healthChecks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/healthChecks".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1102,11 +1129,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1133,22 +1160,36 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'checkIntervalSec': response.get(u'checkIntervalSec'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'healthyThreshold': response.get(u'healthyThreshold'),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
-        u'timeoutSec': response.get(u'timeoutSec'),
-        u'unhealthyThreshold': response.get(u'unhealthyThreshold'),
-        u'type': response.get(u'type'),
-        u'httpHealthCheck': HealthCheckHttphealthcheck(response.get(u'httpHealthCheck', {}), module).from_response(),
-        u'httpsHealthCheck': HealthCheckHttpshealthcheck(response.get(u'httpsHealthCheck', {}), module).from_response(),
-        u'tcpHealthCheck': HealthCheckTcphealthcheck(response.get(u'tcpHealthCheck', {}), module).from_response(),
-        u'sslHealthCheck': HealthCheckSslhealthcheck(response.get(u'sslHealthCheck', {}), module).from_response(),
-        u'http2HealthCheck': HealthCheckHttp2healthcheck(response.get(u'http2HealthCheck', {}), module).from_response(),
-        u'grpcHealthCheck': HealthCheckGrpchealthcheck(response.get(u'grpcHealthCheck', {}), module).from_response(),
-        u'logConfig': HealthCheckLogconfig(response.get(u'logConfig', {}), module).from_response(),
+        "checkIntervalSec": response.get("checkIntervalSec"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "healthyThreshold": response.get("healthyThreshold"),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
+        "timeoutSec": response.get("timeoutSec"),
+        "unhealthyThreshold": response.get("unhealthyThreshold"),
+        "type": response.get("type"),
+        "httpHealthCheck": HealthCheckHttphealthcheck(
+            response.get("httpHealthCheck", {}), module
+        ).from_response(),
+        "httpsHealthCheck": HealthCheckHttpshealthcheck(
+            response.get("httpsHealthCheck", {}), module
+        ).from_response(),
+        "tcpHealthCheck": HealthCheckTcphealthcheck(
+            response.get("tcpHealthCheck", {}), module
+        ).from_response(),
+        "sslHealthCheck": HealthCheckSslhealthcheck(
+            response.get("sslHealthCheck", {}), module
+        ).from_response(),
+        "http2HealthCheck": HealthCheckHttp2healthcheck(
+            response.get("http2HealthCheck", {}), module
+        ).from_response(),
+        "grpcHealthCheck": HealthCheckGrpchealthcheck(
+            response.get("grpcHealthCheck", {}), module
+        ).from_response(),
+        "logConfig": HealthCheckLogconfig(
+            response.get("logConfig", {}), module
+        ).from_response(),
     }
 
 
@@ -1162,22 +1203,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#healthCheck')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#healthCheck"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -1198,26 +1241,26 @@ class HealthCheckHttphealthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get('host'),
-                u'requestPath': self.request.get('request_path'),
-                u'response': self.request.get('response'),
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'proxyHeader': self.request.get('proxy_header'),
-                u'portSpecification': self.request.get('port_specification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("request_path"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "proxyHeader": self.request.get("proxy_header"),
+                "portSpecification": self.request.get("port_specification"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get(u'host'),
-                u'requestPath': self.request.get(u'requestPath'),
-                u'response': self.request.get(u'response'),
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'proxyHeader': self.request.get(u'proxyHeader'),
-                u'portSpecification': self.request.get(u'portSpecification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("requestPath"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "proxyHeader": self.request.get("proxyHeader"),
+                "portSpecification": self.request.get("portSpecification"),
             }
         )
 
@@ -1233,26 +1276,26 @@ class HealthCheckHttpshealthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get('host'),
-                u'requestPath': self.request.get('request_path'),
-                u'response': self.request.get('response'),
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'proxyHeader': self.request.get('proxy_header'),
-                u'portSpecification': self.request.get('port_specification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("request_path"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "proxyHeader": self.request.get("proxy_header"),
+                "portSpecification": self.request.get("port_specification"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get(u'host'),
-                u'requestPath': self.request.get(u'requestPath'),
-                u'response': self.request.get(u'response'),
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'proxyHeader': self.request.get(u'proxyHeader'),
-                u'portSpecification': self.request.get(u'portSpecification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("requestPath"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "proxyHeader": self.request.get("proxyHeader"),
+                "portSpecification": self.request.get("portSpecification"),
             }
         )
 
@@ -1268,24 +1311,24 @@ class HealthCheckTcphealthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'request': self.request.get('request'),
-                u'response': self.request.get('response'),
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'proxyHeader': self.request.get('proxy_header'),
-                u'portSpecification': self.request.get('port_specification'),
+                "request": self.request.get("request"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "proxyHeader": self.request.get("proxy_header"),
+                "portSpecification": self.request.get("port_specification"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'request': self.request.get(u'request'),
-                u'response': self.request.get(u'response'),
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'proxyHeader': self.request.get(u'proxyHeader'),
-                u'portSpecification': self.request.get(u'portSpecification'),
+                "request": self.request.get("request"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "proxyHeader": self.request.get("proxyHeader"),
+                "portSpecification": self.request.get("portSpecification"),
             }
         )
 
@@ -1301,24 +1344,24 @@ class HealthCheckSslhealthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'request': self.request.get('request'),
-                u'response': self.request.get('response'),
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'proxyHeader': self.request.get('proxy_header'),
-                u'portSpecification': self.request.get('port_specification'),
+                "request": self.request.get("request"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "proxyHeader": self.request.get("proxy_header"),
+                "portSpecification": self.request.get("port_specification"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'request': self.request.get(u'request'),
-                u'response': self.request.get(u'response'),
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'proxyHeader': self.request.get(u'proxyHeader'),
-                u'portSpecification': self.request.get(u'portSpecification'),
+                "request": self.request.get("request"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "proxyHeader": self.request.get("proxyHeader"),
+                "portSpecification": self.request.get("portSpecification"),
             }
         )
 
@@ -1334,26 +1377,26 @@ class HealthCheckHttp2healthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get('host'),
-                u'requestPath': self.request.get('request_path'),
-                u'response': self.request.get('response'),
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'proxyHeader': self.request.get('proxy_header'),
-                u'portSpecification': self.request.get('port_specification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("request_path"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "proxyHeader": self.request.get("proxy_header"),
+                "portSpecification": self.request.get("port_specification"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'host': self.request.get(u'host'),
-                u'requestPath': self.request.get(u'requestPath'),
-                u'response': self.request.get(u'response'),
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'proxyHeader': self.request.get(u'proxyHeader'),
-                u'portSpecification': self.request.get(u'portSpecification'),
+                "host": self.request.get("host"),
+                "requestPath": self.request.get("requestPath"),
+                "response": self.request.get("response"),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "proxyHeader": self.request.get("proxyHeader"),
+                "portSpecification": self.request.get("portSpecification"),
             }
         )
 
@@ -1369,20 +1412,20 @@ class HealthCheckGrpchealthcheck(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'port': self.request.get('port'),
-                u'portName': self.request.get('port_name'),
-                u'portSpecification': self.request.get('port_specification'),
-                u'grpcServiceName': self.request.get('grpc_service_name'),
+                "port": self.request.get("port"),
+                "portName": self.request.get("port_name"),
+                "portSpecification": self.request.get("port_specification"),
+                "grpcServiceName": self.request.get("grpc_service_name"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'port': self.request.get(u'port'),
-                u'portName': self.request.get(u'portName'),
-                u'portSpecification': self.request.get(u'portSpecification'),
-                u'grpcServiceName': self.request.get(u'grpcServiceName'),
+                "port": self.request.get("port"),
+                "portName": self.request.get("portName"),
+                "portSpecification": self.request.get("portSpecification"),
+                "grpcServiceName": self.request.get("grpcServiceName"),
             }
         )
 
@@ -1396,11 +1439,11 @@ class HealthCheckLogconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'enable': self.request.get('enable')})
+        return remove_nones_from_dict({"enable": self.request.get("enable")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'enable': self.request.get(u'enable')})
+        return remove_nones_from_dict({"enable": self.request.get("enable")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_region_instance_group_manager
 description:
@@ -179,9 +183,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-instancetemplate
@@ -234,9 +238,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 baseInstanceName:
   description:
   - The base instance name to use for instances in this group. The value must be 1-58
@@ -394,7 +398,7 @@ region:
   - The region the managed instance group resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -421,30 +425,40 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            base_instance_name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            instance_template=dict(required=True, type='dict'),
-            name=dict(required=True, type='str'),
-            named_ports=dict(type='list', elements='dict', options=dict(name=dict(type='str'), port=dict(type='int'))),
-            target_pools=dict(type='list', elements='dict'),
-            target_size=dict(type='int'),
-            auto_healing_policies=dict(type='list', elements='dict', options=dict(health_check=dict(type='str'), initial_delay_sec=dict(type='int'))),
-            region=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            base_instance_name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            instance_template=dict(required=True, type="dict"),
+            name=dict(required=True, type="str"),
+            named_ports=dict(
+                type="list",
+                elements="dict",
+                options=dict(name=dict(type="str"), port=dict(type="int")),
+            ),
+            target_pools=dict(type="list", elements="dict"),
+            target_size=dict(type="int"),
+            auto_healing_policies=dict(
+                type="list",
+                elements="dict",
+                options=dict(
+                    health_check=dict(type="str"), initial_delay_sec=dict(type="int")
+                ),
+            ),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#instanceGroupManager'
+    state = module.params["state"]
+    kind = "compute#instanceGroupManager"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -454,43 +468,51 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#instanceGroupManager',
-        u'baseInstanceName': module.params.get('base_instance_name'),
-        u'description': module.params.get('description'),
-        u'instanceTemplate': replace_resource_dict(module.params.get(u'instance_template', {}), 'selfLink'),
-        u'name': module.params.get('name'),
-        u'namedPorts': RegionInstanceGroupManagerNamedportsArray(module.params.get('named_ports', []), module).to_request(),
-        u'targetPools': replace_resource_dict(module.params.get('target_pools', []), 'selfLink'),
-        u'targetSize': module.params.get('target_size'),
-        u'autoHealingPolicies': RegionInstanceGroupManagerAutohealingpoliciesArray(module.params.get('auto_healing_policies', []), module).to_request(),
+        "kind": "compute#instanceGroupManager",
+        "baseInstanceName": module.params.get("base_instance_name"),
+        "description": module.params.get("description"),
+        "instanceTemplate": replace_resource_dict(
+            module.params.get("instance_template", {}), "selfLink"
+        ),
+        "name": module.params.get("name"),
+        "namedPorts": RegionInstanceGroupManagerNamedportsArray(
+            module.params.get("named_ports", []), module
+        ).to_request(),
+        "targetPools": replace_resource_dict(
+            module.params.get("target_pools", []), "selfLink"
+        ),
+        "targetSize": module.params.get("target_size"),
+        "autoHealingPolicies": RegionInstanceGroupManagerAutohealingpoliciesArray(
+            module.params.get("auto_healing_policies", []), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -501,16 +523,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/instanceGroupManagers/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/instanceGroupManagers/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/instanceGroupManagers".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/instanceGroupManagers".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -525,11 +551,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -556,18 +582,24 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'baseInstanceName': response.get(u'baseInstanceName'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'currentActions': RegionInstanceGroupManagerCurrentactions(response.get(u'currentActions', {}), module).from_response(),
-        u'description': module.params.get('description'),
-        u'id': response.get(u'id'),
-        u'instanceGroup': response.get(u'instanceGroup'),
-        u'instanceTemplate': response.get(u'instanceTemplate'),
-        u'name': response.get(u'name'),
-        u'namedPorts': RegionInstanceGroupManagerNamedportsArray(response.get(u'namedPorts', []), module).from_response(),
-        u'targetPools': response.get(u'targetPools'),
-        u'targetSize': response.get(u'targetSize'),
-        u'autoHealingPolicies': RegionInstanceGroupManagerAutohealingpoliciesArray(response.get(u'autoHealingPolicies', []), module).from_response(),
+        "baseInstanceName": response.get("baseInstanceName"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "currentActions": RegionInstanceGroupManagerCurrentactions(
+            response.get("currentActions", {}), module
+        ).from_response(),
+        "description": module.params.get("description"),
+        "id": response.get("id"),
+        "instanceGroup": response.get("instanceGroup"),
+        "instanceTemplate": response.get("instanceTemplate"),
+        "name": response.get("name"),
+        "namedPorts": RegionInstanceGroupManagerNamedportsArray(
+            response.get("namedPorts", []), module
+        ).from_response(),
+        "targetPools": response.get("targetPools"),
+        "targetSize": response.get("targetSize"),
+        "autoHealingPolicies": RegionInstanceGroupManagerAutohealingpoliciesArray(
+            response.get("autoHealingPolicies", []), module
+        ).from_response(),
     }
 
 
@@ -581,22 +613,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#instanceGroupManager')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#instanceGroupManager"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -642,10 +676,14 @@ class RegionInstanceGroupManagerNamedportsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'port': item.get('port')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "port": item.get("port")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'port': item.get(u'port')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "port": item.get("port")}
+        )
 
 
 class RegionInstanceGroupManagerAutohealingpoliciesArray(object):
@@ -669,11 +707,21 @@ class RegionInstanceGroupManagerAutohealingpoliciesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'healthCheck': item.get('health_check'), u'initialDelaySec': item.get('initial_delay_sec')})
+        return remove_nones_from_dict(
+            {
+                "healthCheck": item.get("health_check"),
+                "initialDelaySec": item.get("initial_delay_sec"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'healthCheck': item.get(u'healthCheck'), u'initialDelaySec': item.get(u'initialDelaySec')})
+        return remove_nones_from_dict(
+            {
+                "healthCheck": item.get("healthCheck"),
+                "initialDelaySec": item.get("initialDelaySec"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

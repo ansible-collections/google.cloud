@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_image
 description:
@@ -267,9 +271,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a disk
   google.cloud.gcp_compute_disk:
     name: disk-image
@@ -288,9 +292,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 archiveSizeBytes:
   description:
   - Size of the image tar.gz archive stored in Google Cloud Storage (in bytes).
@@ -505,7 +509,7 @@ sourceType:
     RAW .
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -533,36 +537,51 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            disk_size_gb=dict(type='int'),
-            family=dict(type='str'),
-            guest_os_features=dict(type='list', elements='dict', options=dict(type=dict(required=True, type='str'))),
-            image_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
-            labels=dict(type='dict'),
-            licenses=dict(type='list', elements='str'),
-            name=dict(required=True, type='str'),
-            raw_disk=dict(type='dict', options=dict(container_type=dict(type='str'), sha1_checksum=dict(type='str'), source=dict(required=True, type='str'))),
-            source_disk=dict(type='dict'),
-            source_disk_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
-            source_disk_id=dict(type='str'),
-            source_image=dict(type='dict'),
-            source_snapshot=dict(type='dict'),
-            source_type=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            disk_size_gb=dict(type="int"),
+            family=dict(type="str"),
+            guest_os_features=dict(
+                type="list",
+                elements="dict",
+                options=dict(type=dict(required=True, type="str")),
+            ),
+            image_encryption_key=dict(
+                type="dict", no_log=True, options=dict(raw_key=dict(type="str"))
+            ),
+            labels=dict(type="dict"),
+            licenses=dict(type="list", elements="str"),
+            name=dict(required=True, type="str"),
+            raw_disk=dict(
+                type="dict",
+                options=dict(
+                    container_type=dict(type="str"),
+                    sha1_checksum=dict(type="str"),
+                    source=dict(required=True, type="str"),
+                ),
+            ),
+            source_disk=dict(type="dict"),
+            source_disk_encryption_key=dict(
+                type="dict", no_log=True, options=dict(raw_key=dict(type="str"))
+            ),
+            source_disk_id=dict(type="str"),
+            source_image=dict(type="dict"),
+            source_snapshot=dict(type="dict"),
+            source_type=dict(type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#image'
+    state = module.params["state"]
+    kind = "compute#image"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -572,19 +591,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -594,41 +613,61 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('labels') != request.get('labels'):
+    if response.get("labels") != request.get("labels"):
         labels_update(module, request, response)
 
 
 def labels_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/images/{name}/setLabels"]).format(**module.params),
-        {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/global/images/{name}/setLabels",
+            ]
+        ).format(**module.params),
+        {
+            "labels": module.params.get("labels"),
+            "labelFingerprint": response.get("labelFingerprint"),
+        },
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#image',
-        u'description': module.params.get('description'),
-        u'diskSizeGb': module.params.get('disk_size_gb'),
-        u'family': module.params.get('family'),
-        u'guestOsFeatures': ImageGuestosfeaturesArray(module.params.get('guest_os_features', []), module).to_request(),
-        u'imageEncryptionKey': ImageImageencryptionkey(module.params.get('image_encryption_key', {}), module).to_request(),
-        u'labels': module.params.get('labels'),
-        u'licenses': module.params.get('licenses'),
-        u'name': module.params.get('name'),
-        u'rawDisk': ImageRawdisk(module.params.get('raw_disk', {}), module).to_request(),
-        u'sourceDisk': replace_resource_dict(module.params.get(u'source_disk', {}), 'selfLink'),
-        u'sourceDiskEncryptionKey': ImageSourcediskencryptionkey(module.params.get('source_disk_encryption_key', {}), module).to_request(),
-        u'sourceDiskId': module.params.get('source_disk_id'),
-        u'sourceImage': replace_resource_dict(module.params.get(u'source_image', {}), 'selfLink'),
-        u'sourceSnapshot': replace_resource_dict(module.params.get(u'source_snapshot', {}), 'selfLink'),
-        u'sourceType': module.params.get('source_type'),
+        "kind": "compute#image",
+        "description": module.params.get("description"),
+        "diskSizeGb": module.params.get("disk_size_gb"),
+        "family": module.params.get("family"),
+        "guestOsFeatures": ImageGuestosfeaturesArray(
+            module.params.get("guest_os_features", []), module
+        ).to_request(),
+        "imageEncryptionKey": ImageImageencryptionkey(
+            module.params.get("image_encryption_key", {}), module
+        ).to_request(),
+        "labels": module.params.get("labels"),
+        "licenses": module.params.get("licenses"),
+        "name": module.params.get("name"),
+        "rawDisk": ImageRawdisk(module.params.get("raw_disk", {}), module).to_request(),
+        "sourceDisk": replace_resource_dict(
+            module.params.get("source_disk", {}), "selfLink"
+        ),
+        "sourceDiskEncryptionKey": ImageSourcediskencryptionkey(
+            module.params.get("source_disk_encryption_key", {}), module
+        ).to_request(),
+        "sourceDiskId": module.params.get("source_disk_id"),
+        "sourceImage": replace_resource_dict(
+            module.params.get("source_image", {}), "selfLink"
+        ),
+        "sourceSnapshot": replace_resource_dict(
+            module.params.get("source_snapshot", {}), "selfLink"
+        ),
+        "sourceType": module.params.get("source_type"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -639,16 +678,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/images".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -663,11 +706,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -694,26 +737,34 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'archiveSizeBytes': response.get(u'archiveSizeBytes'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'deprecated': ImageDeprecated(response.get(u'deprecated', {}), module).from_response(),
-        u'description': response.get(u'description'),
-        u'diskSizeGb': response.get(u'diskSizeGb'),
-        u'family': response.get(u'family'),
-        u'guestOsFeatures': ImageGuestosfeaturesArray(response.get(u'guestOsFeatures', []), module).from_response(),
-        u'id': response.get(u'id'),
-        u'imageEncryptionKey': ImageImageencryptionkey(response.get(u'imageEncryptionKey', {}), module).from_response(),
-        u'labels': response.get(u'labels'),
-        u'labelFingerprint': response.get(u'labelFingerprint'),
-        u'licenses': response.get(u'licenses'),
-        u'name': response.get(u'name'),
-        u'rawDisk': ImageRawdisk(response.get(u'rawDisk', {}), module).from_response(),
-        u'sourceDisk': response.get(u'sourceDisk'),
-        u'sourceDiskEncryptionKey': ImageSourcediskencryptionkey(response.get(u'sourceDiskEncryptionKey', {}), module).from_response(),
-        u'sourceDiskId': response.get(u'sourceDiskId'),
-        u'sourceImage': response.get(u'sourceImage'),
-        u'sourceSnapshot': response.get(u'sourceSnapshot'),
-        u'sourceType': response.get(u'sourceType'),
+        "archiveSizeBytes": response.get("archiveSizeBytes"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "deprecated": ImageDeprecated(
+            response.get("deprecated", {}), module
+        ).from_response(),
+        "description": response.get("description"),
+        "diskSizeGb": response.get("diskSizeGb"),
+        "family": response.get("family"),
+        "guestOsFeatures": ImageGuestosfeaturesArray(
+            response.get("guestOsFeatures", []), module
+        ).from_response(),
+        "id": response.get("id"),
+        "imageEncryptionKey": ImageImageencryptionkey(
+            response.get("imageEncryptionKey", {}), module
+        ).from_response(),
+        "labels": response.get("labels"),
+        "labelFingerprint": response.get("labelFingerprint"),
+        "licenses": response.get("licenses"),
+        "name": response.get("name"),
+        "rawDisk": ImageRawdisk(response.get("rawDisk", {}), module).from_response(),
+        "sourceDisk": response.get("sourceDisk"),
+        "sourceDiskEncryptionKey": ImageSourcediskencryptionkey(
+            response.get("sourceDiskEncryptionKey", {}), module
+        ).from_response(),
+        "sourceDiskId": response.get("sourceDiskId"),
+        "sourceImage": response.get("sourceImage"),
+        "sourceSnapshot": response.get("sourceSnapshot"),
+        "sourceType": response.get("sourceType"),
     }
 
 
@@ -722,7 +773,12 @@ def license_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -736,22 +792,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#image')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#image"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -772,22 +830,22 @@ class ImageDeprecated(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'deleted': self.request.get('deleted'),
-                u'deprecated': self.request.get('deprecated'),
-                u'obsolete': self.request.get('obsolete'),
-                u'replacement': self.request.get('replacement'),
-                u'state': self.request.get('state'),
+                "deleted": self.request.get("deleted"),
+                "deprecated": self.request.get("deprecated"),
+                "obsolete": self.request.get("obsolete"),
+                "replacement": self.request.get("replacement"),
+                "state": self.request.get("state"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'deleted': self.request.get(u'deleted'),
-                u'deprecated': self.request.get(u'deprecated'),
-                u'obsolete': self.request.get(u'obsolete'),
-                u'replacement': self.request.get(u'replacement'),
-                u'state': self.request.get(u'state'),
+                "deleted": self.request.get("deleted"),
+                "deprecated": self.request.get("deprecated"),
+                "obsolete": self.request.get("obsolete"),
+                "replacement": self.request.get("replacement"),
+                "state": self.request.get("state"),
             }
         )
 
@@ -813,10 +871,10 @@ class ImageGuestosfeaturesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'type': item.get('type')})
+        return remove_nones_from_dict({"type": item.get("type")})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'type': item.get(u'type')})
+        return remove_nones_from_dict({"type": item.get("type")})
 
 
 class ImageImageencryptionkey(object):
@@ -828,10 +886,10 @@ class ImageImageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({"rawKey": self.request.get("raw_key")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({"rawKey": self.request.get("rawKey")})
 
 
 class ImageRawdisk(object):
@@ -844,12 +902,20 @@ class ImageRawdisk(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'containerType': self.request.get('container_type'), u'sha1Checksum': self.request.get('sha1_checksum'), u'source': self.request.get('source')}
+            {
+                "containerType": self.request.get("container_type"),
+                "sha1Checksum": self.request.get("sha1_checksum"),
+                "source": self.request.get("source"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'containerType': self.request.get(u'containerType'), u'sha1Checksum': self.request.get(u'sha1Checksum'), u'source': self.request.get(u'source')}
+            {
+                "containerType": self.request.get("containerType"),
+                "sha1Checksum": self.request.get("sha1Checksum"),
+                "source": self.request.get("source"),
+            }
         )
 
 
@@ -862,11 +928,11 @@ class ImageSourcediskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({"rawKey": self.request.get("raw_key")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({"rawKey": self.request.get("rawKey")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

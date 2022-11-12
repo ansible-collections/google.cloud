@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_region_autoscaler
 description:
@@ -275,9 +279,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-instancetemplate
@@ -347,9 +351,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 id:
   description:
   - Unique identifier for the resource.
@@ -527,7 +531,7 @@ region:
   - URL of the region where the instance group resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -554,49 +558,66 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
             autoscaling_policy=dict(
                 required=True,
-                type='dict',
+                type="dict",
                 options=dict(
-                    min_num_replicas=dict(type='int'),
-                    max_num_replicas=dict(required=True, type='int'),
-                    cool_down_period_sec=dict(default=60, type='int'),
-                    mode=dict(default='ON', type='str'),
+                    min_num_replicas=dict(type="int"),
+                    max_num_replicas=dict(required=True, type="int"),
+                    cool_down_period_sec=dict(default=60, type="int"),
+                    mode=dict(default="ON", type="str"),
                     scale_in_control=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            max_scaled_in_replicas=dict(type='dict', options=dict(fixed=dict(type='int'), percent=dict(type='int'))),
-                            time_window_sec=dict(type='int'),
+                            max_scaled_in_replicas=dict(
+                                type="dict",
+                                options=dict(
+                                    fixed=dict(type="int"), percent=dict(type="int")
+                                ),
+                            ),
+                            time_window_sec=dict(type="int"),
                         ),
                     ),
-                    cpu_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str'), predictive_method=dict(default='NONE', type='str'))),
-                    custom_metric_utilizations=dict(
-                        type='list',
-                        elements='dict',
-                        options=dict(metric=dict(required=True, type='str'), utilization_target=dict(type='str'), utilization_target_type=dict(type='str')),
+                    cpu_utilization=dict(
+                        type="dict",
+                        options=dict(
+                            utilization_target=dict(type="str"),
+                            predictive_method=dict(default="NONE", type="str"),
+                        ),
                     ),
-                    load_balancing_utilization=dict(type='dict', options=dict(utilization_target=dict(type='str'))),
+                    custom_metric_utilizations=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            metric=dict(required=True, type="str"),
+                            utilization_target=dict(type="str"),
+                            utilization_target_type=dict(type="str"),
+                        ),
+                    ),
+                    load_balancing_utilization=dict(
+                        type="dict", options=dict(utilization_target=dict(type="str"))
+                    ),
                 ),
             ),
-            target=dict(required=True, type='str'),
-            region=dict(required=True, type='str'),
+            target=dict(required=True, type="str"),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#autoscaler'
+    state = module.params["state"]
+    kind = "compute#autoscaler"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -606,40 +627,42 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#autoscaler',
-        u'region': module.params.get('region'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'autoscalingPolicy': RegionAutoscalerAutoscalingpolicy(module.params.get('autoscaling_policy', {}), module).to_request(),
-        u'target': module.params.get('target'),
+        "kind": "compute#autoscaler",
+        "region": module.params.get("region"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "autoscalingPolicy": RegionAutoscalerAutoscalingpolicy(
+            module.params.get("autoscaling_policy", {}), module
+        ).to_request(),
+        "target": module.params.get("target"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -650,16 +673,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/autoscalers/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/autoscalers/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/autoscalers".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/autoscalers".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -674,11 +701,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -705,12 +732,14 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'id': response.get(u'id'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'name': module.params.get('name'),
-        u'description': response.get(u'description'),
-        u'autoscalingPolicy': RegionAutoscalerAutoscalingpolicy(response.get(u'autoscalingPolicy', {}), module).from_response(),
-        u'target': response.get(u'target'),
+        "id": response.get("id"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "name": module.params.get("name"),
+        "description": response.get("description"),
+        "autoscalingPolicy": RegionAutoscalerAutoscalingpolicy(
+            response.get("autoscalingPolicy", {}), module
+        ).from_response(),
+        "target": response.get("target"),
     }
 
 
@@ -724,22 +753,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#autoscaler')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#autoscaler"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -760,17 +791,21 @@ class RegionAutoscalerAutoscalingpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'minNumReplicas': self.request.get('min_num_replicas'),
-                u'maxNumReplicas': self.request.get('max_num_replicas'),
-                u'coolDownPeriodSec': self.request.get('cool_down_period_sec'),
-                u'mode': self.request.get('mode'),
-                u'scaleInControl': RegionAutoscalerScaleincontrol(self.request.get('scale_in_control', {}), self.module).to_request(),
-                u'cpuUtilization': RegionAutoscalerCpuutilization(self.request.get('cpu_utilization', {}), self.module).to_request(),
-                u'customMetricUtilizations': RegionAutoscalerCustommetricutilizationsArray(
-                    self.request.get('custom_metric_utilizations', []), self.module
+                "minNumReplicas": self.request.get("min_num_replicas"),
+                "maxNumReplicas": self.request.get("max_num_replicas"),
+                "coolDownPeriodSec": self.request.get("cool_down_period_sec"),
+                "mode": self.request.get("mode"),
+                "scaleInControl": RegionAutoscalerScaleincontrol(
+                    self.request.get("scale_in_control", {}), self.module
                 ).to_request(),
-                u'loadBalancingUtilization': RegionAutoscalerLoadbalancingutilization(
-                    self.request.get('load_balancing_utilization', {}), self.module
+                "cpuUtilization": RegionAutoscalerCpuutilization(
+                    self.request.get("cpu_utilization", {}), self.module
+                ).to_request(),
+                "customMetricUtilizations": RegionAutoscalerCustommetricutilizationsArray(
+                    self.request.get("custom_metric_utilizations", []), self.module
+                ).to_request(),
+                "loadBalancingUtilization": RegionAutoscalerLoadbalancingutilization(
+                    self.request.get("load_balancing_utilization", {}), self.module
                 ).to_request(),
             }
         )
@@ -778,17 +813,21 @@ class RegionAutoscalerAutoscalingpolicy(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'minNumReplicas': self.request.get(u'minNumReplicas'),
-                u'maxNumReplicas': self.request.get(u'maxNumReplicas'),
-                u'coolDownPeriodSec': self.request.get(u'coolDownPeriodSec'),
-                u'mode': self.request.get(u'mode'),
-                u'scaleInControl': RegionAutoscalerScaleincontrol(self.request.get(u'scaleInControl', {}), self.module).from_response(),
-                u'cpuUtilization': RegionAutoscalerCpuutilization(self.request.get(u'cpuUtilization', {}), self.module).from_response(),
-                u'customMetricUtilizations': RegionAutoscalerCustommetricutilizationsArray(
-                    self.request.get(u'customMetricUtilizations', []), self.module
+                "minNumReplicas": self.request.get("minNumReplicas"),
+                "maxNumReplicas": self.request.get("maxNumReplicas"),
+                "coolDownPeriodSec": self.request.get("coolDownPeriodSec"),
+                "mode": self.request.get("mode"),
+                "scaleInControl": RegionAutoscalerScaleincontrol(
+                    self.request.get("scaleInControl", {}), self.module
                 ).from_response(),
-                u'loadBalancingUtilization': RegionAutoscalerLoadbalancingutilization(
-                    self.request.get(u'loadBalancingUtilization', {}), self.module
+                "cpuUtilization": RegionAutoscalerCpuutilization(
+                    self.request.get("cpuUtilization", {}), self.module
+                ).from_response(),
+                "customMetricUtilizations": RegionAutoscalerCustommetricutilizationsArray(
+                    self.request.get("customMetricUtilizations", []), self.module
+                ).from_response(),
+                "loadBalancingUtilization": RegionAutoscalerLoadbalancingutilization(
+                    self.request.get("loadBalancingUtilization", {}), self.module
                 ).from_response(),
             }
         )
@@ -805,16 +844,20 @@ class RegionAutoscalerScaleincontrol(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'maxScaledInReplicas': RegionAutoscalerMaxscaledinreplicas(self.request.get('max_scaled_in_replicas', {}), self.module).to_request(),
-                u'timeWindowSec': self.request.get('time_window_sec'),
+                "maxScaledInReplicas": RegionAutoscalerMaxscaledinreplicas(
+                    self.request.get("max_scaled_in_replicas", {}), self.module
+                ).to_request(),
+                "timeWindowSec": self.request.get("time_window_sec"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'maxScaledInReplicas': RegionAutoscalerMaxscaledinreplicas(self.request.get(u'maxScaledInReplicas', {}), self.module).from_response(),
-                u'timeWindowSec': self.request.get(u'timeWindowSec'),
+                "maxScaledInReplicas": RegionAutoscalerMaxscaledinreplicas(
+                    self.request.get("maxScaledInReplicas", {}), self.module
+                ).from_response(),
+                "timeWindowSec": self.request.get("timeWindowSec"),
             }
         )
 
@@ -828,10 +871,14 @@ class RegionAutoscalerMaxscaledinreplicas(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'fixed': self.request.get('fixed'), u'percent': self.request.get('percent')})
+        return remove_nones_from_dict(
+            {"fixed": self.request.get("fixed"), "percent": self.request.get("percent")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'fixed': self.request.get(u'fixed'), u'percent': self.request.get(u'percent')})
+        return remove_nones_from_dict(
+            {"fixed": self.request.get("fixed"), "percent": self.request.get("percent")}
+        )
 
 
 class RegionAutoscalerCpuutilization(object):
@@ -844,12 +891,18 @@ class RegionAutoscalerCpuutilization(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'utilizationTarget': self.request.get('utilization_target'), u'predictiveMethod': self.request.get('predictive_method')}
+            {
+                "utilizationTarget": self.request.get("utilization_target"),
+                "predictiveMethod": self.request.get("predictive_method"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'utilizationTarget': self.request.get(u'utilizationTarget'), u'predictiveMethod': self.request.get(u'predictiveMethod')}
+            {
+                "utilizationTarget": self.request.get("utilizationTarget"),
+                "predictiveMethod": self.request.get("predictiveMethod"),
+            }
         )
 
 
@@ -875,12 +928,20 @@ class RegionAutoscalerCustommetricutilizationsArray(object):
 
     def _request_for_item(self, item):
         return remove_nones_from_dict(
-            {u'metric': item.get('metric'), u'utilizationTarget': item.get('utilization_target'), u'utilizationTargetType': item.get('utilization_target_type')}
+            {
+                "metric": item.get("metric"),
+                "utilizationTarget": item.get("utilization_target"),
+                "utilizationTargetType": item.get("utilization_target_type"),
+            }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'metric': item.get(u'metric'), u'utilizationTarget': item.get(u'utilizationTarget'), u'utilizationTargetType': item.get(u'utilizationTargetType')}
+            {
+                "metric": item.get("metric"),
+                "utilizationTarget": item.get("utilizationTarget"),
+                "utilizationTargetType": item.get("utilizationTargetType"),
+            }
         )
 
 
@@ -893,11 +954,15 @@ class RegionAutoscalerLoadbalancingutilization(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'utilizationTarget': self.request.get('utilization_target')})
+        return remove_nones_from_dict(
+            {"utilizationTarget": self.request.get("utilization_target")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'utilizationTarget': self.request.get(u'utilizationTarget')})
+        return remove_nones_from_dict(
+            {"utilizationTarget": self.request.get("utilizationTarget")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

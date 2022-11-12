@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_ssl_policy
 description:
@@ -137,9 +141,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a SSL policy
   google.cloud.gcp_compute_ssl_policy:
     name: test_object
@@ -152,9 +156,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -228,7 +232,7 @@ warnings:
       - A human-readable description of the warning code.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -255,26 +259,26 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            name=dict(required=True, type='str'),
-            profile=dict(type='str'),
-            min_tls_version=dict(type='str'),
-            custom_features=dict(type='list', elements='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            name=dict(required=True, type="str"),
+            profile=dict(type="str"),
+            min_tls_version=dict(type="str"),
+            custom_features=dict(type="list", elements="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#sslPolicy'
+    state = module.params["state"]
+    kind = "compute#sslPolicy"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -284,40 +288,40 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#sslPolicy',
-        u'description': module.params.get('description'),
-        u'name': module.params.get('name'),
-        u'profile': module.params.get('profile'),
-        u'minTlsVersion': module.params.get('min_tls_version'),
-        u'customFeatures': module.params.get('custom_features'),
+        "kind": "compute#sslPolicy",
+        "description": module.params.get("description"),
+        "name": module.params.get("name"),
+        "profile": module.params.get("profile"),
+        "minTlsVersion": module.params.get("min_tls_version"),
+        "customFeatures": module.params.get("custom_features"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -328,16 +332,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/sslPolicies".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -352,11 +360,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -383,16 +391,18 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': module.params.get('description'),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
-        u'profile': response.get(u'profile'),
-        u'minTlsVersion': response.get(u'minTlsVersion'),
-        u'enabledFeatures': response.get(u'enabledFeatures'),
-        u'customFeatures': response.get(u'customFeatures'),
-        u'fingerprint': response.get(u'fingerprint'),
-        u'warnings': SslPolicyWarningsArray(response.get(u'warnings', []), module).from_response(),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": module.params.get("description"),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
+        "profile": response.get("profile"),
+        "minTlsVersion": response.get("minTlsVersion"),
+        "enabledFeatures": response.get("enabledFeatures"),
+        "customFeatures": response.get("customFeatures"),
+        "fingerprint": response.get("fingerprint"),
+        "warnings": SslPolicyWarningsArray(
+            response.get("warnings", []), module
+        ).from_response(),
     }
 
 
@@ -406,22 +416,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#sslPolicy')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#sslPolicy"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -458,5 +470,5 @@ class SslPolicyWarningsArray(object):
         return remove_nones_from_dict({})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

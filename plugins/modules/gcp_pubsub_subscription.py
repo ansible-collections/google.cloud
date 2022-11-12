@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_pubsub_subscription
 description:
@@ -311,9 +315,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a topic
   google.cloud.gcp_pubsub_topic:
     name: topic-subscription
@@ -332,9 +336,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - Name of the subscription.
@@ -539,7 +543,7 @@ enableMessageOrdering:
     Pub/Sub system. Otherwise, they may be delivered in any order.
   returned: success
   type: bool
-'''
+"""
 
 ################################################################################
 # Imports
@@ -566,39 +570,58 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            topic=dict(required=True, type='dict'),
-            labels=dict(type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            topic=dict(required=True, type="dict"),
+            labels=dict(type="dict"),
             push_config=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
-                    push_endpoint=dict(required=True, type='str'),
-                    attributes=dict(type='dict'),
+                    oidc_token=dict(
+                        type="dict",
+                        options=dict(
+                            service_account_email=dict(required=True, type="str"),
+                            audience=dict(type="str"),
+                        ),
+                    ),
+                    push_endpoint=dict(required=True, type="str"),
+                    attributes=dict(type="dict"),
                 ),
             ),
-            ack_deadline_seconds=dict(type='int'),
-            message_retention_duration=dict(default='604800s', type='str'),
-            retain_acked_messages=dict(type='bool'),
-            expiration_policy=dict(type='dict', options=dict(ttl=dict(required=True, type='str'))),
-            filter=dict(type='str'),
-            dead_letter_policy=dict(type='dict', options=dict(dead_letter_topic=dict(type='str'), max_delivery_attempts=dict(type='int'))),
-            retry_policy=dict(type='dict', options=dict(minimum_backoff=dict(type='str'), maximum_backoff=dict(type='str'))),
-            enable_message_ordering=dict(type='bool'),
+            ack_deadline_seconds=dict(type="int"),
+            message_retention_duration=dict(default="604800s", type="str"),
+            retain_acked_messages=dict(type="bool"),
+            expiration_policy=dict(
+                type="dict", options=dict(ttl=dict(required=True, type="str"))
+            ),
+            filter=dict(type="str"),
+            dead_letter_policy=dict(
+                type="dict",
+                options=dict(
+                    dead_letter_topic=dict(type="str"),
+                    max_delivery_attempts=dict(type="int"),
+                ),
+            ),
+            retry_policy=dict(
+                type="dict",
+                options=dict(
+                    minimum_backoff=dict(type="str"), maximum_backoff=dict(type="str")
+                ),
+            ),
+            enable_message_ordering=dict(type="bool"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/pubsub']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/pubsub"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -608,70 +631,86 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, self_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.put(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'pubsub')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "pubsub")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
-    del request['name']
+    del request["name"]
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('pushConfig') != response.get('pushConfig'):
-        update_mask.append('pushConfig')
-    if request.get('ackDeadlineSeconds') != response.get('ackDeadlineSeconds'):
-        update_mask.append('ackDeadlineSeconds')
-    if request.get('messageRetentionDuration') != response.get('messageRetentionDuration'):
-        update_mask.append('messageRetentionDuration')
-    if request.get('retainAckedMessages') != response.get('retainAckedMessages'):
-        update_mask.append('retainAckedMessages')
-    if request.get('expirationPolicy') != response.get('expirationPolicy'):
-        update_mask.append('expirationPolicy')
-    if request.get('deadLetterPolicy') != response.get('deadLetterPolicy'):
-        update_mask.append('deadLetterPolicy')
-    if request.get('retryPolicy') != response.get('retryPolicy'):
-        update_mask.append('retryPolicy')
-    return ','.join(update_mask)
+    if request.get("labels") != response.get("labels"):
+        update_mask.append("labels")
+    if request.get("pushConfig") != response.get("pushConfig"):
+        update_mask.append("pushConfig")
+    if request.get("ackDeadlineSeconds") != response.get("ackDeadlineSeconds"):
+        update_mask.append("ackDeadlineSeconds")
+    if request.get("messageRetentionDuration") != response.get(
+        "messageRetentionDuration"
+    ):
+        update_mask.append("messageRetentionDuration")
+    if request.get("retainAckedMessages") != response.get("retainAckedMessages"):
+        update_mask.append("retainAckedMessages")
+    if request.get("expirationPolicy") != response.get("expirationPolicy"):
+        update_mask.append("expirationPolicy")
+    if request.get("deadLetterPolicy") != response.get("deadLetterPolicy"):
+        update_mask.append("deadLetterPolicy")
+    if request.get("retryPolicy") != response.get("retryPolicy"):
+        update_mask.append("retryPolicy")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': name_pattern(module.params.get('name'), module),
-        u'topic': topic_pattern(replace_resource_dict(module.params.get(u'topic', {}), 'name'), module),
-        u'labels': module.params.get('labels'),
-        u'pushConfig': SubscriptionPushconfig(module.params.get('push_config', {}), module).to_request(),
-        u'ackDeadlineSeconds': module.params.get('ack_deadline_seconds'),
-        u'messageRetentionDuration': module.params.get('message_retention_duration'),
-        u'retainAckedMessages': module.params.get('retain_acked_messages'),
-        u'expirationPolicy': SubscriptionExpirationpolicy(module.params.get('expiration_policy', {}), module).to_request(),
-        u'filter': module.params.get('filter'),
-        u'deadLetterPolicy': SubscriptionDeadletterpolicy(module.params.get('dead_letter_policy', {}), module).to_request(),
-        u'retryPolicy': SubscriptionRetrypolicy(module.params.get('retry_policy', {}), module).to_request(),
-        u'enableMessageOrdering': module.params.get('enable_message_ordering'),
+        "name": name_pattern(module.params.get("name"), module),
+        "topic": topic_pattern(
+            replace_resource_dict(module.params.get("topic", {}), "name"), module
+        ),
+        "labels": module.params.get("labels"),
+        "pushConfig": SubscriptionPushconfig(
+            module.params.get("push_config", {}), module
+        ).to_request(),
+        "ackDeadlineSeconds": module.params.get("ack_deadline_seconds"),
+        "messageRetentionDuration": module.params.get("message_retention_duration"),
+        "retainAckedMessages": module.params.get("retain_acked_messages"),
+        "expirationPolicy": SubscriptionExpirationpolicy(
+            module.params.get("expiration_policy", {}), module
+        ).to_request(),
+        "filter": module.params.get("filter"),
+        "deadLetterPolicy": SubscriptionDeadletterpolicy(
+            module.params.get("dead_letter_policy", {}), module
+        ).to_request(),
+        "retryPolicy": SubscriptionRetrypolicy(
+            module.params.get("retry_policy", {}), module
+        ).to_request(),
+        "enableMessageOrdering": module.params.get("enable_message_ordering"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -682,16 +721,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'pubsub')
+    auth = GcpSession(module, "pubsub")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://pubsub.googleapis.com/v1/projects/{project}/subscriptions/{name}".format(**module.params)
+    return "https://pubsub.googleapis.com/v1/projects/{project}/subscriptions/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://pubsub.googleapis.com/v1/projects/{project}/subscriptions".format(**module.params)
+    return "https://pubsub.googleapis.com/v1/projects/{project}/subscriptions".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -706,11 +749,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -737,18 +780,28 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': name_pattern(module.params.get('name'), module),
-        u'topic': topic_pattern(replace_resource_dict(module.params.get(u'topic', {}), 'name'), module),
-        u'labels': response.get(u'labels'),
-        u'pushConfig': SubscriptionPushconfig(response.get(u'pushConfig', {}), module).from_response(),
-        u'ackDeadlineSeconds': response.get(u'ackDeadlineSeconds'),
-        u'messageRetentionDuration': response.get(u'messageRetentionDuration'),
-        u'retainAckedMessages': response.get(u'retainAckedMessages'),
-        u'expirationPolicy': SubscriptionExpirationpolicy(response.get(u'expirationPolicy', {}), module).from_response(),
-        u'filter': module.params.get('filter'),
-        u'deadLetterPolicy': SubscriptionDeadletterpolicy(response.get(u'deadLetterPolicy', {}), module).from_response(),
-        u'retryPolicy': SubscriptionRetrypolicy(response.get(u'retryPolicy', {}), module).from_response(),
-        u'enableMessageOrdering': module.params.get('enable_message_ordering'),
+        "name": name_pattern(module.params.get("name"), module),
+        "topic": topic_pattern(
+            replace_resource_dict(module.params.get("topic", {}), "name"), module
+        ),
+        "labels": response.get("labels"),
+        "pushConfig": SubscriptionPushconfig(
+            response.get("pushConfig", {}), module
+        ).from_response(),
+        "ackDeadlineSeconds": response.get("ackDeadlineSeconds"),
+        "messageRetentionDuration": response.get("messageRetentionDuration"),
+        "retainAckedMessages": response.get("retainAckedMessages"),
+        "expirationPolicy": SubscriptionExpirationpolicy(
+            response.get("expirationPolicy", {}), module
+        ).from_response(),
+        "filter": module.params.get("filter"),
+        "deadLetterPolicy": SubscriptionDeadletterpolicy(
+            response.get("deadLetterPolicy", {}), module
+        ).from_response(),
+        "retryPolicy": SubscriptionRetrypolicy(
+            response.get("retryPolicy", {}), module
+        ).from_response(),
+        "enableMessageOrdering": module.params.get("enable_message_ordering"),
     }
 
 
@@ -772,8 +825,8 @@ def topic_pattern(name, module):
 
     if not re.match(regex, name):
         formatted_params = {
-            'project': module.params['project'],
-            'topic': replace_resource_dict(module.params['topic'], 'name'),
+            "project": module.params["project"],
+            "topic": replace_resource_dict(module.params["topic"], "name"),
         }
         name = "projects/{project}/topics/{topic}".format(**formatted_params)
 
@@ -791,18 +844,22 @@ class SubscriptionPushconfig(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'oidcToken': SubscriptionOidctoken(self.request.get('oidc_token', {}), self.module).to_request(),
-                u'pushEndpoint': self.request.get('push_endpoint'),
-                u'attributes': self.request.get('attributes'),
+                "oidcToken": SubscriptionOidctoken(
+                    self.request.get("oidc_token", {}), self.module
+                ).to_request(),
+                "pushEndpoint": self.request.get("push_endpoint"),
+                "attributes": self.request.get("attributes"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'oidcToken': SubscriptionOidctoken(self.request.get(u'oidcToken', {}), self.module).from_response(),
-                u'pushEndpoint': self.request.get(u'pushEndpoint'),
-                u'attributes': self.request.get(u'attributes'),
+                "oidcToken": SubscriptionOidctoken(
+                    self.request.get("oidcToken", {}), self.module
+                ).from_response(),
+                "pushEndpoint": self.request.get("pushEndpoint"),
+                "attributes": self.request.get("attributes"),
             }
         )
 
@@ -816,10 +873,20 @@ class SubscriptionOidctoken(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get('service_account_email'), u'audience': self.request.get('audience')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("service_account_email"),
+                "audience": self.request.get("audience"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get(u'serviceAccountEmail'), u'audience': self.request.get(u'audience')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("serviceAccountEmail"),
+                "audience": self.request.get("audience"),
+            }
+        )
 
 
 class SubscriptionExpirationpolicy(object):
@@ -831,10 +898,10 @@ class SubscriptionExpirationpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'ttl': self.request.get('ttl')})
+        return remove_nones_from_dict({"ttl": self.request.get("ttl")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'ttl': self.request.get(u'ttl')})
+        return remove_nones_from_dict({"ttl": self.request.get("ttl")})
 
 
 class SubscriptionDeadletterpolicy(object):
@@ -847,12 +914,18 @@ class SubscriptionDeadletterpolicy(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'deadLetterTopic': self.request.get('dead_letter_topic'), u'maxDeliveryAttempts': self.request.get('max_delivery_attempts')}
+            {
+                "deadLetterTopic": self.request.get("dead_letter_topic"),
+                "maxDeliveryAttempts": self.request.get("max_delivery_attempts"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'deadLetterTopic': self.request.get(u'deadLetterTopic'), u'maxDeliveryAttempts': self.request.get(u'maxDeliveryAttempts')}
+            {
+                "deadLetterTopic": self.request.get("deadLetterTopic"),
+                "maxDeliveryAttempts": self.request.get("maxDeliveryAttempts"),
+            }
         )
 
 
@@ -865,11 +938,21 @@ class SubscriptionRetrypolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'minimumBackoff': self.request.get('minimum_backoff'), u'maximumBackoff': self.request.get('maximum_backoff')})
+        return remove_nones_from_dict(
+            {
+                "minimumBackoff": self.request.get("minimum_backoff"),
+                "maximumBackoff": self.request.get("maximum_backoff"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'minimumBackoff': self.request.get(u'minimumBackoff'), u'maximumBackoff': self.request.get(u'maximumBackoff')})
+        return remove_nones_from_dict(
+            {
+                "minimumBackoff": self.request.get("minimumBackoff"),
+                "maximumBackoff": self.request.get("maximumBackoff"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

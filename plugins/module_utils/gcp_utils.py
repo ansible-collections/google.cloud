@@ -1,7 +1,7 @@
 # Copyright (c), Google Inc, 2017
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
@@ -11,6 +11,7 @@ import json
 
 try:
     import requests
+
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
@@ -20,6 +21,7 @@ try:
     import google.auth.compute_engine
     from google.oauth2 import service_account
     from google.auth.transport.requests import AuthorizedSession
+
     HAS_GOOGLE_LIBRARIES = True
 except ImportError:
     HAS_GOOGLE_LIBRARIES = False
@@ -83,46 +85,53 @@ class GcpSession(object):
         """
         This method should be avoided in favor of full_get
         """
-        kwargs.update({'json': body})
+        kwargs.update({"json": body})
         return self.full_get(url, **kwargs)
 
     def post(self, url, body=None, headers=None, **kwargs):
         """
         This method should be avoided in favor of full_post
         """
-        kwargs.update({'json': body, 'headers': headers})
+        kwargs.update({"json": body, "headers": headers})
         return self.full_post(url, **kwargs)
 
     def post_contents(self, url, file_contents=None, headers=None, **kwargs):
         """
         This method should be avoided in favor of full_post
         """
-        kwargs.update({'data': file_contents, 'headers': headers})
+        kwargs.update({"data": file_contents, "headers": headers})
         return self.full_post(url, **kwargs)
 
     def delete(self, url, body=None):
         """
         This method should be avoided in favor of full_delete
         """
-        kwargs = {'json': body}
+        kwargs = {"json": body}
         return self.full_delete(url, **kwargs)
 
     def put(self, url, body=None):
         """
         This method should be avoided in favor of full_put
         """
-        kwargs = {'json': body}
+        kwargs = {"json": body}
         return self.full_put(url, **kwargs)
 
     def patch(self, url, body=None, **kwargs):
         """
         This method should be avoided in favor of full_patch
         """
-        kwargs.update({'json': body})
+        kwargs.update({"json": body})
         return self.full_patch(url, **kwargs)
 
-    def list(self, url, callback, params=None, array_name='items',
-             pageToken='nextPageToken', **kwargs):
+    def list(
+        self,
+        url,
+        callback,
+        params=None,
+        array_name="items",
+        pageToken="nextPageToken",
+        **kwargs
+    ):
         """
         This should be used for calling the GCP list APIs. It will return
         an array of items
@@ -136,9 +145,9 @@ class GcpSession(object):
         items = resp.get(array_name) if resp.get(array_name) else []
         while resp.get(pageToken):
             if params:
-                params['pageToken'] = resp.get(pageToken)
+                params["pageToken"] = resp.get(pageToken)
             else:
-                params = {'pageToken': resp[pageToken]}
+                params = {"pageToken": resp[pageToken]}
 
             resp = callback(self.module, self.full_get(url, params, **kwargs))
             if resp.get(array_name):
@@ -147,43 +156,43 @@ class GcpSession(object):
 
     # The following methods fully mimic the requests API and should be used.
     def full_get(self, url, params=None, **kwargs):
-        kwargs['headers'] = self._set_headers(kwargs.get('headers'))
+        kwargs["headers"] = self._set_headers(kwargs.get("headers"))
         try:
             return self.session().get(url, params=params, **kwargs)
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             # Only log the message to avoid logging any sensitive info.
             self.module.fail_json(msg=inst.message)
 
     def full_post(self, url, data=None, json=None, **kwargs):
-        kwargs['headers'] = self._set_headers(kwargs.get('headers'))
+        kwargs["headers"] = self._set_headers(kwargs.get("headers"))
 
         try:
             return self.session().post(url, data=data, json=json, **kwargs)
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             self.module.fail_json(msg=inst.message)
 
     def full_put(self, url, data=None, **kwargs):
-        kwargs['headers'] = self._set_headers(kwargs.get('headers'))
+        kwargs["headers"] = self._set_headers(kwargs.get("headers"))
 
         try:
             return self.session().put(url, data=data, **kwargs)
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             self.module.fail_json(msg=inst.message)
 
     def full_patch(self, url, data=None, **kwargs):
-        kwargs['headers'] = self._set_headers(kwargs.get('headers'))
+        kwargs["headers"] = self._set_headers(kwargs.get("headers"))
 
         try:
             return self.session().patch(url, data=data, **kwargs)
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             self.module.fail_json(msg=inst.message)
 
     def full_delete(self, url, **kwargs):
-        kwargs['headers'] = self._set_headers(kwargs.get('headers'))
+        kwargs["headers"] = self._set_headers(kwargs.get("headers"))
 
         try:
             return self.session().delete(url, **kwargs)
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             self.module.fail_json(msg=inst.message)
 
     def _set_headers(self, headers):
@@ -192,8 +201,7 @@ class GcpSession(object):
         return self._headers()
 
     def session(self):
-        return AuthorizedSession(
-            self._credentials())
+        return AuthorizedSession(self._credentials())
 
     def _validate(self):
         if not HAS_REQUESTS:
@@ -202,49 +210,67 @@ class GcpSession(object):
         if not HAS_GOOGLE_LIBRARIES:
             self.module.fail_json(msg="Please install the google-auth library")
 
-        if self.module.params.get('service_account_email') is not None and self.module.params['auth_kind'] != 'machineaccount':
+        if (
+            self.module.params.get("service_account_email") is not None
+            and self.module.params["auth_kind"] != "machineaccount"
+        ):
             self.module.fail_json(
                 msg="Service Account Email only works with Machine Account-based authentication"
             )
 
-        if (self.module.params.get('service_account_file') is not None or
-                self.module.params.get('service_account_contents') is not None) and self.module.params['auth_kind'] != 'serviceaccount':
+        if (
+            self.module.params.get("service_account_file") is not None
+            or self.module.params.get("service_account_contents") is not None
+        ) and self.module.params["auth_kind"] != "serviceaccount":
             self.module.fail_json(
                 msg="Service Account File only works with Service Account-based authentication"
             )
 
     def _credentials(self):
-        cred_type = self.module.params['auth_kind']
-        if cred_type == 'application':
-            credentials, project_id = google.auth.default(scopes=self.module.params['scopes'])
+        cred_type = self.module.params["auth_kind"]
+        if cred_type == "application":
+            credentials, project_id = google.auth.default(
+                scopes=self.module.params["scopes"]
+            )
             return credentials
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_file'):
-            path = os.path.realpath(os.path.expanduser(self.module.params['service_account_file']))
+        if cred_type == "serviceaccount" and self.module.params.get(
+            "service_account_file"
+        ):
+            path = os.path.realpath(
+                os.path.expanduser(self.module.params["service_account_file"])
+            )
             if not os.path.exists(path):
                 self.module.fail_json(
                     msg="Unable to find service_account_file at '%s'" % path
                 )
-            return service_account.Credentials.from_service_account_file(path).with_scopes(self.module.params['scopes'])
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_contents'):
+            return service_account.Credentials.from_service_account_file(
+                path
+            ).with_scopes(self.module.params["scopes"])
+        if cred_type == "serviceaccount" and self.module.params.get(
+            "service_account_contents"
+        ):
             try:
-                cred = json.loads(self.module.params.get('service_account_contents'))
+                cred = json.loads(self.module.params.get("service_account_contents"))
             except json.decoder.JSONDecodeError as e:
                 self.module.fail_json(
                     msg="Unable to decode service_account_contents as JSON"
                 )
-            return service_account.Credentials.from_service_account_info(cred).with_scopes(self.module.params['scopes'])
-        if cred_type == 'machineaccount':
+            return service_account.Credentials.from_service_account_info(
+                cred
+            ).with_scopes(self.module.params["scopes"])
+        if cred_type == "machineaccount":
             return google.auth.compute_engine.Credentials(
-                self.module.params['service_account_email'])
+                self.module.params["service_account_email"]
+            )
         self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
     def _headers(self):
         user_agent = "Google-Ansible-MM-{0}".format(self.product)
-        if self.module.params.get('env_type'):
-            user_agent = "{0}-{1}".format(user_agent, self.module.params.get('env_type'))
-        return {
-            'User-Agent': user_agent
-        }
+        if self.module.params.get("env_type"):
+            user_agent = "{0}-{1}".format(
+                user_agent, self.module.params.get("env_type")
+            )
+        return {"User-Agent": user_agent}
 
     def _merge_dictionaries(self, a, b):
         new = a.copy()
@@ -254,49 +280,58 @@ class GcpSession(object):
 
 class GcpModule(AnsibleModule):
     def __init__(self, *args, **kwargs):
-        arg_spec = kwargs.get('argument_spec', {})
+        arg_spec = kwargs.get("argument_spec", {})
 
-        kwargs['argument_spec'] = self._merge_dictionaries(
+        kwargs["argument_spec"] = self._merge_dictionaries(
             arg_spec,
             dict(
                 project=dict(
-                    required=False,
-                    type='str',
-                    fallback=(env_fallback, ['GCP_PROJECT'])),
+                    required=False, type="str", fallback=(env_fallback, ["GCP_PROJECT"])
+                ),
                 auth_kind=dict(
                     required=True,
-                    fallback=(env_fallback, ['GCP_AUTH_KIND']),
-                    choices=['machineaccount', 'serviceaccount', 'application'],
-                    type='str'),
+                    fallback=(env_fallback, ["GCP_AUTH_KIND"]),
+                    choices=["machineaccount", "serviceaccount", "application"],
+                    type="str",
+                ),
                 service_account_email=dict(
                     required=False,
-                    fallback=(env_fallback, ['GCP_SERVICE_ACCOUNT_EMAIL']),
-                    type='str'),
+                    fallback=(env_fallback, ["GCP_SERVICE_ACCOUNT_EMAIL"]),
+                    type="str",
+                ),
                 service_account_file=dict(
                     required=False,
-                    fallback=(env_fallback, ['GCP_SERVICE_ACCOUNT_FILE']),
-                    type='path'),
+                    fallback=(env_fallback, ["GCP_SERVICE_ACCOUNT_FILE"]),
+                    type="path",
+                ),
                 service_account_contents=dict(
                     required=False,
-                    fallback=(env_fallback, ['GCP_SERVICE_ACCOUNT_CONTENTS']),
+                    fallback=(env_fallback, ["GCP_SERVICE_ACCOUNT_CONTENTS"]),
                     no_log=True,
-                    type='jsonarg'),
+                    type="jsonarg",
+                ),
                 scopes=dict(
                     required=False,
-                    fallback=(env_fallback, ['GCP_SCOPES']),
-                    type='list',
-                    elements='str'),
+                    fallback=(env_fallback, ["GCP_SCOPES"]),
+                    type="list",
+                    elements="str",
+                ),
                 env_type=dict(
                     required=False,
-                    fallback=(env_fallback, ['GCP_ENV_TYPE']),
-                    type='str')
-            )
+                    fallback=(env_fallback, ["GCP_ENV_TYPE"]),
+                    type="str",
+                ),
+            ),
         )
 
-        mutual = kwargs.get('mutually_exclusive', [])
+        mutual = kwargs.get("mutually_exclusive", [])
 
-        kwargs['mutually_exclusive'] = mutual.append(
-            ['service_account_email', 'service_account_file', 'service_account_contents']
+        kwargs["mutually_exclusive"] = mutual.append(
+            [
+                "service_account_email",
+                "service_account_file",
+                "service_account_contents",
+            ]
         )
 
         AnsibleModule.__init__(self, *args, **kwargs)
@@ -304,7 +339,7 @@ class GcpModule(AnsibleModule):
     def raise_for_status(self, response):
         try:
             response.raise_for_status()
-        except getattr(requests.exceptions, 'RequestException') as inst:
+        except getattr(requests.exceptions, "RequestException") as inst:
             self.fail_json(msg="GCP returned error: %s" % response.json())
 
     def _merge_dictionaries(self, a, b):
@@ -343,7 +378,9 @@ class GcpRequest(object):
         difference = {}
         for key in req_dict:
             if resp_dict.get(key):
-                difference[key] = self._compare_value(req_dict.get(key), resp_dict.get(key))
+                difference[key] = self._compare_value(
+                    req_dict.get(key), resp_dict.get(key)
+                )
 
         # Remove all empty values from difference.
         sanitized_difference = {}
@@ -416,13 +453,13 @@ class GcpRequest(object):
             if req_value and isinstance(resp_value, bool) and resp_value:
                 return None
             # Value1 True, resp_value 'true'
-            if req_value and to_text(resp_value) == 'true':
+            if req_value and to_text(resp_value) == "true":
                 return None
             # Both False
             if not req_value and isinstance(resp_value, bool) and not resp_value:
                 return None
             # Value1 False, resp_value 'false'
-            if not req_value and to_text(resp_value) == 'false':
+            if not req_value and to_text(resp_value) == "false":
                 return None
             return resp_value
 

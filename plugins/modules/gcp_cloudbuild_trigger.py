@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_cloudbuild_trigger
 description:
@@ -769,9 +773,9 @@ notes:
   first time. If you want to manage this resource after creation, you'll have to copy
   the generated id into the playbook. If you do not, new triggers will be created
   on subsequent runs.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a repository
   google.cloud.gcp_sourcerepo_repository:
     name: projects/{{ gcp_project }}/repos/{{ resource_name }}
@@ -791,9 +795,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 id:
   description:
   - The unique identifier for the trigger.
@@ -1470,7 +1474,7 @@ build:
                 on the same build step or with certain reserved volume paths.
               returned: success
               type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -1496,115 +1500,163 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            id=dict(type='str'),
-            name=dict(type='str'),
-            description=dict(type='str'),
-            tags=dict(type='list', elements='str'),
-            disabled=dict(type='bool'),
-            substitutions=dict(type='dict'),
-            filename=dict(type='str'),
-            ignored_files=dict(type='list', elements='str'),
-            included_files=dict(type='list', elements='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            id=dict(type="str"),
+            name=dict(type="str"),
+            description=dict(type="str"),
+            tags=dict(type="list", elements="str"),
+            disabled=dict(type="bool"),
+            substitutions=dict(type="dict"),
+            filename=dict(type="str"),
+            ignored_files=dict(type="list", elements="str"),
+            included_files=dict(type="list", elements="str"),
             trigger_template=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    project_id=dict(type='str'),
-                    repo_name=dict(default='default', type='str'),
-                    dir=dict(type='str'),
-                    invert_regex=dict(type='bool'),
-                    branch_name=dict(type='str'),
-                    tag_name=dict(type='str'),
-                    commit_sha=dict(type='str'),
+                    project_id=dict(type="str"),
+                    repo_name=dict(default="default", type="str"),
+                    dir=dict(type="str"),
+                    invert_regex=dict(type="bool"),
+                    branch_name=dict(type="str"),
+                    tag_name=dict(type="str"),
+                    commit_sha=dict(type="str"),
                 ),
             ),
             github=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    owner=dict(type='str'),
-                    name=dict(type='str'),
+                    owner=dict(type="str"),
+                    name=dict(type="str"),
                     pull_request=dict(
-                        type='dict', options=dict(branch=dict(required=True, type='str'), comment_control=dict(type='str'), invert_regex=dict(type='bool'))
+                        type="dict",
+                        options=dict(
+                            branch=dict(required=True, type="str"),
+                            comment_control=dict(type="str"),
+                            invert_regex=dict(type="bool"),
+                        ),
                     ),
-                    push=dict(type='dict', options=dict(invert_regex=dict(type='bool'), branch=dict(type='str'), tag=dict(type='str'))),
+                    push=dict(
+                        type="dict",
+                        options=dict(
+                            invert_regex=dict(type="bool"),
+                            branch=dict(type="str"),
+                            tag=dict(type="str"),
+                        ),
+                    ),
                 ),
             ),
-            pubsub_config=dict(type='dict', options=dict(topic=dict(required=True, type='str'), service_account_email=dict(type='str'))),
-            webhook_config=dict(type='dict', options=dict(secret=dict(required=True, type='str'))),
+            pubsub_config=dict(
+                type="dict",
+                options=dict(
+                    topic=dict(required=True, type="str"),
+                    service_account_email=dict(type="str"),
+                ),
+            ),
+            webhook_config=dict(
+                type="dict", options=dict(secret=dict(required=True, type="str"))
+            ),
             build=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     source=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
                             storage_source=dict(
-                                type='dict',
-                                options=dict(bucket=dict(required=True, type='str'), object=dict(required=True, type='str'), generation=dict(type='str')),
+                                type="dict",
+                                options=dict(
+                                    bucket=dict(required=True, type="str"),
+                                    object=dict(required=True, type="str"),
+                                    generation=dict(type="str"),
+                                ),
                             ),
                             repo_source=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
-                                    project_id=dict(type='str'),
-                                    repo_name=dict(required=True, type='str'),
-                                    dir=dict(type='str'),
-                                    invert_regex=dict(type='bool'),
-                                    substitutions=dict(type='dict'),
-                                    branch_name=dict(type='str'),
-                                    tag_name=dict(type='str'),
-                                    commit_sha=dict(type='str'),
+                                    project_id=dict(type="str"),
+                                    repo_name=dict(required=True, type="str"),
+                                    dir=dict(type="str"),
+                                    invert_regex=dict(type="bool"),
+                                    substitutions=dict(type="dict"),
+                                    branch_name=dict(type="str"),
+                                    tag_name=dict(type="str"),
+                                    commit_sha=dict(type="str"),
                                 ),
                             ),
                         ),
                     ),
-                    tags=dict(type='list', elements='str'),
-                    images=dict(type='list', elements='str'),
-                    substitutions=dict(type='dict'),
-                    queue_ttl=dict(type='str'),
-                    logs_bucket=dict(type='str'),
-                    timeout=dict(default='600s', type='str'),
-                    secrets=dict(type='list', elements='dict', options=dict(kms_key_name=dict(required=True, type='str'), secret_env=dict(type='dict'))),
+                    tags=dict(type="list", elements="str"),
+                    images=dict(type="list", elements="str"),
+                    substitutions=dict(type="dict"),
+                    queue_ttl=dict(type="str"),
+                    logs_bucket=dict(type="str"),
+                    timeout=dict(default="600s", type="str"),
+                    secrets=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            kms_key_name=dict(required=True, type="str"),
+                            secret_env=dict(type="dict"),
+                        ),
+                    ),
                     steps=dict(
                         required=True,
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            name=dict(required=True, type='str'),
-                            args=dict(type='list', elements='str'),
-                            env=dict(type='list', elements='str'),
-                            id=dict(type='str'),
-                            entrypoint=dict(type='str'),
-                            dir=dict(type='str'),
-                            secret_env=dict(type='list', elements='str'),
-                            timeout=dict(type='str'),
-                            timing=dict(type='str'),
+                            name=dict(required=True, type="str"),
+                            args=dict(type="list", elements="str"),
+                            env=dict(type="list", elements="str"),
+                            id=dict(type="str"),
+                            entrypoint=dict(type="str"),
+                            dir=dict(type="str"),
+                            secret_env=dict(type="list", elements="str"),
+                            timeout=dict(type="str"),
+                            timing=dict(type="str"),
                             volumes=dict(
-                                type='list', elements='dict', options=dict(name=dict(required=True, type='str'), path=dict(required=True, type='str'))
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    name=dict(required=True, type="str"),
+                                    path=dict(required=True, type="str"),
+                                ),
                             ),
-                            wait_for=dict(type='list', elements='str'),
+                            wait_for=dict(type="list", elements="str"),
                         ),
                     ),
                     artifacts=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            images=dict(type='list', elements='str'),
-                            objects=dict(type='dict', options=dict(location=dict(type='str'), paths=dict(type='list', elements='str'))),
+                            images=dict(type="list", elements="str"),
+                            objects=dict(
+                                type="dict",
+                                options=dict(
+                                    location=dict(type="str"),
+                                    paths=dict(type="list", elements="str"),
+                                ),
+                            ),
                         ),
                     ),
                     options=dict(
-                        type='dict',
+                        type="dict",
                         options=dict(
-                            source_provenance_hash=dict(type='list', elements='str'),
-                            requested_verify_option=dict(type='str'),
-                            machine_type=dict(type='str'),
-                            disk_size_gb=dict(type='int'),
-                            substitution_option=dict(type='str'),
-                            dynamic_substitutions=dict(type='bool'),
-                            log_streaming_option=dict(type='str'),
-                            worker_pool=dict(type='str'),
-                            logging=dict(type='str'),
-                            env=dict(type='list', elements='str'),
-                            secret_env=dict(type='list', elements='str'),
-                            volumes=dict(type='list', elements='dict', options=dict(name=dict(type='str'), path=dict(type='str'))),
+                            source_provenance_hash=dict(type="list", elements="str"),
+                            requested_verify_option=dict(type="str"),
+                            machine_type=dict(type="str"),
+                            disk_size_gb=dict(type="int"),
+                            substitution_option=dict(type="str"),
+                            dynamic_substitutions=dict(type="bool"),
+                            log_streaming_option=dict(type="str"),
+                            worker_pool=dict(type="str"),
+                            logging=dict(type="str"),
+                            env=dict(type="list", elements="str"),
+                            secret_env=dict(type="list", elements="str"),
+                            volumes=dict(
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    name=dict(type="str"), path=dict(type="str")
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -1612,16 +1664,16 @@ def main():
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -1631,48 +1683,54 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'cloudbuild')
+    auth = GcpSession(module, "cloudbuild")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'cloudbuild')
+    auth = GcpSession(module, "cloudbuild")
     return return_if_object(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'cloudbuild')
+    auth = GcpSession(module, "cloudbuild")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'id': module.params.get('id'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'tags': module.params.get('tags'),
-        u'disabled': module.params.get('disabled'),
-        u'substitutions': module.params.get('substitutions'),
-        u'filename': module.params.get('filename'),
-        u'ignoredFiles': module.params.get('ignored_files'),
-        u'includedFiles': module.params.get('included_files'),
-        u'triggerTemplate': TriggerTriggertemplate(module.params.get('trigger_template', {}), module).to_request(),
-        u'github': TriggerGithub(module.params.get('github', {}), module).to_request(),
-        u'pubsubConfig': TriggerPubsubconfig(module.params.get('pubsub_config', {}), module).to_request(),
-        u'webhookConfig': TriggerWebhookconfig(module.params.get('webhook_config', {}), module).to_request(),
-        u'build': TriggerBuild(module.params.get('build', {}), module).to_request(),
+        "id": module.params.get("id"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "tags": module.params.get("tags"),
+        "disabled": module.params.get("disabled"),
+        "substitutions": module.params.get("substitutions"),
+        "filename": module.params.get("filename"),
+        "ignoredFiles": module.params.get("ignored_files"),
+        "includedFiles": module.params.get("included_files"),
+        "triggerTemplate": TriggerTriggertemplate(
+            module.params.get("trigger_template", {}), module
+        ).to_request(),
+        "github": TriggerGithub(module.params.get("github", {}), module).to_request(),
+        "pubsubConfig": TriggerPubsubconfig(
+            module.params.get("pubsub_config", {}), module
+        ).to_request(),
+        "webhookConfig": TriggerWebhookconfig(
+            module.params.get("webhook_config", {}), module
+        ).to_request(),
+        "build": TriggerBuild(module.params.get("build", {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1683,16 +1741,22 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'cloudbuild')
+    auth = GcpSession(module, "cloudbuild")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudbuild.googleapis.com/v1/projects/{project}/triggers/{id}".format(**module.params)
+    return (
+        "https://cloudbuild.googleapis.com/v1/projects/{project}/triggers/{id}".format(
+            **module.params
+        )
+    )
 
 
 def collection(module):
-    return "https://cloudbuild.googleapis.com/v1/projects/{project}/triggers".format(**module.params)
+    return "https://cloudbuild.googleapis.com/v1/projects/{project}/triggers".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -1707,11 +1771,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1738,21 +1802,27 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'id': response.get(u'id'),
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'tags': response.get(u'tags'),
-        u'disabled': response.get(u'disabled'),
-        u'createTime': response.get(u'createTime'),
-        u'substitutions': response.get(u'substitutions'),
-        u'filename': response.get(u'filename'),
-        u'ignoredFiles': response.get(u'ignoredFiles'),
-        u'includedFiles': response.get(u'includedFiles'),
-        u'triggerTemplate': TriggerTriggertemplate(response.get(u'triggerTemplate', {}), module).from_response(),
-        u'github': TriggerGithub(response.get(u'github', {}), module).from_response(),
-        u'pubsubConfig': TriggerPubsubconfig(response.get(u'pubsubConfig', {}), module).from_response(),
-        u'webhookConfig': TriggerWebhookconfig(response.get(u'webhookConfig', {}), module).from_response(),
-        u'build': TriggerBuild(response.get(u'build', {}), module).from_response(),
+        "id": response.get("id"),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "tags": response.get("tags"),
+        "disabled": response.get("disabled"),
+        "createTime": response.get("createTime"),
+        "substitutions": response.get("substitutions"),
+        "filename": response.get("filename"),
+        "ignoredFiles": response.get("ignoredFiles"),
+        "includedFiles": response.get("includedFiles"),
+        "triggerTemplate": TriggerTriggertemplate(
+            response.get("triggerTemplate", {}), module
+        ).from_response(),
+        "github": TriggerGithub(response.get("github", {}), module).from_response(),
+        "pubsubConfig": TriggerPubsubconfig(
+            response.get("pubsubConfig", {}), module
+        ).from_response(),
+        "webhookConfig": TriggerWebhookconfig(
+            response.get("webhookConfig", {}), module
+        ).from_response(),
+        "build": TriggerBuild(response.get("build", {}), module).from_response(),
     }
 
 
@@ -1767,26 +1837,26 @@ class TriggerTriggertemplate(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'projectId': self.request.get('project_id'),
-                u'repoName': self.request.get('repo_name'),
-                u'dir': self.request.get('dir'),
-                u'invertRegex': self.request.get('invert_regex'),
-                u'branchName': self.request.get('branch_name'),
-                u'tagName': self.request.get('tag_name'),
-                u'commitSha': self.request.get('commit_sha'),
+                "projectId": self.request.get("project_id"),
+                "repoName": self.request.get("repo_name"),
+                "dir": self.request.get("dir"),
+                "invertRegex": self.request.get("invert_regex"),
+                "branchName": self.request.get("branch_name"),
+                "tagName": self.request.get("tag_name"),
+                "commitSha": self.request.get("commit_sha"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'projectId': self.request.get(u'projectId'),
-                u'repoName': self.request.get(u'repoName'),
-                u'dir': self.request.get(u'dir'),
-                u'invertRegex': self.request.get(u'invertRegex'),
-                u'branchName': self.request.get(u'branchName'),
-                u'tagName': self.request.get(u'tagName'),
-                u'commitSha': self.request.get(u'commitSha'),
+                "projectId": self.request.get("projectId"),
+                "repoName": self.request.get("repoName"),
+                "dir": self.request.get("dir"),
+                "invertRegex": self.request.get("invertRegex"),
+                "branchName": self.request.get("branchName"),
+                "tagName": self.request.get("tagName"),
+                "commitSha": self.request.get("commitSha"),
             }
         )
 
@@ -1802,20 +1872,28 @@ class TriggerGithub(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'owner': self.request.get('owner'),
-                u'name': self.request.get('name'),
-                u'pullRequest': TriggerPullrequest(self.request.get('pull_request', {}), self.module).to_request(),
-                u'push': TriggerPush(self.request.get('push', {}), self.module).to_request(),
+                "owner": self.request.get("owner"),
+                "name": self.request.get("name"),
+                "pullRequest": TriggerPullrequest(
+                    self.request.get("pull_request", {}), self.module
+                ).to_request(),
+                "push": TriggerPush(
+                    self.request.get("push", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'owner': self.request.get(u'owner'),
-                u'name': self.request.get(u'name'),
-                u'pullRequest': TriggerPullrequest(self.request.get(u'pullRequest', {}), self.module).from_response(),
-                u'push': TriggerPush(self.request.get(u'push', {}), self.module).from_response(),
+                "owner": self.request.get("owner"),
+                "name": self.request.get("name"),
+                "pullRequest": TriggerPullrequest(
+                    self.request.get("pullRequest", {}), self.module
+                ).from_response(),
+                "push": TriggerPush(
+                    self.request.get("push", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1830,12 +1908,20 @@ class TriggerPullrequest(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'branch': self.request.get('branch'), u'commentControl': self.request.get('comment_control'), u'invertRegex': self.request.get('invert_regex')}
+            {
+                "branch": self.request.get("branch"),
+                "commentControl": self.request.get("comment_control"),
+                "invertRegex": self.request.get("invert_regex"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'branch': self.request.get(u'branch'), u'commentControl': self.request.get(u'commentControl'), u'invertRegex': self.request.get(u'invertRegex')}
+            {
+                "branch": self.request.get("branch"),
+                "commentControl": self.request.get("commentControl"),
+                "invertRegex": self.request.get("invertRegex"),
+            }
         )
 
 
@@ -1849,12 +1935,20 @@ class TriggerPush(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'invertRegex': self.request.get('invert_regex'), u'branch': self.request.get('branch'), u'tag': self.request.get('tag')}
+            {
+                "invertRegex": self.request.get("invert_regex"),
+                "branch": self.request.get("branch"),
+                "tag": self.request.get("tag"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'invertRegex': self.request.get(u'invertRegex'), u'branch': self.request.get(u'branch'), u'tag': self.request.get(u'tag')}
+            {
+                "invertRegex": self.request.get("invertRegex"),
+                "branch": self.request.get("branch"),
+                "tag": self.request.get("tag"),
+            }
         )
 
 
@@ -1867,10 +1961,20 @@ class TriggerPubsubconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'topic': self.request.get('topic'), u'service_account_email': self.request.get('service_account_email')})
+        return remove_nones_from_dict(
+            {
+                "topic": self.request.get("topic"),
+                "service_account_email": self.request.get("service_account_email"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'topic': self.request.get(u'topic'), u'service_account_email': self.request.get(u'service_account_email')})
+        return remove_nones_from_dict(
+            {
+                "topic": self.request.get("topic"),
+                "service_account_email": self.request.get("service_account_email"),
+            }
+        )
 
 
 class TriggerWebhookconfig(object):
@@ -1882,10 +1986,10 @@ class TriggerWebhookconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'secret': self.request.get('secret')})
+        return remove_nones_from_dict({"secret": self.request.get("secret")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'secret': self.request.get(u'secret')})
+        return remove_nones_from_dict({"secret": self.request.get("secret")})
 
 
 class TriggerBuild(object):
@@ -1899,34 +2003,54 @@ class TriggerBuild(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'source': TriggerSource(self.request.get('source', {}), self.module).to_request(),
-                u'tags': self.request.get('tags'),
-                u'images': self.request.get('images'),
-                u'substitutions': self.request.get('substitutions'),
-                u'queueTtl': self.request.get('queue_ttl'),
-                u'logsBucket': self.request.get('logs_bucket'),
-                u'timeout': self.request.get('timeout'),
-                u'secrets': TriggerSecretsArray(self.request.get('secrets', []), self.module).to_request(),
-                u'steps': TriggerStepsArray(self.request.get('steps', []), self.module).to_request(),
-                u'artifacts': TriggerArtifacts(self.request.get('artifacts', {}), self.module).to_request(),
-                u'options': TriggerOptions(self.request.get('options', {}), self.module).to_request(),
+                "source": TriggerSource(
+                    self.request.get("source", {}), self.module
+                ).to_request(),
+                "tags": self.request.get("tags"),
+                "images": self.request.get("images"),
+                "substitutions": self.request.get("substitutions"),
+                "queueTtl": self.request.get("queue_ttl"),
+                "logsBucket": self.request.get("logs_bucket"),
+                "timeout": self.request.get("timeout"),
+                "secrets": TriggerSecretsArray(
+                    self.request.get("secrets", []), self.module
+                ).to_request(),
+                "steps": TriggerStepsArray(
+                    self.request.get("steps", []), self.module
+                ).to_request(),
+                "artifacts": TriggerArtifacts(
+                    self.request.get("artifacts", {}), self.module
+                ).to_request(),
+                "options": TriggerOptions(
+                    self.request.get("options", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'source': TriggerSource(self.request.get(u'source', {}), self.module).from_response(),
-                u'tags': self.request.get(u'tags'),
-                u'images': self.request.get(u'images'),
-                u'substitutions': self.request.get(u'substitutions'),
-                u'queueTtl': self.request.get(u'queueTtl'),
-                u'logsBucket': self.request.get(u'logsBucket'),
-                u'timeout': self.request.get(u'timeout'),
-                u'secrets': TriggerSecretsArray(self.request.get(u'secrets', []), self.module).from_response(),
-                u'steps': TriggerStepsArray(self.request.get(u'steps', []), self.module).from_response(),
-                u'artifacts': TriggerArtifacts(self.request.get(u'artifacts', {}), self.module).from_response(),
-                u'options': TriggerOptions(self.request.get(u'options', {}), self.module).from_response(),
+                "source": TriggerSource(
+                    self.request.get("source", {}), self.module
+                ).from_response(),
+                "tags": self.request.get("tags"),
+                "images": self.request.get("images"),
+                "substitutions": self.request.get("substitutions"),
+                "queueTtl": self.request.get("queueTtl"),
+                "logsBucket": self.request.get("logsBucket"),
+                "timeout": self.request.get("timeout"),
+                "secrets": TriggerSecretsArray(
+                    self.request.get("secrets", []), self.module
+                ).from_response(),
+                "steps": TriggerStepsArray(
+                    self.request.get("steps", []), self.module
+                ).from_response(),
+                "artifacts": TriggerArtifacts(
+                    self.request.get("artifacts", {}), self.module
+                ).from_response(),
+                "options": TriggerOptions(
+                    self.request.get("options", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1942,16 +2066,24 @@ class TriggerSource(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'storageSource': TriggerStoragesource(self.request.get('storage_source', {}), self.module).to_request(),
-                u'repoSource': TriggerReposource(self.request.get('repo_source', {}), self.module).to_request(),
+                "storageSource": TriggerStoragesource(
+                    self.request.get("storage_source", {}), self.module
+                ).to_request(),
+                "repoSource": TriggerReposource(
+                    self.request.get("repo_source", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'storageSource': TriggerStoragesource(self.request.get(u'storageSource', {}), self.module).from_response(),
-                u'repoSource': TriggerReposource(self.request.get(u'repoSource', {}), self.module).from_response(),
+                "storageSource": TriggerStoragesource(
+                    self.request.get("storageSource", {}), self.module
+                ).from_response(),
+                "repoSource": TriggerReposource(
+                    self.request.get("repoSource", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1966,12 +2098,20 @@ class TriggerStoragesource(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'bucket': self.request.get('bucket'), u'object': self.request.get('object'), u'generation': self.request.get('generation')}
+            {
+                "bucket": self.request.get("bucket"),
+                "object": self.request.get("object"),
+                "generation": self.request.get("generation"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'bucket': self.request.get(u'bucket'), u'object': self.request.get(u'object'), u'generation': self.request.get(u'generation')}
+            {
+                "bucket": self.request.get("bucket"),
+                "object": self.request.get("object"),
+                "generation": self.request.get("generation"),
+            }
         )
 
 
@@ -1986,28 +2126,28 @@ class TriggerReposource(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'projectId': self.request.get('project_id'),
-                u'repoName': self.request.get('repo_name'),
-                u'dir': self.request.get('dir'),
-                u'invertRegex': self.request.get('invert_regex'),
-                u'substitutions': self.request.get('substitutions'),
-                u'branchName': self.request.get('branch_name'),
-                u'tagName': self.request.get('tag_name'),
-                u'commitSha': self.request.get('commit_sha'),
+                "projectId": self.request.get("project_id"),
+                "repoName": self.request.get("repo_name"),
+                "dir": self.request.get("dir"),
+                "invertRegex": self.request.get("invert_regex"),
+                "substitutions": self.request.get("substitutions"),
+                "branchName": self.request.get("branch_name"),
+                "tagName": self.request.get("tag_name"),
+                "commitSha": self.request.get("commit_sha"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'projectId': self.request.get(u'projectId'),
-                u'repoName': self.request.get(u'repoName'),
-                u'dir': self.request.get(u'dir'),
-                u'invertRegex': self.request.get(u'invertRegex'),
-                u'substitutions': self.request.get(u'substitutions'),
-                u'branchName': self.request.get(u'branchName'),
-                u'tagName': self.request.get(u'tagName'),
-                u'commitSha': self.request.get(u'commitSha'),
+                "projectId": self.request.get("projectId"),
+                "repoName": self.request.get("repoName"),
+                "dir": self.request.get("dir"),
+                "invertRegex": self.request.get("invertRegex"),
+                "substitutions": self.request.get("substitutions"),
+                "branchName": self.request.get("branchName"),
+                "tagName": self.request.get("tagName"),
+                "commitSha": self.request.get("commitSha"),
             }
         )
 
@@ -2033,10 +2173,17 @@ class TriggerSecretsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'kmsKeyName': item.get('kms_key_name'), u'secretEnv': item.get('secret_env')})
+        return remove_nones_from_dict(
+            {
+                "kmsKeyName": item.get("kms_key_name"),
+                "secretEnv": item.get("secret_env"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'kmsKeyName': item.get(u'kmsKeyName'), u'secretEnv': item.get(u'secretEnv')})
+        return remove_nones_from_dict(
+            {"kmsKeyName": item.get("kmsKeyName"), "secretEnv": item.get("secretEnv")}
+        )
 
 
 class TriggerStepsArray(object):
@@ -2062,34 +2209,38 @@ class TriggerStepsArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get('name'),
-                u'args': item.get('args'),
-                u'env': item.get('env'),
-                u'id': item.get('id'),
-                u'entrypoint': item.get('entrypoint'),
-                u'dir': item.get('dir'),
-                u'secretEnv': item.get('secret_env'),
-                u'timeout': item.get('timeout'),
-                u'timing': item.get('timing'),
-                u'volumes': TriggerVolumesArray(item.get('volumes', []), self.module).to_request(),
-                u'waitFor': item.get('wait_for'),
+                "name": item.get("name"),
+                "args": item.get("args"),
+                "env": item.get("env"),
+                "id": item.get("id"),
+                "entrypoint": item.get("entrypoint"),
+                "dir": item.get("dir"),
+                "secretEnv": item.get("secret_env"),
+                "timeout": item.get("timeout"),
+                "timing": item.get("timing"),
+                "volumes": TriggerVolumesArray(
+                    item.get("volumes", []), self.module
+                ).to_request(),
+                "waitFor": item.get("wait_for"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get(u'name'),
-                u'args': item.get(u'args'),
-                u'env': item.get(u'env'),
-                u'id': item.get(u'id'),
-                u'entrypoint': item.get(u'entrypoint'),
-                u'dir': item.get(u'dir'),
-                u'secretEnv': item.get(u'secretEnv'),
-                u'timeout': item.get(u'timeout'),
-                u'timing': item.get(u'timing'),
-                u'volumes': TriggerVolumesArray(item.get(u'volumes', []), self.module).from_response(),
-                u'waitFor': item.get(u'waitFor'),
+                "name": item.get("name"),
+                "args": item.get("args"),
+                "env": item.get("env"),
+                "id": item.get("id"),
+                "entrypoint": item.get("entrypoint"),
+                "dir": item.get("dir"),
+                "secretEnv": item.get("secretEnv"),
+                "timeout": item.get("timeout"),
+                "timing": item.get("timing"),
+                "volumes": TriggerVolumesArray(
+                    item.get("volumes", []), self.module
+                ).from_response(),
+                "waitFor": item.get("waitFor"),
             }
         )
 
@@ -2115,10 +2266,14 @@ class TriggerVolumesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'path': item.get('path')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "path": item.get("path")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'path': item.get(u'path')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "path": item.get("path")}
+        )
 
 
 class TriggerArtifacts(object):
@@ -2131,12 +2286,22 @@ class TriggerArtifacts(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'images': self.request.get('images'), u'objects': TriggerObjects(self.request.get('objects', {}), self.module).to_request()}
+            {
+                "images": self.request.get("images"),
+                "objects": TriggerObjects(
+                    self.request.get("objects", {}), self.module
+                ).to_request(),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'images': self.request.get(u'images'), u'objects': TriggerObjects(self.request.get(u'objects', {}), self.module).from_response()}
+            {
+                "images": self.request.get("images"),
+                "objects": TriggerObjects(
+                    self.request.get("objects", {}), self.module
+                ).from_response(),
+            }
         )
 
 
@@ -2149,10 +2314,20 @@ class TriggerObjects(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'location': self.request.get('location'), u'paths': self.request.get('paths')})
+        return remove_nones_from_dict(
+            {
+                "location": self.request.get("location"),
+                "paths": self.request.get("paths"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'location': self.request.get(u'location'), u'paths': self.request.get(u'paths')})
+        return remove_nones_from_dict(
+            {
+                "location": self.request.get("location"),
+                "paths": self.request.get("paths"),
+            }
+        )
 
 
 class TriggerTiming(object):
@@ -2164,10 +2339,20 @@ class TriggerTiming(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'startTime': self.request.get('start_time'), u'endTime': self.request.get('end_time')})
+        return remove_nones_from_dict(
+            {
+                "startTime": self.request.get("start_time"),
+                "endTime": self.request.get("end_time"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'startTime': self.request.get(u'startTime'), u'endTime': self.request.get(u'endTime')})
+        return remove_nones_from_dict(
+            {
+                "startTime": self.request.get("startTime"),
+                "endTime": self.request.get("endTime"),
+            }
+        )
 
 
 class TriggerOptions(object):
@@ -2181,36 +2366,40 @@ class TriggerOptions(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'sourceProvenanceHash': self.request.get('source_provenance_hash'),
-                u'requestedVerifyOption': self.request.get('requested_verify_option'),
-                u'machineType': self.request.get('machine_type'),
-                u'diskSizeGb': self.request.get('disk_size_gb'),
-                u'substitutionOption': self.request.get('substitution_option'),
-                u'dynamicSubstitutions': self.request.get('dynamic_substitutions'),
-                u'logStreamingOption': self.request.get('log_streaming_option'),
-                u'workerPool': self.request.get('worker_pool'),
-                u'logging': self.request.get('logging'),
-                u'env': self.request.get('env'),
-                u'secretEnv': self.request.get('secret_env'),
-                u'volumes': TriggerVolumesArray(self.request.get('volumes', []), self.module).to_request(),
+                "sourceProvenanceHash": self.request.get("source_provenance_hash"),
+                "requestedVerifyOption": self.request.get("requested_verify_option"),
+                "machineType": self.request.get("machine_type"),
+                "diskSizeGb": self.request.get("disk_size_gb"),
+                "substitutionOption": self.request.get("substitution_option"),
+                "dynamicSubstitutions": self.request.get("dynamic_substitutions"),
+                "logStreamingOption": self.request.get("log_streaming_option"),
+                "workerPool": self.request.get("worker_pool"),
+                "logging": self.request.get("logging"),
+                "env": self.request.get("env"),
+                "secretEnv": self.request.get("secret_env"),
+                "volumes": TriggerVolumesArray(
+                    self.request.get("volumes", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'sourceProvenanceHash': self.request.get(u'sourceProvenanceHash'),
-                u'requestedVerifyOption': self.request.get(u'requestedVerifyOption'),
-                u'machineType': self.request.get(u'machineType'),
-                u'diskSizeGb': self.request.get(u'diskSizeGb'),
-                u'substitutionOption': self.request.get(u'substitutionOption'),
-                u'dynamicSubstitutions': self.request.get(u'dynamicSubstitutions'),
-                u'logStreamingOption': self.request.get(u'logStreamingOption'),
-                u'workerPool': self.request.get(u'workerPool'),
-                u'logging': self.request.get(u'logging'),
-                u'env': self.request.get(u'env'),
-                u'secretEnv': self.request.get(u'secretEnv'),
-                u'volumes': TriggerVolumesArray(self.request.get(u'volumes', []), self.module).from_response(),
+                "sourceProvenanceHash": self.request.get("sourceProvenanceHash"),
+                "requestedVerifyOption": self.request.get("requestedVerifyOption"),
+                "machineType": self.request.get("machineType"),
+                "diskSizeGb": self.request.get("diskSizeGb"),
+                "substitutionOption": self.request.get("substitutionOption"),
+                "dynamicSubstitutions": self.request.get("dynamicSubstitutions"),
+                "logStreamingOption": self.request.get("logStreamingOption"),
+                "workerPool": self.request.get("workerPool"),
+                "logging": self.request.get("logging"),
+                "env": self.request.get("env"),
+                "secretEnv": self.request.get("secretEnv"),
+                "volumes": TriggerVolumesArray(
+                    self.request.get("volumes", []), self.module
+                ).from_response(),
             }
         )
 
@@ -2236,11 +2425,15 @@ class TriggerVolumesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'path': item.get('path')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "path": item.get("path")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'path': item.get(u'path')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "path": item.get("path")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

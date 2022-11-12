@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_cloudtasks_queue
 description:
@@ -213,9 +217,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a queue
   google.cloud.gcp_cloudtasks_queue:
     name: test_object
@@ -224,9 +228,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The queue name.
@@ -372,7 +376,7 @@ location:
   - The location of the queue.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -399,36 +403,52 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(type='str'),
-            app_engine_routing_override=dict(type='dict', options=dict(service=dict(type='str'), version=dict(type='str'), instance=dict(type='str'))),
-            rate_limits=dict(type='dict', options=dict(max_dispatches_per_second=dict(type='str'), max_concurrent_dispatches=dict(type='int'))),
-            retry_config=dict(
-                type='dict',
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
+            app_engine_routing_override=dict(
+                type="dict",
                 options=dict(
-                    max_attempts=dict(type='int'),
-                    max_retry_duration=dict(type='str'),
-                    min_backoff=dict(type='str'),
-                    max_backoff=dict(type='str'),
-                    max_doublings=dict(type='int'),
+                    service=dict(type="str"),
+                    version=dict(type="str"),
+                    instance=dict(type="str"),
                 ),
             ),
-            stackdriver_logging_config=dict(type='dict', options=dict(sampling_ratio=dict(required=True, type='str'))),
-            status=dict(type='str'),
-            location=dict(required=True, type='str'),
+            rate_limits=dict(
+                type="dict",
+                options=dict(
+                    max_dispatches_per_second=dict(type="str"),
+                    max_concurrent_dispatches=dict(type="int"),
+                ),
+            ),
+            retry_config=dict(
+                type="dict",
+                options=dict(
+                    max_attempts=dict(type="int"),
+                    max_retry_duration=dict(type="str"),
+                    min_backoff=dict(type="str"),
+                    max_backoff=dict(type="str"),
+                    max_doublings=dict(type="int"),
+                ),
+            ),
+            stackdriver_logging_config=dict(
+                type="dict",
+                options=dict(sampling_ratio=dict(required=True, type="str")),
+            ),
+            status=dict(type="str"),
+            location=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -438,63 +458,79 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
     if fetch:
-        instance = QueueStatus(module, fetch.get('state'))
+        instance = QueueStatus(module, fetch.get("state"))
         instance.run()
-        if module.params.get('status'):
-            fetch.update({'status': module.params['status']})
-    fetch.update({'changed': changed})
+        if module.params.get("status"):
+            fetch.update({"status": module.params["status"]})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'cloudtasks')
+    auth = GcpSession(module, "cloudtasks")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'cloudtasks')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "cloudtasks")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
-    del request['name']
+    del request["name"]
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('appEngineRoutingOverride') != response.get('appEngineRoutingOverride'):
-        update_mask.append('appEngineRoutingOverride')
-    if request.get('rateLimits') != response.get('rateLimits'):
-        update_mask.append('rateLimits')
-    if request.get('retryConfig') != response.get('retryConfig'):
-        update_mask.append('retryConfig')
-    if request.get('stackdriverLoggingConfig') != response.get('stackdriverLoggingConfig'):
-        update_mask.append('stackdriverLoggingConfig')
-    if request.get('status') != response.get('status'):
-        update_mask.append('status')
-    return ','.join(update_mask)
+    if request.get("appEngineRoutingOverride") != response.get(
+        "appEngineRoutingOverride"
+    ):
+        update_mask.append("appEngineRoutingOverride")
+    if request.get("rateLimits") != response.get("rateLimits"):
+        update_mask.append("rateLimits")
+    if request.get("retryConfig") != response.get("retryConfig"):
+        update_mask.append("retryConfig")
+    if request.get("stackdriverLoggingConfig") != response.get(
+        "stackdriverLoggingConfig"
+    ):
+        update_mask.append("stackdriverLoggingConfig")
+    if request.get("status") != response.get("status"):
+        update_mask.append("status")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'cloudtasks')
+    auth = GcpSession(module, "cloudtasks")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'location': module.params.get('location'),
-        u'name': name_pattern(module.params.get('name'), module),
-        u'appEngineRoutingOverride': QueueAppengineroutingoverride(module.params.get('app_engine_routing_override', {}), module).to_request(),
-        u'rateLimits': QueueRatelimits(module.params.get('rate_limits', {}), module).to_request(),
-        u'retryConfig': QueueRetryconfig(module.params.get('retry_config', {}), module).to_request(),
-        u'stackdriverLoggingConfig': QueueStackdriverloggingconfig(module.params.get('stackdriver_logging_config', {}), module).to_request(),
+        "location": module.params.get("location"),
+        "name": name_pattern(module.params.get("name"), module),
+        "appEngineRoutingOverride": QueueAppengineroutingoverride(
+            module.params.get("app_engine_routing_override", {}), module
+        ).to_request(),
+        "rateLimits": QueueRatelimits(
+            module.params.get("rate_limits", {}), module
+        ).to_request(),
+        "retryConfig": QueueRetryconfig(
+            module.params.get("retry_config", {}), module
+        ).to_request(),
+        "stackdriverLoggingConfig": QueueStackdriverloggingconfig(
+            module.params.get("stackdriver_logging_config", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -505,16 +541,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'cloudtasks')
+    auth = GcpSession(module, "cloudtasks")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}".format(**module.params)
+    return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues".format(**module.params)
+    return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -529,11 +569,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -560,11 +600,19 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': name_pattern(module.params.get('name'), module),
-        u'appEngineRoutingOverride': QueueAppengineroutingoverride(response.get(u'appEngineRoutingOverride', {}), module).from_response(),
-        u'rateLimits': QueueRatelimits(response.get(u'rateLimits', {}), module).from_response(),
-        u'retryConfig': QueueRetryconfig(response.get(u'retryConfig', {}), module).from_response(),
-        u'stackdriverLoggingConfig': QueueStackdriverloggingconfig(response.get(u'stackdriverLoggingConfig', {}), module).from_response(),
+        "name": name_pattern(module.params.get("name"), module),
+        "appEngineRoutingOverride": QueueAppengineroutingoverride(
+            response.get("appEngineRoutingOverride", {}), module
+        ).from_response(),
+        "rateLimits": QueueRatelimits(
+            response.get("rateLimits", {}), module
+        ).from_response(),
+        "retryConfig": QueueRetryconfig(
+            response.get("retryConfig", {}), module
+        ).from_response(),
+        "stackdriverLoggingConfig": QueueStackdriverloggingconfig(
+            response.get("stackdriverLoggingConfig", {}), module
+        ).from_response(),
     }
 
 
@@ -575,7 +623,9 @@ def name_pattern(name, module):
     regex = r"projects/.*/locations/.*/queues/.*"
 
     if not re.match(regex, name):
-        name = "projects/{project}/locations/{location}/queues/{name}".format(**module.params)
+        name = "projects/{project}/locations/{location}/queues/{name}".format(
+            **module.params
+        )
 
     return name
 
@@ -584,30 +634,36 @@ class QueueStatus(object):
     def __init__(self, module, current_status):
         self.module = module
         self.current_status = current_status
-        self.desired_status = self.module.params.get('status')
+        self.desired_status = self.module.params.get("status")
 
     def run(self):
         # GcpRequest handles unicode text handling
-        if GcpRequest({'status': self.current_status}) == GcpRequest({'status': self.desired_status}):
+        if GcpRequest({"status": self.current_status}) == GcpRequest(
+            {"status": self.desired_status}
+        ):
             return
-        elif self.desired_status == 'PAUSED':
+        elif self.desired_status == "PAUSED":
             self.stop()
-        elif self.desired_status == 'RUNNING':
+        elif self.desired_status == "RUNNING":
             self.start()
 
     def start(self):
-        auth = GcpSession(self.module, 'cloudtasks')
+        auth = GcpSession(self.module, "cloudtasks")
         return_if_object(self.module, auth.post(self._start_url()))
 
     def stop(self):
-        auth = GcpSession(self.module, 'cloudtasks')
+        auth = GcpSession(self.module, "cloudtasks")
         return_if_object(self.module, auth.post(self._stop_url()))
 
     def _start_url(self):
-        return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}:resume".format(**self.module.params)
+        return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}:resume".format(
+            **self.module.params
+        )
 
     def _stop_url(self):
-        return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}:pause".format(**self.module.params)
+        return "https://cloudtasks.googleapis.com/v2/projects/{project}/locations/{location}/queues/{name}:pause".format(
+            **self.module.params
+        )
 
 
 class QueueAppengineroutingoverride(object):
@@ -620,12 +676,20 @@ class QueueAppengineroutingoverride(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'service': self.request.get('service'), u'version': self.request.get('version'), u'instance': self.request.get('instance')}
+            {
+                "service": self.request.get("service"),
+                "version": self.request.get("version"),
+                "instance": self.request.get("instance"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'service': self.request.get(u'service'), u'version': self.request.get(u'version'), u'instance': self.request.get(u'instance')}
+            {
+                "service": self.request.get("service"),
+                "version": self.request.get("version"),
+                "instance": self.request.get("instance"),
+            }
         )
 
 
@@ -640,14 +704,19 @@ class QueueRatelimits(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'maxDispatchesPerSecond': self.request.get('max_dispatches_per_second'),
-                u'maxConcurrentDispatches': self.request.get('max_concurrent_dispatches'),
+                "maxDispatchesPerSecond": self.request.get("max_dispatches_per_second"),
+                "maxConcurrentDispatches": self.request.get(
+                    "max_concurrent_dispatches"
+                ),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'maxDispatchesPerSecond': self.request.get(u'maxDispatchesPerSecond'), u'maxConcurrentDispatches': self.request.get(u'maxConcurrentDispatches')}
+            {
+                "maxDispatchesPerSecond": self.request.get("maxDispatchesPerSecond"),
+                "maxConcurrentDispatches": self.request.get("maxConcurrentDispatches"),
+            }
         )
 
 
@@ -662,22 +731,22 @@ class QueueRetryconfig(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'maxAttempts': self.request.get('max_attempts'),
-                u'maxRetryDuration': self.request.get('max_retry_duration'),
-                u'minBackoff': self.request.get('min_backoff'),
-                u'maxBackoff': self.request.get('max_backoff'),
-                u'maxDoublings': self.request.get('max_doublings'),
+                "maxAttempts": self.request.get("max_attempts"),
+                "maxRetryDuration": self.request.get("max_retry_duration"),
+                "minBackoff": self.request.get("min_backoff"),
+                "maxBackoff": self.request.get("max_backoff"),
+                "maxDoublings": self.request.get("max_doublings"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'maxAttempts': self.request.get(u'maxAttempts'),
-                u'maxRetryDuration': self.request.get(u'maxRetryDuration'),
-                u'minBackoff': self.request.get(u'minBackoff'),
-                u'maxBackoff': self.request.get(u'maxBackoff'),
-                u'maxDoublings': self.request.get(u'maxDoublings'),
+                "maxAttempts": self.request.get("maxAttempts"),
+                "maxRetryDuration": self.request.get("maxRetryDuration"),
+                "minBackoff": self.request.get("minBackoff"),
+                "maxBackoff": self.request.get("maxBackoff"),
+                "maxDoublings": self.request.get("maxDoublings"),
             }
         )
 
@@ -691,11 +760,15 @@ class QueueStackdriverloggingconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'samplingRatio': self.request.get('sampling_ratio')})
+        return remove_nones_from_dict(
+            {"samplingRatio": self.request.get("sampling_ratio")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'samplingRatio': self.request.get(u'samplingRatio')})
+        return remove_nones_from_dict(
+            {"samplingRatio": self.request.get("samplingRatio")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_instance_group
 description:
@@ -163,9 +167,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-instancegroup
@@ -187,9 +191,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -263,7 +267,7 @@ instances:
   - Only the full identifier of the instance will be returned.
   returned: success
   type: list
-'''
+"""
 
 ################################################################################
 # Imports
@@ -291,29 +295,33 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            name=dict(type='str'),
-            named_ports=dict(type='list', elements='dict', options=dict(name=dict(type='str'), port=dict(type='int'))),
-            network=dict(type='dict'),
-            region=dict(type='str'),
-            subnetwork=dict(type='dict'),
-            zone=dict(required=True, type='str'),
-            instances=dict(type='list', elements='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            name=dict(type="str"),
+            named_ports=dict(
+                type="list",
+                elements="dict",
+                options=dict(name=dict(type="str"), port=dict(type="int")),
+            ),
+            network=dict(type="dict"),
+            region=dict(type="str"),
+            subnetwork=dict(type="dict"),
+            zone=dict(required=True, type="str"),
+            instances=dict(type="list", elements="dict"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#instanceGroup'
+    state = module.params["state"]
+    kind = "compute#instanceGroup"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -323,7 +331,7 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
@@ -332,14 +340,14 @@ def main():
     if fetch:
         instance = InstanceLogic(module)
         instance.run()
-        fetch.update({'instances': instance.list_instances()})
-    fetch.update({'changed': changed})
+        fetch.update({"instances": instance.list_instances()})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -349,19 +357,23 @@ def update(module, link, kind):
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#instanceGroup',
-        u'description': module.params.get('description'),
-        u'name': module.params.get('name'),
-        u'namedPorts': InstanceGroupNamedportsArray(module.params.get('named_ports', []), module).to_request(),
-        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
-        u'region': region_selflink(module.params.get('region'), module.params),
-        u'subnetwork': replace_resource_dict(module.params.get(u'subnetwork', {}), 'selfLink'),
+        "kind": "compute#instanceGroup",
+        "description": module.params.get("description"),
+        "name": module.params.get("name"),
+        "namedPorts": InstanceGroupNamedportsArray(
+            module.params.get("named_ports", []), module
+        ).to_request(),
+        "network": replace_resource_dict(module.params.get("network", {}), "selfLink"),
+        "region": region_selflink(module.params.get("region"), module.params),
+        "subnetwork": replace_resource_dict(
+            module.params.get("subnetwork", {}), "selfLink"
+        ),
     }
     return_vals = {}
     for k, v in request.items():
@@ -372,16 +384,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -396,11 +412,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -427,14 +443,16 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'id': response.get(u'id'),
-        u'name': response.get(u'name'),
-        u'namedPorts': InstanceGroupNamedportsArray(response.get(u'namedPorts', []), module).from_response(),
-        u'network': response.get(u'network'),
-        u'region': response.get(u'region'),
-        u'subnetwork': response.get(u'subnetwork'),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "id": response.get("id"),
+        "name": response.get("name"),
+        "namedPorts": InstanceGroupNamedportsArray(
+            response.get("namedPorts", []), module
+        ).from_response(),
+        "network": response.get("network"),
+        "region": response.get("region"),
+        "subnetwork": response.get("subnetwork"),
     }
 
 
@@ -443,7 +461,12 @@ def region_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -457,22 +480,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#instanceGroup')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#instanceGroup"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -489,53 +514,75 @@ class InstanceLogic(object):
         self.module_instances = []
 
         # Transform module list of instances (dicts of instance responses) into a list of selfLinks.
-        instances = self.module.params.get('instances')
+        instances = self.module.params.get("instances")
         if instances:
             for instance in instances:
-                self.module_instances.append(replace_resource_dict(instance, 'selfLink'))
+                self.module_instances.append(
+                    replace_resource_dict(instance, "selfLink")
+                )
 
     def run(self):
         # Find all instances to add and add them
-        instances_to_add = list(set(self.module_instances) - set(self.current_instances))
+        instances_to_add = list(
+            set(self.module_instances) - set(self.current_instances)
+        )
         if instances_to_add:
             self.add_instances(instances_to_add)
 
         # Find all instances to remove and remove them
-        instances_to_remove = list(set(self.current_instances) - set(self.module_instances))
+        instances_to_remove = list(
+            set(self.current_instances) - set(self.module_instances)
+        )
         if instances_to_remove:
             self.remove_instances(instances_to_remove)
 
     def list_instances(self):
-        auth = GcpSession(self.module, 'compute')
-        response = return_if_object(self.module, auth.post(self._list_instances_url(), {'instanceState': 'ALL'}), 'compute#instanceGroupsListInstances')
+        auth = GcpSession(self.module, "compute")
+        response = return_if_object(
+            self.module,
+            auth.post(self._list_instances_url(), {"instanceState": "ALL"}),
+            "compute#instanceGroupsListInstances",
+        )
 
         # Transform instance list into a list of selfLinks for diffing with module parameters
         instances = []
-        for instance in response.get('items', []):
-            instances.append(instance['instance'])
+        for instance in response.get("items", []):
+            instances.append(instance["instance"])
         return instances
 
     def add_instances(self, instances):
-        auth = GcpSession(self.module, 'compute')
-        wait_for_operation(self.module, auth.post(self._add_instances_url(), self._build_request(instances)))
+        auth = GcpSession(self.module, "compute")
+        wait_for_operation(
+            self.module,
+            auth.post(self._add_instances_url(), self._build_request(instances)),
+        )
 
     def remove_instances(self, instances):
-        auth = GcpSession(self.module, 'compute')
-        wait_for_operation(self.module, auth.post(self._remove_instances_url(), self._build_request(instances)))
+        auth = GcpSession(self.module, "compute")
+        wait_for_operation(
+            self.module,
+            auth.post(self._remove_instances_url(), self._build_request(instances)),
+        )
 
     def _list_instances_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/listInstances".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/listInstances".format(
+            **self.module.params
+        )
 
     def _remove_instances_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/removeInstances".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/removeInstances".format(
+            **self.module.params
+        )
 
     def _add_instances_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/addInstances".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instanceGroups/{name}/addInstances".format(
+            **self.module.params
+        )
 
     def _build_request(self, instances):
-        request = {'instances': []}
+        request = {"instances": []}
         for instance in instances:
-            request['instances'].append({'instance': instance})
+            request["instances"].append({"instance": instance})
         return request
 
 
@@ -560,11 +607,15 @@ class InstanceGroupNamedportsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'name': item.get('name'), u'port': item.get('port')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "port": item.get("port")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'name': item.get(u'name'), u'port': item.get(u'port')})
+        return remove_nones_from_dict(
+            {"name": item.get("name"), "port": item.get("port")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

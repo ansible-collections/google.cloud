@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_container_node_pool
 description:
@@ -383,9 +387,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a cluster
   google.cloud.gcp_container_cluster:
     name: cluster-nodepool
@@ -407,9 +411,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name of the node pool.
@@ -714,7 +718,7 @@ location:
   - The location where the node pool is deployed.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -741,54 +745,91 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
             config=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    machine_type=dict(type='str'),
-                    disk_size_gb=dict(type='int'),
-                    oauth_scopes=dict(type='list', elements='str'),
-                    service_account=dict(type='str'),
-                    metadata=dict(type='dict'),
-                    image_type=dict(type='str'),
-                    labels=dict(type='dict'),
-                    local_ssd_count=dict(type='int'),
-                    tags=dict(type='list', elements='str'),
-                    preemptible=dict(type='bool'),
-                    accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
-                    disk_type=dict(type='str'),
-                    min_cpu_platform=dict(type='str'),
-                    taints=dict(type='list', elements='dict', options=dict(key=dict(type='str'), value=dict(type='str'), effect=dict(type='str'))),
-                    shielded_instance_config=dict(
-                        type='dict', options=dict(enable_secure_boot=dict(type='bool'), enable_integrity_monitoring=dict(type='bool'))
+                    machine_type=dict(type="str"),
+                    disk_size_gb=dict(type="int"),
+                    oauth_scopes=dict(type="list", elements="str"),
+                    service_account=dict(type="str"),
+                    metadata=dict(type="dict"),
+                    image_type=dict(type="str"),
+                    labels=dict(type="dict"),
+                    local_ssd_count=dict(type="int"),
+                    tags=dict(type="list", elements="str"),
+                    preemptible=dict(type="bool"),
+                    accelerators=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            accelerator_count=dict(type="int"),
+                            accelerator_type=dict(type="str"),
+                        ),
                     ),
-                    workload_meta_config=dict(type='dict', options=dict(mode=dict(type='str'))),
+                    disk_type=dict(type="str"),
+                    min_cpu_platform=dict(type="str"),
+                    taints=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            key=dict(type="str"),
+                            value=dict(type="str"),
+                            effect=dict(type="str"),
+                        ),
+                    ),
+                    shielded_instance_config=dict(
+                        type="dict",
+                        options=dict(
+                            enable_secure_boot=dict(type="bool"),
+                            enable_integrity_monitoring=dict(type="bool"),
+                        ),
+                    ),
+                    workload_meta_config=dict(
+                        type="dict", options=dict(mode=dict(type="str"))
+                    ),
                 ),
             ),
-            initial_node_count=dict(required=True, type='int'),
-            version=dict(type='str'),
-            autoscaling=dict(type='dict', options=dict(enabled=dict(type='bool'), min_node_count=dict(type='int'), max_node_count=dict(type='int'))),
-            management=dict(
-                type='dict', options=dict(auto_upgrade=dict(type='bool'), auto_repair=dict(type='bool'), upgrade_options=dict(type='dict', options=dict()))
+            initial_node_count=dict(required=True, type="int"),
+            version=dict(type="str"),
+            autoscaling=dict(
+                type="dict",
+                options=dict(
+                    enabled=dict(type="bool"),
+                    min_node_count=dict(type="int"),
+                    max_node_count=dict(type="int"),
+                ),
             ),
-            max_pods_constraint=dict(type='dict', options=dict(max_pods_per_node=dict(type='int'))),
-            conditions=dict(type='list', elements='dict', options=dict(code=dict(type='str'))),
-            cluster=dict(required=True, type='dict'),
-            location=dict(required=True, type='str', aliases=['region', 'zone']),
+            management=dict(
+                type="dict",
+                options=dict(
+                    auto_upgrade=dict(type="bool"),
+                    auto_repair=dict(type="bool"),
+                    upgrade_options=dict(type="dict", options=dict()),
+                ),
+            ),
+            max_pods_constraint=dict(
+                type="dict", options=dict(max_pods_per_node=dict(type="int"))
+            ),
+            conditions=dict(
+                type="list", elements="dict", options=dict(code=dict(type="str"))
+            ),
+            cluster=dict(required=True, type="dict"),
+            location=dict(required=True, type="str", aliases=["region", "zone"]),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -798,42 +839,50 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'container')
+    auth = GcpSession(module, "container")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'container')
+    auth = GcpSession(module, "container")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'container')
+    auth = GcpSession(module, "container")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'config': NodePoolConfig(module.params.get('config', {}), module).to_request(),
-        u'initialNodeCount': module.params.get('initial_node_count'),
-        u'version': module.params.get('version'),
-        u'autoscaling': NodePoolAutoscaling(module.params.get('autoscaling', {}), module).to_request(),
-        u'management': NodePoolManagement(module.params.get('management', {}), module).to_request(),
-        u'maxPodsConstraint': NodePoolMaxpodsconstraint(module.params.get('max_pods_constraint', {}), module).to_request(),
-        u'conditions': NodePoolConditionsArray(module.params.get('conditions', []), module).to_request(),
+        "name": module.params.get("name"),
+        "config": NodePoolConfig(module.params.get("config", {}), module).to_request(),
+        "initialNodeCount": module.params.get("initial_node_count"),
+        "version": module.params.get("version"),
+        "autoscaling": NodePoolAutoscaling(
+            module.params.get("autoscaling", {}), module
+        ).to_request(),
+        "management": NodePoolManagement(
+            module.params.get("management", {}), module
+        ).to_request(),
+        "maxPodsConstraint": NodePoolMaxpodsconstraint(
+            module.params.get("max_pods_constraint", {}), module
+        ).to_request(),
+        "conditions": NodePoolConditionsArray(
+            module.params.get("conditions", []), module
+        ).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -845,23 +894,31 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'container')
+    auth = GcpSession(module, "container")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
     res = {
-        'project': module.params['project'],
-        'location': module.params['location'],
-        'cluster': replace_resource_dict(module.params['cluster'], 'name'),
-        'name': module.params['name'],
+        "project": module.params["project"],
+        "location": module.params["location"],
+        "cluster": replace_resource_dict(module.params["cluster"], "name"),
+        "name": module.params["name"],
     }
-    return "https://container.googleapis.com/v1/projects/{project}/locations/{location}/clusters/{cluster}/nodePools/{name}".format(**res)
+    return "https://container.googleapis.com/v1/projects/{project}/locations/{location}/clusters/{cluster}/nodePools/{name}".format(
+        **res
+    )
 
 
 def collection(module):
-    res = {'project': module.params['project'], 'location': module.params['location'], 'cluster': replace_resource_dict(module.params['cluster'], 'name')}
-    return "https://container.googleapis.com/v1/projects/{project}/locations/{location}/clusters/{cluster}/nodePools".format(**res)
+    res = {
+        "project": module.params["project"],
+        "location": module.params["location"],
+        "cluster": replace_resource_dict(module.params["cluster"], "name"),
+    }
+    return "https://container.googleapis.com/v1/projects/{project}/locations/{location}/clusters/{cluster}/nodePools".format(
+        **res
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -876,11 +933,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -907,17 +964,25 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'config': NodePoolConfig(response.get(u'config', {}), module).from_response(),
-        u'initialNodeCount': module.params.get('initial_node_count'),
-        u'status': response.get(u'status'),
-        u'statusMessage': response.get(u'statusMessage'),
-        u'version': module.params.get('version'),
-        u'autoscaling': NodePoolAutoscaling(response.get(u'autoscaling', {}), module).from_response(),
-        u'management': NodePoolManagement(response.get(u'management', {}), module).from_response(),
-        u'maxPodsConstraint': NodePoolMaxpodsconstraint(response.get(u'maxPodsConstraint', {}), module).from_response(),
-        u'conditions': NodePoolConditionsArray(response.get(u'conditions', []), module).from_response(),
-        u'podIpv4CidrSize': response.get(u'podIpv4CidrSize'),
+        "name": response.get("name"),
+        "config": NodePoolConfig(response.get("config", {}), module).from_response(),
+        "initialNodeCount": module.params.get("initial_node_count"),
+        "status": response.get("status"),
+        "statusMessage": response.get("statusMessage"),
+        "version": module.params.get("version"),
+        "autoscaling": NodePoolAutoscaling(
+            response.get("autoscaling", {}), module
+        ).from_response(),
+        "management": NodePoolManagement(
+            response.get("management", {}), module
+        ).from_response(),
+        "maxPodsConstraint": NodePoolMaxpodsconstraint(
+            response.get("maxPodsConstraint", {}), module
+        ).from_response(),
+        "conditions": NodePoolConditionsArray(
+            response.get("conditions", []), module
+        ).from_response(),
+        "podIpv4CidrSize": response.get("podIpv4CidrSize"),
     }
 
 
@@ -934,19 +999,19 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']))
+    return fetch_resource(module, navigate_hash(wait_done, ["targetLink"]))
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['status'])
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -967,7 +1032,7 @@ def raise_if_errors(response, err_path, module):
 #
 # Format the request to match the expected input by the API
 def encode_request(resource_request, module):
-    return {'nodePool': resource_request}
+    return {"nodePool": resource_request}
 
 
 class NodePoolConfig(object):
@@ -981,44 +1046,60 @@ class NodePoolConfig(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'machineType': self.request.get('machine_type'),
-                u'diskSizeGb': self.request.get('disk_size_gb'),
-                u'oauthScopes': self.request.get('oauth_scopes'),
-                u'serviceAccount': self.request.get('service_account'),
-                u'metadata': self.request.get('metadata'),
-                u'imageType': self.request.get('image_type'),
-                u'labels': self.request.get('labels'),
-                u'localSsdCount': self.request.get('local_ssd_count'),
-                u'tags': self.request.get('tags'),
-                u'preemptible': self.request.get('preemptible'),
-                u'accelerators': NodePoolAcceleratorsArray(self.request.get('accelerators', []), self.module).to_request(),
-                u'diskType': self.request.get('disk_type'),
-                u'minCpuPlatform': self.request.get('min_cpu_platform'),
-                u'taints': NodePoolTaintsArray(self.request.get('taints', []), self.module).to_request(),
-                u'shieldedInstanceConfig': NodePoolShieldedinstanceconfig(self.request.get('shielded_instance_config', {}), self.module).to_request(),
-                u'workloadMetaConfig': NodePoolWorkloadmetaconfig(self.request.get('workload_meta_config', {}), self.module).to_request(),
+                "machineType": self.request.get("machine_type"),
+                "diskSizeGb": self.request.get("disk_size_gb"),
+                "oauthScopes": self.request.get("oauth_scopes"),
+                "serviceAccount": self.request.get("service_account"),
+                "metadata": self.request.get("metadata"),
+                "imageType": self.request.get("image_type"),
+                "labels": self.request.get("labels"),
+                "localSsdCount": self.request.get("local_ssd_count"),
+                "tags": self.request.get("tags"),
+                "preemptible": self.request.get("preemptible"),
+                "accelerators": NodePoolAcceleratorsArray(
+                    self.request.get("accelerators", []), self.module
+                ).to_request(),
+                "diskType": self.request.get("disk_type"),
+                "minCpuPlatform": self.request.get("min_cpu_platform"),
+                "taints": NodePoolTaintsArray(
+                    self.request.get("taints", []), self.module
+                ).to_request(),
+                "shieldedInstanceConfig": NodePoolShieldedinstanceconfig(
+                    self.request.get("shielded_instance_config", {}), self.module
+                ).to_request(),
+                "workloadMetaConfig": NodePoolWorkloadmetaconfig(
+                    self.request.get("workload_meta_config", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'machineType': self.request.get(u'machineType'),
-                u'diskSizeGb': self.request.get(u'diskSizeGb'),
-                u'oauthScopes': self.request.get(u'oauthScopes'),
-                u'serviceAccount': self.request.get(u'serviceAccount'),
-                u'metadata': self.request.get(u'metadata'),
-                u'imageType': self.request.get(u'imageType'),
-                u'labels': self.request.get(u'labels'),
-                u'localSsdCount': self.request.get(u'localSsdCount'),
-                u'tags': self.request.get(u'tags'),
-                u'preemptible': self.request.get(u'preemptible'),
-                u'accelerators': NodePoolAcceleratorsArray(self.request.get(u'accelerators', []), self.module).from_response(),
-                u'diskType': self.request.get(u'diskType'),
-                u'minCpuPlatform': self.request.get(u'minCpuPlatform'),
-                u'taints': NodePoolTaintsArray(self.request.get(u'taints', []), self.module).from_response(),
-                u'shieldedInstanceConfig': NodePoolShieldedinstanceconfig(self.request.get(u'shieldedInstanceConfig', {}), self.module).from_response(),
-                u'workloadMetaConfig': NodePoolWorkloadmetaconfig(self.request.get(u'workloadMetaConfig', {}), self.module).from_response(),
+                "machineType": self.request.get("machineType"),
+                "diskSizeGb": self.request.get("diskSizeGb"),
+                "oauthScopes": self.request.get("oauthScopes"),
+                "serviceAccount": self.request.get("serviceAccount"),
+                "metadata": self.request.get("metadata"),
+                "imageType": self.request.get("imageType"),
+                "labels": self.request.get("labels"),
+                "localSsdCount": self.request.get("localSsdCount"),
+                "tags": self.request.get("tags"),
+                "preemptible": self.request.get("preemptible"),
+                "accelerators": NodePoolAcceleratorsArray(
+                    self.request.get("accelerators", []), self.module
+                ).from_response(),
+                "diskType": self.request.get("diskType"),
+                "minCpuPlatform": self.request.get("minCpuPlatform"),
+                "taints": NodePoolTaintsArray(
+                    self.request.get("taints", []), self.module
+                ).from_response(),
+                "shieldedInstanceConfig": NodePoolShieldedinstanceconfig(
+                    self.request.get("shieldedInstanceConfig", {}), self.module
+                ).from_response(),
+                "workloadMetaConfig": NodePoolWorkloadmetaconfig(
+                    self.request.get("workloadMetaConfig", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1044,10 +1125,20 @@ class NodePoolAcceleratorsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'acceleratorCount': item.get('accelerator_count'), u'acceleratorType': item.get('accelerator_type')})
+        return remove_nones_from_dict(
+            {
+                "acceleratorCount": item.get("accelerator_count"),
+                "acceleratorType": item.get("accelerator_type"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'acceleratorCount': item.get(u'acceleratorCount'), u'acceleratorType': item.get(u'acceleratorType')})
+        return remove_nones_from_dict(
+            {
+                "acceleratorCount": item.get("acceleratorCount"),
+                "acceleratorType": item.get("acceleratorType"),
+            }
+        )
 
 
 class NodePoolTaintsArray(object):
@@ -1071,10 +1162,22 @@ class NodePoolTaintsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'key': item.get('key'), u'value': item.get('value'), u'effect': item.get('effect')})
+        return remove_nones_from_dict(
+            {
+                "key": item.get("key"),
+                "value": item.get("value"),
+                "effect": item.get("effect"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'key': item.get(u'key'), u'value': item.get(u'value'), u'effect': item.get(u'effect')})
+        return remove_nones_from_dict(
+            {
+                "key": item.get("key"),
+                "value": item.get("value"),
+                "effect": item.get("effect"),
+            }
+        )
 
 
 class NodePoolShieldedinstanceconfig(object):
@@ -1087,12 +1190,22 @@ class NodePoolShieldedinstanceconfig(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'enableSecureBoot': self.request.get('enable_secure_boot'), u'enableIntegrityMonitoring': self.request.get('enable_integrity_monitoring')}
+            {
+                "enableSecureBoot": self.request.get("enable_secure_boot"),
+                "enableIntegrityMonitoring": self.request.get(
+                    "enable_integrity_monitoring"
+                ),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'enableSecureBoot': self.request.get(u'enableSecureBoot'), u'enableIntegrityMonitoring': self.request.get(u'enableIntegrityMonitoring')}
+            {
+                "enableSecureBoot": self.request.get("enableSecureBoot"),
+                "enableIntegrityMonitoring": self.request.get(
+                    "enableIntegrityMonitoring"
+                ),
+            }
         )
 
 
@@ -1105,10 +1218,10 @@ class NodePoolWorkloadmetaconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'mode': self.request.get('mode')})
+        return remove_nones_from_dict({"mode": self.request.get("mode")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'mode': self.request.get(u'mode')})
+        return remove_nones_from_dict({"mode": self.request.get("mode")})
 
 
 class NodePoolAutoscaling(object):
@@ -1121,12 +1234,20 @@ class NodePoolAutoscaling(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get('enabled'), u'minNodeCount': self.request.get('min_node_count'), u'maxNodeCount': self.request.get('max_node_count')}
+            {
+                "enabled": self.request.get("enabled"),
+                "minNodeCount": self.request.get("min_node_count"),
+                "maxNodeCount": self.request.get("max_node_count"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get(u'enabled'), u'minNodeCount': self.request.get(u'minNodeCount'), u'maxNodeCount': self.request.get(u'maxNodeCount')}
+            {
+                "enabled": self.request.get("enabled"),
+                "minNodeCount": self.request.get("minNodeCount"),
+                "maxNodeCount": self.request.get("maxNodeCount"),
+            }
         )
 
 
@@ -1141,18 +1262,22 @@ class NodePoolManagement(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'autoUpgrade': self.request.get('auto_upgrade'),
-                u'autoRepair': self.request.get('auto_repair'),
-                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get('upgrade_options', {}), self.module).to_request(),
+                "autoUpgrade": self.request.get("auto_upgrade"),
+                "autoRepair": self.request.get("auto_repair"),
+                "upgradeOptions": NodePoolUpgradeoptions(
+                    self.request.get("upgrade_options", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'autoUpgrade': self.request.get(u'autoUpgrade'),
-                u'autoRepair': self.request.get(u'autoRepair'),
-                u'upgradeOptions': NodePoolUpgradeoptions(self.request.get(u'upgradeOptions', {}), self.module).from_response(),
+                "autoUpgrade": self.request.get("autoUpgrade"),
+                "autoRepair": self.request.get("autoRepair"),
+                "upgradeOptions": NodePoolUpgradeoptions(
+                    self.request.get("upgradeOptions", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1181,10 +1306,14 @@ class NodePoolMaxpodsconstraint(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'maxPodsPerNode': self.request.get('max_pods_per_node')})
+        return remove_nones_from_dict(
+            {"maxPodsPerNode": self.request.get("max_pods_per_node")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'maxPodsPerNode': self.request.get(u'maxPodsPerNode')})
+        return remove_nones_from_dict(
+            {"maxPodsPerNode": self.request.get("maxPodsPerNode")}
+        )
 
 
 class NodePoolConditionsArray(object):
@@ -1208,11 +1337,11 @@ class NodePoolConditionsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'code': item.get('code')})
+        return remove_nones_from_dict({"code": item.get("code")})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'code': item.get(u'code')})
+        return remove_nones_from_dict({"code": item.get("code")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

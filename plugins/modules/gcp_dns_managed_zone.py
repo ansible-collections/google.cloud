@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_dns_managed_zone
 description:
@@ -272,9 +276,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a managed zone
   google.cloud.gcp_dns_managed_zone:
     name: test_object
@@ -284,9 +288,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 description:
   description:
   - A mutable string of at most 1024 characters associated with this resource for
@@ -464,7 +468,7 @@ peeringConfig:
             .
           returned: success
           type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -490,59 +494,82 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(required=True, type='str'),
-            dns_name=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(required=True, type="str"),
+            dns_name=dict(required=True, type="str"),
             dnssec_config=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    kind=dict(default='dns#managedZoneDnsSecConfig', type='str'),
-                    non_existence=dict(type='str'),
-                    state=dict(type='str'),
+                    kind=dict(default="dns#managedZoneDnsSecConfig", type="str"),
+                    non_existence=dict(type="str"),
+                    state=dict(type="str"),
                     default_key_specs=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            algorithm=dict(type='str'), key_length=dict(type='int'), key_type=dict(type='str'), kind=dict(default='dns#dnsKeySpec', type='str')
+                            algorithm=dict(type="str"),
+                            key_length=dict(type="int"),
+                            key_type=dict(type="str"),
+                            kind=dict(default="dns#dnsKeySpec", type="str"),
                         ),
                     ),
                 ),
             ),
-            name=dict(required=True, type='str'),
-            name_server_set=dict(type='str'),
-            labels=dict(type='dict'),
-            visibility=dict(default='public', type='str'),
+            name=dict(required=True, type="str"),
+            name_server_set=dict(type="str"),
+            labels=dict(type="dict"),
+            visibility=dict(default="public", type="str"),
             private_visibility_config=dict(
-                type='dict', options=dict(networks=dict(required=True, type='list', elements='dict', options=dict(network_url=dict(required=True, type='str'))))
+                type="dict",
+                options=dict(
+                    networks=dict(
+                        required=True,
+                        type="list",
+                        elements="dict",
+                        options=dict(network_url=dict(required=True, type="str")),
+                    )
+                ),
             ),
             forwarding_config=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     target_name_servers=dict(
                         required=True,
-                        type='list',
-                        elements='dict',
-                        options=dict(ipv4_address=dict(required=True, type='str'), forwarding_path=dict(type='str')),
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            ipv4_address=dict(required=True, type="str"),
+                            forwarding_path=dict(type="str"),
+                        ),
                     )
                 ),
             ),
             peering_config=dict(
-                type='dict', options=dict(target_network=dict(required=True, type='dict', options=dict(network_url=dict(required=True, type='str'))))
+                type="dict",
+                options=dict(
+                    target_network=dict(
+                        required=True,
+                        type="dict",
+                        options=dict(network_url=dict(required=True, type="str")),
+                    )
+                ),
             ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/ndev.clouddns.readwrite']
+    if not module.params["scopes"]:
+        module.params["scopes"] = [
+            "https://www.googleapis.com/auth/ndev.clouddns.readwrite"
+        ]
 
-    state = module.params['state']
-    kind = 'dns#managedZone'
+    state = module.params["state"]
+    kind = "dns#managedZone"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -552,45 +579,53 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'dns')
+    auth = GcpSession(module, "dns")
     return return_if_object(module, auth.post(link, resource_to_request(module)), kind)
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'dns')
+    auth = GcpSession(module, "dns")
     return return_if_object(module, auth.patch(link, resource_to_request(module)), kind)
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'dns')
+    auth = GcpSession(module, "dns")
     return return_if_object(module, auth.delete(link), kind)
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'dns#managedZone',
-        u'description': module.params.get('description'),
-        u'dnsName': module.params.get('dns_name'),
-        u'dnssecConfig': ManagedZoneDnssecconfig(module.params.get('dnssec_config', {}), module).to_request(),
-        u'name': module.params.get('name'),
-        u'nameServerSet': module.params.get('name_server_set'),
-        u'labels': module.params.get('labels'),
-        u'visibility': module.params.get('visibility'),
-        u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(module.params.get('private_visibility_config', {}), module).to_request(),
-        u'forwardingConfig': ManagedZoneForwardingconfig(module.params.get('forwarding_config', {}), module).to_request(),
-        u'peeringConfig': ManagedZonePeeringconfig(module.params.get('peering_config', {}), module).to_request(),
+        "kind": "dns#managedZone",
+        "description": module.params.get("description"),
+        "dnsName": module.params.get("dns_name"),
+        "dnssecConfig": ManagedZoneDnssecconfig(
+            module.params.get("dnssec_config", {}), module
+        ).to_request(),
+        "name": module.params.get("name"),
+        "nameServerSet": module.params.get("name_server_set"),
+        "labels": module.params.get("labels"),
+        "visibility": module.params.get("visibility"),
+        "privateVisibilityConfig": ManagedZonePrivatevisibilityconfig(
+            module.params.get("private_visibility_config", {}), module
+        ).to_request(),
+        "forwardingConfig": ManagedZoneForwardingconfig(
+            module.params.get("forwarding_config", {}), module
+        ).to_request(),
+        "peeringConfig": ManagedZonePeeringconfig(
+            module.params.get("peering_config", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -601,16 +636,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'dns')
+    auth = GcpSession(module, "dns")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{name}".format(**module.params)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones".format(**module.params)
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -625,11 +664,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -656,19 +695,27 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'description': response.get(u'description'),
-        u'dnsName': module.params.get('dns_name'),
-        u'dnssecConfig': ManagedZoneDnssecconfig(response.get(u'dnssecConfig', {}), module).from_response(),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
-        u'nameServers': response.get(u'nameServers'),
-        u'nameServerSet': module.params.get('name_server_set'),
-        u'creationTime': response.get(u'creationTime'),
-        u'labels': response.get(u'labels'),
-        u'visibility': module.params.get('visibility'),
-        u'privateVisibilityConfig': ManagedZonePrivatevisibilityconfig(response.get(u'privateVisibilityConfig', {}), module).from_response(),
-        u'forwardingConfig': ManagedZoneForwardingconfig(response.get(u'forwardingConfig', {}), module).from_response(),
-        u'peeringConfig': ManagedZonePeeringconfig(response.get(u'peeringConfig', {}), module).from_response(),
+        "description": response.get("description"),
+        "dnsName": module.params.get("dns_name"),
+        "dnssecConfig": ManagedZoneDnssecconfig(
+            response.get("dnssecConfig", {}), module
+        ).from_response(),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
+        "nameServers": response.get("nameServers"),
+        "nameServerSet": module.params.get("name_server_set"),
+        "creationTime": response.get("creationTime"),
+        "labels": response.get("labels"),
+        "visibility": module.params.get("visibility"),
+        "privateVisibilityConfig": ManagedZonePrivatevisibilityconfig(
+            response.get("privateVisibilityConfig", {}), module
+        ).from_response(),
+        "forwardingConfig": ManagedZoneForwardingconfig(
+            response.get("forwardingConfig", {}), module
+        ).from_response(),
+        "peeringConfig": ManagedZonePeeringconfig(
+            response.get("peeringConfig", {}), module
+        ).from_response(),
     }
 
 
@@ -683,20 +730,24 @@ class ManagedZoneDnssecconfig(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'kind': self.request.get('kind'),
-                u'nonExistence': self.request.get('non_existence'),
-                u'state': self.request.get('state'),
-                u'defaultKeySpecs': ManagedZoneDefaultkeyspecsArray(self.request.get('default_key_specs', []), self.module).to_request(),
+                "kind": self.request.get("kind"),
+                "nonExistence": self.request.get("non_existence"),
+                "state": self.request.get("state"),
+                "defaultKeySpecs": ManagedZoneDefaultkeyspecsArray(
+                    self.request.get("default_key_specs", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'kind': self.request.get(u'kind'),
-                u'nonExistence': self.request.get(u'nonExistence'),
-                u'state': self.request.get(u'state'),
-                u'defaultKeySpecs': ManagedZoneDefaultkeyspecsArray(self.request.get(u'defaultKeySpecs', []), self.module).from_response(),
+                "kind": self.request.get("kind"),
+                "nonExistence": self.request.get("nonExistence"),
+                "state": self.request.get("state"),
+                "defaultKeySpecs": ManagedZoneDefaultkeyspecsArray(
+                    self.request.get("defaultKeySpecs", []), self.module
+                ).from_response(),
             }
         )
 
@@ -723,12 +774,22 @@ class ManagedZoneDefaultkeyspecsArray(object):
 
     def _request_for_item(self, item):
         return remove_nones_from_dict(
-            {u'algorithm': item.get('algorithm'), u'keyLength': item.get('key_length'), u'keyType': item.get('key_type'), u'kind': item.get('kind')}
+            {
+                "algorithm": item.get("algorithm"),
+                "keyLength": item.get("key_length"),
+                "keyType": item.get("key_type"),
+                "kind": item.get("kind"),
+            }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'algorithm': item.get(u'algorithm'), u'keyLength': item.get(u'keyLength'), u'keyType': item.get(u'keyType'), u'kind': item.get(u'kind')}
+            {
+                "algorithm": item.get("algorithm"),
+                "keyLength": item.get("keyLength"),
+                "keyType": item.get("keyType"),
+                "kind": item.get("kind"),
+            }
         )
 
 
@@ -741,10 +802,22 @@ class ManagedZonePrivatevisibilityconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'networks': ManagedZoneNetworksArray(self.request.get('networks', []), self.module).to_request()})
+        return remove_nones_from_dict(
+            {
+                "networks": ManagedZoneNetworksArray(
+                    self.request.get("networks", []), self.module
+                ).to_request()
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'networks': ManagedZoneNetworksArray(self.request.get(u'networks', []), self.module).from_response()})
+        return remove_nones_from_dict(
+            {
+                "networks": ManagedZoneNetworksArray(
+                    self.request.get("networks", []), self.module
+                ).from_response()
+            }
+        )
 
 
 class ManagedZoneNetworksArray(object):
@@ -768,10 +841,10 @@ class ManagedZoneNetworksArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'networkUrl': item.get('network_url')})
+        return remove_nones_from_dict({"networkUrl": item.get("network_url")})
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'networkUrl': item.get(u'networkUrl')})
+        return remove_nones_from_dict({"networkUrl": item.get("networkUrl")})
 
 
 class ManagedZoneForwardingconfig(object):
@@ -784,12 +857,20 @@ class ManagedZoneForwardingconfig(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'targetNameServers': ManagedZoneTargetnameserversArray(self.request.get('target_name_servers', []), self.module).to_request()}
+            {
+                "targetNameServers": ManagedZoneTargetnameserversArray(
+                    self.request.get("target_name_servers", []), self.module
+                ).to_request()
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'targetNameServers': ManagedZoneTargetnameserversArray(self.request.get(u'targetNameServers', []), self.module).from_response()}
+            {
+                "targetNameServers": ManagedZoneTargetnameserversArray(
+                    self.request.get("targetNameServers", []), self.module
+                ).from_response()
+            }
         )
 
 
@@ -814,10 +895,20 @@ class ManagedZoneTargetnameserversArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'ipv4Address': item.get('ipv4_address'), u'forwardingPath': item.get('forwarding_path')})
+        return remove_nones_from_dict(
+            {
+                "ipv4Address": item.get("ipv4_address"),
+                "forwardingPath": item.get("forwarding_path"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'ipv4Address': item.get(u'ipv4Address'), u'forwardingPath': item.get(u'forwardingPath')})
+        return remove_nones_from_dict(
+            {
+                "ipv4Address": item.get("ipv4Address"),
+                "forwardingPath": item.get("forwardingPath"),
+            }
+        )
 
 
 class ManagedZonePeeringconfig(object):
@@ -829,10 +920,22 @@ class ManagedZonePeeringconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'targetNetwork': ManagedZoneTargetnetwork(self.request.get('target_network', {}), self.module).to_request()})
+        return remove_nones_from_dict(
+            {
+                "targetNetwork": ManagedZoneTargetnetwork(
+                    self.request.get("target_network", {}), self.module
+                ).to_request()
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'targetNetwork': ManagedZoneTargetnetwork(self.request.get(u'targetNetwork', {}), self.module).from_response()})
+        return remove_nones_from_dict(
+            {
+                "targetNetwork": ManagedZoneTargetnetwork(
+                    self.request.get("targetNetwork", {}), self.module
+                ).from_response()
+            }
+        )
 
 
 class ManagedZoneTargetnetwork(object):
@@ -844,11 +947,11 @@ class ManagedZoneTargetnetwork(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'networkUrl': self.request.get('network_url')})
+        return remove_nones_from_dict({"networkUrl": self.request.get("network_url")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'networkUrl': self.request.get(u'networkUrl')})
+        return remove_nones_from_dict({"networkUrl": self.request.get("networkUrl")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

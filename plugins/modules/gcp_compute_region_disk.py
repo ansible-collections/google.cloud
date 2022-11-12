@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_region_disk
 description:
@@ -214,9 +218,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a region disk
   google.cloud.gcp_compute_region_disk:
     name: test_object
@@ -231,9 +235,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 labelFingerprint:
   description:
   - The fingerprint used for optimistic locking of this resource. Used internally
@@ -386,7 +390,7 @@ sourceSnapshotId:
     version of the snapshot that was used.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -414,33 +418,37 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            labels=dict(type='dict'),
-            licenses=dict(type='list', elements='str'),
-            name=dict(required=True, type='str'),
-            size_gb=dict(type='int'),
-            physical_block_size_bytes=dict(type='int'),
-            replica_zones=dict(required=True, type='list', elements='str'),
-            type=dict(type='str'),
-            region=dict(required=True, type='str'),
-            disk_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
-            source_snapshot=dict(type='dict'),
-            source_snapshot_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            labels=dict(type="dict"),
+            licenses=dict(type="list", elements="str"),
+            name=dict(required=True, type="str"),
+            size_gb=dict(type="int"),
+            physical_block_size_bytes=dict(type="int"),
+            replica_zones=dict(required=True, type="list", elements="str"),
+            type=dict(type="str"),
+            region=dict(required=True, type="str"),
+            disk_encryption_key=dict(
+                type="dict", no_log=True, options=dict(raw_key=dict(type="str"))
+            ),
+            source_snapshot=dict(type="dict"),
+            source_snapshot_encryption_key=dict(
+                type="dict", no_log=True, options=dict(raw_key=dict(type="str"))
+            ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#disk'
+    state = module.params["state"]
+    kind = "compute#disk"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -450,19 +458,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -472,46 +480,63 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('labels') != request.get('labels'):
+    if response.get("labels") != request.get("labels"):
         label_fingerprint_update(module, request, response)
-    if response.get('sizeGb') != request.get('sizeGb'):
+    if response.get("sizeGb") != request.get("sizeGb"):
         size_gb_update(module, request, response)
 
 
 def label_fingerprint_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/setLabels"]).format(**module.params),
-        {u'labelFingerprint': response.get('labelFingerprint'), u'labels': module.params.get('labels')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/regions/{region}/disks/{name}/setLabels",
+            ]
+        ).format(**module.params),
+        {
+            "labelFingerprint": response.get("labelFingerprint"),
+            "labels": module.params.get("labels"),
+        },
     )
 
 
 def size_gb_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/regions/{region}/disks/{name}/resize"]).format(**module.params),
-        {u'sizeGb': module.params.get('size_gb')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/regions/{region}/disks/{name}/resize",
+            ]
+        ).format(**module.params),
+        {"sizeGb": module.params.get("size_gb")},
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#disk',
-        u'diskEncryptionKey': RegionDiskDiskencryptionkey(module.params.get('disk_encryption_key', {}), module).to_request(),
-        u'sourceSnapshotEncryptionKey': RegionDiskSourcesnapshotencryptionkey(module.params.get('source_snapshot_encryption_key', {}), module).to_request(),
-        u'description': module.params.get('description'),
-        u'labels': module.params.get('labels'),
-        u'licenses': module.params.get('licenses'),
-        u'name': module.params.get('name'),
-        u'sizeGb': module.params.get('size_gb'),
-        u'physicalBlockSizeBytes': module.params.get('physical_block_size_bytes'),
-        u'replicaZones': module.params.get('replica_zones'),
-        u'type': region_disk_type_selflink(module.params.get('type'), module.params),
+        "kind": "compute#disk",
+        "diskEncryptionKey": RegionDiskDiskencryptionkey(
+            module.params.get("disk_encryption_key", {}), module
+        ).to_request(),
+        "sourceSnapshotEncryptionKey": RegionDiskSourcesnapshotencryptionkey(
+            module.params.get("source_snapshot_encryption_key", {}), module
+        ).to_request(),
+        "description": module.params.get("description"),
+        "labels": module.params.get("labels"),
+        "licenses": module.params.get("licenses"),
+        "name": module.params.get("name"),
+        "sizeGb": module.params.get("size_gb"),
+        "physicalBlockSizeBytes": module.params.get("physical_block_size_bytes"),
+        "replicaZones": module.params.get("replica_zones"),
+        "type": region_disk_type_selflink(module.params.get("type"), module.params),
     }
     return_vals = {}
     for k, v in request.items():
@@ -522,16 +547,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/disks".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -546,11 +575,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -577,20 +606,20 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'labelFingerprint': response.get(u'labelFingerprint'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'id': response.get(u'id'),
-        u'lastAttachTimestamp': response.get(u'lastAttachTimestamp'),
-        u'lastDetachTimestamp': response.get(u'lastDetachTimestamp'),
-        u'labels': response.get(u'labels'),
-        u'licenses': response.get(u'licenses'),
-        u'name': module.params.get('name'),
-        u'sizeGb': response.get(u'sizeGb'),
-        u'users': response.get(u'users'),
-        u'physicalBlockSizeBytes': response.get(u'physicalBlockSizeBytes'),
-        u'replicaZones': response.get(u'replicaZones'),
-        u'type': response.get(u'type'),
+        "labelFingerprint": response.get("labelFingerprint"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "id": response.get("id"),
+        "lastAttachTimestamp": response.get("lastAttachTimestamp"),
+        "lastDetachTimestamp": response.get("lastDetachTimestamp"),
+        "labels": response.get("labels"),
+        "licenses": response.get("licenses"),
+        "name": module.params.get("name"),
+        "sizeGb": response.get("sizeGb"),
+        "users": response.get("users"),
+        "physicalBlockSizeBytes": response.get("physicalBlockSizeBytes"),
+        "replicaZones": response.get("replicaZones"),
+        "type": response.get("type"),
     }
 
 
@@ -599,16 +628,28 @@ def zone_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/zones/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
 def region_disk_type_selflink(name, params):
     if name is None:
         return
-    url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*/diskTypes/.*"
+    url = (
+        r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*/diskTypes/.*"
+    )
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/diskTypes/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/diskTypes/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -622,22 +663,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#disk')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#disk"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -656,10 +699,10 @@ class RegionDiskDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({"rawKey": self.request.get("raw_key")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({"rawKey": self.request.get("rawKey")})
 
 
 class RegionDiskSourcesnapshotencryptionkey(object):
@@ -671,11 +714,11 @@ class RegionDiskSourcesnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({"rawKey": self.request.get("raw_key")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({"rawKey": self.request.get("rawKey")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

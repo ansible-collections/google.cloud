@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_interconnect_attachment
 description:
@@ -219,9 +223,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a interconnect attachment
   google.cloud.gcp_compute_interconnect_attachment:
     name: test_object
@@ -233,9 +237,9 @@ EXAMPLES = '''
     service_account_file: "/tmp/auth.pem"
     state: present
   register: disk
-'''
+"""
 
-RETURN = '''
+RETURN = """
 adminEnabled:
   description:
   - Whether the VLAN attachment is enabled or disabled. When using PARTNER type this
@@ -414,7 +418,7 @@ region:
   - Region where the regional interconnect attachment resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -442,35 +446,35 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            admin_enabled=dict(default=True, type='bool'),
-            interconnect=dict(type='str'),
-            description=dict(type='str'),
-            mtu=dict(type='str'),
-            bandwidth=dict(type='str'),
-            edge_availability_domain=dict(type='str'),
-            type=dict(type='str'),
-            router=dict(required=True, type='dict'),
-            name=dict(required=True, type='str'),
-            candidate_subnets=dict(type='list', elements='str'),
-            vlan_tag8021q=dict(type='int'),
-            ipsec_internal_addresses=dict(type='list', elements='dict'),
-            encryption=dict(default='NONE', type='str'),
-            region=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            admin_enabled=dict(default=True, type="bool"),
+            interconnect=dict(type="str"),
+            description=dict(type="str"),
+            mtu=dict(type="str"),
+            bandwidth=dict(type="str"),
+            edge_availability_domain=dict(type="str"),
+            type=dict(type="str"),
+            router=dict(required=True, type="dict"),
+            name=dict(required=True, type="str"),
+            candidate_subnets=dict(type="list", elements="str"),
+            vlan_tag8021q=dict(type="int"),
+            ipsec_internal_addresses=dict(type="list", elements="dict"),
+            encryption=dict(default="NONE", type="str"),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#interconnectAttachment'
+    state = module.params["state"]
+    kind = "compute#interconnectAttachment"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -480,48 +484,50 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#interconnectAttachment',
-        u'adminEnabled': module.params.get('admin_enabled'),
-        u'interconnect': module.params.get('interconnect'),
-        u'description': module.params.get('description'),
-        u'mtu': module.params.get('mtu'),
-        u'bandwidth': module.params.get('bandwidth'),
-        u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
-        u'type': module.params.get('type'),
-        u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
-        u'name': module.params.get('name'),
-        u'candidateSubnets': module.params.get('candidate_subnets'),
-        u'vlanTag8021q': module.params.get('vlan_tag8021q'),
-        u'ipsecInternalAddresses': replace_resource_dict(module.params.get('ipsec_internal_addresses', []), 'selfLink'),
-        u'encryption': module.params.get('encryption'),
+        "kind": "compute#interconnectAttachment",
+        "adminEnabled": module.params.get("admin_enabled"),
+        "interconnect": module.params.get("interconnect"),
+        "description": module.params.get("description"),
+        "mtu": module.params.get("mtu"),
+        "bandwidth": module.params.get("bandwidth"),
+        "edgeAvailabilityDomain": module.params.get("edge_availability_domain"),
+        "type": module.params.get("type"),
+        "router": replace_resource_dict(module.params.get("router", {}), "selfLink"),
+        "name": module.params.get("name"),
+        "candidateSubnets": module.params.get("candidate_subnets"),
+        "vlanTag8021q": module.params.get("vlan_tag8021q"),
+        "ipsecInternalAddresses": replace_resource_dict(
+            module.params.get("ipsec_internal_addresses", []), "selfLink"
+        ),
+        "encryption": module.params.get("encryption"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -532,16 +538,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/interconnectAttachments".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -556,11 +566,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -587,28 +597,32 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'adminEnabled': response.get(u'adminEnabled'),
-        u'cloudRouterIpAddress': response.get(u'cloudRouterIpAddress'),
-        u'customerRouterIpAddress': response.get(u'customerRouterIpAddress'),
-        u'interconnect': module.params.get('interconnect'),
-        u'description': response.get(u'description'),
-        u'mtu': response.get(u'mtu'),
-        u'bandwidth': response.get(u'bandwidth'),
-        u'edgeAvailabilityDomain': module.params.get('edge_availability_domain'),
-        u'pairingKey': response.get(u'pairingKey'),
-        u'partnerAsn': response.get(u'partnerAsn'),
-        u'privateInterconnectInfo': InterconnectAttachmentPrivateinterconnectinfo(response.get(u'privateInterconnectInfo', {}), module).from_response(),
-        u'type': module.params.get('type'),
-        u'state': response.get(u'state'),
-        u'googleReferenceId': response.get(u'googleReferenceId'),
-        u'router': replace_resource_dict(module.params.get(u'router', {}), 'selfLink'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
-        u'candidateSubnets': module.params.get('candidate_subnets'),
-        u'vlanTag8021q': module.params.get('vlan_tag8021q'),
-        u'ipsecInternalAddresses': replace_resource_dict(module.params.get('ipsec_internal_addresses', []), 'selfLink'),
-        u'encryption': module.params.get('encryption'),
+        "adminEnabled": response.get("adminEnabled"),
+        "cloudRouterIpAddress": response.get("cloudRouterIpAddress"),
+        "customerRouterIpAddress": response.get("customerRouterIpAddress"),
+        "interconnect": module.params.get("interconnect"),
+        "description": response.get("description"),
+        "mtu": response.get("mtu"),
+        "bandwidth": response.get("bandwidth"),
+        "edgeAvailabilityDomain": module.params.get("edge_availability_domain"),
+        "pairingKey": response.get("pairingKey"),
+        "partnerAsn": response.get("partnerAsn"),
+        "privateInterconnectInfo": InterconnectAttachmentPrivateinterconnectinfo(
+            response.get("privateInterconnectInfo", {}), module
+        ).from_response(),
+        "type": module.params.get("type"),
+        "state": response.get("state"),
+        "googleReferenceId": response.get("googleReferenceId"),
+        "router": replace_resource_dict(module.params.get("router", {}), "selfLink"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
+        "candidateSubnets": module.params.get("candidate_subnets"),
+        "vlanTag8021q": module.params.get("vlan_tag8021q"),
+        "ipsecInternalAddresses": replace_resource_dict(
+            module.params.get("ipsec_internal_addresses", []), "selfLink"
+        ),
+        "encryption": module.params.get("encryption"),
     }
 
 
@@ -617,7 +631,12 @@ def region_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -631,22 +650,26 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#interconnectAttachment')
+    return fetch_resource(
+        module,
+        navigate_hash(wait_done, ["targetLink"]),
+        "compute#interconnectAttachment",
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -671,5 +694,5 @@ class InterconnectAttachmentPrivateinterconnectinfo(object):
         return remove_nones_from_dict({})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

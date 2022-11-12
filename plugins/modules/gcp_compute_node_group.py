@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_node_group
 description:
@@ -179,9 +183,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a node template
   google.cloud.gcp_compute_node_template:
     name: "{{ resource_name }}"
@@ -204,9 +208,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -285,7 +289,7 @@ zone:
   - Zone where this node group is located .
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -313,31 +317,38 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            name=dict(type='str'),
-            node_template=dict(required=True, type='dict'),
-            size=dict(required=True, type='int'),
-            maintenance_policy=dict(default='DEFAULT', type='str'),
-            maintenance_window=dict(type='dict', options=dict(start_time=dict(required=True, type='str'))),
-            autoscaling_policy=dict(
-                type='dict', options=dict(mode=dict(required=True, type='str'), min_nodes=dict(type='int'), max_nodes=dict(required=True, type='int'))
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            name=dict(type="str"),
+            node_template=dict(required=True, type="dict"),
+            size=dict(required=True, type="int"),
+            maintenance_policy=dict(default="DEFAULT", type="str"),
+            maintenance_window=dict(
+                type="dict", options=dict(start_time=dict(required=True, type="str"))
             ),
-            zone=dict(required=True, type='str'),
+            autoscaling_policy=dict(
+                type="dict",
+                options=dict(
+                    mode=dict(required=True, type="str"),
+                    min_nodes=dict(type="int"),
+                    max_nodes=dict(required=True, type="int"),
+                ),
+            ),
+            zone=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#NodeGroup'
+    state = module.params["state"]
+    kind = "compute#NodeGroup"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -347,19 +358,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -369,33 +380,48 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('nodeTemplate') != request.get('nodeTemplate'):
+    if response.get("nodeTemplate") != request.get("nodeTemplate"):
         node_template_update(module, request, response)
 
 
 def node_template_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/nodeGroups/{name}/setNodeTemplate"]).format(**module.params),
-        {u'nodeTemplate': replace_resource_dict(module.params.get(u'node_template', {}), 'selfLink')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/zones/{zone}/nodeGroups/{name}/setNodeTemplate",
+            ]
+        ).format(**module.params),
+        {
+            "nodeTemplate": replace_resource_dict(
+                module.params.get("node_template", {}), "selfLink"
+            )
+        },
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#NodeGroup',
-        u'description': module.params.get('description'),
-        u'name': module.params.get('name'),
-        u'nodeTemplate': replace_resource_dict(module.params.get(u'node_template', {}), 'selfLink'),
-        u'size': module.params.get('size'),
-        u'maintenancePolicy': module.params.get('maintenance_policy'),
-        u'maintenanceWindow': NodeGroupMaintenancewindow(module.params.get('maintenance_window', {}), module).to_request(),
-        u'autoscalingPolicy': NodeGroupAutoscalingpolicy(module.params.get('autoscaling_policy', {}), module).to_request(),
+        "kind": "compute#NodeGroup",
+        "description": module.params.get("description"),
+        "name": module.params.get("name"),
+        "nodeTemplate": replace_resource_dict(
+            module.params.get("node_template", {}), "selfLink"
+        ),
+        "size": module.params.get("size"),
+        "maintenancePolicy": module.params.get("maintenance_policy"),
+        "maintenanceWindow": NodeGroupMaintenancewindow(
+            module.params.get("maintenance_window", {}), module
+        ).to_request(),
+        "autoscalingPolicy": NodeGroupAutoscalingpolicy(
+            module.params.get("autoscaling_policy", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -406,20 +432,26 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups?initialNodeCount={size}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/nodeGroups?initialNodeCount={size}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -434,11 +466,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -465,14 +497,18 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'name': response.get(u'name'),
-        u'nodeTemplate': response.get(u'nodeTemplate'),
-        u'size': module.params.get('size'),
-        u'maintenancePolicy': response.get(u'maintenancePolicy'),
-        u'maintenanceWindow': NodeGroupMaintenancewindow(response.get(u'maintenanceWindow', {}), module).from_response(),
-        u'autoscalingPolicy': NodeGroupAutoscalingpolicy(response.get(u'autoscalingPolicy', {}), module).from_response(),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "name": response.get("name"),
+        "nodeTemplate": response.get("nodeTemplate"),
+        "size": module.params.get("size"),
+        "maintenancePolicy": response.get("maintenancePolicy"),
+        "maintenanceWindow": NodeGroupMaintenancewindow(
+            response.get("maintenanceWindow", {}), module
+        ).from_response(),
+        "autoscalingPolicy": NodeGroupAutoscalingpolicy(
+            response.get("autoscalingPolicy", {}), module
+        ).from_response(),
     }
 
 
@@ -481,7 +517,12 @@ def region_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/regions/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/regions/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -490,7 +531,12 @@ def zone_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/zones/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -504,22 +550,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#NodeGroup')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#NodeGroup"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -538,10 +586,10 @@ class NodeGroupMaintenancewindow(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'startTime': self.request.get('start_time')})
+        return remove_nones_from_dict({"startTime": self.request.get("start_time")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'startTime': self.request.get(u'startTime')})
+        return remove_nones_from_dict({"startTime": self.request.get("startTime")})
 
 
 class NodeGroupAutoscalingpolicy(object):
@@ -554,14 +602,22 @@ class NodeGroupAutoscalingpolicy(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'mode': self.request.get('mode'), u'minNodes': self.request.get('min_nodes'), u'maxNodes': self.request.get('max_nodes')}
+            {
+                "mode": self.request.get("mode"),
+                "minNodes": self.request.get("min_nodes"),
+                "maxNodes": self.request.get("max_nodes"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'mode': self.request.get(u'mode'), u'minNodes': self.request.get(u'minNodes'), u'maxNodes': self.request.get(u'maxNodes')}
+            {
+                "mode": self.request.get("mode"),
+                "minNodes": self.request.get("minNodes"),
+                "maxNodes": self.request.get("maxNodes"),
+            }
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

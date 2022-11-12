@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_instance_template
 description:
@@ -510,9 +514,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-instancetemplate
@@ -552,9 +556,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -971,7 +975,7 @@ properties:
             RFC1035.
           returned: success
           type: list
-'''
+"""
 
 ################################################################################
 # Imports
@@ -999,89 +1003,130 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            name=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            name=dict(required=True, type="str"),
             properties=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    can_ip_forward=dict(type='bool'),
-                    description=dict(type='str'),
+                    can_ip_forward=dict(type="bool"),
+                    description=dict(type="str"),
                     disks=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            auto_delete=dict(type='bool'),
-                            boot=dict(type='bool'),
-                            device_name=dict(type='str'),
-                            disk_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'), rsa_encrypted_key=dict(type='str'))),
-                            index=dict(type='int'),
-                            initialize_params=dict(
-                                type='dict',
+                            auto_delete=dict(type="bool"),
+                            boot=dict(type="bool"),
+                            device_name=dict(type="str"),
+                            disk_encryption_key=dict(
+                                type="dict",
+                                no_log=True,
                                 options=dict(
-                                    disk_name=dict(type='str'),
-                                    disk_size_gb=dict(type='int'),
-                                    disk_type=dict(type='str'),
-                                    source_image=dict(type='str'),
-                                    source_image_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
+                                    raw_key=dict(type="str"),
+                                    rsa_encrypted_key=dict(type="str"),
                                 ),
                             ),
-                            interface=dict(type='str'),
-                            mode=dict(type='str'),
-                            source=dict(type='dict'),
-                            type=dict(type='str'),
+                            index=dict(type="int"),
+                            initialize_params=dict(
+                                type="dict",
+                                options=dict(
+                                    disk_name=dict(type="str"),
+                                    disk_size_gb=dict(type="int"),
+                                    disk_type=dict(type="str"),
+                                    source_image=dict(type="str"),
+                                    source_image_encryption_key=dict(
+                                        type="dict",
+                                        no_log=True,
+                                        options=dict(raw_key=dict(type="str")),
+                                    ),
+                                ),
+                            ),
+                            interface=dict(type="str"),
+                            mode=dict(type="str"),
+                            source=dict(type="dict"),
+                            type=dict(type="str"),
                         ),
                     ),
-                    labels=dict(type='dict'),
-                    machine_type=dict(required=True, type='str'),
-                    min_cpu_platform=dict(type='str'),
-                    metadata=dict(type='dict'),
-                    guest_accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
+                    labels=dict(type="dict"),
+                    machine_type=dict(required=True, type="str"),
+                    min_cpu_platform=dict(type="str"),
+                    metadata=dict(type="dict"),
+                    guest_accelerators=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            accelerator_count=dict(type="int"),
+                            accelerator_type=dict(type="str"),
+                        ),
+                    ),
                     network_interfaces=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
                             access_configs=dict(
-                                type='list',
-                                elements='dict',
+                                type="list",
+                                elements="dict",
                                 options=dict(
-                                    name=dict(required=True, type='str'),
-                                    nat_ip=dict(type='dict'),
-                                    type=dict(required=True, type='str'),
-                                    set_public_ptr=dict(type='bool'),
-                                    public_ptr_domain_name=dict(type='str'),
-                                    network_tier=dict(type='str'),
+                                    name=dict(required=True, type="str"),
+                                    nat_ip=dict(type="dict"),
+                                    type=dict(required=True, type="str"),
+                                    set_public_ptr=dict(type="bool"),
+                                    public_ptr_domain_name=dict(type="str"),
+                                    network_tier=dict(type="str"),
                                 ),
                             ),
                             alias_ip_ranges=dict(
-                                type='list', elements='dict', options=dict(ip_cidr_range=dict(type='str'), subnetwork_range_name=dict(type='str'))
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    ip_cidr_range=dict(type="str"),
+                                    subnetwork_range_name=dict(type="str"),
+                                ),
                             ),
-                            network=dict(type='dict'),
-                            network_ip=dict(type='str'),
-                            subnetwork=dict(type='dict'),
+                            network=dict(type="dict"),
+                            network_ip=dict(type="str"),
+                            subnetwork=dict(type="dict"),
                         ),
                     ),
                     scheduling=dict(
-                        type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
+                        type="dict",
+                        options=dict(
+                            automatic_restart=dict(type="bool"),
+                            on_host_maintenance=dict(type="str"),
+                            preemptible=dict(type="bool"),
+                        ),
                     ),
-                    service_accounts=dict(type='list', elements='dict', options=dict(email=dict(type='str'), scopes=dict(type='list', elements='str'))),
-                    tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
+                    service_accounts=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            email=dict(type="str"),
+                            scopes=dict(type="list", elements="str"),
+                        ),
+                    ),
+                    tags=dict(
+                        type="dict",
+                        options=dict(
+                            fingerprint=dict(type="str"),
+                            items=dict(type="list", elements="str"),
+                        ),
+                    ),
                 ),
             ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#instanceTemplate'
+    state = module.params["state"]
+    kind = "compute#instanceTemplate"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -1091,19 +1136,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -1113,16 +1158,18 @@ def update(module, link, kind):
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#instanceTemplate',
-        u'description': module.params.get('description'),
-        u'name': module.params.get('name'),
-        u'properties': InstanceTemplateProperties(module.params.get('properties', {}), module).to_request(),
+        "kind": "compute#instanceTemplate",
+        "description": module.params.get("description"),
+        "name": module.params.get("name"),
+        "properties": InstanceTemplateProperties(
+            module.params.get("properties", {}), module
+        ).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -1134,16 +1181,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/instanceTemplates/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/instanceTemplates/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/instanceTemplates".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/instanceTemplates".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1158,13 +1209,13 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1192,11 +1243,13 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'id': response.get(u'id'),
-        u'name': response.get(u'name'),
-        u'properties': InstanceTemplateProperties(response.get(u'properties', {}), module).from_response(),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "id": response.get("id"),
+        "name": response.get("name"),
+        "properties": InstanceTemplateProperties(
+            response.get("properties", {}), module
+        ).from_response(),
     }
 
 
@@ -1205,7 +1258,12 @@ def disk_type_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*/diskTypes/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/diskTypes/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/diskTypes/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -1219,12 +1277,14 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    response = fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#instanceTemplate')
+    response = fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#instanceTemplate"
+    )
     if response:
         return decode_response(response, module)
     else:
@@ -1232,13 +1292,13 @@ def wait_for_operation(module, response):
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -1249,19 +1309,28 @@ def raise_if_errors(response, err_path, module):
 
 
 def encode_request(request, module):
-    if 'properties' in request and request['properties'] is not None and 'metadata' in request['properties'] and request['properties']['metadata'] is not None:
-        request['properties']['metadata'] = metadata_encoder(request['properties']['metadata'])
+    if (
+        "properties" in request
+        and request["properties"] is not None
+        and "metadata" in request["properties"]
+        and request["properties"]["metadata"] is not None
+    ):
+        request["properties"]["metadata"] = metadata_encoder(
+            request["properties"]["metadata"]
+        )
     return request
 
 
 def decode_response(response, module):
     if (
-        'properties' in response
-        and response['properties'] is not None
-        and 'metadata' in response['properties']
-        and response['properties']['metadata'] is not None
+        "properties" in response
+        and response["properties"] is not None
+        and "metadata" in response["properties"]
+        and response["properties"]["metadata"] is not None
     ):
-        response['properties']['metadata'] = metadata_decoder(response['properties']['metadata'])
+        response["properties"]["metadata"] = metadata_decoder(
+            response["properties"]["metadata"]
+        )
     return response
 
 
@@ -1286,16 +1355,16 @@ def metadata_encoder(metadata):
     for key in metadata:
         value = metadata[key]
         metadata_new.append({"key": key, "value": value})
-    return {'items': metadata_new}
+    return {"items": metadata_new}
 
 
 # Map metadata.items[]{key:,value:} => metadata[key]=value
 def metadata_decoder(metadata):
     items = {}
-    if 'items' in metadata:
-        metadata_items = metadata['items']
+    if "items" in metadata:
+        metadata_items = metadata["items"]
         for item in metadata_items:
-            items[item['key']] = item['value']
+            items[item["key"]] = item["value"]
     return items
 
 
@@ -1310,36 +1379,60 @@ class InstanceTemplateProperties(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'canIpForward': self.request.get('can_ip_forward'),
-                u'description': self.request.get('description'),
-                u'disks': InstanceTemplateDisksArray(self.request.get('disks', []), self.module).to_request(),
-                u'labels': self.request.get('labels'),
-                u'machineType': self.request.get('machine_type'),
-                u'minCpuPlatform': self.request.get('min_cpu_platform'),
-                u'metadata': self.request.get('metadata'),
-                u'guestAccelerators': InstanceTemplateGuestacceleratorsArray(self.request.get('guest_accelerators', []), self.module).to_request(),
-                u'networkInterfaces': InstanceTemplateNetworkinterfacesArray(self.request.get('network_interfaces', []), self.module).to_request(),
-                u'scheduling': InstanceTemplateScheduling(self.request.get('scheduling', {}), self.module).to_request(),
-                u'serviceAccounts': InstanceTemplateServiceaccountsArray(self.request.get('service_accounts', []), self.module).to_request(),
-                u'tags': InstanceTemplateTags(self.request.get('tags', {}), self.module).to_request(),
+                "canIpForward": self.request.get("can_ip_forward"),
+                "description": self.request.get("description"),
+                "disks": InstanceTemplateDisksArray(
+                    self.request.get("disks", []), self.module
+                ).to_request(),
+                "labels": self.request.get("labels"),
+                "machineType": self.request.get("machine_type"),
+                "minCpuPlatform": self.request.get("min_cpu_platform"),
+                "metadata": self.request.get("metadata"),
+                "guestAccelerators": InstanceTemplateGuestacceleratorsArray(
+                    self.request.get("guest_accelerators", []), self.module
+                ).to_request(),
+                "networkInterfaces": InstanceTemplateNetworkinterfacesArray(
+                    self.request.get("network_interfaces", []), self.module
+                ).to_request(),
+                "scheduling": InstanceTemplateScheduling(
+                    self.request.get("scheduling", {}), self.module
+                ).to_request(),
+                "serviceAccounts": InstanceTemplateServiceaccountsArray(
+                    self.request.get("service_accounts", []), self.module
+                ).to_request(),
+                "tags": InstanceTemplateTags(
+                    self.request.get("tags", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'canIpForward': self.request.get(u'canIpForward'),
-                u'description': self.request.get(u'description'),
-                u'disks': InstanceTemplateDisksArray(self.request.get(u'disks', []), self.module).from_response(),
-                u'labels': self.request.get(u'labels'),
-                u'machineType': self.request.get(u'machineType'),
-                u'minCpuPlatform': self.request.get(u'minCpuPlatform'),
-                u'metadata': self.request.get(u'metadata'),
-                u'guestAccelerators': InstanceTemplateGuestacceleratorsArray(self.request.get(u'guestAccelerators', []), self.module).from_response(),
-                u'networkInterfaces': InstanceTemplateNetworkinterfacesArray(self.request.get(u'networkInterfaces', []), self.module).from_response(),
-                u'scheduling': InstanceTemplateScheduling(self.request.get(u'scheduling', {}), self.module).from_response(),
-                u'serviceAccounts': InstanceTemplateServiceaccountsArray(self.request.get(u'serviceAccounts', []), self.module).from_response(),
-                u'tags': InstanceTemplateTags(self.request.get(u'tags', {}), self.module).from_response(),
+                "canIpForward": self.request.get("canIpForward"),
+                "description": self.request.get("description"),
+                "disks": InstanceTemplateDisksArray(
+                    self.request.get("disks", []), self.module
+                ).from_response(),
+                "labels": self.request.get("labels"),
+                "machineType": self.request.get("machineType"),
+                "minCpuPlatform": self.request.get("minCpuPlatform"),
+                "metadata": self.request.get("metadata"),
+                "guestAccelerators": InstanceTemplateGuestacceleratorsArray(
+                    self.request.get("guestAccelerators", []), self.module
+                ).from_response(),
+                "networkInterfaces": InstanceTemplateNetworkinterfacesArray(
+                    self.request.get("networkInterfaces", []), self.module
+                ).from_response(),
+                "scheduling": InstanceTemplateScheduling(
+                    self.request.get("scheduling", {}), self.module
+                ).from_response(),
+                "serviceAccounts": InstanceTemplateServiceaccountsArray(
+                    self.request.get("serviceAccounts", []), self.module
+                ).from_response(),
+                "tags": InstanceTemplateTags(
+                    self.request.get("tags", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1367,32 +1460,40 @@ class InstanceTemplateDisksArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'autoDelete': item.get('auto_delete'),
-                u'boot': item.get('boot'),
-                u'deviceName': item.get('device_name'),
-                u'diskEncryptionKey': InstanceTemplateDiskencryptionkey(item.get('disk_encryption_key', {}), self.module).to_request(),
-                u'index': item.get('index'),
-                u'initializeParams': InstanceTemplateInitializeparams(item.get('initialize_params', {}), self.module).to_request(),
-                u'interface': item.get('interface'),
-                u'mode': item.get('mode'),
-                u'source': replace_resource_dict(item.get(u'source', {}), 'name'),
-                u'type': item.get('type'),
+                "autoDelete": item.get("auto_delete"),
+                "boot": item.get("boot"),
+                "deviceName": item.get("device_name"),
+                "diskEncryptionKey": InstanceTemplateDiskencryptionkey(
+                    item.get("disk_encryption_key", {}), self.module
+                ).to_request(),
+                "index": item.get("index"),
+                "initializeParams": InstanceTemplateInitializeparams(
+                    item.get("initialize_params", {}), self.module
+                ).to_request(),
+                "interface": item.get("interface"),
+                "mode": item.get("mode"),
+                "source": replace_resource_dict(item.get("source", {}), "name"),
+                "type": item.get("type"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'autoDelete': item.get(u'autoDelete'),
-                u'boot': item.get(u'boot'),
-                u'deviceName': item.get(u'deviceName'),
-                u'diskEncryptionKey': InstanceTemplateDiskencryptionkey(item.get(u'diskEncryptionKey', {}), self.module).from_response(),
-                u'index': item.get(u'index'),
-                u'initializeParams': InstanceTemplateInitializeparams(self.module.params.get('initialize_params', {}), self.module).to_request(),
-                u'interface': item.get(u'interface'),
-                u'mode': item.get(u'mode'),
-                u'source': item.get(u'source'),
-                u'type': item.get(u'type'),
+                "autoDelete": item.get("autoDelete"),
+                "boot": item.get("boot"),
+                "deviceName": item.get("deviceName"),
+                "diskEncryptionKey": InstanceTemplateDiskencryptionkey(
+                    item.get("diskEncryptionKey", {}), self.module
+                ).from_response(),
+                "index": item.get("index"),
+                "initializeParams": InstanceTemplateInitializeparams(
+                    self.module.params.get("initialize_params", {}), self.module
+                ).to_request(),
+                "interface": item.get("interface"),
+                "mode": item.get("mode"),
+                "source": item.get("source"),
+                "type": item.get("type"),
             }
         )
 
@@ -1406,10 +1507,20 @@ class InstanceTemplateDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key'), u'rsaEncryptedKey': self.request.get('rsa_encrypted_key')})
+        return remove_nones_from_dict(
+            {
+                "rawKey": self.request.get("raw_key"),
+                "rsaEncryptedKey": self.request.get("rsa_encrypted_key"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey'), u'rsaEncryptedKey': self.request.get(u'rsaEncryptedKey')})
+        return remove_nones_from_dict(
+            {
+                "rawKey": self.request.get("rawKey"),
+                "rsaEncryptedKey": self.request.get("rsaEncryptedKey"),
+            }
+        )
 
 
 class InstanceTemplateInitializeparams(object):
@@ -1423,12 +1534,14 @@ class InstanceTemplateInitializeparams(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'diskName': self.request.get('disk_name'),
-                u'diskSizeGb': self.request.get('disk_size_gb'),
-                u'diskType': disk_type_selflink(self.request.get('disk_type'), self.module.params),
-                u'sourceImage': self.request.get('source_image'),
-                u'sourceImageEncryptionKey': InstanceTemplateSourceimageencryptionkey(
-                    self.request.get('source_image_encryption_key', {}), self.module
+                "diskName": self.request.get("disk_name"),
+                "diskSizeGb": self.request.get("disk_size_gb"),
+                "diskType": disk_type_selflink(
+                    self.request.get("disk_type"), self.module.params
+                ),
+                "sourceImage": self.request.get("source_image"),
+                "sourceImageEncryptionKey": InstanceTemplateSourceimageencryptionkey(
+                    self.request.get("source_image_encryption_key", {}), self.module
                 ).to_request(),
             }
         )
@@ -1436,12 +1549,12 @@ class InstanceTemplateInitializeparams(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'diskName': self.request.get(u'diskName'),
-                u'diskSizeGb': self.request.get(u'diskSizeGb'),
-                u'diskType': self.request.get(u'diskType'),
-                u'sourceImage': self.request.get(u'sourceImage'),
-                u'sourceImageEncryptionKey': InstanceTemplateSourceimageencryptionkey(
-                    self.request.get(u'sourceImageEncryptionKey', {}), self.module
+                "diskName": self.request.get("diskName"),
+                "diskSizeGb": self.request.get("diskSizeGb"),
+                "diskType": self.request.get("diskType"),
+                "sourceImage": self.request.get("sourceImage"),
+                "sourceImageEncryptionKey": InstanceTemplateSourceimageencryptionkey(
+                    self.request.get("sourceImageEncryptionKey", {}), self.module
                 ).from_response(),
             }
         )
@@ -1456,10 +1569,10 @@ class InstanceTemplateSourceimageencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict({"rawKey": self.request.get("raw_key")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict({"rawKey": self.request.get("rawKey")})
 
 
 class InstanceTemplateGuestacceleratorsArray(object):
@@ -1483,10 +1596,20 @@ class InstanceTemplateGuestacceleratorsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'acceleratorCount': item.get('accelerator_count'), u'acceleratorType': item.get('accelerator_type')})
+        return remove_nones_from_dict(
+            {
+                "acceleratorCount": item.get("accelerator_count"),
+                "acceleratorType": item.get("accelerator_type"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'acceleratorCount': item.get(u'acceleratorCount'), u'acceleratorType': item.get(u'acceleratorType')})
+        return remove_nones_from_dict(
+            {
+                "acceleratorCount": item.get("acceleratorCount"),
+                "acceleratorType": item.get("acceleratorType"),
+            }
+        )
 
 
 class InstanceTemplateNetworkinterfacesArray(object):
@@ -1512,22 +1635,32 @@ class InstanceTemplateNetworkinterfacesArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'accessConfigs': InstanceTemplateAccessconfigsArray(item.get('access_configs', []), self.module).to_request(),
-                u'aliasIpRanges': InstanceTemplateAliasiprangesArray(item.get('alias_ip_ranges', []), self.module).to_request(),
-                u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
-                u'networkIP': item.get('network_ip'),
-                u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
+                "accessConfigs": InstanceTemplateAccessconfigsArray(
+                    item.get("access_configs", []), self.module
+                ).to_request(),
+                "aliasIpRanges": InstanceTemplateAliasiprangesArray(
+                    item.get("alias_ip_ranges", []), self.module
+                ).to_request(),
+                "network": replace_resource_dict(item.get("network", {}), "selfLink"),
+                "networkIP": item.get("network_ip"),
+                "subnetwork": replace_resource_dict(
+                    item.get("subnetwork", {}), "selfLink"
+                ),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'accessConfigs': InstanceTemplateAccessconfigsArray(item.get(u'accessConfigs', []), self.module).from_response(),
-                u'aliasIpRanges': InstanceTemplateAliasiprangesArray(item.get(u'aliasIpRanges', []), self.module).from_response(),
-                u'network': item.get(u'network'),
-                u'networkIP': item.get(u'networkIP'),
-                u'subnetwork': item.get(u'subnetwork'),
+                "accessConfigs": InstanceTemplateAccessconfigsArray(
+                    item.get("accessConfigs", []), self.module
+                ).from_response(),
+                "aliasIpRanges": InstanceTemplateAliasiprangesArray(
+                    item.get("aliasIpRanges", []), self.module
+                ).from_response(),
+                "network": item.get("network"),
+                "networkIP": item.get("networkIP"),
+                "subnetwork": item.get("subnetwork"),
             }
         )
 
@@ -1555,24 +1688,24 @@ class InstanceTemplateAccessconfigsArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get('name'),
-                u'natIP': replace_resource_dict(item.get(u'nat_ip', {}), 'address'),
-                u'type': item.get('type'),
-                u'setPublicPtr': item.get('set_public_ptr'),
-                u'publicPtrDomainName': item.get('public_ptr_domain_name'),
-                u'networkTier': item.get('network_tier'),
+                "name": item.get("name"),
+                "natIP": replace_resource_dict(item.get("nat_ip", {}), "address"),
+                "type": item.get("type"),
+                "setPublicPtr": item.get("set_public_ptr"),
+                "publicPtrDomainName": item.get("public_ptr_domain_name"),
+                "networkTier": item.get("network_tier"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get(u'name'),
-                u'natIP': item.get(u'natIP'),
-                u'type': item.get(u'type'),
-                u'setPublicPtr': item.get(u'setPublicPtr'),
-                u'publicPtrDomainName': item.get(u'publicPtrDomainName'),
-                u'networkTier': item.get(u'networkTier'),
+                "name": item.get("name"),
+                "natIP": item.get("natIP"),
+                "type": item.get("type"),
+                "setPublicPtr": item.get("setPublicPtr"),
+                "publicPtrDomainName": item.get("publicPtrDomainName"),
+                "networkTier": item.get("networkTier"),
             }
         )
 
@@ -1598,10 +1731,20 @@ class InstanceTemplateAliasiprangesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'ipCidrRange': item.get('ip_cidr_range'), u'subnetworkRangeName': item.get('subnetwork_range_name')})
+        return remove_nones_from_dict(
+            {
+                "ipCidrRange": item.get("ip_cidr_range"),
+                "subnetworkRangeName": item.get("subnetwork_range_name"),
+            }
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'ipCidrRange': item.get(u'ipCidrRange'), u'subnetworkRangeName': item.get(u'subnetworkRangeName')})
+        return remove_nones_from_dict(
+            {
+                "ipCidrRange": item.get("ipCidrRange"),
+                "subnetworkRangeName": item.get("subnetworkRangeName"),
+            }
+        )
 
 
 class InstanceTemplateScheduling(object):
@@ -1615,18 +1758,18 @@ class InstanceTemplateScheduling(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'automaticRestart': self.request.get('automatic_restart'),
-                u'onHostMaintenance': self.request.get('on_host_maintenance'),
-                u'preemptible': self.request.get('preemptible'),
+                "automaticRestart": self.request.get("automatic_restart"),
+                "onHostMaintenance": self.request.get("on_host_maintenance"),
+                "preemptible": self.request.get("preemptible"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'automaticRestart': self.request.get(u'automaticRestart'),
-                u'onHostMaintenance': self.request.get(u'onHostMaintenance'),
-                u'preemptible': self.request.get(u'preemptible'),
+                "automaticRestart": self.request.get("automaticRestart"),
+                "onHostMaintenance": self.request.get("onHostMaintenance"),
+                "preemptible": self.request.get("preemptible"),
             }
         )
 
@@ -1652,10 +1795,14 @@ class InstanceTemplateServiceaccountsArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'email': item.get('email'), u'scopes': item.get('scopes')})
+        return remove_nones_from_dict(
+            {"email": item.get("email"), "scopes": item.get("scopes")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'email': item.get(u'email'), u'scopes': item.get(u'scopes')})
+        return remove_nones_from_dict(
+            {"email": item.get("email"), "scopes": item.get("scopes")}
+        )
 
 
 class InstanceTemplateTags(object):
@@ -1667,11 +1814,21 @@ class InstanceTemplateTags(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get('fingerprint'), u'items': self.request.get('items')})
+        return remove_nones_from_dict(
+            {
+                "fingerprint": self.request.get("fingerprint"),
+                "items": self.request.get("items"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get(u'fingerprint'), u'items': self.request.get(u'items')})
+        return remove_nones_from_dict(
+            {
+                "fingerprint": self.request.get("fingerprint"),
+                "items": self.request.get("items"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

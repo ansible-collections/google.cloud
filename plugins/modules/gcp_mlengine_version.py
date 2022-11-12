@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_mlengine_version
 description:
@@ -195,9 +199,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a model
   google.cloud.gcp_mlengine_model:
     name: model_version
@@ -224,9 +228,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name specified for the version when it was created.
@@ -350,7 +354,7 @@ isDefault:
     a version.
   returned: success
   type: bool
-'''
+"""
 
 ################################################################################
 # Imports
@@ -377,35 +381,35 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            deployment_uri=dict(required=True, type='str'),
-            runtime_version=dict(type='str'),
-            machine_type=dict(type='str'),
-            labels=dict(type='dict'),
-            framework=dict(type='str'),
-            python_version=dict(type='str'),
-            service_account=dict(type='str'),
-            auto_scaling=dict(type='dict', options=dict(min_nodes=dict(type='int'))),
-            manual_scaling=dict(type='dict', options=dict(nodes=dict(type='int'))),
-            prediction_class=dict(type='str'),
-            model=dict(required=True, type='dict'),
-            is_default=dict(type='bool', aliases=['default']),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            deployment_uri=dict(required=True, type="str"),
+            runtime_version=dict(type="str"),
+            machine_type=dict(type="str"),
+            labels=dict(type="dict"),
+            framework=dict(type="str"),
+            python_version=dict(type="str"),
+            service_account=dict(type="str"),
+            auto_scaling=dict(type="dict", options=dict(min_nodes=dict(type="int"))),
+            manual_scaling=dict(type="dict", options=dict(nodes=dict(type="int"))),
+            prediction_class=dict(type="str"),
+            model=dict(required=True, type="dict"),
+            is_default=dict(type="bool", aliases=["default"]),
         ),
-        mutually_exclusive=[['auto_scaling', 'manual_scaling']],
+        mutually_exclusive=[["auto_scaling", "manual_scaling"]],
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -415,48 +419,52 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
-            if module.params.get('is_default') is True:
+            if module.params.get("is_default") is True:
                 set_default(module)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    if module.params.get('is_default') is True:
+    if module.params.get("is_default") is True:
         set_default(module)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'deploymentUri': module.params.get('deployment_uri'),
-        u'runtimeVersion': module.params.get('runtime_version'),
-        u'machineType': module.params.get('machine_type'),
-        u'labels': module.params.get('labels'),
-        u'framework': module.params.get('framework'),
-        u'pythonVersion': module.params.get('python_version'),
-        u'serviceAccount': module.params.get('service_account'),
-        u'autoScaling': VersionAutoscaling(module.params.get('auto_scaling', {}), module).to_request(),
-        u'manualScaling': VersionManualscaling(module.params.get('manual_scaling', {}), module).to_request(),
-        u'predictionClass': module.params.get('prediction_class'),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "deploymentUri": module.params.get("deployment_uri"),
+        "runtimeVersion": module.params.get("runtime_version"),
+        "machineType": module.params.get("machine_type"),
+        "labels": module.params.get("labels"),
+        "framework": module.params.get("framework"),
+        "pythonVersion": module.params.get("python_version"),
+        "serviceAccount": module.params.get("service_account"),
+        "autoScaling": VersionAutoscaling(
+            module.params.get("auto_scaling", {}), module
+        ).to_request(),
+        "manualScaling": VersionManualscaling(
+            module.params.get("manual_scaling", {}), module
+        ).to_request(),
+        "predictionClass": module.params.get("prediction_class"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -467,18 +475,29 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    res = {'project': module.params['project'], 'model': replace_resource_dict(module.params['model'], 'name'), 'name': module.params['name']}
-    return "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions/{name}".format(**res)
+    res = {
+        "project": module.params["project"],
+        "model": replace_resource_dict(module.params["model"], "name"),
+        "name": module.params["name"],
+    }
+    return "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions/{name}".format(
+        **res
+    )
 
 
 def collection(module):
-    res = {'project': module.params['project'], 'model': replace_resource_dict(module.params['model'], 'name')}
-    return "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions".format(**res)
+    res = {
+        "project": module.params["project"],
+        "model": replace_resource_dict(module.params["model"], "name"),
+    }
+    return "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions".format(
+        **res
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -493,13 +512,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -527,23 +546,27 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'deploymentUri': response.get(u'deploymentUri'),
-        u'createTime': response.get(u'createTime'),
-        u'lastUseTime': response.get(u'lastUseTime'),
-        u'runtimeVersion': response.get(u'runtimeVersion'),
-        u'machineType': response.get(u'machineType'),
-        u'state': response.get(u'state'),
-        u'errorMessage': response.get(u'errorMessage'),
-        u'packageUris': response.get(u'packageUris'),
-        u'labels': response.get(u'labels'),
-        u'framework': response.get(u'framework'),
-        u'pythonVersion': response.get(u'pythonVersion'),
-        u'serviceAccount': response.get(u'serviceAccount'),
-        u'autoScaling': VersionAutoscaling(response.get(u'autoScaling', {}), module).from_response(),
-        u'manualScaling': VersionManualscaling(response.get(u'manualScaling', {}), module).from_response(),
-        u'predictionClass': response.get(u'predictionClass'),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "deploymentUri": response.get("deploymentUri"),
+        "createTime": response.get("createTime"),
+        "lastUseTime": response.get("lastUseTime"),
+        "runtimeVersion": response.get("runtimeVersion"),
+        "machineType": response.get("machineType"),
+        "state": response.get("state"),
+        "errorMessage": response.get("errorMessage"),
+        "packageUris": response.get("packageUris"),
+        "labels": response.get("labels"),
+        "framework": response.get("framework"),
+        "pythonVersion": response.get("pythonVersion"),
+        "serviceAccount": response.get("serviceAccount"),
+        "autoScaling": VersionAutoscaling(
+            response.get("autoScaling", {}), module
+        ).from_response(),
+        "manualScaling": VersionManualscaling(
+            response.get("manualScaling", {}), module
+        ).from_response(),
+        "predictionClass": response.get("predictionClass"),
     }
 
 
@@ -560,20 +583,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -586,17 +609,23 @@ def raise_if_errors(response, err_path, module):
 # Short names are given (and expected) by the API
 # but are returned as full names.
 def decode_response(response, module):
-    if 'name' in response and 'metadata' not in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response and "metadata" not in response:
+        response["name"] = response["name"].split("/")[-1]
     return response
 
 
 # Sets this version as default.
 def set_default(module):
-    res = {'project': module.params['project'], 'model': replace_resource_dict(module.params['model'], 'name'), 'name': module.params['name']}
-    link = "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions/{name}:setDefault".format(**res)
+    res = {
+        "project": module.params["project"],
+        "model": replace_resource_dict(module.params["model"], "name"),
+        "name": module.params["name"],
+    }
+    link = "https://ml.googleapis.com/v1/projects/{project}/models/{model}/versions/{name}:setDefault".format(
+        **res
+    )
 
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return_if_object(module, auth.post(link))
 
 
@@ -609,10 +638,10 @@ class VersionAutoscaling(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'minNodes': self.request.get('min_nodes')})
+        return remove_nones_from_dict({"minNodes": self.request.get("min_nodes")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'minNodes': self.request.get(u'minNodes')})
+        return remove_nones_from_dict({"minNodes": self.request.get("minNodes")})
 
 
 class VersionManualscaling(object):
@@ -624,11 +653,11 @@ class VersionManualscaling(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'nodes': self.request.get('nodes')})
+        return remove_nones_from_dict({"nodes": self.request.get("nodes")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'nodes': self.request.get(u'nodes')})
+        return remove_nones_from_dict({"nodes": self.request.get("nodes")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

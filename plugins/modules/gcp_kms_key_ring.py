@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_kms_key_ring
 description:
@@ -110,9 +114,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a key ring
   google.cloud.gcp_kms_key_ring:
     name: test_object
@@ -121,9 +125,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The resource name for the KeyRing.
@@ -141,13 +145,19 @@ location:
   - A full list of valid locations can be found by running `gcloud kms locations list`.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 
 ################################################################################
@@ -160,22 +170,22 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            location=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            location=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloudkms']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloudkms"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -185,19 +195,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'kms')
+    auth = GcpSession(module, "kms")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
@@ -211,7 +221,7 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {u'name': module.params.get('name')}
+    request = {"name": module.params.get("name")}
     return_vals = {}
     for k, v in request.items():
         if v or v is False:
@@ -221,20 +231,26 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'kms')
+    auth = GcpSession(module, "kms")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings/{name}".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings?keyRingId={name}".format(**module.params)
+    return "https://cloudkms.googleapis.com/v1/projects/{project}/locations/{location}/keyRings?keyRingId={name}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -249,13 +265,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -282,14 +298,14 @@ def is_different(module, response):
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
-    return {u'name': response.get(u'name'), u'createTime': response.get(u'createTime')}
+    return {"name": response.get("name"), "createTime": response.get("createTime")}
 
 
 def decode_response(response, module):
-    if 'name' in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response:
+        response["name"] = response["name"].split("/")[-1]
     return response
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_redis_instance
 description:
@@ -200,9 +204,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-instance
@@ -229,9 +233,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 alternativeLocationId:
   description:
   - Only applicable to STANDARD_HA tier which protects the instance against zonal
@@ -389,7 +393,7 @@ region:
   - The name of the Redis region of the instance.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -416,35 +420,35 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            alternative_location_id=dict(type='str'),
-            auth_enabled=dict(type='bool'),
-            authorized_network=dict(type='str'),
-            connect_mode=dict(default='DIRECT_PEERING', type='str'),
-            display_name=dict(type='str'),
-            labels=dict(type='dict'),
-            redis_configs=dict(type='dict'),
-            location_id=dict(type='str'),
-            name=dict(required=True, type='str'),
-            memory_size_gb=dict(required=True, type='int'),
-            redis_version=dict(type='str'),
-            reserved_ip_range=dict(type='str'),
-            tier=dict(default='BASIC', type='str'),
-            transit_encryption_mode=dict(default='DISABLED', type='str'),
-            region=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            alternative_location_id=dict(type="str"),
+            auth_enabled=dict(type="bool"),
+            authorized_network=dict(type="str"),
+            connect_mode=dict(default="DIRECT_PEERING", type="str"),
+            display_name=dict(type="str"),
+            labels=dict(type="dict"),
+            redis_configs=dict(type="dict"),
+            location_id=dict(type="str"),
+            name=dict(required=True, type="str"),
+            memory_size_gb=dict(required=True, type="int"),
+            redis_version=dict(type="str"),
+            reserved_ip_range=dict(type="str"),
+            tier=dict(default="BASIC", type="str"),
+            transit_encryption_mode=dict(default="DISABLED", type="str"),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), fetch)
                 fetch = fetch_resource(module, self_link(module))
@@ -454,68 +458,72 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'redis')
+    auth = GcpSession(module, "redis")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, fetch):
-    auth = GcpSession(module, 'redis')
-    params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
+    auth = GcpSession(module, "redis")
+    params = {
+        "updateMask": updateMask(
+            resource_to_request(module), response_to_hash(module, fetch)
+        )
+    }
     request = resource_to_request(module)
-    del request['name']
+    del request["name"]
     return wait_for_operation(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
     update_mask = []
-    if request.get('authEnabled') != response.get('authEnabled'):
-        update_mask.append('authEnabled')
-    if request.get('displayName') != response.get('displayName'):
-        update_mask.append('displayName')
-    if request.get('labels') != response.get('labels'):
-        update_mask.append('labels')
-    if request.get('redisConfigs') != response.get('redisConfigs'):
-        update_mask.append('redisConfigs')
-    if request.get('memorySizeGb') != response.get('memorySizeGb'):
-        update_mask.append('memorySizeGb')
-    if request.get('redisVersion') != response.get('redisVersion'):
-        update_mask.append('redisVersion')
-    return ','.join(update_mask)
+    if request.get("authEnabled") != response.get("authEnabled"):
+        update_mask.append("authEnabled")
+    if request.get("displayName") != response.get("displayName"):
+        update_mask.append("displayName")
+    if request.get("labels") != response.get("labels"):
+        update_mask.append("labels")
+    if request.get("redisConfigs") != response.get("redisConfigs"):
+        update_mask.append("redisConfigs")
+    if request.get("memorySizeGb") != response.get("memorySizeGb"):
+        update_mask.append("memorySizeGb")
+    if request.get("redisVersion") != response.get("redisVersion"):
+        update_mask.append("redisVersion")
+    return ",".join(update_mask)
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'redis')
+    auth = GcpSession(module, "redis")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'alternativeLocationId': module.params.get('alternative_location_id'),
-        u'authEnabled': module.params.get('auth_enabled'),
-        u'authorizedNetwork': module.params.get('authorized_network'),
-        u'connectMode': module.params.get('connect_mode'),
-        u'displayName': module.params.get('display_name'),
-        u'labels': module.params.get('labels'),
-        u'redisConfigs': module.params.get('redis_configs'),
-        u'locationId': module.params.get('location_id'),
-        u'name': module.params.get('name'),
-        u'memorySizeGb': module.params.get('memory_size_gb'),
-        u'redisVersion': module.params.get('redis_version'),
-        u'reservedIpRange': module.params.get('reserved_ip_range'),
-        u'tier': module.params.get('tier'),
-        u'transitEncryptionMode': module.params.get('transit_encryption_mode'),
+        "alternativeLocationId": module.params.get("alternative_location_id"),
+        "authEnabled": module.params.get("auth_enabled"),
+        "authorizedNetwork": module.params.get("authorized_network"),
+        "connectMode": module.params.get("connect_mode"),
+        "displayName": module.params.get("display_name"),
+        "labels": module.params.get("labels"),
+        "redisConfigs": module.params.get("redis_configs"),
+        "locationId": module.params.get("location_id"),
+        "name": module.params.get("name"),
+        "memorySizeGb": module.params.get("memory_size_gb"),
+        "redisVersion": module.params.get("redis_version"),
+        "reservedIpRange": module.params.get("reserved_ip_range"),
+        "tier": module.params.get("tier"),
+        "transitEncryptionMode": module.params.get("transit_encryption_mode"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -526,20 +534,26 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'redis')
+    auth = GcpSession(module, "redis")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances/{name}".format(**module.params)
+    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances".format(**module.params)
+    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances?instanceId={name}".format(**module.params)
+    return "https://redis.googleapis.com/v1/projects/{project}/locations/{region}/instances?instanceId={name}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -554,11 +568,11 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -585,26 +599,28 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'alternativeLocationId': module.params.get('alternative_location_id'),
-        u'authEnabled': response.get(u'authEnabled'),
-        u'authorizedNetwork': module.params.get('authorized_network'),
-        u'connectMode': module.params.get('connect_mode'),
-        u'createTime': response.get(u'createTime'),
-        u'currentLocationId': response.get(u'currentLocationId'),
-        u'displayName': response.get(u'displayName'),
-        u'host': response.get(u'host'),
-        u'labels': response.get(u'labels'),
-        u'redisConfigs': response.get(u'redisConfigs'),
-        u'locationId': module.params.get('location_id'),
-        u'name': module.params.get('name'),
-        u'memorySizeGb': response.get(u'memorySizeGb'),
-        u'port': response.get(u'port'),
-        u'persistenceIamIdentity': response.get(u'persistenceIamIdentity'),
-        u'redisVersion': response.get(u'redisVersion'),
-        u'reservedIpRange': module.params.get('reserved_ip_range'),
-        u'tier': module.params.get('tier'),
-        u'transitEncryptionMode': module.params.get('transit_encryption_mode'),
-        u'serverCaCerts': InstanceServercacertsArray(response.get(u'serverCaCerts', []), module).from_response(),
+        "alternativeLocationId": module.params.get("alternative_location_id"),
+        "authEnabled": response.get("authEnabled"),
+        "authorizedNetwork": module.params.get("authorized_network"),
+        "connectMode": module.params.get("connect_mode"),
+        "createTime": response.get("createTime"),
+        "currentLocationId": response.get("currentLocationId"),
+        "displayName": response.get("displayName"),
+        "host": response.get("host"),
+        "labels": response.get("labels"),
+        "redisConfigs": response.get("redisConfigs"),
+        "locationId": module.params.get("location_id"),
+        "name": module.params.get("name"),
+        "memorySizeGb": response.get("memorySizeGb"),
+        "port": response.get("port"),
+        "persistenceIamIdentity": response.get("persistenceIamIdentity"),
+        "redisVersion": response.get("redisVersion"),
+        "reservedIpRange": module.params.get("reserved_ip_range"),
+        "tier": module.params.get("tier"),
+        "transitEncryptionMode": module.params.get("transit_encryption_mode"),
+        "serverCaCerts": InstanceServercacertsArray(
+            response.get("serverCaCerts", []), module
+        ).from_response(),
     }
 
 
@@ -621,20 +637,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -671,5 +687,5 @@ class InstanceServercacertsArray(object):
         return remove_nones_from_dict({})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

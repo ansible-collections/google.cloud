@@ -1,0 +1,21 @@
+name: "Lint the cloud.google collection"
+on: [pull_request]
+jobs:
+  lint:
+    run-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/google/cloud
+    steps:
+      - name: check out code
+        uses: actions/checkout@v2
+        with:
+          path: ansible_collections/google/cloud
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.10'  # this is the minimum version required for Ansible 2.11
+      - name: Install linting tools
+        run: pip install black==22.10.0
+      - name: Run black check
+        run: black --check .

@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_mlengine_model
 description:
@@ -145,9 +149,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a model
   google.cloud.gcp_mlengine_model:
     name: "{{ resource_name | replace('-', '_') }}"
@@ -158,9 +162,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name specified for the model.
@@ -205,7 +209,7 @@ labels:
   - One or more labels that you can add, to organize your models.
   returned: success
   type: dict
-'''
+"""
 
 ################################################################################
 # Imports
@@ -232,27 +236,29 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            default_version=dict(type='dict', options=dict(name=dict(required=True, type='str'))),
-            regions=dict(type='list', elements='str'),
-            online_prediction_logging=dict(type='bool'),
-            online_prediction_console_logging=dict(type='bool'),
-            labels=dict(type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            default_version=dict(
+                type="dict", options=dict(name=dict(required=True, type="str"))
+            ),
+            regions=dict(type="list", elements="str"),
+            online_prediction_logging=dict(type="bool"),
+            online_prediction_console_logging=dict(type="bool"),
+            labels=dict(type="dict"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -262,19 +268,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
@@ -284,19 +290,23 @@ def update(module, link):
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'defaultVersion': ModelDefaultversion(module.params.get('default_version', {}), module).to_request(),
-        u'regions': module.params.get('regions'),
-        u'onlinePredictionLogging': module.params.get('online_prediction_logging'),
-        u'onlinePredictionConsoleLogging': module.params.get('online_prediction_console_logging'),
-        u'labels': module.params.get('labels'),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "defaultVersion": ModelDefaultversion(
+            module.params.get("default_version", {}), module
+        ).to_request(),
+        "regions": module.params.get("regions"),
+        "onlinePredictionLogging": module.params.get("online_prediction_logging"),
+        "onlinePredictionConsoleLogging": module.params.get(
+            "online_prediction_console_logging"
+        ),
+        "labels": module.params.get("labels"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -307,16 +317,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'mlengine')
+    auth = GcpSession(module, "mlengine")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://ml.googleapis.com/v1/projects/{project}/models/{name}".format(**module.params)
+    return "https://ml.googleapis.com/v1/projects/{project}/models/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://ml.googleapis.com/v1/projects/{project}/models".format(**module.params)
+    return "https://ml.googleapis.com/v1/projects/{project}/models".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -331,13 +345,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -365,13 +379,17 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'defaultVersion': ModelDefaultversion(response.get(u'defaultVersion', {}), module).from_response(),
-        u'regions': response.get(u'regions'),
-        u'onlinePredictionLogging': response.get(u'onlinePredictionLogging'),
-        u'onlinePredictionConsoleLogging': response.get(u'onlinePredictionConsoleLogging'),
-        u'labels': response.get(u'labels'),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "defaultVersion": ModelDefaultversion(
+            response.get("defaultVersion", {}), module
+        ).from_response(),
+        "regions": response.get("regions"),
+        "onlinePredictionLogging": response.get("onlinePredictionLogging"),
+        "onlinePredictionConsoleLogging": response.get(
+            "onlinePredictionConsoleLogging"
+        ),
+        "labels": response.get("labels"),
     }
 
 
@@ -388,20 +406,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -414,8 +432,8 @@ def raise_if_errors(response, err_path, module):
 # Short names are given (and expected) by the API
 # but are returned as full names.
 def decode_response(response, module):
-    if 'name' in response and 'metadata' not in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response and "metadata" not in response:
+        response["name"] = response["name"].split("/")[-1]
     return response
 
 
@@ -428,11 +446,11 @@ class ModelDefaultversion(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'name': self.request.get('name')})
+        return remove_nones_from_dict({"name": self.request.get("name")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'name': self.request.get(u'name')})
+        return remove_nones_from_dict({"name": self.request.get("name")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

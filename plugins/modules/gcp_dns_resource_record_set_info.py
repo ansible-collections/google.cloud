@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_dns_resource_record_set_info
 description:
@@ -95,18 +99,18 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: get info on a resource record set
   gcp_dns_resource_record_set_info:
     managed_zone: "{{ managed_zone }}"
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 resources:
   description: List of resources
   returned: always
@@ -139,12 +143,18 @@ resources:
         of the gcp_dns_managed_zone module, which will contain both.
       returned: success
       type: dict
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 
 ################################################################################
@@ -153,23 +163,32 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(managed_zone=dict(required=True, type='dict')))
+    module = GcpModule(
+        argument_spec=dict(managed_zone=dict(required=True, type="dict"))
+    )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/ndev.clouddns.readwrite']
+    if not module.params["scopes"]:
+        module.params["scopes"] = [
+            "https://www.googleapis.com/auth/ndev.clouddns.readwrite"
+        ]
 
-    return_value = {'resources': fetch_list(module, collection(module))}
+    return_value = {"resources": fetch_list(module, collection(module))}
     module.exit_json(**return_value)
 
 
 def collection(module):
-    res = {'project': module.params['project'], 'managed_zone': replace_resource_dict(module.params['managed_zone'], 'name')}
-    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets".format(**res)
+    res = {
+        "project": module.params["project"],
+        "managed_zone": replace_resource_dict(module.params["managed_zone"], "name"),
+    }
+    return "https://dns.googleapis.com/dns/v1/projects/{project}/managedZones/{managed_zone}/rrsets".format(
+        **res
+    )
 
 
 def fetch_list(module, link):
-    auth = GcpSession(module, 'dns')
-    return auth.list(link, return_if_object, array_name='rrsets')
+    auth = GcpSession(module, "dns")
+    return auth.list(link, return_if_object, array_name="rrsets")
 
 
 def return_if_object(module, response):
@@ -184,11 +203,11 @@ def return_if_object(module, response):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+    except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 

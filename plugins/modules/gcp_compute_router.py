@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_router
 description:
@@ -179,9 +183,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-router
@@ -208,9 +212,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 id:
   description:
   - The unique identifier for the resource.
@@ -292,7 +296,7 @@ region:
   - Region where the router resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -319,34 +323,41 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            network=dict(required=True, type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            network=dict(required=True, type="dict"),
             bgp=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    asn=dict(required=True, type='int'),
-                    advertise_mode=dict(default='DEFAULT', type='str'),
-                    advertised_groups=dict(type='list', elements='str'),
-                    advertised_ip_ranges=dict(type='list', elements='dict', options=dict(range=dict(required=True, type='str'), description=dict(type='str'))),
+                    asn=dict(required=True, type="int"),
+                    advertise_mode=dict(default="DEFAULT", type="str"),
+                    advertised_groups=dict(type="list", elements="str"),
+                    advertised_ip_ranges=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(
+                            range=dict(required=True, type="str"),
+                            description=dict(type="str"),
+                        ),
+                    ),
                 ),
             ),
-            region=dict(required=True, type='str'),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#router'
+    state = module.params["state"]
+    kind = "compute#router"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -356,40 +367,40 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#router',
-        u'region': module.params.get('region'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
-        u'bgp': RouterBgp(module.params.get('bgp', {}), module).to_request(),
+        "kind": "compute#router",
+        "region": module.params.get("region"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "network": replace_resource_dict(module.params.get("network", {}), "selfLink"),
+        "bgp": RouterBgp(module.params.get("bgp", {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -400,16 +411,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/routers/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/routers/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/routers".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/routers".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -424,11 +439,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -455,12 +470,12 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'id': response.get(u'id'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'name': module.params.get('name'),
-        u'description': response.get(u'description'),
-        u'network': replace_resource_dict(module.params.get(u'network', {}), 'selfLink'),
-        u'bgp': RouterBgp(response.get(u'bgp', {}), module).from_response(),
+        "id": response.get("id"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "name": module.params.get("name"),
+        "description": response.get("description"),
+        "network": replace_resource_dict(module.params.get("network", {}), "selfLink"),
+        "bgp": RouterBgp(response.get("bgp", {}), module).from_response(),
     }
 
 
@@ -474,22 +489,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#router')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#router"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -510,20 +527,24 @@ class RouterBgp(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'asn': self.request.get('asn'),
-                u'advertiseMode': self.request.get('advertise_mode'),
-                u'advertisedGroups': self.request.get('advertised_groups'),
-                u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get('advertised_ip_ranges', []), self.module).to_request(),
+                "asn": self.request.get("asn"),
+                "advertiseMode": self.request.get("advertise_mode"),
+                "advertisedGroups": self.request.get("advertised_groups"),
+                "advertisedIpRanges": RouterAdvertisediprangesArray(
+                    self.request.get("advertised_ip_ranges", []), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'asn': self.request.get(u'asn'),
-                u'advertiseMode': self.request.get(u'advertiseMode'),
-                u'advertisedGroups': self.request.get(u'advertisedGroups'),
-                u'advertisedIpRanges': RouterAdvertisediprangesArray(self.request.get(u'advertisedIpRanges', []), self.module).from_response(),
+                "asn": self.request.get("asn"),
+                "advertiseMode": self.request.get("advertiseMode"),
+                "advertisedGroups": self.request.get("advertisedGroups"),
+                "advertisedIpRanges": RouterAdvertisediprangesArray(
+                    self.request.get("advertisedIpRanges", []), self.module
+                ).from_response(),
             }
         )
 
@@ -549,11 +570,15 @@ class RouterAdvertisediprangesArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'range': item.get('range'), u'description': item.get('description')})
+        return remove_nones_from_dict(
+            {"range": item.get("range"), "description": item.get("description")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'range': item.get(u'range'), u'description': item.get(u'description')})
+        return remove_nones_from_dict(
+            {"range": item.get("range"), "description": item.get("description")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

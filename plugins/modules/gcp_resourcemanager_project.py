@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_resourcemanager_project
 description:
@@ -128,9 +132,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a project
   google.cloud.gcp_resourcemanager_project:
     name: My Sample Project
@@ -141,9 +145,9 @@ EXAMPLES = '''
       type: organization
       id: 636173955921
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 number:
   description:
   - Number uniquely identifying the project.
@@ -201,7 +205,7 @@ id:
   - Trailing hyphens are prohibited.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -228,24 +232,26 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(type='str'),
-            labels=dict(type='dict'),
-            parent=dict(type='dict', options=dict(type=dict(type='str'), id=dict(type='str'))),
-            id=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
+            labels=dict(type="dict"),
+            parent=dict(
+                type="dict", options=dict(type=dict(type="str"), id=dict(type="str"))
+            ),
+            id=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -255,38 +261,38 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'resourcemanager')
+    auth = GcpSession(module, "resourcemanager")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'resourcemanager')
+    auth = GcpSession(module, "resourcemanager")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'resourcemanager')
+    auth = GcpSession(module, "resourcemanager")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'projectId': module.params.get('id'),
-        u'name': module.params.get('name'),
-        u'labels': module.params.get('labels'),
-        u'parent': ProjectParent(module.params.get('parent', {}), module).to_request(),
+        "projectId": module.params.get("id"),
+        "name": module.params.get("name"),
+        "labels": module.params.get("labels"),
+        "parent": ProjectParent(module.params.get("parent", {}), module).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -297,16 +303,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'resourcemanager')
+    auth = GcpSession(module, "resourcemanager")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudresourcemanager.googleapis.com/v1/projects/{id}".format(**module.params)
+    return "https://cloudresourcemanager.googleapis.com/v1/projects/{id}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://cloudresourcemanager.googleapis.com/v1/projects".format(**module.params)
+    return "https://cloudresourcemanager.googleapis.com/v1/projects".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -324,11 +334,11 @@ def return_if_object(module, response, allow_not_found=False):
 
     try:
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+    except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
-    if navigate_hash(result, ['error', 'message']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'message']))
+    if navigate_hash(result, ["error", "message"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "message"]))
 
     return result
 
@@ -355,12 +365,12 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'projectNumber': response.get(u'projectNumber'),
-        u'lifecycleState': response.get(u'lifecycleState'),
-        u'name': response.get(u'name'),
-        u'createTime': response.get(u'createTime'),
-        u'labels': response.get(u'labels'),
-        u'parent': ProjectParent(response.get(u'parent', {}), module).from_response(),
+        "projectNumber": response.get("projectNumber"),
+        "lifecycleState": response.get("lifecycleState"),
+        "name": response.get("name"),
+        "createTime": response.get("createTime"),
+        "labels": response.get("labels"),
+        "parent": ProjectParent(response.get("parent", {}), module).from_response(),
     }
 
 
@@ -377,20 +387,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -409,11 +419,15 @@ class ProjectParent(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'type': self.request.get('type'), u'id': self.request.get('id')})
+        return remove_nones_from_dict(
+            {"type": self.request.get("type"), "id": self.request.get("id")}
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'type': self.request.get(u'type'), u'id': self.request.get(u'id')})
+        return remove_nones_from_dict(
+            {"type": self.request.get("type"), "id": self.request.get("id")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

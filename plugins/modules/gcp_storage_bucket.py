@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_storage_bucket
 description:
@@ -439,9 +443,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a bucket
   google.cloud.gcp_storage_bucket:
     name: ansible-storage-module
@@ -449,9 +453,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 acl:
   description:
   - Access controls on the bucket.
@@ -858,7 +862,7 @@ predefinedDefaultObjectAcl:
   - '- "publicRead": Object owner gets OWNER access, and allUsers get READER access.'
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -884,90 +888,115 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
             acl=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    bucket=dict(required=True, type='dict'),
-                    entity=dict(required=True, type='str'),
-                    entity_id=dict(type='str'),
-                    project_team=dict(type='dict', options=dict(project_number=dict(type='str'), team=dict(type='str'))),
-                    role=dict(type='str'),
+                    bucket=dict(required=True, type="dict"),
+                    entity=dict(required=True, type="str"),
+                    entity_id=dict(type="str"),
+                    project_team=dict(
+                        type="dict",
+                        options=dict(
+                            project_number=dict(type="str"), team=dict(type="str")
+                        ),
+                    ),
+                    role=dict(type="str"),
                 ),
             ),
             cors=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    max_age_seconds=dict(type='int'),
-                    method=dict(type='list', elements='str'),
-                    origin=dict(type='list', elements='str'),
-                    response_header=dict(type='list', elements='str'),
+                    max_age_seconds=dict(type="int"),
+                    method=dict(type="list", elements="str"),
+                    origin=dict(type="list", elements="str"),
+                    response_header=dict(type="list", elements="str"),
                 ),
             ),
-            default_event_based_hold=dict(type='bool'),
+            default_event_based_hold=dict(type="bool"),
             default_object_acl=dict(
-                type='list',
-                elements='dict',
+                type="list",
+                elements="dict",
                 options=dict(
-                    bucket=dict(required=True, type='dict'),
-                    entity=dict(required=True, type='str'),
-                    object=dict(type='str'),
-                    role=dict(required=True, type='str'),
+                    bucket=dict(required=True, type="dict"),
+                    entity=dict(required=True, type="str"),
+                    object=dict(type="str"),
+                    role=dict(required=True, type="str"),
                 ),
             ),
             lifecycle=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     rule=dict(
-                        type='list',
-                        elements='dict',
+                        type="list",
+                        elements="dict",
                         options=dict(
-                            action=dict(type='dict', options=dict(storage_class=dict(type='str'), type=dict(type='str'))),
-                            condition=dict(
-                                type='dict',
+                            action=dict(
+                                type="dict",
                                 options=dict(
-                                    age_days=dict(type='int'),
-                                    created_before=dict(type='str'),
-                                    custom_time_before=dict(type='str'),
-                                    days_since_custom_time=dict(type='int'),
-                                    days_since_noncurrent_time=dict(type='int'),
-                                    is_live=dict(type='bool'),
-                                    matches_storage_class=dict(type='list', elements='str'),
-                                    noncurrent_time_before=dict(type='str'),
-                                    num_newer_versions=dict(type='int'),
+                                    storage_class=dict(type="str"),
+                                    type=dict(type="str"),
+                                ),
+                            ),
+                            condition=dict(
+                                type="dict",
+                                options=dict(
+                                    age_days=dict(type="int"),
+                                    created_before=dict(type="str"),
+                                    custom_time_before=dict(type="str"),
+                                    days_since_custom_time=dict(type="int"),
+                                    days_since_noncurrent_time=dict(type="int"),
+                                    is_live=dict(type="bool"),
+                                    matches_storage_class=dict(
+                                        type="list", elements="str"
+                                    ),
+                                    noncurrent_time_before=dict(type="str"),
+                                    num_newer_versions=dict(type="int"),
                                 ),
                             ),
                         ),
                     )
                 ),
             ),
-            location=dict(type='str'),
-            logging=dict(type='dict', options=dict(log_bucket=dict(type='str'), log_object_prefix=dict(type='str'))),
-            metageneration=dict(type='int'),
-            name=dict(type='str'),
-            owner=dict(type='dict', options=dict(entity=dict(type='str'))),
-            storage_class=dict(type='str'),
-            versioning=dict(type='dict', options=dict(enabled=dict(type='bool'))),
-            website=dict(type='dict', options=dict(main_page_suffix=dict(type='str'), not_found_page=dict(type='str'))),
-            labels=dict(type='dict'),
-            project=dict(type='str'),
-            predefined_default_object_acl=dict(type='str'),
+            location=dict(type="str"),
+            logging=dict(
+                type="dict",
+                options=dict(
+                    log_bucket=dict(type="str"), log_object_prefix=dict(type="str")
+                ),
+            ),
+            metageneration=dict(type="int"),
+            name=dict(type="str"),
+            owner=dict(type="dict", options=dict(entity=dict(type="str"))),
+            storage_class=dict(type="str"),
+            versioning=dict(type="dict", options=dict(enabled=dict(type="bool"))),
+            website=dict(
+                type="dict",
+                options=dict(
+                    main_page_suffix=dict(type="str"), not_found_page=dict(type="str")
+                ),
+            ),
+            labels=dict(type="dict"),
+            project=dict(type="str"),
+            predefined_default_object_acl=dict(type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/devstorage.full_control']
+    if not module.params["scopes"]:
+        module.params["scopes"] = [
+            "https://www.googleapis.com/auth/devstorage.full_control"
+        ]
 
-    state = module.params['state']
-    kind = 'storage#bucket'
+    state = module.params["state"]
+    kind = "storage#bucket"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -977,51 +1006,59 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.post(link, resource_to_request(module)), kind)
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.put(link, resource_to_request(module)), kind)
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.delete(link), kind)
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'storage#bucket',
-        u'project': module.params.get('project'),
-        u'predefinedDefaultObjectAcl': module.params.get('predefined_default_object_acl'),
-        u'acl': BucketAclArray(module.params.get('acl', []), module).to_request(),
-        u'cors': BucketCorsArray(module.params.get('cors', []), module).to_request(),
-        u'defaultEventBasedHold': module.params.get('default_event_based_hold'),
-        u'defaultObjectAcl': BucketDefaultobjectaclArray(module.params.get('default_object_acl', []), module).to_request(),
-        u'lifecycle': BucketLifecycle(module.params.get('lifecycle', {}), module).to_request(),
-        u'location': module.params.get('location'),
-        u'logging': BucketLogging(module.params.get('logging', {}), module).to_request(),
-        u'metageneration': module.params.get('metageneration'),
-        u'name': module.params.get('name'),
-        u'owner': BucketOwner(module.params.get('owner', {}), module).to_request(),
-        u'storageClass': module.params.get('storage_class'),
-        u'versioning': BucketVersioning(module.params.get('versioning', {}), module).to_request(),
-        u'website': BucketWebsite(module.params.get('website', {}), module).to_request(),
-        u'labels': module.params.get('labels'),
+        "kind": "storage#bucket",
+        "project": module.params.get("project"),
+        "predefinedDefaultObjectAcl": module.params.get(
+            "predefined_default_object_acl"
+        ),
+        "acl": BucketAclArray(module.params.get("acl", []), module).to_request(),
+        "cors": BucketCorsArray(module.params.get("cors", []), module).to_request(),
+        "defaultEventBasedHold": module.params.get("default_event_based_hold"),
+        "defaultObjectAcl": BucketDefaultobjectaclArray(
+            module.params.get("default_object_acl", []), module
+        ).to_request(),
+        "lifecycle": BucketLifecycle(
+            module.params.get("lifecycle", {}), module
+        ).to_request(),
+        "location": module.params.get("location"),
+        "logging": BucketLogging(module.params.get("logging", {}), module).to_request(),
+        "metageneration": module.params.get("metageneration"),
+        "name": module.params.get("name"),
+        "owner": BucketOwner(module.params.get("owner", {}), module).to_request(),
+        "storageClass": module.params.get("storage_class"),
+        "versioning": BucketVersioning(
+            module.params.get("versioning", {}), module
+        ).to_request(),
+        "website": BucketWebsite(module.params.get("website", {}), module).to_request(),
+        "labels": module.params.get("labels"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -1032,16 +1069,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://storage.googleapis.com/storage/v1/b/{name}?projection=full".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b/{name}?projection=full".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://storage.googleapis.com/storage/v1/b?project={project}".format(**module.params)
+    return "https://storage.googleapis.com/storage/v1/b?project={project}".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -1056,11 +1097,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -1087,24 +1128,30 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'acl': BucketAclArray(response.get(u'acl', []), module).from_response(),
-        u'cors': BucketCorsArray(response.get(u'cors', []), module).from_response(),
-        u'defaultEventBasedHold': response.get(u'defaultEventBasedHold'),
-        u'defaultObjectAcl': BucketDefaultobjectaclArray(module.params.get('default_object_acl', []), module).to_request(),
-        u'id': response.get(u'id'),
-        u'lifecycle': BucketLifecycle(response.get(u'lifecycle', {}), module).from_response(),
-        u'location': response.get(u'location'),
-        u'logging': BucketLogging(response.get(u'logging', {}), module).from_response(),
-        u'metageneration': response.get(u'metageneration'),
-        u'name': response.get(u'name'),
-        u'owner': BucketOwner(response.get(u'owner', {}), module).from_response(),
-        u'projectNumber': response.get(u'projectNumber'),
-        u'storageClass': response.get(u'storageClass'),
-        u'timeCreated': response.get(u'timeCreated'),
-        u'updated': response.get(u'updated'),
-        u'versioning': BucketVersioning(response.get(u'versioning', {}), module).from_response(),
-        u'website': BucketWebsite(response.get(u'website', {}), module).from_response(),
-        u'labels': response.get(u'labels'),
+        "acl": BucketAclArray(response.get("acl", []), module).from_response(),
+        "cors": BucketCorsArray(response.get("cors", []), module).from_response(),
+        "defaultEventBasedHold": response.get("defaultEventBasedHold"),
+        "defaultObjectAcl": BucketDefaultobjectaclArray(
+            module.params.get("default_object_acl", []), module
+        ).to_request(),
+        "id": response.get("id"),
+        "lifecycle": BucketLifecycle(
+            response.get("lifecycle", {}), module
+        ).from_response(),
+        "location": response.get("location"),
+        "logging": BucketLogging(response.get("logging", {}), module).from_response(),
+        "metageneration": response.get("metageneration"),
+        "name": response.get("name"),
+        "owner": BucketOwner(response.get("owner", {}), module).from_response(),
+        "projectNumber": response.get("projectNumber"),
+        "storageClass": response.get("storageClass"),
+        "timeCreated": response.get("timeCreated"),
+        "updated": response.get("updated"),
+        "versioning": BucketVersioning(
+            response.get("versioning", {}), module
+        ).from_response(),
+        "website": BucketWebsite(response.get("website", {}), module).from_response(),
+        "labels": response.get("labels"),
     }
 
 
@@ -1131,22 +1178,26 @@ class BucketAclArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
-                u'entity': item.get('entity'),
-                u'entityId': item.get('entity_id'),
-                u'projectTeam': BucketProjectteam(item.get('project_team', {}), self.module).to_request(),
-                u'role': item.get('role'),
+                "bucket": replace_resource_dict(item.get("bucket", {}), "name"),
+                "entity": item.get("entity"),
+                "entityId": item.get("entity_id"),
+                "projectTeam": BucketProjectteam(
+                    item.get("project_team", {}), self.module
+                ).to_request(),
+                "role": item.get("role"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'bucket': item.get(u'bucket'),
-                u'entity': item.get(u'entity'),
-                u'entityId': item.get(u'entityId'),
-                u'projectTeam': BucketProjectteam(item.get(u'projectTeam', {}), self.module).from_response(),
-                u'role': item.get(u'role'),
+                "bucket": item.get("bucket"),
+                "entity": item.get("entity"),
+                "entityId": item.get("entityId"),
+                "projectTeam": BucketProjectteam(
+                    item.get("projectTeam", {}), self.module
+                ).from_response(),
+                "role": item.get("role"),
             }
         )
 
@@ -1160,10 +1211,20 @@ class BucketProjectteam(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get('project_number'), u'team': self.request.get('team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("project_number"),
+                "team": self.request.get("team"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get(u'projectNumber'), u'team': self.request.get(u'team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("projectNumber"),
+                "team": self.request.get("team"),
+            }
+        )
 
 
 class BucketCorsArray(object):
@@ -1189,20 +1250,20 @@ class BucketCorsArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'maxAgeSeconds': item.get('max_age_seconds'),
-                u'method': item.get('method'),
-                u'origin': item.get('origin'),
-                u'responseHeader': item.get('response_header'),
+                "maxAgeSeconds": item.get("max_age_seconds"),
+                "method": item.get("method"),
+                "origin": item.get("origin"),
+                "responseHeader": item.get("response_header"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'maxAgeSeconds': item.get(u'maxAgeSeconds'),
-                u'method': item.get(u'method'),
-                u'origin': item.get(u'origin'),
-                u'responseHeader': item.get(u'responseHeader'),
+                "maxAgeSeconds": item.get("maxAgeSeconds"),
+                "method": item.get("method"),
+                "origin": item.get("origin"),
+                "responseHeader": item.get("responseHeader"),
             }
         )
 
@@ -1230,16 +1291,21 @@ class BucketDefaultobjectaclArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'bucket': replace_resource_dict(item.get(u'bucket', {}), 'name'),
-                u'entity': item.get('entity'),
-                u'object': item.get('object'),
-                u'role': item.get('role'),
+                "bucket": replace_resource_dict(item.get("bucket", {}), "name"),
+                "entity": item.get("entity"),
+                "object": item.get("object"),
+                "role": item.get("role"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
-            {u'bucket': item.get(u'bucket'), u'entity': item.get(u'entity'), u'object': item.get(u'object'), u'role': item.get(u'role')}
+            {
+                "bucket": item.get("bucket"),
+                "entity": item.get("entity"),
+                "object": item.get("object"),
+                "role": item.get("role"),
+            }
         )
 
 
@@ -1252,10 +1318,20 @@ class BucketProjectteam(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get('project_number'), u'team': self.request.get('team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("project_number"),
+                "team": self.request.get("team"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get(u'projectNumber'), u'team': self.request.get(u'team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("projectNumber"),
+                "team": self.request.get("team"),
+            }
+        )
 
 
 class BucketLifecycle(object):
@@ -1267,10 +1343,22 @@ class BucketLifecycle(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rule': BucketRuleArray(self.request.get('rule', []), self.module).to_request()})
+        return remove_nones_from_dict(
+            {
+                "rule": BucketRuleArray(
+                    self.request.get("rule", []), self.module
+                ).to_request()
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rule': BucketRuleArray(self.request.get(u'rule', []), self.module).from_response()})
+        return remove_nones_from_dict(
+            {
+                "rule": BucketRuleArray(
+                    self.request.get("rule", []), self.module
+                ).from_response()
+            }
+        )
 
 
 class BucketRuleArray(object):
@@ -1296,16 +1384,24 @@ class BucketRuleArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'action': BucketAction(item.get('action', {}), self.module).to_request(),
-                u'condition': BucketCondition(item.get('condition', {}), self.module).to_request(),
+                "action": BucketAction(
+                    item.get("action", {}), self.module
+                ).to_request(),
+                "condition": BucketCondition(
+                    item.get("condition", {}), self.module
+                ).to_request(),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'action': BucketAction(item.get(u'action', {}), self.module).from_response(),
-                u'condition': BucketCondition(item.get(u'condition', {}), self.module).from_response(),
+                "action": BucketAction(
+                    item.get("action", {}), self.module
+                ).from_response(),
+                "condition": BucketCondition(
+                    item.get("condition", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -1319,10 +1415,20 @@ class BucketAction(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'storageClass': self.request.get('storage_class'), u'type': self.request.get('type')})
+        return remove_nones_from_dict(
+            {
+                "storageClass": self.request.get("storage_class"),
+                "type": self.request.get("type"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'storageClass': self.request.get(u'storageClass'), u'type': self.request.get(u'type')})
+        return remove_nones_from_dict(
+            {
+                "storageClass": self.request.get("storageClass"),
+                "type": self.request.get("type"),
+            }
+        )
 
 
 class BucketCondition(object):
@@ -1336,30 +1442,32 @@ class BucketCondition(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'age': self.request.get('age_days'),
-                u'createdBefore': self.request.get('created_before'),
-                u'customTimeBefore': self.request.get('custom_time_before'),
-                u'daysSinceCustomTime': self.request.get('days_since_custom_time'),
-                u'daysSinceNoncurrentTime': self.request.get('days_since_noncurrent_time'),
-                u'isLive': self.request.get('is_live'),
-                u'matchesStorageClass': self.request.get('matches_storage_class'),
-                u'noncurrentTimeBefore': self.request.get('noncurrent_time_before'),
-                u'numNewerVersions': self.request.get('num_newer_versions'),
+                "age": self.request.get("age_days"),
+                "createdBefore": self.request.get("created_before"),
+                "customTimeBefore": self.request.get("custom_time_before"),
+                "daysSinceCustomTime": self.request.get("days_since_custom_time"),
+                "daysSinceNoncurrentTime": self.request.get(
+                    "days_since_noncurrent_time"
+                ),
+                "isLive": self.request.get("is_live"),
+                "matchesStorageClass": self.request.get("matches_storage_class"),
+                "noncurrentTimeBefore": self.request.get("noncurrent_time_before"),
+                "numNewerVersions": self.request.get("num_newer_versions"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'age': self.request.get(u'age'),
-                u'createdBefore': self.request.get(u'createdBefore'),
-                u'customTimeBefore': self.request.get(u'customTimeBefore'),
-                u'daysSinceCustomTime': self.request.get(u'daysSinceCustomTime'),
-                u'daysSinceNoncurrentTime': self.request.get(u'daysSinceNoncurrentTime'),
-                u'isLive': self.request.get(u'isLive'),
-                u'matchesStorageClass': self.request.get(u'matchesStorageClass'),
-                u'noncurrentTimeBefore': self.request.get(u'noncurrentTimeBefore'),
-                u'numNewerVersions': self.request.get(u'numNewerVersions'),
+                "age": self.request.get("age"),
+                "createdBefore": self.request.get("createdBefore"),
+                "customTimeBefore": self.request.get("customTimeBefore"),
+                "daysSinceCustomTime": self.request.get("daysSinceCustomTime"),
+                "daysSinceNoncurrentTime": self.request.get("daysSinceNoncurrentTime"),
+                "isLive": self.request.get("isLive"),
+                "matchesStorageClass": self.request.get("matchesStorageClass"),
+                "noncurrentTimeBefore": self.request.get("noncurrentTimeBefore"),
+                "numNewerVersions": self.request.get("numNewerVersions"),
             }
         )
 
@@ -1373,10 +1481,20 @@ class BucketLogging(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'logBucket': self.request.get('log_bucket'), u'logObjectPrefix': self.request.get('log_object_prefix')})
+        return remove_nones_from_dict(
+            {
+                "logBucket": self.request.get("log_bucket"),
+                "logObjectPrefix": self.request.get("log_object_prefix"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'logBucket': self.request.get(u'logBucket'), u'logObjectPrefix': self.request.get(u'logObjectPrefix')})
+        return remove_nones_from_dict(
+            {
+                "logBucket": self.request.get("logBucket"),
+                "logObjectPrefix": self.request.get("logObjectPrefix"),
+            }
+        )
 
 
 class BucketOwner(object):
@@ -1388,10 +1506,10 @@ class BucketOwner(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'entity': self.request.get('entity')})
+        return remove_nones_from_dict({"entity": self.request.get("entity")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'entity': self.request.get(u'entity')})
+        return remove_nones_from_dict({"entity": self.request.get("entity")})
 
 
 class BucketVersioning(object):
@@ -1403,10 +1521,10 @@ class BucketVersioning(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'enabled': self.request.get('enabled')})
+        return remove_nones_from_dict({"enabled": self.request.get("enabled")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'enabled': self.request.get(u'enabled')})
+        return remove_nones_from_dict({"enabled": self.request.get("enabled")})
 
 
 class BucketWebsite(object):
@@ -1418,11 +1536,21 @@ class BucketWebsite(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'mainPageSuffix': self.request.get('main_page_suffix'), u'notFoundPage': self.request.get('not_found_page')})
+        return remove_nones_from_dict(
+            {
+                "mainPageSuffix": self.request.get("main_page_suffix"),
+                "notFoundPage": self.request.get("not_found_page"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'mainPageSuffix': self.request.get(u'mainPageSuffix'), u'notFoundPage': self.request.get(u'notFoundPage')})
+        return remove_nones_from_dict(
+            {
+                "mainPageSuffix": self.request.get("mainPageSuffix"),
+                "notFoundPage": self.request.get("notFoundPage"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

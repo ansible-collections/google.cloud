@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_iam_service_account
 description:
@@ -95,9 +99,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a service account
   google.cloud.gcp_iam_service_account:
     name: sa-{{ resource_name.split("-")[-1] }}@graphite-playground.google.com.iam.gserviceaccount.com
@@ -106,9 +110,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name of the service account.
@@ -139,13 +143,19 @@ oauth2ClientId:
   - OAuth2 client id for the service account.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 
 ################################################################################
@@ -157,19 +167,23 @@ def main():
     """Main function"""
 
     module = GcpModule(
-        argument_spec=dict(state=dict(default='present', choices=['present', 'absent'], type='str'), name=dict(type='str'), display_name=dict(type='str'))
+        argument_spec=dict(
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
+            display_name=dict(type="str"),
+        )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/iam']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/iam"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -179,34 +193,37 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
-    request = {u'name': module.params.get('name'), u'displayName': module.params.get('display_name')}
+    request = {
+        "name": module.params.get("name"),
+        "displayName": module.params.get("display_name"),
+    }
     request = encode_request(request, module)
     return_vals = {}
     for k, v in request.items():
@@ -217,16 +234,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{name}".format(**module.params)
+    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts".format(**module.params)
+    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -241,13 +262,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -275,29 +296,29 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'projectId': response.get(u'projectId'),
-        u'uniqueId': response.get(u'uniqueId'),
-        u'email': response.get(u'email'),
-        u'displayName': response.get(u'displayName'),
-        u'oauth2ClientId': response.get(u'oauth2ClientId'),
+        "name": response.get("name"),
+        "projectId": response.get("projectId"),
+        "uniqueId": response.get("uniqueId"),
+        "email": response.get("email"),
+        "displayName": response.get("displayName"),
+        "oauth2ClientId": response.get("oauth2ClientId"),
     }
 
 
 def encode_request(resource_request, module):
     """Structures the request as accountId + rest of request"""
-    account_id = resource_request['name'].split('@')[0]
-    del resource_request['name']
-    return {'accountId': account_id, 'serviceAccount': resource_request}
+    account_id = resource_request["name"].split("@")[0]
+    del resource_request["name"]
+    return {"accountId": account_id, "serviceAccount": resource_request}
 
 
 def decode_response(response, module):
     """Unstructures the request from accountId + rest of request"""
-    if 'name' not in response:
+    if "name" not in response:
         return response
-    response['name'] = response['name'].split('/')[-1]
+    response["name"] = response["name"].split("/")[-1]
     return response
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

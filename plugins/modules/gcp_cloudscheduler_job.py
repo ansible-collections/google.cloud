@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_cloudscheduler_job
 description:
@@ -348,9 +352,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a job
   google.cloud.gcp_cloudscheduler_job:
     name: job
@@ -370,9 +374,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name of the job.
@@ -615,7 +619,7 @@ region:
   - Region where the scheduler job resides .
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -641,58 +645,84 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            schedule=dict(type='str'),
-            time_zone=dict(default='Etc/UTC', type='str'),
-            attempt_deadline=dict(default='180s', type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            schedule=dict(type="str"),
+            time_zone=dict(default="Etc/UTC", type="str"),
+            attempt_deadline=dict(default="180s", type="str"),
             retry_config=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    retry_count=dict(type='int'),
-                    max_retry_duration=dict(type='str'),
-                    min_backoff_duration=dict(type='str'),
-                    max_backoff_duration=dict(type='str'),
-                    max_doublings=dict(type='int'),
+                    retry_count=dict(type="int"),
+                    max_retry_duration=dict(type="str"),
+                    min_backoff_duration=dict(type="str"),
+                    max_backoff_duration=dict(type="str"),
+                    max_doublings=dict(type="int"),
                 ),
             ),
-            pubsub_target=dict(type='dict', options=dict(topic_name=dict(required=True, type='str'), data=dict(type='str'), attributes=dict(type='dict'))),
-            app_engine_http_target=dict(
-                type='dict',
+            pubsub_target=dict(
+                type="dict",
                 options=dict(
-                    http_method=dict(type='str'),
-                    app_engine_routing=dict(type='dict', options=dict(service=dict(type='str'), version=dict(type='str'), instance=dict(type='str'))),
-                    relative_uri=dict(required=True, type='str'),
-                    body=dict(type='str'),
-                    headers=dict(type='dict'),
+                    topic_name=dict(required=True, type="str"),
+                    data=dict(type="str"),
+                    attributes=dict(type="dict"),
+                ),
+            ),
+            app_engine_http_target=dict(
+                type="dict",
+                options=dict(
+                    http_method=dict(type="str"),
+                    app_engine_routing=dict(
+                        type="dict",
+                        options=dict(
+                            service=dict(type="str"),
+                            version=dict(type="str"),
+                            instance=dict(type="str"),
+                        ),
+                    ),
+                    relative_uri=dict(required=True, type="str"),
+                    body=dict(type="str"),
+                    headers=dict(type="dict"),
                 ),
             ),
             http_target=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    uri=dict(required=True, type='str'),
-                    http_method=dict(type='str'),
-                    body=dict(type='str'),
-                    headers=dict(type='dict'),
-                    oauth_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), scope=dict(type='str'))),
-                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
+                    uri=dict(required=True, type="str"),
+                    http_method=dict(type="str"),
+                    body=dict(type="str"),
+                    headers=dict(type="dict"),
+                    oauth_token=dict(
+                        type="dict",
+                        options=dict(
+                            service_account_email=dict(required=True, type="str"),
+                            scope=dict(type="str"),
+                        ),
+                    ),
+                    oidc_token=dict(
+                        type="dict",
+                        options=dict(
+                            service_account_email=dict(required=True, type="str"),
+                            audience=dict(type="str"),
+                        ),
+                    ),
                 ),
             ),
-            region=dict(required=True, type='str'),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -702,43 +732,51 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'cloudscheduler')
+    auth = GcpSession(module, "cloudscheduler")
     return return_if_object(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'cloudscheduler')
+    auth = GcpSession(module, "cloudscheduler")
     return return_if_object(module, auth.patch(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'cloudscheduler')
+    auth = GcpSession(module, "cloudscheduler")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'schedule': module.params.get('schedule'),
-        u'timeZone': module.params.get('time_zone'),
-        u'attemptDeadline': module.params.get('attempt_deadline'),
-        u'retryConfig': JobRetryconfig(module.params.get('retry_config', {}), module).to_request(),
-        u'pubsubTarget': JobPubsubtarget(module.params.get('pubsub_target', {}), module).to_request(),
-        u'appEngineHttpTarget': JobAppenginehttptarget(module.params.get('app_engine_http_target', {}), module).to_request(),
-        u'httpTarget': JobHttptarget(module.params.get('http_target', {}), module).to_request(),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "schedule": module.params.get("schedule"),
+        "timeZone": module.params.get("time_zone"),
+        "attemptDeadline": module.params.get("attempt_deadline"),
+        "retryConfig": JobRetryconfig(
+            module.params.get("retry_config", {}), module
+        ).to_request(),
+        "pubsubTarget": JobPubsubtarget(
+            module.params.get("pubsub_target", {}), module
+        ).to_request(),
+        "appEngineHttpTarget": JobAppenginehttptarget(
+            module.params.get("app_engine_http_target", {}), module
+        ).to_request(),
+        "httpTarget": JobHttptarget(
+            module.params.get("http_target", {}), module
+        ).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -750,16 +788,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'cloudscheduler')
+    auth = GcpSession(module, "cloudscheduler")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://cloudscheduler.googleapis.com/v1/projects/{project}/locations/{region}/jobs/{name}".format(**module.params)
+    return "https://cloudscheduler.googleapis.com/v1/projects/{project}/locations/{region}/jobs/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://cloudscheduler.googleapis.com/v1/projects/{project}/locations/{region}/jobs".format(**module.params)
+    return "https://cloudscheduler.googleapis.com/v1/projects/{project}/locations/{region}/jobs".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -774,13 +816,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_request(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -808,26 +850,38 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': module.params.get('name'),
-        u'description': response.get(u'description'),
-        u'schedule': response.get(u'schedule'),
-        u'timeZone': response.get(u'timeZone'),
-        u'attemptDeadline': response.get(u'attemptDeadline'),
-        u'retryConfig': JobRetryconfig(response.get(u'retryConfig', {}), module).from_response(),
-        u'pubsubTarget': JobPubsubtarget(response.get(u'pubsubTarget', {}), module).from_response(),
-        u'appEngineHttpTarget': JobAppenginehttptarget(response.get(u'appEngineHttpTarget', {}), module).from_response(),
-        u'httpTarget': JobHttptarget(response.get(u'httpTarget', {}), module).from_response(),
+        "name": module.params.get("name"),
+        "description": response.get("description"),
+        "schedule": response.get("schedule"),
+        "timeZone": response.get("timeZone"),
+        "attemptDeadline": response.get("attemptDeadline"),
+        "retryConfig": JobRetryconfig(
+            response.get("retryConfig", {}), module
+        ).from_response(),
+        "pubsubTarget": JobPubsubtarget(
+            response.get("pubsubTarget", {}), module
+        ).from_response(),
+        "appEngineHttpTarget": JobAppenginehttptarget(
+            response.get("appEngineHttpTarget", {}), module
+        ).from_response(),
+        "httpTarget": JobHttptarget(
+            response.get("httpTarget", {}), module
+        ).from_response(),
     }
 
 
 def encode_request(request, module):
-    request['name'] = "projects/%s/locations/%s/jobs/%s" % (module.params['project'], module.params['region'], module.params['name'])
+    request["name"] = "projects/%s/locations/%s/jobs/%s" % (
+        module.params["project"],
+        module.params["region"],
+        module.params["name"],
+    )
     return request
 
 
 def decode_request(response, module):
-    if 'name' in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response:
+        response["name"] = response["name"].split("/")[-1]
 
     return response
 
@@ -843,22 +897,22 @@ class JobRetryconfig(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'retryCount': self.request.get('retry_count'),
-                u'maxRetryDuration': self.request.get('max_retry_duration'),
-                u'minBackoffDuration': self.request.get('min_backoff_duration'),
-                u'maxBackoffDuration': self.request.get('max_backoff_duration'),
-                u'maxDoublings': self.request.get('max_doublings'),
+                "retryCount": self.request.get("retry_count"),
+                "maxRetryDuration": self.request.get("max_retry_duration"),
+                "minBackoffDuration": self.request.get("min_backoff_duration"),
+                "maxBackoffDuration": self.request.get("max_backoff_duration"),
+                "maxDoublings": self.request.get("max_doublings"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'retryCount': self.request.get(u'retryCount'),
-                u'maxRetryDuration': self.request.get(u'maxRetryDuration'),
-                u'minBackoffDuration': self.request.get(u'minBackoffDuration'),
-                u'maxBackoffDuration': self.request.get(u'maxBackoffDuration'),
-                u'maxDoublings': self.request.get(u'maxDoublings'),
+                "retryCount": self.request.get("retryCount"),
+                "maxRetryDuration": self.request.get("maxRetryDuration"),
+                "minBackoffDuration": self.request.get("minBackoffDuration"),
+                "maxBackoffDuration": self.request.get("maxBackoffDuration"),
+                "maxDoublings": self.request.get("maxDoublings"),
             }
         )
 
@@ -873,12 +927,20 @@ class JobPubsubtarget(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'topicName': self.request.get('topic_name'), u'data': self.request.get('data'), u'attributes': self.request.get('attributes')}
+            {
+                "topicName": self.request.get("topic_name"),
+                "data": self.request.get("data"),
+                "attributes": self.request.get("attributes"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'topicName': self.request.get(u'topicName'), u'data': self.request.get(u'data'), u'attributes': self.request.get(u'attributes')}
+            {
+                "topicName": self.request.get("topicName"),
+                "data": self.request.get("data"),
+                "attributes": self.request.get("attributes"),
+            }
         )
 
 
@@ -893,22 +955,26 @@ class JobAppenginehttptarget(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'httpMethod': self.request.get('http_method'),
-                u'appEngineRouting': JobAppenginerouting(self.request.get('app_engine_routing', {}), self.module).to_request(),
-                u'relativeUri': self.request.get('relative_uri'),
-                u'body': self.request.get('body'),
-                u'headers': self.request.get('headers'),
+                "httpMethod": self.request.get("http_method"),
+                "appEngineRouting": JobAppenginerouting(
+                    self.request.get("app_engine_routing", {}), self.module
+                ).to_request(),
+                "relativeUri": self.request.get("relative_uri"),
+                "body": self.request.get("body"),
+                "headers": self.request.get("headers"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'httpMethod': self.request.get(u'httpMethod'),
-                u'appEngineRouting': JobAppenginerouting(self.request.get(u'appEngineRouting', {}), self.module).from_response(),
-                u'relativeUri': self.request.get(u'relativeUri'),
-                u'body': self.request.get(u'body'),
-                u'headers': self.request.get(u'headers'),
+                "httpMethod": self.request.get("httpMethod"),
+                "appEngineRouting": JobAppenginerouting(
+                    self.request.get("appEngineRouting", {}), self.module
+                ).from_response(),
+                "relativeUri": self.request.get("relativeUri"),
+                "body": self.request.get("body"),
+                "headers": self.request.get("headers"),
             }
         )
 
@@ -923,12 +989,20 @@ class JobAppenginerouting(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'service': self.request.get('service'), u'version': self.request.get('version'), u'instance': self.request.get('instance')}
+            {
+                "service": self.request.get("service"),
+                "version": self.request.get("version"),
+                "instance": self.request.get("instance"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'service': self.request.get(u'service'), u'version': self.request.get(u'version'), u'instance': self.request.get(u'instance')}
+            {
+                "service": self.request.get("service"),
+                "version": self.request.get("version"),
+                "instance": self.request.get("instance"),
+            }
         )
 
 
@@ -943,24 +1017,32 @@ class JobHttptarget(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'uri': self.request.get('uri'),
-                u'httpMethod': self.request.get('http_method'),
-                u'body': self.request.get('body'),
-                u'headers': self.request.get('headers'),
-                u'oauthToken': JobOauthtoken(self.request.get('oauth_token', {}), self.module).to_request(),
-                u'oidcToken': JobOidctoken(self.request.get('oidc_token', {}), self.module).to_request(),
+                "uri": self.request.get("uri"),
+                "httpMethod": self.request.get("http_method"),
+                "body": self.request.get("body"),
+                "headers": self.request.get("headers"),
+                "oauthToken": JobOauthtoken(
+                    self.request.get("oauth_token", {}), self.module
+                ).to_request(),
+                "oidcToken": JobOidctoken(
+                    self.request.get("oidc_token", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'uri': self.request.get(u'uri'),
-                u'httpMethod': self.request.get(u'httpMethod'),
-                u'body': self.request.get(u'body'),
-                u'headers': self.request.get(u'headers'),
-                u'oauthToken': JobOauthtoken(self.request.get(u'oauthToken', {}), self.module).from_response(),
-                u'oidcToken': JobOidctoken(self.request.get(u'oidcToken', {}), self.module).from_response(),
+                "uri": self.request.get("uri"),
+                "httpMethod": self.request.get("httpMethod"),
+                "body": self.request.get("body"),
+                "headers": self.request.get("headers"),
+                "oauthToken": JobOauthtoken(
+                    self.request.get("oauthToken", {}), self.module
+                ).from_response(),
+                "oidcToken": JobOidctoken(
+                    self.request.get("oidcToken", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -974,10 +1056,20 @@ class JobOauthtoken(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get('service_account_email'), u'scope': self.request.get('scope')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("service_account_email"),
+                "scope": self.request.get("scope"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get(u'serviceAccountEmail'), u'scope': self.request.get(u'scope')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("serviceAccountEmail"),
+                "scope": self.request.get("scope"),
+            }
+        )
 
 
 class JobOidctoken(object):
@@ -989,11 +1081,21 @@ class JobOidctoken(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get('service_account_email'), u'audience': self.request.get('audience')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("service_account_email"),
+                "audience": self.request.get("audience"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'serviceAccountEmail': self.request.get(u'serviceAccountEmail'), u'audience': self.request.get(u'audience')})
+        return remove_nones_from_dict(
+            {
+                "serviceAccountEmail": self.request.get("serviceAccountEmail"),
+                "audience": self.request.get("audience"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

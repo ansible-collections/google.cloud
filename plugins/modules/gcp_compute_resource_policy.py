@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_resource_policy
 description:
@@ -299,9 +303,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a resource policy
   google.cloud.gcp_compute_resource_policy:
     name: test_object
@@ -315,9 +319,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name of the resource, provided by the client when initially creating the resource.
@@ -521,7 +525,7 @@ region:
   - Region where resource policy resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -548,73 +552,111 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
             snapshot_schedule_policy=dict(
-                type='dict',
+                type="dict",
                 options=dict(
                     schedule=dict(
                         required=True,
-                        type='dict',
+                        type="dict",
                         options=dict(
                             hourly_schedule=dict(
-                                type='dict', options=dict(hours_in_cycle=dict(required=True, type='int'), start_time=dict(required=True, type='str'))
+                                type="dict",
+                                options=dict(
+                                    hours_in_cycle=dict(required=True, type="int"),
+                                    start_time=dict(required=True, type="str"),
+                                ),
                             ),
                             daily_schedule=dict(
-                                type='dict', options=dict(days_in_cycle=dict(required=True, type='int'), start_time=dict(required=True, type='str'))
+                                type="dict",
+                                options=dict(
+                                    days_in_cycle=dict(required=True, type="int"),
+                                    start_time=dict(required=True, type="str"),
+                                ),
                             ),
                             weekly_schedule=dict(
-                                type='dict',
+                                type="dict",
                                 options=dict(
                                     day_of_weeks=dict(
                                         required=True,
-                                        type='list',
-                                        elements='dict',
-                                        options=dict(start_time=dict(required=True, type='str'), day=dict(required=True, type='str')),
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            start_time=dict(required=True, type="str"),
+                                            day=dict(required=True, type="str"),
+                                        ),
                                     )
                                 ),
                             ),
                         ),
                     ),
                     retention_policy=dict(
-                        type='dict',
-                        options=dict(max_retention_days=dict(required=True, type='int'), on_source_disk_delete=dict(default='KEEP_AUTO_SNAPSHOTS', type='str')),
+                        type="dict",
+                        options=dict(
+                            max_retention_days=dict(required=True, type="int"),
+                            on_source_disk_delete=dict(
+                                default="KEEP_AUTO_SNAPSHOTS", type="str"
+                            ),
+                        ),
                     ),
                     snapshot_properties=dict(
-                        type='dict', options=dict(labels=dict(type='dict'), storage_locations=dict(type='list', elements='str'), guest_flush=dict(type='bool'))
+                        type="dict",
+                        options=dict(
+                            labels=dict(type="dict"),
+                            storage_locations=dict(type="list", elements="str"),
+                            guest_flush=dict(type="bool"),
+                        ),
                     ),
                 ),
             ),
             group_placement_policy=dict(
-                type='dict', options=dict(vm_count=dict(type='int'), availability_domain_count=dict(type='int'), collocation=dict(type='str'))
-            ),
-            instance_schedule_policy=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    vm_start_schedule=dict(type='dict', options=dict(schedule=dict(required=True, type='str'))),
-                    vm_stop_schedule=dict(type='dict', options=dict(schedule=dict(required=True, type='str'))),
-                    time_zone=dict(required=True, type='str'),
-                    start_time=dict(type='str'),
-                    expiration_time=dict(type='str'),
+                    vm_count=dict(type="int"),
+                    availability_domain_count=dict(type="int"),
+                    collocation=dict(type="str"),
                 ),
             ),
-            region=dict(required=True, type='str'),
+            instance_schedule_policy=dict(
+                type="dict",
+                options=dict(
+                    vm_start_schedule=dict(
+                        type="dict",
+                        options=dict(schedule=dict(required=True, type="str")),
+                    ),
+                    vm_stop_schedule=dict(
+                        type="dict",
+                        options=dict(schedule=dict(required=True, type="str")),
+                    ),
+                    time_zone=dict(required=True, type="str"),
+                    start_time=dict(type="str"),
+                    expiration_time=dict(type="str"),
+                ),
+            ),
+            region=dict(required=True, type="str"),
         ),
-        mutually_exclusive=[['group_placement_policy', 'instance_schedule_policy', 'snapshot_schedule_policy']],
+        mutually_exclusive=[
+            [
+                "group_placement_policy",
+                "instance_schedule_policy",
+                "snapshot_schedule_policy",
+            ]
+        ],
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#resourcePolicy'
+    state = module.params["state"]
+    kind = "compute#resourcePolicy"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -624,19 +666,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -646,19 +688,25 @@ def update(module, link, kind):
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#resourcePolicy',
-        u'region': module.params.get('region'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(module.params.get('snapshot_schedule_policy', {}), module).to_request(),
-        u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(module.params.get('group_placement_policy', {}), module).to_request(),
-        u'instanceSchedulePolicy': ResourcePolicyInstanceschedulepolicy(module.params.get('instance_schedule_policy', {}), module).to_request(),
+        "kind": "compute#resourcePolicy",
+        "region": module.params.get("region"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "snapshotSchedulePolicy": ResourcePolicySnapshotschedulepolicy(
+            module.params.get("snapshot_schedule_policy", {}), module
+        ).to_request(),
+        "groupPlacementPolicy": ResourcePolicyGroupplacementpolicy(
+            module.params.get("group_placement_policy", {}), module
+        ).to_request(),
+        "instanceSchedulePolicy": ResourcePolicyInstanceschedulepolicy(
+            module.params.get("instance_schedule_policy", {}), module
+        ).to_request(),
     }
     return_vals = {}
     for k, v in request.items():
@@ -669,16 +717,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/resourcePolicies/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/resourcePolicies/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/resourcePolicies".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/resourcePolicies".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -693,11 +745,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -724,11 +776,17 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'name': response.get(u'name'),
-        u'description': response.get(u'description'),
-        u'snapshotSchedulePolicy': ResourcePolicySnapshotschedulepolicy(response.get(u'snapshotSchedulePolicy', {}), module).from_response(),
-        u'groupPlacementPolicy': ResourcePolicyGroupplacementpolicy(response.get(u'groupPlacementPolicy', {}), module).from_response(),
-        u'instanceSchedulePolicy': ResourcePolicyInstanceschedulepolicy(response.get(u'instanceSchedulePolicy', {}), module).from_response(),
+        "name": response.get("name"),
+        "description": response.get("description"),
+        "snapshotSchedulePolicy": ResourcePolicySnapshotschedulepolicy(
+            response.get("snapshotSchedulePolicy", {}), module
+        ).from_response(),
+        "groupPlacementPolicy": ResourcePolicyGroupplacementpolicy(
+            response.get("groupPlacementPolicy", {}), module
+        ).from_response(),
+        "instanceSchedulePolicy": ResourcePolicyInstanceschedulepolicy(
+            response.get("instanceSchedulePolicy", {}), module
+        ).from_response(),
     }
 
 
@@ -742,22 +800,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#resourcePolicy')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#resourcePolicy"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -778,18 +838,30 @@ class ResourcePolicySnapshotschedulepolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'schedule': ResourcePolicySchedule(self.request.get('schedule', {}), self.module).to_request(),
-                u'retentionPolicy': ResourcePolicyRetentionpolicy(self.request.get('retention_policy', {}), self.module).to_request(),
-                u'snapshotProperties': ResourcePolicySnapshotproperties(self.request.get('snapshot_properties', {}), self.module).to_request(),
+                "schedule": ResourcePolicySchedule(
+                    self.request.get("schedule", {}), self.module
+                ).to_request(),
+                "retentionPolicy": ResourcePolicyRetentionpolicy(
+                    self.request.get("retention_policy", {}), self.module
+                ).to_request(),
+                "snapshotProperties": ResourcePolicySnapshotproperties(
+                    self.request.get("snapshot_properties", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'schedule': ResourcePolicySchedule(self.request.get(u'schedule', {}), self.module).from_response(),
-                u'retentionPolicy': ResourcePolicyRetentionpolicy(self.request.get(u'retentionPolicy', {}), self.module).from_response(),
-                u'snapshotProperties': ResourcePolicySnapshotproperties(self.request.get(u'snapshotProperties', {}), self.module).from_response(),
+                "schedule": ResourcePolicySchedule(
+                    self.request.get("schedule", {}), self.module
+                ).from_response(),
+                "retentionPolicy": ResourcePolicyRetentionpolicy(
+                    self.request.get("retentionPolicy", {}), self.module
+                ).from_response(),
+                "snapshotProperties": ResourcePolicySnapshotproperties(
+                    self.request.get("snapshotProperties", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -805,18 +877,30 @@ class ResourcePolicySchedule(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'hourlySchedule': ResourcePolicyHourlyschedule(self.request.get('hourly_schedule', {}), self.module).to_request(),
-                u'dailySchedule': ResourcePolicyDailyschedule(self.request.get('daily_schedule', {}), self.module).to_request(),
-                u'weeklySchedule': ResourcePolicyWeeklyschedule(self.request.get('weekly_schedule', {}), self.module).to_request(),
+                "hourlySchedule": ResourcePolicyHourlyschedule(
+                    self.request.get("hourly_schedule", {}), self.module
+                ).to_request(),
+                "dailySchedule": ResourcePolicyDailyschedule(
+                    self.request.get("daily_schedule", {}), self.module
+                ).to_request(),
+                "weeklySchedule": ResourcePolicyWeeklyschedule(
+                    self.request.get("weekly_schedule", {}), self.module
+                ).to_request(),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'hourlySchedule': ResourcePolicyHourlyschedule(self.request.get(u'hourlySchedule', {}), self.module).from_response(),
-                u'dailySchedule': ResourcePolicyDailyschedule(self.request.get(u'dailySchedule', {}), self.module).from_response(),
-                u'weeklySchedule': ResourcePolicyWeeklyschedule(self.request.get(u'weeklySchedule', {}), self.module).from_response(),
+                "hourlySchedule": ResourcePolicyHourlyschedule(
+                    self.request.get("hourlySchedule", {}), self.module
+                ).from_response(),
+                "dailySchedule": ResourcePolicyDailyschedule(
+                    self.request.get("dailySchedule", {}), self.module
+                ).from_response(),
+                "weeklySchedule": ResourcePolicyWeeklyschedule(
+                    self.request.get("weeklySchedule", {}), self.module
+                ).from_response(),
             }
         )
 
@@ -830,10 +914,20 @@ class ResourcePolicyHourlyschedule(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'hoursInCycle': self.request.get('hours_in_cycle'), u'startTime': self.request.get('start_time')})
+        return remove_nones_from_dict(
+            {
+                "hoursInCycle": self.request.get("hours_in_cycle"),
+                "startTime": self.request.get("start_time"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'hoursInCycle': self.request.get(u'hoursInCycle'), u'startTime': self.request.get(u'startTime')})
+        return remove_nones_from_dict(
+            {
+                "hoursInCycle": self.request.get("hoursInCycle"),
+                "startTime": self.request.get("startTime"),
+            }
+        )
 
 
 class ResourcePolicyDailyschedule(object):
@@ -845,10 +939,20 @@ class ResourcePolicyDailyschedule(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'daysInCycle': self.request.get('days_in_cycle'), u'startTime': self.request.get('start_time')})
+        return remove_nones_from_dict(
+            {
+                "daysInCycle": self.request.get("days_in_cycle"),
+                "startTime": self.request.get("start_time"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'daysInCycle': self.request.get(u'daysInCycle'), u'startTime': self.request.get(u'startTime')})
+        return remove_nones_from_dict(
+            {
+                "daysInCycle": self.request.get("daysInCycle"),
+                "startTime": self.request.get("startTime"),
+            }
+        )
 
 
 class ResourcePolicyWeeklyschedule(object):
@@ -860,10 +964,22 @@ class ResourcePolicyWeeklyschedule(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'dayOfWeeks': ResourcePolicyDayofweeksArray(self.request.get('day_of_weeks', []), self.module).to_request()})
+        return remove_nones_from_dict(
+            {
+                "dayOfWeeks": ResourcePolicyDayofweeksArray(
+                    self.request.get("day_of_weeks", []), self.module
+                ).to_request()
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'dayOfWeeks': ResourcePolicyDayofweeksArray(self.request.get(u'dayOfWeeks', []), self.module).from_response()})
+        return remove_nones_from_dict(
+            {
+                "dayOfWeeks": ResourcePolicyDayofweeksArray(
+                    self.request.get("dayOfWeeks", []), self.module
+                ).from_response()
+            }
+        )
 
 
 class ResourcePolicyDayofweeksArray(object):
@@ -887,10 +1003,14 @@ class ResourcePolicyDayofweeksArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'startTime': item.get('start_time'), u'day': item.get('day')})
+        return remove_nones_from_dict(
+            {"startTime": item.get("start_time"), "day": item.get("day")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'startTime': item.get(u'startTime'), u'day': item.get(u'day')})
+        return remove_nones_from_dict(
+            {"startTime": item.get("startTime"), "day": item.get("day")}
+        )
 
 
 class ResourcePolicyRetentionpolicy(object):
@@ -903,12 +1023,18 @@ class ResourcePolicyRetentionpolicy(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'maxRetentionDays': self.request.get('max_retention_days'), u'onSourceDiskDelete': self.request.get('on_source_disk_delete')}
+            {
+                "maxRetentionDays": self.request.get("max_retention_days"),
+                "onSourceDiskDelete": self.request.get("on_source_disk_delete"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'maxRetentionDays': self.request.get(u'maxRetentionDays'), u'onSourceDiskDelete': self.request.get(u'onSourceDiskDelete')}
+            {
+                "maxRetentionDays": self.request.get("maxRetentionDays"),
+                "onSourceDiskDelete": self.request.get("onSourceDiskDelete"),
+            }
         )
 
 
@@ -922,12 +1048,20 @@ class ResourcePolicySnapshotproperties(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'labels': self.request.get('labels'), u'storageLocations': self.request.get('storage_locations'), u'guestFlush': self.request.get('guest_flush')}
+            {
+                "labels": self.request.get("labels"),
+                "storageLocations": self.request.get("storage_locations"),
+                "guestFlush": self.request.get("guest_flush"),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'labels': self.request.get(u'labels'), u'storageLocations': self.request.get(u'storageLocations'), u'guestFlush': self.request.get(u'guestFlush')}
+            {
+                "labels": self.request.get("labels"),
+                "storageLocations": self.request.get("storageLocations"),
+                "guestFlush": self.request.get("guestFlush"),
+            }
         )
 
 
@@ -942,18 +1076,20 @@ class ResourcePolicyGroupplacementpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'vmCount': self.request.get('vm_count'),
-                u'availabilityDomainCount': self.request.get('availability_domain_count'),
-                u'collocation': self.request.get('collocation'),
+                "vmCount": self.request.get("vm_count"),
+                "availabilityDomainCount": self.request.get(
+                    "availability_domain_count"
+                ),
+                "collocation": self.request.get("collocation"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'vmCount': self.request.get(u'vmCount'),
-                u'availabilityDomainCount': self.request.get(u'availabilityDomainCount'),
-                u'collocation': self.request.get(u'collocation'),
+                "vmCount": self.request.get("vmCount"),
+                "availabilityDomainCount": self.request.get("availabilityDomainCount"),
+                "collocation": self.request.get("collocation"),
             }
         )
 
@@ -969,22 +1105,30 @@ class ResourcePolicyInstanceschedulepolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'vmStartSchedule': ResourcePolicyVmstartschedule(self.request.get('vm_start_schedule', {}), self.module).to_request(),
-                u'vmStopSchedule': ResourcePolicyVmstopschedule(self.request.get('vm_stop_schedule', {}), self.module).to_request(),
-                u'timeZone': self.request.get('time_zone'),
-                u'startTime': self.request.get('start_time'),
-                u'expirationTime': self.request.get('expiration_time'),
+                "vmStartSchedule": ResourcePolicyVmstartschedule(
+                    self.request.get("vm_start_schedule", {}), self.module
+                ).to_request(),
+                "vmStopSchedule": ResourcePolicyVmstopschedule(
+                    self.request.get("vm_stop_schedule", {}), self.module
+                ).to_request(),
+                "timeZone": self.request.get("time_zone"),
+                "startTime": self.request.get("start_time"),
+                "expirationTime": self.request.get("expiration_time"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'vmStartSchedule': ResourcePolicyVmstartschedule(self.request.get(u'vmStartSchedule', {}), self.module).from_response(),
-                u'vmStopSchedule': ResourcePolicyVmstopschedule(self.request.get(u'vmStopSchedule', {}), self.module).from_response(),
-                u'timeZone': self.request.get(u'timeZone'),
-                u'startTime': self.request.get(u'startTime'),
-                u'expirationTime': self.request.get(u'expirationTime'),
+                "vmStartSchedule": ResourcePolicyVmstartschedule(
+                    self.request.get("vmStartSchedule", {}), self.module
+                ).from_response(),
+                "vmStopSchedule": ResourcePolicyVmstopschedule(
+                    self.request.get("vmStopSchedule", {}), self.module
+                ).from_response(),
+                "timeZone": self.request.get("timeZone"),
+                "startTime": self.request.get("startTime"),
+                "expirationTime": self.request.get("expirationTime"),
             }
         )
 
@@ -998,10 +1142,10 @@ class ResourcePolicyVmstartschedule(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'schedule': self.request.get('schedule')})
+        return remove_nones_from_dict({"schedule": self.request.get("schedule")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'schedule': self.request.get(u'schedule')})
+        return remove_nones_from_dict({"schedule": self.request.get("schedule")})
 
 
 class ResourcePolicyVmstopschedule(object):
@@ -1013,11 +1157,11 @@ class ResourcePolicyVmstopschedule(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'schedule': self.request.get('schedule')})
+        return remove_nones_from_dict({"schedule": self.request.get("schedule")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'schedule': self.request.get(u'schedule')})
+        return remove_nones_from_dict({"schedule": self.request.get("schedule")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

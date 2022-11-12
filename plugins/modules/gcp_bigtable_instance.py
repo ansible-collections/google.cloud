@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_bigtable_instance
 description:
@@ -142,9 +146,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a instance
   google.cloud.gcp_bigtable_instance:
     name: my-instance
@@ -157,9 +161,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 state:
   description:
   - The current state of the instance.
@@ -223,7 +227,7 @@ clusters:
       - The current state of the cluster.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -250,29 +254,34 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(type='str'),
-            display_name=dict(type='str'),
-            type=dict(type='str'),
-            labels=dict(type='dict'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(type="str"),
+            display_name=dict(type="str"),
+            type=dict(type="str"),
+            labels=dict(type="dict"),
             clusters=dict(
-                type='list',
-                elements='dict',
-                options=dict(name=dict(type='str'), serve_nodes=dict(type='int'), default_storage_type=dict(type='str'), location=dict(type='str')),
+                type="list",
+                elements="dict",
+                options=dict(
+                    name=dict(type="str"),
+                    serve_nodes=dict(type="int"),
+                    default_storage_type=dict(type="str"),
+                    location=dict(type="str"),
+                ),
             ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/bigtable']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/bigtable"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     fetch = fetch_resource(module, self_link(module))
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
@@ -282,39 +291,41 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module))
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link):
-    auth = GcpSession(module, 'bigtable')
+    auth = GcpSession(module, "bigtable")
     return wait_for_operation(module, auth.post(link, resource_to_create(module)))
 
 
 def update(module, link):
-    auth = GcpSession(module, 'bigtable')
+    auth = GcpSession(module, "bigtable")
     return return_if_object(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link):
-    auth = GcpSession(module, 'bigtable')
+    auth = GcpSession(module, "bigtable")
     return return_if_object(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'name': module.params.get('name'),
-        u'displayName': module.params.get('display_name'),
-        u'type': module.params.get('type'),
-        u'labels': module.params.get('labels'),
-        u'clusters': InstanceClustersArray(module.params.get('clusters', []), module).to_request(),
+        "name": module.params.get("name"),
+        "displayName": module.params.get("display_name"),
+        "type": module.params.get("type"),
+        "labels": module.params.get("labels"),
+        "clusters": InstanceClustersArray(
+            module.params.get("clusters", []), module
+        ).to_request(),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -326,16 +337,22 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, allow_not_found=True):
-    auth = GcpSession(module, 'bigtable')
+    auth = GcpSession(module, "bigtable")
     return return_if_object(module, auth.get(link), allow_not_found)
 
 
 def self_link(module):
-    return "https://bigtableadmin.googleapis.com/v2/projects/{project}/instances/{name}".format(**module.params)
+    return "https://bigtableadmin.googleapis.com/v2/projects/{project}/instances/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://bigtableadmin.googleapis.com/v2/projects/{project}/instances".format(**module.params)
+    return (
+        "https://bigtableadmin.googleapis.com/v2/projects/{project}/instances".format(
+            **module.params
+        )
+    )
 
 
 def return_if_object(module, response, allow_not_found=False):
@@ -350,13 +367,13 @@ def return_if_object(module, response, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -384,12 +401,14 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'state': response.get(u'state'),
-        u'name': response.get(u'name'),
-        u'displayName': response.get(u'displayName'),
-        u'type': response.get(u'type'),
-        u'labels': response.get(u'labels'),
-        u'clusters': InstanceClustersArray(response.get(u'clusters', []), module).from_response(),
+        "state": response.get("state"),
+        "name": response.get("name"),
+        "displayName": response.get("displayName"),
+        "type": response.get("type"),
+        "labels": response.get("labels"),
+        "clusters": InstanceClustersArray(
+            response.get("clusters", []), module
+        ).from_response(),
     }
 
 
@@ -406,20 +425,20 @@ def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['done'])
+    status = navigate_hash(op_result, ["done"])
     wait_done = wait_for_completion(status, op_result, module)
-    raise_if_errors(wait_done, ['error'], module)
-    return navigate_hash(wait_done, ['response'])
+    raise_if_errors(wait_done, ["error"], module)
+    return navigate_hash(wait_done, ["response"])
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = bigtable_async_url(module, {'op_id': op_id})
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = bigtable_async_url(module, {"op_id": op_id})
     while not status:
-        raise_if_errors(op_result, ['error'], module)
+        raise_if_errors(op_result, ["error"], module)
         time.sleep(1.0)
         op_result = fetch_resource(module, op_uri, False)
-        status = navigate_hash(op_result, ['done'])
+        status = navigate_hash(op_result, ["done"])
     return op_result
 
 
@@ -431,47 +450,51 @@ def raise_if_errors(response, err_path, module):
 
 def resource_to_create(module):
     instance = resource_to_request(module)
-    if 'name' in instance:
-        del instance['name']
+    if "name" in instance:
+        del instance["name"]
 
     clusters = []
-    if 'clusters' in instance:
-        clusters = instance['clusters']
-        del instance['clusters']
+    if "clusters" in instance:
+        clusters = instance["clusters"]
+        del instance["clusters"]
 
-    return {'instanceId': module.params['name'].split('/')[-1], 'instance': instance, 'clusters': clusters}
+    return {
+        "instanceId": module.params["name"].split("/")[-1],
+        "instance": instance,
+        "clusters": clusters,
+    }
 
 
 def encode_request(request, module):
-    if 'name' in request:
-        del request['name']
+    if "name" in request:
+        del request["name"]
 
-    if 'clusters' in request:
-        request['clusters'] = convert_clusters_to_map(request['clusters'])
+    if "clusters" in request:
+        request["clusters"] = convert_clusters_to_map(request["clusters"])
     return request
 
 
 def decode_response(response, module):
-    if 'name' in response:
-        response['name'] = response['name'].split('/')[-1]
+    if "name" in response:
+        response["name"] = response["name"].split("/")[-1]
 
-    if 'clusters' in response:
-        response['clusters'] = convert_map_to_clusters(response['clusters'])
+    if "clusters" in response:
+        response["clusters"] = convert_map_to_clusters(response["clusters"])
     return response
 
 
 def convert_clusters_to_map(clusters):
     cmap = {}
     for cluster in clusters:
-        cmap[cluster['name']] = cluster
-        del cmap[cluster['name']]['name']
+        cmap[cluster["name"]] = cluster
+        del cmap[cluster["name"]]["name"]
     return cmap
 
 
 def convert_map_to_clusters(clusters):
     carray = []
     for key, cluster in clusters.items():
-        cluster['name'] = key.split('/')[-1]
+        cluster["name"] = key.split("/")[-1]
         carray.append(cluster)
     return carray
 
@@ -479,12 +502,16 @@ def convert_map_to_clusters(clusters):
 def bigtable_async_url(module, extra_data=None):
     if extra_data is None:
         extra_data = {}
-    location_name = module.params['clusters'][0]['location'].split('/')[-1]
+    location_name = module.params["clusters"][0]["location"].split("/")[-1]
 
-    url = 'https://bigtableadmin.googleapis.com/v2/operations/projects/%s' '/instances/%s/locations/%s/operations/{op_id}' % (
-        module.params['project'],
-        module.params['name'],
-        location_name,
+    url = (
+        "https://bigtableadmin.googleapis.com/v2/operations/projects/%s"
+        "/instances/%s/locations/%s/operations/{op_id}"
+        % (
+            module.params["project"],
+            module.params["name"],
+            location_name,
+        )
     )
 
     return url.format(**extra_data)
@@ -513,23 +540,23 @@ class InstanceClustersArray(object):
     def _request_for_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get('name'),
-                u'serveNodes': item.get('serve_nodes'),
-                u'defaultStorageType': item.get('default_storage_type'),
-                u'location': item.get('location'),
+                "name": item.get("name"),
+                "serveNodes": item.get("serve_nodes"),
+                "defaultStorageType": item.get("default_storage_type"),
+                "location": item.get("location"),
             }
         )
 
     def _response_from_item(self, item):
         return remove_nones_from_dict(
             {
-                u'name': item.get(u'name'),
-                u'serveNodes': item.get(u'serveNodes'),
-                u'defaultStorageType': item.get(u'defaultStorageType'),
-                u'location': item.get(u'location'),
+                "name": item.get("name"),
+                "serveNodes": item.get("serveNodes"),
+                "defaultStorageType": item.get("defaultStorageType"),
+                "location": item.get("location"),
             }
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

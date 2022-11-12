@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_network
 description:
@@ -146,9 +150,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a network
   google.cloud.gcp_compute_network:
     name: test_object
@@ -157,9 +161,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 description:
   description:
   - An optional description of this resource. The resource must be recreated to modify
@@ -227,7 +231,7 @@ mtu:
     the maximum value is 1500 bytes.
   returned: success
   type: int
-'''
+"""
 
 ################################################################################
 # Imports
@@ -254,26 +258,28 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            description=dict(type='str'),
-            name=dict(required=True, type='str'),
-            auto_create_subnetworks=dict(type='bool'),
-            routing_config=dict(type='dict', options=dict(routing_mode=dict(required=True, type='str'))),
-            mtu=dict(type='int'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            description=dict(type="str"),
+            name=dict(required=True, type="str"),
+            auto_create_subnetworks=dict(type="bool"),
+            routing_config=dict(
+                type="dict", options=dict(routing_mode=dict(required=True, type="str"))
+            ),
+            mtu=dict(type="int"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#network'
+    state = module.params["state"]
+    kind = "compute#network"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -283,19 +289,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -305,31 +311,42 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('routingConfig') != request.get('routingConfig'):
+    if response.get("routingConfig") != request.get("routingConfig"):
         routing_config_update(module, request, response)
 
 
 def routing_config_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.patch(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/networks/{name}"]).format(**module.params),
-        {u'routingConfig': NetworkRoutingconfig(module.params.get('routing_config', {}), module).to_request()},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/global/networks/{name}",
+            ]
+        ).format(**module.params),
+        {
+            "routingConfig": NetworkRoutingconfig(
+                module.params.get("routing_config", {}), module
+            ).to_request()
+        },
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#network',
-        u'description': module.params.get('description'),
-        u'name': module.params.get('name'),
-        u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
-        u'routingConfig': NetworkRoutingconfig(module.params.get('routing_config', {}), module).to_request(),
-        u'mtu': module.params.get('mtu'),
+        "kind": "compute#network",
+        "description": module.params.get("description"),
+        "name": module.params.get("name"),
+        "autoCreateSubnetworks": module.params.get("auto_create_subnetworks"),
+        "routingConfig": NetworkRoutingconfig(
+            module.params.get("routing_config", {}), module
+        ).to_request(),
+        "mtu": module.params.get("mtu"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -340,16 +357,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/networks/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/networks/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/networks".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/networks".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -364,11 +385,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -395,15 +416,17 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'description': module.params.get('description'),
-        u'gatewayIPv4': response.get(u'gatewayIPv4'),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
-        u'subnetworks': response.get(u'subnetworks'),
-        u'autoCreateSubnetworks': module.params.get('auto_create_subnetworks'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'routingConfig': NetworkRoutingconfig(response.get(u'routingConfig', {}), module).from_response(),
-        u'mtu': module.params.get('mtu'),
+        "description": module.params.get("description"),
+        "gatewayIPv4": response.get("gatewayIPv4"),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
+        "subnetworks": response.get("subnetworks"),
+        "autoCreateSubnetworks": module.params.get("auto_create_subnetworks"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "routingConfig": NetworkRoutingconfig(
+            response.get("routingConfig", {}), module
+        ).from_response(),
+        "mtu": module.params.get("mtu"),
     }
 
 
@@ -417,22 +440,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#network')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#network"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -451,11 +476,11 @@ class NetworkRoutingconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'routingMode': self.request.get('routing_mode')})
+        return remove_nones_from_dict({"routingMode": self.request.get("routing_mode")})
 
     def from_response(self):
-        return remove_nones_from_dict({u'routingMode': self.request.get(u'routingMode')})
+        return remove_nones_from_dict({"routingMode": self.request.get("routingMode")})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

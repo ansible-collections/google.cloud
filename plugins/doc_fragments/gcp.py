@@ -3,14 +3,14 @@
 # Copyright: (c) 2018, Google Inc.
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
 
 class ModuleDocFragment(object):
     # GCP doc fragment.
-    DOCUMENTATION = r'''
+    DOCUMENTATION = r"""
 options:
     project:
         description:
@@ -59,4 +59,4 @@ notes:
     not set.
   - The I(service_account_email) and I(service_account_file) options are
     mutually exclusive.
-'''
+"""

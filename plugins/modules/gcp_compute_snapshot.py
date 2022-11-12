@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_snapshot
 description:
@@ -195,9 +199,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a disk
   google.cloud.gcp_compute_disk:
     name: disk-snapshot
@@ -219,9 +223,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 creationTimestamp:
   description:
   - Creation timestamp in RFC3339 text format.
@@ -345,7 +349,7 @@ sourceDiskEncryptionKey:
       - If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -373,33 +377,45 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str'),
-            description=dict(type='str'),
-            storage_locations=dict(type='list', elements='str'),
-            labels=dict(type='dict'),
-            source_disk=dict(required=True, type='dict'),
-            zone=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            name=dict(required=True, type="str"),
+            description=dict(type="str"),
+            storage_locations=dict(type="list", elements="str"),
+            labels=dict(type="dict"),
+            source_disk=dict(required=True, type="dict"),
+            zone=dict(type="str"),
             snapshot_encryption_key=dict(
-                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type="dict",
+                no_log=True,
+                options=dict(
+                    raw_key=dict(type="str"),
+                    kms_key_name=dict(type="str"),
+                    kms_key_service_account=dict(type="str"),
+                ),
             ),
             source_disk_encryption_key=dict(
-                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+                type="dict",
+                no_log=True,
+                options=dict(
+                    raw_key=dict(type="str"),
+                    kms_key_name=dict(type="str"),
+                    kms_key_service_account=dict(type="str"),
+                ),
             ),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#snapshot'
+    state = module.params["state"]
+    kind = "compute#snapshot"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -409,19 +425,19 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, create_link(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
@@ -431,32 +447,42 @@ def update(module, link, kind, fetch):
 
 
 def update_fields(module, request, response):
-    if response.get('labels') != request.get('labels'):
+    if response.get("labels") != request.get("labels"):
         labels_update(module, request, response)
 
 
 def labels_update(module, request, response):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     auth.post(
-        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/global/snapshots/{name}/setLabels"]).format(**module.params),
-        {u'labels': module.params.get('labels'), u'labelFingerprint': response.get('labelFingerprint')},
+        "".join(
+            [
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/global/snapshots/{name}/setLabels",
+            ]
+        ).format(**module.params),
+        {
+            "labels": module.params.get("labels"),
+            "labelFingerprint": response.get("labelFingerprint"),
+        },
     )
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#snapshot',
-        u'sourceDisk': replace_resource_dict(module.params.get(u'source_disk', {}), 'name'),
-        u'zone': module.params.get('zone'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'storageLocations': module.params.get('storage_locations'),
-        u'labels': module.params.get('labels'),
+        "kind": "compute#snapshot",
+        "sourceDisk": replace_resource_dict(
+            module.params.get("source_disk", {}), "name"
+        ),
+        "zone": module.params.get("zone"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "storageLocations": module.params.get("storage_locations"),
+        "labels": module.params.get("labels"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -467,21 +493,31 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/snapshots".format(
+        **module.params
+    )
 
 
 def create_link(module):
-    res = {'project': module.params['project'], 'zone': module.params['zone'], 'source_disk': replace_resource_dict(module.params['source_disk'], 'name')}
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{source_disk}/createSnapshot".format(**res)
+    res = {
+        "project": module.params["project"],
+        "zone": module.params["zone"],
+        "source_disk": replace_resource_dict(module.params["source_disk"], "name"),
+    }
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/disks/{source_disk}/createSnapshot".format(
+        **res
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -496,11 +532,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -527,16 +563,16 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'id': response.get(u'id'),
-        u'diskSizeGb': response.get(u'diskSizeGb'),
-        u'name': module.params.get('name'),
-        u'description': module.params.get('description'),
-        u'storageBytes': response.get(u'storageBytes'),
-        u'storageLocations': response.get(u'storageLocations'),
-        u'licenses': response.get(u'licenses'),
-        u'labels': response.get(u'labels'),
-        u'labelFingerprint': response.get(u'labelFingerprint'),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "id": response.get("id"),
+        "diskSizeGb": response.get("diskSizeGb"),
+        "name": module.params.get("name"),
+        "description": module.params.get("description"),
+        "storageBytes": response.get("storageBytes"),
+        "storageLocations": response.get("storageLocations"),
+        "licenses": response.get("licenses"),
+        "labels": response.get("labels"),
+        "labelFingerprint": response.get("labelFingerprint"),
     }
 
 
@@ -545,7 +581,12 @@ def license_selflink(name, params):
         return
     url = r"https://compute.googleapis.com/compute/v1//projects/.*/global/licenses/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(**params) % name
+        name = (
+            "https://compute.googleapis.com/compute/v1//projects/{project}/global/licenses/%s".format(
+                **params
+            )
+            % name
+        )
     return name
 
 
@@ -559,22 +600,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#snapshot')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#snapshot"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = navigate_hash(op_result, ['selfLink'])
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = navigate_hash(op_result, ["selfLink"])
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -595,18 +638,18 @@ class SnapshotSnapshotencryptionkey(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'rawKey': self.request.get('raw_key'),
-                u'kmsKeyName': self.request.get('kms_key_name'),
-                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+                "rawKey": self.request.get("raw_key"),
+                "kmsKeyName": self.request.get("kms_key_name"),
+                "kmsKeyServiceAccount": self.request.get("kms_key_service_account"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'rawKey': self.request.get(u'rawKey'),
-                u'kmsKeyName': self.request.get(u'kmsKeyName'),
-                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+                "rawKey": self.request.get("rawKey"),
+                "kmsKeyName": self.request.get("kmsKeyName"),
+                "kmsKeyServiceAccount": self.request.get("kmsKeyServiceAccount"),
             }
         )
 
@@ -622,21 +665,21 @@ class SnapshotSourcediskencryptionkey(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'rawKey': self.request.get('raw_key'),
-                u'kmsKeyName': self.request.get('kms_key_name'),
-                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+                "rawKey": self.request.get("raw_key"),
+                "kmsKeyName": self.request.get("kms_key_name"),
+                "kmsKeyServiceAccount": self.request.get("kms_key_service_account"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'rawKey': self.request.get(u'rawKey'),
-                u'kmsKeyName': self.request.get(u'kmsKeyName'),
-                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+                "rawKey": self.request.get("rawKey"),
+                "kmsKeyName": self.request.get("kmsKeyName"),
+                "kmsKeyServiceAccount": self.request.get("kmsKeyServiceAccount"),
             }
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

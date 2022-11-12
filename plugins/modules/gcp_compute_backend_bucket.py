@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_backend_bucket
 description:
@@ -212,9 +216,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a bucket
   google.cloud.gcp_storage_bucket:
     name: bucket-backendbucket
@@ -234,9 +238,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 bucketName:
   description:
   - Cloud Storage bucket name.
@@ -354,7 +358,7 @@ name:
     which cannot be a dash.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -381,39 +385,43 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            bucket_name=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            bucket_name=dict(required=True, type="str"),
             cdn_policy=dict(
-                type='dict',
+                type="dict",
                 options=dict(
-                    signed_url_cache_max_age_sec=dict(type='int'),
-                    default_ttl=dict(type='int'),
-                    max_ttl=dict(type='int'),
-                    client_ttl=dict(type='int'),
-                    negative_caching=dict(type='bool'),
-                    negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'), ttl=dict(type='int'))),
-                    cache_mode=dict(type='str'),
-                    serve_while_stale=dict(type='int'),
+                    signed_url_cache_max_age_sec=dict(type="int"),
+                    default_ttl=dict(type="int"),
+                    max_ttl=dict(type="int"),
+                    client_ttl=dict(type="int"),
+                    negative_caching=dict(type="bool"),
+                    negative_caching_policy=dict(
+                        type="list",
+                        elements="dict",
+                        options=dict(code=dict(type="int"), ttl=dict(type="int")),
+                    ),
+                    cache_mode=dict(type="str"),
+                    serve_while_stale=dict(type="int"),
                 ),
             ),
-            custom_response_headers=dict(type='list', elements='str'),
-            description=dict(type='str'),
-            enable_cdn=dict(type='bool'),
-            name=dict(required=True, type='str'),
+            custom_response_headers=dict(type="list", elements="str"),
+            description=dict(type="str"),
+            enable_cdn=dict(type="bool"),
+            name=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#backendBucket'
+    state = module.params["state"]
+    kind = "compute#backendBucket"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -423,41 +431,43 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#backendBucket',
-        u'bucketName': module.params.get('bucket_name'),
-        u'cdnPolicy': BackendBucketCdnpolicy(module.params.get('cdn_policy', {}), module).to_request(),
-        u'customResponseHeaders': module.params.get('custom_response_headers'),
-        u'description': module.params.get('description'),
-        u'enableCdn': module.params.get('enable_cdn'),
-        u'name': module.params.get('name'),
+        "kind": "compute#backendBucket",
+        "bucketName": module.params.get("bucket_name"),
+        "cdnPolicy": BackendBucketCdnpolicy(
+            module.params.get("cdn_policy", {}), module
+        ).to_request(),
+        "customResponseHeaders": module.params.get("custom_response_headers"),
+        "description": module.params.get("description"),
+        "enableCdn": module.params.get("enable_cdn"),
+        "name": module.params.get("name"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -468,16 +478,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/global/backendBuckets".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -492,11 +506,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -523,14 +537,16 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'bucketName': response.get(u'bucketName'),
-        u'cdnPolicy': BackendBucketCdnpolicy(response.get(u'cdnPolicy', {}), module).from_response(),
-        u'customResponseHeaders': response.get(u'customResponseHeaders'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'enableCdn': response.get(u'enableCdn'),
-        u'id': response.get(u'id'),
-        u'name': module.params.get('name'),
+        "bucketName": response.get("bucketName"),
+        "cdnPolicy": BackendBucketCdnpolicy(
+            response.get("cdnPolicy", {}), module
+        ).from_response(),
+        "customResponseHeaders": response.get("customResponseHeaders"),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "enableCdn": response.get("enableCdn"),
+        "id": response.get("id"),
+        "name": module.params.get("name"),
     }
 
 
@@ -544,22 +560,24 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    return fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#backendBucket')
+    return fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#backendBucket"
+    )
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -580,28 +598,34 @@ class BackendBucketCdnpolicy(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
-                u'signedUrlCacheMaxAgeSec': self.request.get('signed_url_cache_max_age_sec'),
-                u'defaultTtl': self.request.get('default_ttl'),
-                u'maxTtl': self.request.get('max_ttl'),
-                u'clientTtl': self.request.get('client_ttl'),
-                u'negativeCaching': self.request.get('negative_caching'),
-                u'negativeCachingPolicy': BackendBucketNegativecachingpolicyArray(self.request.get('negative_caching_policy', []), self.module).to_request(),
-                u'cacheMode': self.request.get('cache_mode'),
-                u'serveWhileStale': self.request.get('serve_while_stale'),
+                "signedUrlCacheMaxAgeSec": self.request.get(
+                    "signed_url_cache_max_age_sec"
+                ),
+                "defaultTtl": self.request.get("default_ttl"),
+                "maxTtl": self.request.get("max_ttl"),
+                "clientTtl": self.request.get("client_ttl"),
+                "negativeCaching": self.request.get("negative_caching"),
+                "negativeCachingPolicy": BackendBucketNegativecachingpolicyArray(
+                    self.request.get("negative_caching_policy", []), self.module
+                ).to_request(),
+                "cacheMode": self.request.get("cache_mode"),
+                "serveWhileStale": self.request.get("serve_while_stale"),
             }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
             {
-                u'signedUrlCacheMaxAgeSec': self.request.get(u'signedUrlCacheMaxAgeSec'),
-                u'defaultTtl': self.request.get(u'defaultTtl'),
-                u'maxTtl': self.request.get(u'maxTtl'),
-                u'clientTtl': self.request.get(u'clientTtl'),
-                u'negativeCaching': self.request.get(u'negativeCaching'),
-                u'negativeCachingPolicy': BackendBucketNegativecachingpolicyArray(self.request.get(u'negativeCachingPolicy', []), self.module).from_response(),
-                u'cacheMode': self.request.get(u'cacheMode'),
-                u'serveWhileStale': self.request.get(u'serveWhileStale'),
+                "signedUrlCacheMaxAgeSec": self.request.get("signedUrlCacheMaxAgeSec"),
+                "defaultTtl": self.request.get("defaultTtl"),
+                "maxTtl": self.request.get("maxTtl"),
+                "clientTtl": self.request.get("clientTtl"),
+                "negativeCaching": self.request.get("negativeCaching"),
+                "negativeCachingPolicy": BackendBucketNegativecachingpolicyArray(
+                    self.request.get("negativeCachingPolicy", []), self.module
+                ).from_response(),
+                "cacheMode": self.request.get("cacheMode"),
+                "serveWhileStale": self.request.get("serveWhileStale"),
             }
         )
 
@@ -627,11 +651,15 @@ class BackendBucketNegativecachingpolicyArray(object):
         return items
 
     def _request_for_item(self, item):
-        return remove_nones_from_dict({u'code': item.get('code'), u'ttl': item.get('ttl')})
+        return remove_nones_from_dict(
+            {"code": item.get("code"), "ttl": item.get("ttl")}
+        )
 
     def _response_from_item(self, item):
-        return remove_nones_from_dict({u'code': item.get(u'code'), u'ttl': item.get(u'ttl')})
+        return remove_nones_from_dict(
+            {"code": item.get("code"), "ttl": item.get("ttl")}
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

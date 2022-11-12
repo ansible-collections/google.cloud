@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_compute_target_pool
 description:
@@ -184,9 +188,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a target pool
   google.cloud.gcp_compute_target_pool:
     name: test_object
@@ -195,9 +199,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 backupPool:
   description:
   - This field is applicable only when the containing target pool is serving a forwarding
@@ -282,13 +286,19 @@ region:
   - The region where the target pool resides.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 import json
 import time
 
@@ -302,29 +312,29 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            backup_pool=dict(type='dict'),
-            description=dict(type='str'),
-            failover_ratio=dict(type='str'),
-            health_check=dict(type='dict'),
-            instances=dict(type='list', elements='dict'),
-            name=dict(required=True, type='str'),
-            session_affinity=dict(type='str'),
-            region=dict(required=True, type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            backup_pool=dict(type="dict"),
+            description=dict(type="str"),
+            failover_ratio=dict(type="str"),
+            health_check=dict(type="dict"),
+            instances=dict(type="list", elements="dict"),
+            name=dict(required=True, type="str"),
+            session_affinity=dict(type="str"),
+            region=dict(required=True, type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/compute']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/compute"]
 
-    state = module.params['state']
-    kind = 'compute#targetPool'
+    state = module.params["state"]
+    kind = "compute#targetPool"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -334,42 +344,48 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.put(link, resource_to_request(module)))
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return wait_for_operation(module, auth.delete(link))
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'compute#targetPool',
-        u'backupPool': replace_resource_dict(module.params.get(u'backup_pool', {}), 'selfLink'),
-        u'description': module.params.get('description'),
-        u'failoverRatio': module.params.get('failover_ratio'),
-        u'healthCheck': replace_resource_dict(module.params.get(u'health_check', {}), 'selfLink'),
-        u'instances': replace_resource_dict(module.params.get('instances', []), 'selfLink'),
-        u'name': module.params.get('name'),
-        u'sessionAffinity': module.params.get('session_affinity'),
+        "kind": "compute#targetPool",
+        "backupPool": replace_resource_dict(
+            module.params.get("backup_pool", {}), "selfLink"
+        ),
+        "description": module.params.get("description"),
+        "failoverRatio": module.params.get("failover_ratio"),
+        "healthCheck": replace_resource_dict(
+            module.params.get("health_check", {}), "selfLink"
+        ),
+        "instances": replace_resource_dict(
+            module.params.get("instances", []), "selfLink"
+        ),
+        "name": module.params.get("name"),
+        "sessionAffinity": module.params.get("session_affinity"),
     }
     request = encode_request(request, module)
     return_vals = {}
@@ -381,16 +397,20 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'compute')
+    auth = GcpSession(module, "compute")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/targetPools/{name}".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/targetPools/{name}".format(
+        **module.params
+    )
 
 
 def collection(module):
-    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/targetPools".format(**module.params)
+    return "https://compute.googleapis.com/compute/v1/projects/{project}/regions/{region}/targetPools".format(
+        **module.params
+    )
 
 
 def return_if_object(module, response, kind, allow_not_found=False):
@@ -405,13 +425,13 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
     result = decode_response(result, module)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -439,15 +459,17 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'backupPool': replace_resource_dict(module.params.get(u'backup_pool', {}), 'selfLink'),
-        u'creationTimestamp': response.get(u'creationTimestamp'),
-        u'description': response.get(u'description'),
-        u'failoverRatio': response.get(u'failoverRatio'),
-        u'healthCheck': response.get(u'healthCheck'),
-        u'id': response.get(u'id'),
-        u'instances': response.get(u'instances'),
-        u'name': module.params.get('name'),
-        u'sessionAffinity': module.params.get('session_affinity'),
+        "backupPool": replace_resource_dict(
+            module.params.get("backup_pool", {}), "selfLink"
+        ),
+        "creationTimestamp": response.get("creationTimestamp"),
+        "description": response.get("description"),
+        "failoverRatio": response.get("failoverRatio"),
+        "healthCheck": response.get("healthCheck"),
+        "id": response.get("id"),
+        "instances": response.get("instances"),
+        "name": module.params.get("name"),
+        "sessionAffinity": module.params.get("session_affinity"),
     }
 
 
@@ -461,12 +483,14 @@ def async_op_url(module, extra_data=None):
 
 
 def wait_for_operation(module, response):
-    op_result = return_if_object(module, response, 'compute#operation')
+    op_result = return_if_object(module, response, "compute#operation")
     if op_result is None:
         return {}
-    status = navigate_hash(op_result, ['status'])
+    status = navigate_hash(op_result, ["status"])
     wait_done = wait_for_completion(status, op_result, module)
-    response = fetch_resource(module, navigate_hash(wait_done, ['targetLink']), 'compute#targetPool')
+    response = fetch_resource(
+        module, navigate_hash(wait_done, ["targetLink"]), "compute#targetPool"
+    )
     if response:
         return decode_response(response, module)
     else:
@@ -474,13 +498,13 @@ def wait_for_operation(module, response):
 
 
 def wait_for_completion(status, op_result, module):
-    op_id = navigate_hash(op_result, ['name'])
-    op_uri = async_op_url(module, {'op_id': op_id})
-    while status != 'DONE':
-        raise_if_errors(op_result, ['error', 'errors'], module)
+    op_id = navigate_hash(op_result, ["name"])
+    op_uri = async_op_url(module, {"op_id": op_id})
+    while status != "DONE":
+        raise_if_errors(op_result, ["error", "errors"], module)
         time.sleep(1.0)
-        op_result = fetch_resource(module, op_uri, 'compute#operation', False)
-        status = navigate_hash(op_result, ['status'])
+        op_result = fetch_resource(module, op_uri, "compute#operation", False)
+        status = navigate_hash(op_result, ["status"])
     return op_result
 
 
@@ -497,26 +521,26 @@ def raise_if_errors(response, err_path, module):
 # take [0, 1] elements. To make it simpler to declare we'll map that to a
 # single object and encode/decode as appropriate.
 def encode_request(request, module):
-    if 'healthCheck' in request:
-        request['healthChecks'] = [request['healthCheck']]
-        del request['healthCheck']
+    if "healthCheck" in request:
+        request["healthChecks"] = [request["healthCheck"]]
+        del request["healthCheck"]
     return request
 
 
 # Mask healthChecks into a single element.
 # @see encode_request for details
 def decode_response(response, module):
-    if response['kind'] != 'compute#targetPool':
+    if response["kind"] != "compute#targetPool":
         return response
 
     # Map healthChecks[0] => healthCheck
-    if 'healthChecks' in response:
-        if not response['healthChecks']:
-            response['healthCheck'] = response['healthChecks'][0]
-            del response['healthChecks']
+    if "healthChecks" in response:
+        if not response["healthChecks"]:
+            response["healthCheck"] = response["healthChecks"][0]
+            del response["healthChecks"]
 
     return response
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

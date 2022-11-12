@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_storage_bucket_access_control
 description:
@@ -133,9 +137,9 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
@@ -154,9 +158,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 bucket:
   description:
   - The name of the bucket.
@@ -213,7 +217,7 @@ role:
   - The access permission for the entity.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
@@ -239,24 +243,26 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            bucket=dict(required=True, type='dict'),
-            entity=dict(required=True, type='str'),
-            role=dict(type='str'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            bucket=dict(required=True, type="dict"),
+            entity=dict(required=True, type="str"),
+            role=dict(type="str"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/devstorage.full_control']
+    if not module.params["scopes"]:
+        module.params["scopes"] = [
+            "https://www.googleapis.com/auth/devstorage.full_control"
+        ]
 
-    state = module.params['state']
-    kind = 'storage#bucketAccessControl'
+    state = module.params["state"]
+    kind = "storage#bucketAccessControl"
 
     fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
-        if state == 'present':
+        if state == "present":
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
                 fetch = fetch_resource(module, self_link(module), kind)
@@ -266,38 +272,38 @@ def main():
             fetch = {}
             changed = True
     else:
-        if state == 'present':
+        if state == "present":
             fetch = create(module, collection(module), kind)
             changed = True
         else:
             fetch = {}
 
-    fetch.update({'changed': changed})
+    fetch.update({"changed": changed})
 
     module.exit_json(**fetch)
 
 
 def create(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.post(link, resource_to_request(module)), kind)
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.put(link, resource_to_request(module)), kind)
 
 
 def delete(module, link, kind):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.delete(link), kind)
 
 
 def resource_to_request(module):
     request = {
-        u'kind': 'storage#bucketAccessControl',
-        u'bucket': replace_resource_dict(module.params.get(u'bucket', {}), 'name'),
-        u'entity': module.params.get('entity'),
-        u'role': module.params.get('role'),
+        "kind": "storage#bucketAccessControl",
+        "bucket": replace_resource_dict(module.params.get("bucket", {}), "name"),
+        "entity": module.params.get("entity"),
+        "role": module.params.get("role"),
     }
     return_vals = {}
     for k, v in request.items():
@@ -308,17 +314,22 @@ def resource_to_request(module):
 
 
 def fetch_resource(module, link, kind, allow_not_found=True):
-    auth = GcpSession(module, 'storage')
+    auth = GcpSession(module, "storage")
     return return_if_object(module, auth.get(link), kind, allow_not_found)
 
 
 def self_link(module):
-    res = {'bucket': replace_resource_dict(module.params['bucket'], 'name'), 'entity': module.params['entity']}
-    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(**res)
+    res = {
+        "bucket": replace_resource_dict(module.params["bucket"], "name"),
+        "entity": module.params["entity"],
+    }
+    return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl/{entity}".format(
+        **res
+    )
 
 
 def collection(module):
-    res = {'bucket': replace_resource_dict(module.params['bucket'], 'name')}
+    res = {"bucket": replace_resource_dict(module.params["bucket"], "name")}
     return "https://storage.googleapis.com/storage/v1/b/{bucket}/acl".format(**res)
 
 
@@ -334,11 +345,11 @@ def return_if_object(module, response, kind, allow_not_found=False):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError):
+    except getattr(json.decoder, "JSONDecodeError", ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
@@ -365,14 +376,16 @@ def is_different(module, response):
 # This is for doing comparisons with Ansible's current parameters.
 def response_to_hash(module, response):
     return {
-        u'bucket': replace_resource_dict(module.params.get(u'bucket', {}), 'name'),
-        u'domain': response.get(u'domain'),
-        u'email': response.get(u'email'),
-        u'entity': module.params.get('entity'),
-        u'entityId': response.get(u'entityId'),
-        u'id': response.get(u'id'),
-        u'projectTeam': BucketAccessControlProjectteam(response.get(u'projectTeam', {}), module).from_response(),
-        u'role': response.get(u'role'),
+        "bucket": replace_resource_dict(module.params.get("bucket", {}), "name"),
+        "domain": response.get("domain"),
+        "email": response.get("email"),
+        "entity": module.params.get("entity"),
+        "entityId": response.get("entityId"),
+        "id": response.get("id"),
+        "projectTeam": BucketAccessControlProjectteam(
+            response.get("projectTeam", {}), module
+        ).from_response(),
+        "role": response.get("role"),
     }
 
 
@@ -385,11 +398,21 @@ class BucketAccessControlProjectteam(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get('project_number'), u'team': self.request.get('team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("project_number"),
+                "team": self.request.get("team"),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'projectNumber': self.request.get(u'projectNumber'), u'team': self.request.get(u'team')})
+        return remove_nones_from_dict(
+            {
+                "projectNumber": self.request.get("projectNumber"),
+                "team": self.request.get("team"),
+            }
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

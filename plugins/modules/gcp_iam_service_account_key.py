@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_iam_service_account_key
 description:
@@ -114,9 +118,9 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: create a service account
   google.cloud.gcp_iam_service_account:
     name: test-ansible@graphite-playground.google.com.iam.gserviceaccount.com
@@ -136,9 +140,9 @@ EXAMPLES = '''
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     state: present
-'''
+"""
 
-RETURN = '''
+RETURN = """
 name:
   description:
   - The name of the key.
@@ -192,13 +196,19 @@ path:
   - File path must be absolute.
   returned: success
   type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+    replace_resource_dict,
+)
 from ansible.module_utils._text import to_native
 import json
 import os
@@ -216,53 +226,60 @@ def main():
 
     module = GcpModule(
         argument_spec=dict(
-            state=dict(default='present', choices=['present', 'absent'], type='str'),
-            private_key_type=dict(type='str'),
-            key_algorithm=dict(type='str'),
-            service_account=dict(type='dict'),
-            path=dict(type='path'),
+            state=dict(default="present", choices=["present", "absent"], type="str"),
+            private_key_type=dict(type="str"),
+            key_algorithm=dict(type="str"),
+            service_account=dict(type="dict"),
+            path=dict(type="path"),
         )
     )
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/iam']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/iam"]
 
-    state = module.params['state']
+    state = module.params["state"]
 
     # If file exists, we're doing a no-op or deleting the key.
     changed = False
-    if os.path.isfile(module.params['path']):
+    if os.path.isfile(module.params["path"]):
         fetch = fetch_resource(module)
         # If file exists and we should delete the file, delete it.
-        if fetch and module.params['state'] == 'absent':
+        if fetch and module.params["state"] == "absent":
             delete(module)
             changed = True
 
     # Create the file if present state and no current file.
-    elif module.params['state'] == 'present':
+    elif module.params["state"] == "present":
         create(module)
         changed = True
 
     # Not returning any information about the key because that information should
     # end up in logs.
-    module.exit_json(**{'changed': changed, 'file_path': module.params['path']})
+    module.exit_json(**{"changed": changed, "file_path": module.params["path"]})
 
 
 def create(module):
-    auth = GcpSession(module, 'iam')
-    json_content = return_if_object(module, auth.post(self_link(module), resource_to_request(module)))
-    with open(module.params['path'], 'w') as f:
-        private_key_contents = to_native(base64.b64decode(json_content['privateKeyData']))
+    auth = GcpSession(module, "iam")
+    json_content = return_if_object(
+        module, auth.post(self_link(module), resource_to_request(module))
+    )
+    with open(module.params["path"], "w") as f:
+        private_key_contents = to_native(
+            base64.b64decode(json_content["privateKeyData"])
+        )
         f.write(private_key_contents)
 
 
 def delete(module):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.delete(self_link_from_file(module)))
 
 
 def resource_to_request(module):
-    request = {u'privateKeyType': module.params.get('private_key_type'), u'keyAlgorithm': module.params.get('key_algorithm')}
+    request = {
+        "privateKeyType": module.params.get("private_key_type"),
+        "keyAlgorithm": module.params.get("key_algorithm"),
+    }
     return_vals = {}
     for k, v in request.items():
         if v:
@@ -272,27 +289,36 @@ def resource_to_request(module):
 
 
 def fetch_resource(module):
-    auth = GcpSession(module, 'iam')
+    auth = GcpSession(module, "iam")
     return return_if_object(module, auth.get(self_link_from_file(module)))
 
 
 def key_name_from_file(filename, module):
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         try:
             json_data = json.loads(f.read())
-            return "projects/{project_id}/serviceAccounts/{client_email}/keys/{private_key_id}".format(**json_data)
+            return "projects/{project_id}/serviceAccounts/{client_email}/keys/{private_key_id}".format(
+                **json_data
+            )
         except ValueError as inst:
             module.fail_json(msg="File is not a valid GCP JSON service account key")
 
 
 def self_link_from_file(module):
-    key_name = key_name_from_file(module.params['path'], module)
+    key_name = key_name_from_file(module.params["path"], module)
     return "https://iam.googleapis.com/v1/{key_name}".format(key_name=key_name)
 
 
 def self_link(module):
-    results = {'project': module.params['project'], 'service_account': replace_resource_dict(module.params['service_account'], 'name')}
-    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{service_account}/keys".format(**results)
+    results = {
+        "project": module.params["project"],
+        "service_account": replace_resource_dict(
+            module.params["service_account"], "name"
+        ),
+    }
+    return "https://iam.googleapis.com/v1/projects/{project}/serviceAccounts/{service_account}/keys".format(
+        **results
+    )
 
 
 def return_if_object(module, response):
@@ -308,14 +334,14 @@ def return_if_object(module, response):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+    except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

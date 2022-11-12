@@ -25,9 +25,13 @@ __metaclass__ = type
 # Documentation
 ################################################################################
 
-ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: gcp_runtimeconfig_config_info
 description:
@@ -88,17 +92,17 @@ notes:
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: get info on a config
   gcp_runtimeconfig_config_info:
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
-'''
+"""
 
-RETURN = '''
+RETURN = """
 resources:
   description: List of resources
   returned: always
@@ -114,12 +118,17 @@ resources:
       - The name of the runtime config.
       returned: success
       type: str
-'''
+"""
 
 ################################################################################
 # Imports
 ################################################################################
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+    GcpSession,
+    GcpModule,
+    GcpRequest,
+)
 import json
 
 ################################################################################
@@ -130,20 +139,22 @@ import json
 def main():
     module = GcpModule(argument_spec=dict())
 
-    if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/cloudruntimeconfig']
+    if not module.params["scopes"]:
+        module.params["scopes"] = ["https://www.googleapis.com/auth/cloudruntimeconfig"]
 
-    return_value = {'resources': fetch_list(module, collection(module))}
+    return_value = {"resources": fetch_list(module, collection(module))}
     module.exit_json(**return_value)
 
 
 def collection(module):
-    return "https://runtimeconfig.googleapis.com/v1beta1/projects/{project}/configs".format(**module.params)
+    return "https://runtimeconfig.googleapis.com/v1beta1/projects/{project}/configs".format(
+        **module.params
+    )
 
 
 def fetch_list(module, link):
-    auth = GcpSession(module, 'runtimeconfig')
-    return auth.list(link, return_if_object, array_name='configs')
+    auth = GcpSession(module, "runtimeconfig")
+    return auth.list(link, return_if_object, array_name="configs")
 
 
 def return_if_object(module, response):
@@ -158,11 +169,11 @@ def return_if_object(module, response):
     try:
         module.raise_for_status(response)
         result = response.json()
-    except getattr(json.decoder, 'JSONDecodeError', ValueError) as inst:
+    except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
-    if navigate_hash(result, ['error', 'errors']):
-        module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+    if navigate_hash(result, ["error", "errors"]):
+        module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
     return result
 
