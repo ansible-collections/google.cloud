@@ -527,15 +527,22 @@ def return_if_object(module, response, kind, allow_not_found=False):
 def is_different(module, response):
     request = resource_to_request(module)
     response = response_to_hash(module, response)
+    # shared_secret is returned with stars instead of the
+    # actual secret
+    keys_to_ignore = ("sharedSecret")
 
     # Remove all output-only from response.
     response_vals = {}
     for k, v in response.items():
+        if k in keys_to_ignore:
+          continue
         if k in request:
             response_vals[k] = v
 
     request_vals = {}
     for k, v in request.items():
+        if k in keys_to_ignore:
+          continue
         if k in response:
             request_vals[k] = v
 
