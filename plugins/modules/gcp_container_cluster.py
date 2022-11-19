@@ -259,6 +259,7 @@ options:
       username:
         description:
         - The username to use for HTTP basic authentication to the master endpoint.
+          (unsupported with GKE >= 1.19).
         required: false
         type: str
       password:
@@ -266,6 +267,7 @@ options:
         - The password to use for HTTP basic authentication to the master endpoint.
           Because the master endpoint is open to the Internet, you should create a
           strong password with a minimum of 16 characters.
+          (unsupported with GKE >= 1.19).
         required: false
         type: str
       client_certificate_config:
@@ -711,9 +713,6 @@ EXAMPLES = '''
   google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
-    master_auth:
-      username: cluster_admin
-      password: my-secret-password
     node_config:
       machine_type: n1-standard-4
       disk_size_gb: 500
@@ -930,6 +929,7 @@ masterAuth:
     username:
       description:
       - The username to use for HTTP basic authentication to the master endpoint.
+        (unsupported with GKE >= 1.19).
       returned: success
       type: str
     password:
@@ -937,6 +937,7 @@ masterAuth:
       - The password to use for HTTP basic authentication to the master endpoint.
         Because the master endpoint is open to the Internet, you should create a strong
         password with a minimum of 16 characters.
+        (unsupported with GKE >= 1.19).
       returned: success
       type: str
     clientCertificateConfig:
@@ -1857,6 +1858,29 @@ class Kubectl(object):
         if not context:
             context = self.module.params['name']
 
+        user = {
+            'name': context,
+            'user': {
+                'auth-provider': {
+                    'config': {
+                        'access-token': token,
+                        'cmd-args': 'config config-helper --format=json',
+                        'cmd-path': '/usr/lib64/google-cloud-sdk/bin/gcloud',
+                        'expiry-key': '{.credential.token_expiry}',
+                        'token-key': '{.credential.access_token}',
+                    },
+                    'name': 'gcp',
+                },
+            },
+        }
+
+        auth_keyword = self.fetch['masterAuth'].keys()
+        if 'username' in auth_keyword and 'password' in auth_keyword:
+            user['user']['auth-provider'].update({
+                'username': str(self.fetch['masterAuth']['username']),
+                'password': str(self.fetch['masterAuth']['password']),
+            })
+
         return {
             'apiVersion': 'v1',
             'clusters': [{'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate'])}}],
@@ -1864,25 +1888,7 @@ class Kubectl(object):
             'current-context': context,
             'kind': 'Config',
             'preferences': {},
-            'users': [
-                {
-                    'name': context,
-                    'user': {
-                        'auth-provider': {
-                            'config': {
-                                'access-token': token,
-                                'cmd-args': 'config config-helper --format=json',
-                                'cmd-path': '/usr/lib64/google-cloud-sdk/bin/gcloud',
-                                'expiry-key': '{.credential.token_expiry}',
-                                'token-key': '{.credential.access_token}',
-                            },
-                            'name': 'gcp',
-                        },
-                        'username': str(self.fetch['masterAuth']['username']),
-                        'password': str(self.fetch['masterAuth']['password']),
-                    },
-                }
-            ],
+            'users': [user],
         }
 
     """
