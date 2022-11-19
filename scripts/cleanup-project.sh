@@ -14,18 +14,21 @@ ZONE="us-central1-a"
 main() {
     # note: the ordering here is deliberate, to start with
     # leaf resources and work upwards to parent resources.
-    cleanup_resource "compute instances" "--zone=$ZONE"
-    cleanup_resource "compute target-http-proxies" "--global"
-    cleanup_resource "compute forwarding-rules" "--global"
-    cleanup_resource "compute url-maps" "--global"
-    cleanup_resource "compute backend-services" "--global"
+    cleanup_resource "compute instances" "" "--zone=$ZONE"
+    cleanup_resource "compute target-http-proxies" "" "--global"
+    cleanup_resource "compute forwarding-rules" "" "--global"
+    cleanup_resource "compute url-maps" "" "--global"
+    cleanup_resource "compute backend-services" "--global" "--global"
+    cleanup_resource "compute backend-services" \
+        "--regions=us-central1" "--region=us-central1"
 }
 
 cleanup_resource() {
     resource_group="$1"
-    extra_delete_args="$2"
+    extra_list_args="$2"
+    extra_delete_args="$3"
 
-    for resource in $(gcloud $resource_group list --project="${PROJECT_ID}" --format="csv[no-heading](name)"); do
+    for resource in $(gcloud $resource_group list --project="${PROJECT_ID}" --format="csv[no-heading](name)" $extra_list_args); do
         gcloud $resource_group delete "${resource}" --project="${PROJECT_ID}" -q $extra_delete_args
     done
 }
