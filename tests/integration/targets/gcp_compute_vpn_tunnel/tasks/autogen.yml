@@ -13,14 +13,73 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
+- name: create a address
+  google.cloud.gcp_compute_address:
+    name: address
+    region: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: address
+- name: create a forward address
+  google.cloud.gcp_compute_address:
+    name: address-forwardingrule
+    region: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: address_forwardingrule
 - name: create a network
   google.cloud.gcp_compute_network:
     name: network-vpn-tunnel
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    auto_create_subnetworks: true
     state: present
   register: network
+- name: create a disk
+  google.cloud.gcp_compute_disk:
+    name: "{{ resource_prefix }}"
+    size_gb: 50
+    source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: disk
+- name: create a instance
+  google.cloud.gcp_compute_instance:
+    name: "{{ resource_name }}"
+    machine_type: n1-standard-1
+    disks:
+    - auto_delete: 'true'
+      boot: 'true'
+      source: "{{ disk }}"
+    - auto_delete: 'true'
+      interface: NVME
+      type: SCRATCH
+      initialize_params:
+        disk_type: local-ssd
+    metadata:
+      cost-center: '12345'
+    labels:
+      environment: production
+    network_interfaces:
+    - network: "{{ network }}"
+      access_configs:
+      - name: External NAT
+        nat_ip: "{{ address }}"
+        type: ONE_TO_ONE_NAT
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
 - name: create a router
   google.cloud.gcp_compute_router:
     name: router-vpn-tunnel
@@ -42,35 +101,75 @@
 - name: create a target vpn gateway
   google.cloud.gcp_compute_target_vpn_gateway:
     name: gateway-vpn-tunnel
-    region: us-west1
+    region: us-central1
     network: "{{ network }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
     state: present
   register: gateway
+- name: create a forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: ESP
+    ip_address: "{{ address_forwardingrule.address }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
+- name: create a UDP-500 forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}-udp"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: UDP
+    port_range: 500-500
+    ip_address: "{{ address_forwardingrule.address }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
+- name: create a UDP-4500 forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}-udp-4500"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: UDP
+    port_range: 4500-4500
+    ip_address: "{{ address_forwardingrule.address }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
 - name: delete a vpn tunnel
   google.cloud.gcp_compute_vpn_tunnel:
     name: "{{ resource_name }}"
-    region: us-west1
+    region: us-central1
     target_vpn_gateway: "{{ gateway }}"
     router: "{{ router }}"
     shared_secret: super secret
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    peer_ip: "{{address.address}}"
     state: absent
 #----------------------------------------------------------
 - name: create a vpn tunnel
   google.cloud.gcp_compute_vpn_tunnel:
     name: "{{ resource_name }}"
-    region: us-west1
+    region: us-central1
     target_vpn_gateway: "{{ gateway }}"
     router: "{{ router }}"
     shared_secret: super secret
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    peer_ip: "{{address.address}}"
     state: present
   register: result
 - name: assert changed is true
@@ -81,7 +180,7 @@
   google.cloud.gcp_compute_vpn_tunnel_info:
       filters:
          - name = {{ resource_name }}
-      region: us-west1
+      region: us-central1
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
       service_account_file: "{{ gcp_cred_file }}"
@@ -96,9 +195,10 @@
 - name: create a vpn tunnel that already exists
   google.cloud.gcp_compute_vpn_tunnel:
     name: "{{ resource_name }}"
-    region: us-west1
+    region: us-central1
     target_vpn_gateway: "{{ gateway }}"
     router: "{{ router }}"
+    peer_ip: "{{address.address}}"
     shared_secret: super secret
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -113,9 +213,10 @@
 - name: delete a vpn tunnel
   google.cloud.gcp_compute_vpn_tunnel:
     name: "{{ resource_name }}"
-    region: us-west1
+    region: us-central1
     target_vpn_gateway: "{{ gateway }}"
     router: "{{ router }}"
+    peer_ip: "{{address.address}}"
     shared_secret: super secret
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -130,7 +231,7 @@
   google.cloud.gcp_compute_vpn_tunnel_info:
       filters:
          - name = {{ resource_name }}
-      region: us-west1
+      region: us-central1
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
       service_account_file: "{{ gcp_cred_file }}"
@@ -145,9 +246,10 @@
 - name: delete a vpn tunnel that does not exist
   google.cloud.gcp_compute_vpn_tunnel:
     name: "{{ resource_name }}"
-    region: us-west1
+    region: us-central1
     target_vpn_gateway: "{{ gateway }}"
     router: "{{ router }}"
+    peer_ip: "{{address.address}}"
     shared_secret: super secret
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -160,11 +262,52 @@
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
+- name: delete a UDP-4500 forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}-udp-4500"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: UDP
+    port_range: 4500-4500
+    ip_address: "{{ address.address }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  ignore_errors: true
+  register: result
+- name: delete a UDP forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}-udp"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: UDP
+    port_range: 500-500
+    ip_address: "{{ address.address }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  ignore_errors: true
+  register: result
+- name: delete a forwarding rule
+  google.cloud.gcp_compute_forwarding_rule:
+    name: "{{ resource_name }}"
+    region: us-central1
+    target: "{{ gateway.selfLink }}"
+    ip_protocol: ESP
+    ip_address: "104.197.5.203"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  ignore_errors: true
+  register: result
 # If errors happen, don't crash the playbook!
 - name: delete a target vpn gateway
   google.cloud.gcp_compute_target_vpn_gateway:
     name: gateway-vpn-tunnel
-    region: us-west1
+    region: us-central1
     network: "{{ network }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -191,12 +334,63 @@
     state: absent
   register: router
   ignore_errors: true
+- name: delete a instance
+  google.cloud.gcp_compute_instance:
+    name: "{{ resource_name }}"
+    machine_type: n1-standard-1
+    disks:
+    - auto_delete: 'true'
+      boot: 'true'
+      source: "{{ disk }}"
+    - auto_delete: 'true'
+      interface: NVME
+      type: SCRATCH
+      initialize_params:
+        disk_type: local-ssd
+    metadata:
+      cost-center: '12345'
+    labels:
+      environment: production
+    network_interfaces:
+    - network: "{{ network }}"
+      access_configs:
+      - name: External NAT
+        nat_ip: "{{ address }}"
+        type: ONE_TO_ONE_NAT
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+- name: delete a disk
+  google.cloud.gcp_compute_disk:
+    name: "{{ resource_prefix }}"
+    size_gb: 50
+    source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  register: disk
+  ignore_errors: true
 - name: delete a network
   google.cloud.gcp_compute_network:
     name: network-vpn-tunnel
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
+    auto_create_subnetworks: true
     state: absent
   register: network
+  ignore_errors: true
+- name: delete a address
+  google.cloud.gcp_compute_address:
+    name: address
+    region: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  register: address
   ignore_errors: true
