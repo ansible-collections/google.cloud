@@ -56,7 +56,9 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
       - name: Run cleanup
-        run:  ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
+        run:  |
+          ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
+          ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
