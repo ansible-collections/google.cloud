@@ -15,7 +15,7 @@
 # Pre-test setup
 - name: delete a role
   google.cloud.gcp_iam_role:
-    name: myCustomRole2
+    name: role_{{ resource_name.split("-")[-1] }}
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -29,7 +29,7 @@
 #----------------------------------------------------------
 - name: create a role
   google.cloud.gcp_iam_role:
-    name: myCustomRole2
+    name: role_{{ resource_name.split("-")[-1] }}
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -56,11 +56,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*myCustomRole2.*") | list | length == 1
+      - results['resources'] | map(attribute='name') | select("match", ".*role_{{ resource_name.split("-")[-1] }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a role that already exists
   google.cloud.gcp_iam_role:
-    name: myCustomRole2
+    name: role_{{ resource_name.split("-")[-1] }}
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -79,7 +79,7 @@
 #----------------------------------------------------------
 - name: delete a role
   google.cloud.gcp_iam_role:
-    name: myCustomRole2
+    name: role_{{ resource_name.split("-")[-1] }}
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -106,11 +106,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*myCustomRole2.*") | list | length == 0
+      - results['resources'] | map(attribute='name') | select("match", ".*role_{{ resource_name.split("-")[-1] }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a role that does not exist
   google.cloud.gcp_iam_role:
-    name: myCustomRole2
+    name: role_{{ resource_name.split("-")[-1] }}
     title: My Custom Role
     description: My custom role description
     included_permissions:
