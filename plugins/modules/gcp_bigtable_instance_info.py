@@ -184,7 +184,7 @@ def main():
     module = GcpModule(argument_spec=dict())
 
     if not module.params['scopes']:
-        module.params['scopes'] = ['https://www.googleapis.com/auth/bigtable']
+        module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
 
     return_value = {'resources': fetch_list(module, collection(module))}
     module.exit_json(**return_value)
