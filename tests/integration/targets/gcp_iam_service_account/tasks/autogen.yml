@@ -15,7 +15,7 @@
 # Pre-test setup
 - name: delete a service account
   google.cloud.gcp_iam_service_account:
-    name: sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
+    name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -24,7 +24,7 @@
 #----------------------------------------------------------
 - name: create a service account
   google.cloud.gcp_iam_service_account:
-    name: sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
+    name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -46,11 +46,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 1
+      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a service account that already exists
   google.cloud.gcp_iam_service_account:
-    name: sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
+    name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -64,7 +64,7 @@
 #----------------------------------------------------------
 - name: delete a service account
   google.cloud.gcp_iam_service_account:
-    name: sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
+    name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -86,11 +86,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 0
+      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a service account that does not exist
   google.cloud.gcp_iam_service_account:
-    name: sa-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
+    name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
