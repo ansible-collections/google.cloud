@@ -489,7 +489,6 @@ def delete(module, link):
 
 def resource_to_request(module):
     request = {
-        u'location': module.params.get('location'),
         u'name': name_pattern(module.params.get('name'), module),
         u'appEngineRoutingOverride': QueueAppengineroutingoverride(module.params.get('app_engine_routing_override', {}), module).to_request(),
         u'rateLimits': QueueRatelimits(module.params.get('rate_limits', {}), module).to_request(),
