@@ -10,7 +10,7 @@ PROJECT_ID="${1}"
 SERVICE_ACCOUNT_NAME="${2}"
 SERVICE_LIST=(
     "appengine"
-    "bigtable"
+    "bigtableadmin.googleapis.com"
     "cloudbuild.googleapis.com"
     "cloudfunctions"
     "cloudkms.googleapis.com"
