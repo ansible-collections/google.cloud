@@ -279,7 +279,7 @@ def main():
             rotation_period=dict(type='str'),
             version_template=dict(type='dict', options=dict(algorithm=dict(required=True, type='str'), protection_level=dict(type='str'))),
             key_ring=dict(required=True, type='str'),
-            skip_initial_version_creation=dict(type='bool'),
+            skip_initial_version_creation=dict(type='bool', default=False),
         )
     )
 
