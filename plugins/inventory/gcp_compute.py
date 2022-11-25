@@ -48,6 +48,11 @@ DOCUMENTATION = """
               'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
+        base_domain:
+          description: Custom domain suffix to append to all hosts.
+          default: ""
+          type: string
+          required: False
         auth_kind:
             description:
                 - The type of credential used.
@@ -131,6 +136,7 @@ keyed_groups:
   # Create groups from GCE labels
   - prefix: gcp
     key: labels
+base_domain: .example.com
 hostnames:
   # List host by name instead of the default public ip
   - name
@@ -164,9 +170,10 @@ class GcpMockModule(object):
 
 
 class GcpInstance(object):
-    def __init__(self, json, hostname_ordering, project_disks, should_format=True):
+    def __init__(self, json, hostname_ordering, project_disks, should_format=True, base_domain=""):
         self.hostname_ordering = hostname_ordering
         self.project_disks = project_disks
+        self.base_domain = base_domain
         self.json = json
         if should_format:
             self.convert()
@@ -237,7 +244,7 @@ class GcpInstance(object):
             elif order == "private_ip":
                 name = self._get_privateip()
             elif order == "name":
-                name = self.json[u"name"]
+                name = self.json[u"name"] + self.base_domain
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
@@ -422,9 +429,12 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self.get_option("hostnames"):
             hostname_ordering = self.get_option("hostnames")
 
+        if self.get_option("base_domain"):
+            base_domain = self.get_option("base_domain")
+
         for host_json in items:
             host = GcpInstance(
-                host_json, hostname_ordering, project_disks, format_items
+                host_json, hostname_ordering, project_disks, format_items, base_domain
             )
             self._populate_host(host)
 
