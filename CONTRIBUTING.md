@@ -22,6 +22,7 @@ git clone <url> $TARGET_DIR/collections/google/cloud
 ### prequisites for all tests
 
 - Install the `ansible` package.
+- Some container runtime is necessary (e.g. `podman` or `docker`). The instructions use podman.
 
 ## Running integration tests
 
@@ -57,3 +58,32 @@ bash ./scripts/bootstrap-project.sh $PROJECT_ID $SERVICE_ACCOUNT_NAME
 ### Running
 
 Run `ansible-test integration`. Currently some tests are disabled as [test are being verified and added](https://github.com/ansible-collections/google.cloud/issues/499).
+
+## Role tests
+
+### Prequisites for role tests
+
+If you would like to use podman, you must
+install the `molecule[podman]` package in PyPI:
+
+```
+pip install --upgrade molecule[podman]
+```
+
+### Running role tests
+
+Ansible roles are tested via molecule.
+
+```sh
+module debug --test -s ${ROLE}
+```
+
+Role is the name of the role (e.g. gcloud, gcsfuse).
+
+Add `-d podman` if you would like to use the podman driver.
+
+If the linting fails, that is generally due to `ansible-lint`, which can be run directly:
+
+```
+ansible-lint
+```

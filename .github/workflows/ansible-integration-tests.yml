@@ -1,8 +1,5 @@
 name: "Run integration tests for the cloud.google collection"
 on:
-  # NOTE: GitHub does not allow secrets to be used
-  # in PRs sent from forks. As such, this configuration is for
-  # PRs that the maintainers would like to send to test.
   pull_request: {}
   push:
     branches: master
@@ -11,6 +8,10 @@ env:
   GCP_PROJECT: "ansible-gcp-ci"
 jobs:
   integration:
+    # NOTE: GitHub does not allow secrets to be used
+    # in PRs sent from forks. As such, this configuration is for
+    # PRs that the maintainers would like to send to test.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     defaults:
       run:

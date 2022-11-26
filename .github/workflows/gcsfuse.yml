@@ -17,13 +17,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        molecule_distro:
-          - distro: ubuntu:16.04
-            command: /sbin/init
-          - distro: ubuntu:18.04
-            command: /lib/systemd/systemd
-          - distro: debian:9
-            command: /lib/systemd/systemd
         collection_role:
           - gcsfuse
     steps:
@@ -39,14 +32,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install docker
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg \
+            lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg \
+            --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo \
+            "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           python -m pip install --upgrade pip
-          pip install molecule yamllint ansible-lint docker
+          pip install molecule[docker] yamllint ansible ansible-lint docker
 
       - name: Run role test
         run: >-
           molecule --version &&
           ansible --version &&
-          MOLECULE_COMMAND=${{ matrix.molecule_distro.command }}
-          MOLECULE_DISTRO=${{ matrix.molecule_distro.distro }}
+          MOLECULE_NO_LOG="false"
           molecule --debug test -s ${{ matrix.collection_role }}
