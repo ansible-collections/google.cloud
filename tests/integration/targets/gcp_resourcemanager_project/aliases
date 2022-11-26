@@ -1,2 +1,4 @@
 cloud/gcp
+# unsupported as CI test project does not support
+# creating folders / projects to test.
 unsupported

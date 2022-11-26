@@ -1,2 +1,4 @@
 cloud/gcp
+# unsupported as gcp_sql_ssl_cert_info resource
+# does not exist.
 unsupported
