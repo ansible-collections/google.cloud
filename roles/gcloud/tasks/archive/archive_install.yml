@@ -1,16 +1,16 @@
 ---
 - name: gcloud | Archive | Ensure temp path exists
-  file: path={{ gcloud_archive_path }} state=directory mode=0755
+  ansible.builtin.file: path={{ gcloud_archive_path }} state=directory mode=0755
 
 - name: gcloud | Archive | Extract Cloud SDK archive
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ gcloud_archive_url }}"
     dest: "{{ gcloud_archive_path }}"
     remote_src: yes
     creates: "{{ gcloud_library_path }}"
 
 - name: gcloud | Archive | Link binaries to /usr/bin (like package install)
-  file:
+  ansible.builtin.file:
     src: "{{ gcloud_library_path }}/bin/{{ item }}"
     dest: "/usr/bin/{{ item }}"
     state: link
@@ -23,11 +23,11 @@
   when: not gcloud_install_script
 
 - name: gcloud | Archive | Add command completion
-  include_tasks: command_completion.yml
+  ansible.builtin.include_tasks: command_completion.yml
   when: gcloud_command_completion
 
 - name: gcloud | Archive | Install into Path
-  command: >-
+  ansible.builtin.command: >-
     {{ gcloud_archive_path }}/install.sh --quiet
     --usage-reporting {{ gcloud_usage_reporting | lower }}
     {% if gcloud_profile_path %}

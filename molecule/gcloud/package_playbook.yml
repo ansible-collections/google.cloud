@@ -3,7 +3,7 @@
   hosts: all
   pre_tasks:
     - name: Install gpg for apt_key
-      apt:
+      ansible.builtin.apt:
         name: gnupg
         update_cache: true
       when: ansible_os_family|lower == "debian"

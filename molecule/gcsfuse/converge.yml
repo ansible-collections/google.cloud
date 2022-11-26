@@ -2,25 +2,12 @@
 - name: Converge
   hosts: all
   pre_tasks:
-    - name: Using apt update the packages
-      apt:
-        update_cache: yes
-      when: ansible_os_family == "Debian"
-    - name: Using apt update the packages
-      yum:
-        update_cache: yes
-      when: ansible_os_family == "RedHat"
-    - name: create containerd folder
-      file:
-        path: /etc/systemd/system/containerd.service.d
-        state: directory
-        mode: 0755
-      when: ansible_service_mgr == "systemd"
-    - name: override file for containerd
-      copy:
-        src: files/override.conf
-        dest: /etc/systemd/system/containerd.service.d/override.conf
-        mode: 0644
-      when: ansible_service_mgr == "systemd"
+    - name: Update package cache
+      ansible.builtin.package: update_cache=yes
+      changed_when: false
+      register: task_result
+      until: task_result is success
+      retries: 10
+      delay: 2
   roles:
     - role: google.cloud.gcsfuse
