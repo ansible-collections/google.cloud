@@ -48,8 +48,8 @@ DOCUMENTATION = """
               'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
-        base_domain:
-          description: Custom domain suffix to append to all hosts.
+        name_suffix:
+          description: Custom domain suffix. If set, this string will be appended to all hosts.
           default: ""
           type: string
           required: False
@@ -136,7 +136,7 @@ keyed_groups:
   # Create groups from GCE labels
   - prefix: gcp
     key: labels
-base_domain: .example.com
+name_suffix: .example.com
 hostnames:
   # List host by name instead of the default public ip
   - name
@@ -170,10 +170,10 @@ class GcpMockModule(object):
 
 
 class GcpInstance(object):
-    def __init__(self, json, hostname_ordering, project_disks, should_format=True, base_domain=""):
+    def __init__(self, json, hostname_ordering, project_disks, should_format=True, name_suffix=""):
         self.hostname_ordering = hostname_ordering
         self.project_disks = project_disks
-        self.base_domain = base_domain
+        self.name_suffix = name_suffix
         self.json = json
         if should_format:
             self.convert()
@@ -244,7 +244,7 @@ class GcpInstance(object):
             elif order == "private_ip":
                 name = self._get_privateip()
             elif order == "name":
-                name = self.json[u"name"] + self.base_domain
+                name = self.json[u"name"] + self.name_suffix
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
@@ -429,12 +429,11 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self.get_option("hostnames"):
             hostname_ordering = self.get_option("hostnames")
 
-        if self.get_option("base_domain"):
-            base_domain = self.get_option("base_domain")
+        name_suffix = self.get_option("name_suffix")
 
         for host_json in items:
             host = GcpInstance(
-                host_json, hostname_ordering, project_disks, format_items, base_domain
+                host_json, hostname_ordering, project_disks, format_items, name_suffix
             )
             self._populate_host(host)
 
