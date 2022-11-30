@@ -159,7 +159,7 @@ options:
 notes:
 - 'API Reference: U(https://cloud.google.com/filestore/docs/reference/rest/v1beta1/projects.locations.instances/create)'
 - 'Official Documentation: U(https://cloud.google.com/filestore/docs/creating-instances)'
-- 'Use with Kubernetes: U(https://cloud.google.com/filestore/docs/accessing-fileshares)'
+- 'Use with Kubernetes: U(https://cloud.google.com/filestore/docs/csi-driver)'
 - 'Copying Data In/Out: U(https://cloud.google.com/filestore/docs/copying-data)'
 - for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
