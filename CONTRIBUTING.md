@@ -4,6 +4,7 @@
 
 1. [Clone the repository](#cloning).
 1. Make the desired code change.
+1. Add a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#changelogs-how-to) to describe your change.
 1. [Run integration tests locally and ensure they pass](running-integration-tests).
 1. Create a PR.
 
@@ -87,3 +88,14 @@ If the linting fails, that is generally due to `ansible-lint`, which can be run 
 ```
 ansible-lint
 ```
+
+## Specific Tasks
+
+The following enumerates detailed documentation for specific tasks related tot
+the codebase.
+
+### Updating the supported ansible-core version
+
+1. modify the [ansible-integration-tests.yaml](.github/workflows/ansible-integration-tests.yml) to the version of ansible-core that you would like to test against.
+1. (optional) update the version of ansible-core version required in [meta/runtime.yaml](meta/runtime.yml).
+
