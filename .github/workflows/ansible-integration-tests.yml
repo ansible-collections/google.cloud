@@ -19,8 +19,7 @@ jobs:
     strategy:
       matrix:
         ansible_version:
-          # - stable-2.13
-          - stable-2.11
+          - stable-2.13
     steps:
       - name: check out code
         uses: actions/checkout@v2
@@ -29,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.8'  # this is the minimum version required for Ansible 2.11
+          python-version: '3.8'  # this is the minimum version required for Ansible 2.13
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
