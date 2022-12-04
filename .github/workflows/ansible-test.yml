@@ -37,9 +37,8 @@ jobs:
     strategy:
       matrix:
         ansible_version:
-          - stable-2.13
+          - stable-2.14
           - stable-2.11
-          - stable-2.9
     steps:
       - name: check out code
         uses: actions/checkout@v2
@@ -48,10 +47,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.8'  # this is the minimum version required for Ansible 2.11
+          python-version: '3.9'  # this is the minimum version required for Ansible 2.14
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
       - name: Run unit tests
-        run: ansible-test units --docker -v --color --python 3.8
+        run: ansible-test units -v --color --python 3.9
