@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.8'  # this is the minimum version required for Ansible 2.13
+          python-version: '3.9'  # this is the minimum version required for Ansible 2.13
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
@@ -62,4 +62,4 @@ jobs:
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -v --color --python 3.8 --venv-system-site-packages
+        run: ansible-test integration -v --color --python 3.9 --venv-system-site-packages
