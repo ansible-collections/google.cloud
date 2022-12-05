@@ -22,4 +22,4 @@ jobs:
         ANSIBLE_AUTOMATION_HUB_API_KEY: ${{ secrets.ANSIBLE_AUTOMATION_HUB_API_KEY }}
       run: |
         ansible-galaxy collection build .
-        ansible-galaxy collection publish *.tar.gz --api-key=$ANSIBLE_GALAXY_API_KEY -s=https://cloud.redhat.com/api/automation-hub/
+        ansible-galaxy collection publish *.tar.gz --api-key=$ANSIBLE_AUTOMATION_HUB_API_KEY -s=https://cloud.redhat.com/api/automation-hub/
