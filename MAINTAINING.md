@@ -58,11 +58,23 @@ antsibull-changelog release
 This will remove all the changelog fragments from ./changelogs/fragments and
 merge them into CHANGELOG.rst.
 
-### Tag a release
+### Create a new GitHub release
 
-The release process is mostly automated, relying on GitHub releases and the following
-workflows:
+Creating
 
 - [publish to Ansible Galaxy](./.github/workflows/pythonpublish.yml).
-- [publish to Automation Hub](./.github/workflows/automationhub.yml).
 
+### Publish to Automation Hub
+
+*note*: As automation Hub only accepts production releases, this step
+is only required for new full releases.
+
+This step does not use GitHub actions, as API keys for Automation Hub
+expire after 30 days of no use, and a maintainer may find themselves
+refreshing tokens every time anyway.
+
+Steps:
+
+1. Build the package locally: `ansible-galaxy collection build .`
+1. [Go to the Automation Hub my-namespaces page, then click on Google](https://console.redhat.com/ansible/automation-hub/repo/published/my-namespaces/google/)
+1. Publish the package

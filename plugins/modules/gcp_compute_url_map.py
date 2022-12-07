@@ -325,7 +325,7 @@ options:
           paths:
             description:
             - 'The list of path patterns to match. Each must start with / and the
-              only place a \* is allowed is at the end following a /. The string fed
+              only place a \\* is allowed is at the end following a /. The string fed
               to the path matcher does not include any text after the first ? or #,
               and those chars are not allowed here.'
             elements: str
@@ -2899,7 +2899,7 @@ pathMatchers:
         paths:
           description:
           - 'The list of path patterns to match. Each must start with / and the only
-            place a \* is allowed is at the end following a /. The string fed to the
+            place a \\* is allowed is at the end following a /. The string fed to the
             path matcher does not include any text after the first ? or #, and those
             chars are not allowed here.'
           returned: success
@@ -5489,10 +5489,10 @@ def main():
     if fetch:
         module.params['fingerprint'] = fetch['fingerprint']
         if state == 'present':
-          if is_different(module, fetch):
-            update(module, self_link(module), kind)
-            fetch = fetch_resource(module, self_link(module), kind)
-            changed = True
+            if is_different(module, fetch):
+                update(module, self_link(module), kind)
+                fetch = fetch_resource(module, self_link(module), kind)
+                changed = True
         else:
             delete(module, self_link(module), kind)
             fetch = {}

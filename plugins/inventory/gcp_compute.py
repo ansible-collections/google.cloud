@@ -521,7 +521,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         return self._return_if_object(module, response)
 
     def projects_for_folder(self, config_data, folder):
-        link = 'https://cloudresourcemanager.googleapis.com/v1/projects'.format()
+        link = 'https://cloudresourcemanager.googleapis.com/v1/projects'
         query = 'parent.id = {0}'.format(folder)
         projects = []
         config_data['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']

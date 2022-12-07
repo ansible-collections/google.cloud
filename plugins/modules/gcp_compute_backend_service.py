@@ -1433,7 +1433,7 @@ def main():
                 elements="dict",
                 options=dict(
                     balancing_mode=dict(default="UTILIZATION", type="str"),
-                    # TODO: capacity_scaler does some value normalization 
+                    # TODO: capacity_scaler does some value normalization
                     # server-side, so there needs to be a way to do proper
                     # value comparison.
                     capacity_scaler=dict(default="1", type="str"),
