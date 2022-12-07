@@ -4,3 +4,4 @@ tests/integration/cloud-config-gcp.ini
 tests/integration/inventory
 tests/output/
 __pycache__
+*.tar.gz

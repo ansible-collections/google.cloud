@@ -535,14 +535,14 @@ def is_different(module, response):
     response_vals = {}
     for k, v in response.items():
         if k in keys_to_ignore:
-          continue
+            continue
         if k in request:
             response_vals[k] = v
 
     request_vals = {}
     for k, v in request.items():
         if k in keys_to_ignore:
-          continue
+            continue
         if k in response:
             request_vals[k] = v
 

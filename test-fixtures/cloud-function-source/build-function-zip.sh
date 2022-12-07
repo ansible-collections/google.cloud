@@ -4,4 +4,4 @@
 if [ -f ../cloud-function.zip ]; then
     rm ../cloud-function.zip
 fi
-zip ../cloud-function.zip *
+zip ../cloud-function.zip ./*

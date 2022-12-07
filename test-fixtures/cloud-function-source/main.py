@@ -1,5 +1,6 @@
 import functions_framework
 
+
 # Register an HTTP function with the Functions Framework
 @functions_framework.http
 def helloGET(request):

@@ -219,9 +219,9 @@ def main():
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
         elif not fetch.get("deleted"):
-              delete(module, self_link(module))
-              fetch = {}
-              changed = True
+            delete(module, self_link(module))
+            fetch = {}
+            changed = True
     else:
         if state == "present":
             fetch = create(module, collection(module))
@@ -242,7 +242,7 @@ def create(module, link):
 def undelete(module, link, etag):
     auth = GcpSession(module, "iam")
     return return_if_object(module, auth.post(link + ":undelete", {
-      "etag": etag
+        "etag": etag
     }))
 
 
@@ -322,8 +322,8 @@ def return_if_object(module, response, allow_not_found=False):
 
     # catches and edge case specific to IAM roles where the role not
     # existing returns 400.
-    if (allow_not_found and response.status_code == 400 
-      and "You can't delete role_id" in response.text):
+    if (allow_not_found and response.status_code == 400
+       and "You can't delete role_id" in response.text):
         return None
 
     try:
