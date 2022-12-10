@@ -1,6 +1,9 @@
 ---
 - name: gcloud | Archive | Ensure temp path exists
-  ansible.builtin.file: path={{ gcloud_archive_path }} state=directory mode=0755
+  ansible.builtin.file:
+    path: "{{ gcloud_archive_path }}"
+    state: "directory"
+    mode: "0755"
 
 - name: gcloud | Archive | Extract Cloud SDK archive
   ansible.builtin.unarchive:
@@ -37,7 +40,7 @@
     --path-update {{ gcloud_update_path | lower }}
     {% if gcloud_override_components | length > 0 %}--override-components
       {% for component in gcloud_override_components %}{{ component }}
-        {% if loop.index < gcloud_override_components | length  %}
+        {% if loop.index < gcloud_override_components | length %}
         {% endif %}
       {% endfor %}
     {% endif %}

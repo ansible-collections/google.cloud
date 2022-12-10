@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  role_name: gcloud
+  role_name: gcsfuse
   author: Eric Anderson
-  description: Ansible role to install google-cloud-sdk
+  description: Ansible role to install gcsfuse
   license: GPL-3.0
   min_ansible_version: "2.9"
   platforms:
@@ -15,6 +15,6 @@ galaxy_info:
   galaxy_tags:
     - gcloud
     - google
-    - cloud
-    - sdk
+    - gcsfuse
+    - fuse
 dependencies: []

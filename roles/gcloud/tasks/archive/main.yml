@@ -6,9 +6,11 @@
   register: gcloud_status
 
 - name: gcloud | Archive | Get gcloud_status
-  ansible.builtin.debug: var=gcloud_status
+  ansible.builtin.debug:
+    var: "gcloud_status"
 
 - name: gcloud | Archive | Set installed version if installation exists
+  when: gcloud_status.stat.exists
   block:
     - name: gcloud | Archive | Importing contents of ./google-cloud-sdk/VERSION in {{ gcloud_archive_path }}
       ansible.builtin.slurp:
@@ -16,22 +18,21 @@
       register: gcloud_installed_version_data
     - name: gcloud | Archive | Setting the gcloud_installed_version variable/fact
       ansible.builtin.set_fact:
-        gcloud_installed_version: "{{ (gcloud_installed_version_data.content|b64decode|trim) }}"
+        gcloud_installed_version: "{{ (gcloud_installed_version_data.content | b64decode | trim) }}"
     - name: gcloud | Archive | get the gcloud_installed_version
       ansible.builtin.debug:
         msg: "google-cloud-sdk: {{ gcloud_installed_version }} is installed"
     - name: gcloud | Archive | Version already installed
+      when: gcloud_version == gcloud_installed_version
       ansible.builtin.debug:
         msg: >-
           Skipping installation of google-cloud-sdk version {{ gcloud_version }} when
           {{ gcloud_installed_version }} is already installed.
-      when: gcloud_version == gcloud_installed_version
-  when: gcloud_status.stat.exists
 
 - name: gcloud | Archive | Start installation
-  ansible.builtin.include_tasks: archive_install.yml
   when: gcloud_installed_version is undefined or
         gcloud_version is version(gcloud_installed_version, '>')
+  ansible.builtin.include_tasks: archive_install.yml
 
 - name: gcloud | Debian | Install the google-cloud-sdk additional components # noqa 301
   ansible.builtin.command: gcloud components install {{ item }}

@@ -1,6 +1,7 @@
 ---
 - name: gcsfuse | Ensure gpg is installed
-  ansible.builtin.apt: name=gnupg
+  ansible.builtin.apt:
+    name: "gnupg"
   register: task_result
   until: task_result is success
   retries: 10
@@ -18,7 +19,9 @@
     filename: gcsfuse
 
 - name: gcsfuse | Install gcsfuse
-  ansible.builtin.apt: name=gcsfuse update_cache=yes
+  ansible.builtin.apt:
+    name: "gcsfuse"
+    update_cache: "yes"
   register: task_result
   until: task_result is success
   retries: 10
