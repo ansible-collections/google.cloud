@@ -13,14 +13,18 @@
       - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 
 - name: gcloud | RHEL | Install the google-cloud-sdk package
-  ansible.builtin.yum: name=google-cloud-sdk update_cache=yes
+  ansible.builtin.yum:
+    name: "google-cloud-sdk"
+    update_cache: "yes"
   register: task_result
   until: task_result is success
   retries: 10
   delay: 2
 
 - name: gcloud | Debian | Install the google-cloud-sdk additional components
-  ansible.builtin.yum: name=google-cloud-sdk-{{ item }} update_cache=yes
+  ansible.builtin.yum:
+    name: "google-cloud-sdk-{{ item }}"
+    update_cache: "yes"
   register: task_result
   until: task_result is success
   retries: 10

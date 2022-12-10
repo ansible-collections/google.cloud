@@ -3,19 +3,20 @@
   hosts: all
   pre_tasks:
     - name: Update package cache
-      ansible.builtin.package: update_cache=yes
+      ansible.builtin.package:
+        update_cache: "yes"
       changed_when: false
       register: task_result
       until: task_result is success
       retries: 10
       delay: 2
-    - name: create containerd folder
+    - name: Create containerd folder
       ansible.builtin.file:
         path: /etc/systemd/system/containerd.service.d
         state: directory
         mode: 0755
       when: ansible_service_mgr == "systemd"
-    - name: override file for containerd
+    - name: Override file for containerd
       ansible.builtin.copy:
         src: files/override.conf
         dest: /etc/systemd/system/containerd.service.d/override.conf

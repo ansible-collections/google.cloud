@@ -5,8 +5,8 @@
   vars:
     params:
       files:
-        - "os/{{ ansible_distribution|lower }}.yml"
-        - "os/{{ ansible_os_family|lower }}.yml"
+        - "os/{{ ansible_distribution | lower }}.yml"
+        - "os/{{ ansible_os_family | lower }}.yml"
         - main.yml
       paths:
         - 'vars'

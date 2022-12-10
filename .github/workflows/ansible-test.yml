@@ -3,7 +3,7 @@ on: [pull_request]
 env:
   PYTHON_VERSION: "3.9" # minimum version for Ansible 2.14
 jobs:
-  sanity:
+  sanity-and-lint:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,14 +22,14 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install ansible-base (${{ matrix.ansible_version }})
-        uses: nick-invision/retry@v2
-        with:
-          timeout_minutes: 3
-          max_attempts: 3
-          command: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
-      - name: Run sanity tests
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      - name: Run ansible-test sanity
         # validate-modules cannot be turned on until #498 is resolved.
         run: ansible-test sanity -v --color --python "$PYTHON_VERSION" --skip validate-modules
+      - name: Install ansible-lint
+        run: pip install ansible-lint
+      - name: Run ansible-lint
+        run: ansible-lint
   unit:
     runs-on: ubuntu-latest
     defaults:

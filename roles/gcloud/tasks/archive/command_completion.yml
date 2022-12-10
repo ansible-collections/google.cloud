@@ -1,7 +1,8 @@
 ---
 # task file to configure bash completion for gcloud
 - name: gcloud | Archive | Debian | Ensure bash completion is installed
-  ansible.builtin.apt: name=bash-completion
+  ansible.builtin.apt:
+    name: "bash-completion"
   register: task_result
   until: task_result is success
   retries: 10
