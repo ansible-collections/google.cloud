@@ -77,6 +77,11 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
+  page_size:
+    description:
+    - Indicates the number of projects that should be returned by the API
+      request
+    type: str
 notes:
 - for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
@@ -96,6 +101,7 @@ EXAMPLES = '''
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
+    page_size: 100
 '''
 
 RETURN = '''
@@ -175,7 +181,9 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict())
+    module = GcpModule(argument_spec=dict(
+      page_size=dict(type='int')
+    ))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
@@ -190,7 +198,10 @@ def collection(module):
 
 def fetch_list(module, link):
     auth = GcpSession(module, 'resourcemanager')
-    return auth.list(link, return_if_object, array_name='projects')
+    params = {}
+    if "page_size" in module.params:
+      params["pageSize"] = module.params.get("page_size")
+    return auth.list(link, return_if_object, array_name='projects', params=params)
 
 
 def return_if_object(module, response):

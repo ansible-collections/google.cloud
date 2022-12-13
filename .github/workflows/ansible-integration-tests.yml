@@ -6,6 +6,7 @@ on:
 env:
   GCP_SERVICE_ACCOUNT: "github-ci@ansible-gcp-ci.iam.gserviceaccount.com"
   GCP_PROJECT: "ansible-gcp-ci"
+  GCP_FOLDER_ID: "542027184392"
 jobs:
   integration:
     # NOTE: GitHub does not allow secrets to be used
@@ -44,6 +45,7 @@ jobs:
           gcp_cred_file: /tmp/service-account-key.json
           gcp_cred_kind: serviceaccount
           gcp_cred_email: $GCP_SERVICE_ACCOUNT
+          gcp_folder_id: $GCP_FOLDER_ID
           " > ./tests/integration/cloud-config-gcp.ini
       # cleanup test environment
       - name: Auth to Gcloud
@@ -58,7 +60,7 @@ jobs:
       - name: Run cleanup
         run:  |
           ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
-          ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
+          ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_FOLDER_ID
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output

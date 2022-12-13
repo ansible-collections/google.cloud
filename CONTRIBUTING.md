@@ -40,6 +40,7 @@ gcp_project: @PROJECT_ID
 gcp_cred_file: @CRED_FILE
 gcp_cred_kind: @CRED_KIND
 gcp_cred_email: @EMAIL
+gcp_folder_id: @TEST_FOLDER (to create test projects)
 ```
 
 #### Setting up the project for testing
@@ -98,4 +99,3 @@ the codebase.
 
 1. modify the [ansible-integration-tests.yaml](.github/workflows/ansible-integration-tests.yml) to the version of ansible-core that you would like to test against.
 1. (optional) update the version of ansible-core version required in [meta/runtime.yaml](meta/runtime.yml).
-

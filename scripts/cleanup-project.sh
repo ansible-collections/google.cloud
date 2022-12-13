@@ -8,6 +8,7 @@
 #  - google-cloud-sdk (gcloudgcloud )
 set -e
 PROJECT_ID="${1}"
+FOLDER_ID="${2}"
 # service account is unused today
 # SERVICE_ACCOUNT_NAME="${2}"
 ZONE="us-central1-a"
@@ -28,6 +29,9 @@ main() {
     cleanup_resource "compute" "backend-services" "--global" "--global"
     cleanup_resource "compute" "backend-services" \
         "--regions=us-central1" "--region=us-central1"
+    for resource in $(gcloud projects list --filter="parent.id:$FOLDER_ID" --format="csv[no-heading](PROJECT_ID)"); do
+        gcloud projects delete "${resource}" -q
+    done
 }
 
 cleanup_resource() {
@@ -35,9 +39,14 @@ cleanup_resource() {
     resource="$2"
     extra_list_arg="$3"
     extra_delete_arg="$4"
+<<<<<<< HEAD
 
     for resource_id in $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}"); do
         gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
+=======
+    for resource in $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}"); do
+        gcloud "${resource_group}" "${resource}" delete "${resource}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
+>>>>>>> 78c2743 (fixing gcp_resourcemanager_project delete)
     done
 }
 
