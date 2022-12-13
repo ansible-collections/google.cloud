@@ -203,6 +203,8 @@ id:
   type: str
 '''
 
+ACTIVE = "ACTIVE"
+
 ################################################################################
 # Imports
 ################################################################################
@@ -250,7 +252,7 @@ def main():
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
-        else:
+        elif fetch.get("lifecycleState") == ACTIVE:
             delete(module, self_link(module))
             fetch = {}
             changed = True
@@ -375,7 +377,7 @@ def async_op_url(module, extra_data=None):
 
 def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
-    if op_result is None:
+    if not op_result:
         return {}
     status = navigate_hash(op_result, ['done'])
     wait_done = wait_for_completion(status, op_result, module)
