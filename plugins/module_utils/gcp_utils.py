@@ -112,7 +112,7 @@ class GcpSession(object):
         This method should be avoided in favor of full_put
         """
         kwargs = {'json': body}
-        return self.full_put(url, **kwargs, params=params)
+        return self.full_put(url, params=params, **kwargs)
 
     def patch(self, url, body=None, **kwargs):
         """
