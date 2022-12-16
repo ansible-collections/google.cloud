@@ -107,12 +107,12 @@ class GcpSession(object):
         kwargs = {'json': body}
         return self.full_delete(url, **kwargs)
 
-    def put(self, url, body=None):
+    def put(self, url, body=None, params=None):
         """
         This method should be avoided in favor of full_put
         """
         kwargs = {'json': body}
-        return self.full_put(url, **kwargs)
+        return self.full_put(url, **kwargs, params=params)
 
     def patch(self, url, body=None, **kwargs):
         """
@@ -305,7 +305,14 @@ class GcpModule(AnsibleModule):
         try:
             response.raise_for_status()
         except getattr(requests.exceptions, 'RequestException') as inst:
-            self.fail_json(msg="GCP returned error: %s" % response.json())
+            self.fail_json(
+                msg="GCP returned error: %s" % response.json(),
+                request={
+                    "url": response.request.url,
+                    "body": response.request.body,
+                    "method": response.request.method,
+                }
+            )
 
     def _merge_dictionaries(self, a, b):
         new = a.copy()

@@ -15,7 +15,7 @@
 # Pre-test setup
 - name: delete a role
   google.cloud.gcp_iam_role:
-    name: role_{{ resource_name.split("-")[-1] }}
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -29,7 +29,7 @@
 #----------------------------------------------------------
 - name: create a role
   google.cloud.gcp_iam_role:
-    name: role_{{ resource_name.split("-")[-1] }}
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -56,11 +56,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*role_{{ resource_name.split("-")[-1] }}.*") | list | length == 1
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30].replace('-', '_') }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: create a role that already exists
   google.cloud.gcp_iam_role:
-    name: role_{{ resource_name.split("-")[-1] }}
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -76,10 +76,30 @@
   assert:
     that:
       - result.changed == false
+# ----------------------------------------------------------------------------
+- name: modify an IAM role that already exists
+  google.cloud.gcp_iam_role:
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
+    title: My Custom Role
+    description: My custom role description
+    included_permissions:
+    - storage.buckets.get
+    - storage.buckets.list
+    - storage.objects.get
+    - storage.objects.list
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
+- name: assert changed is true
+  assert:
+    that:
+      - result.changed == true
 #----------------------------------------------------------
 - name: delete a role
   google.cloud.gcp_iam_role:
-    name: role_{{ resource_name.split("-")[-1] }}
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
     title: My Custom Role
     description: My custom role description
     included_permissions:
@@ -106,11 +126,11 @@
 - name: verify that command succeeded
   assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*role_{{ resource_name.split("-")[-1] }}.*") | list | length == 0
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30].replace('-', '_') }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: delete a role that does not exist
   google.cloud.gcp_iam_role:
-    name: role_{{ resource_name.split("-")[-1] }}
+    name: "{{ resource_prefix[0:30].replace('-', '_') }}"
     title: My Custom Role
     description: My custom role description
     included_permissions:

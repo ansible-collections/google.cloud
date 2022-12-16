@@ -16,6 +16,7 @@ releases:
         absent.
       - gcp_spanner_database - recognize a non-existent resource as absent.
       - gcp_storage_object - fix for correct version of dependency requirement.
+      - gcp_iam_role - update of a role is functional (GitHub #236).
       minor_changes:
       - GCE inventory plugin - a new option ``name_suffix``, to add a suffix to the
         name parameter.

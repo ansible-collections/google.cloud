@@ -182,7 +182,7 @@ import json
 
 def main():
     module = GcpModule(argument_spec=dict(
-      page_size=dict(type='int')
+        page_size=dict(type='int')
     ))
 
     if not module.params['scopes']:
@@ -200,7 +200,7 @@ def fetch_list(module, link):
     auth = GcpSession(module, 'resourcemanager')
     params = {}
     if "page_size" in module.params:
-      params["pageSize"] = module.params.get("page_size")
+        params["pageSize"] = module.params.get("page_size")
     return auth.list(link, return_if_object, array_name='projects', params=params)
 
 

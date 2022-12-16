@@ -39,14 +39,9 @@ cleanup_resource() {
     resource="$2"
     extra_list_arg="$3"
     extra_delete_arg="$4"
-<<<<<<< HEAD
 
     for resource_id in $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}"); do
         gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
-=======
-    for resource in $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}"); do
-        gcloud "${resource_group}" "${resource}" delete "${resource}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
->>>>>>> 78c2743 (fixing gcp_resourcemanager_project delete)
     done
 }
 
