@@ -5,6 +5,14 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
+v1.1.1
+======
+
+Bugfixes
+--------
+
+- fix collection to work with Python 2.7
+
 v1.1.0
 ======
 
@@ -23,5 +31,6 @@ Bugfixes
 - gcp_container_cluster - support GKE clusters greater than 1.19+, which cannot use basic-auth.
 - gcp_crypto_key - skip_initial_version_creation defaults to the correct value.
 - gcp_iam_role - now properly undeletes and recognizes soft deleted roles as absent.
+- gcp_iam_role - update of a role is functional (GitHub
 - gcp_spanner_database - recognize a non-existent resource as absent.
 - gcp_storage_object - fix for correct version of dependency requirement.
