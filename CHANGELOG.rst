@@ -5,8 +5,8 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
-v1.1.0-beta.0
-=============
+v1.1.0
+======
 
 Minor Changes
 -------------
