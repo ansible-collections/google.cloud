@@ -255,7 +255,7 @@ def update(module, link, fetch):
     }
     request = resource_to_request(module)
     del request["name"]
-    return return_if_object(module, auth.put(link, request, params=params))
+    return return_if_object(module, auth.patch(link, request, params=params))
 
 
 def updateMask(request, response):
