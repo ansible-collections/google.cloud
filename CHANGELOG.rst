@@ -5,6 +5,14 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
+v1.1.2
+======
+
+Bugfixes
+--------
+
+- fix `gcp_compute` no longer being a valid name of the inventory plugin
+
 v1.1.1
 ======
 

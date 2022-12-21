@@ -31,3 +31,10 @@ releases:
     fragments:
     - fix-2.7.yml
     release_date: '2022-12-16'
+  1.1.2:
+    changes:
+      bugfixes:
+      - fix `gcp_compute` no longer being a valid name of the inventory plugin
+    fragments:
+    - fix-inventory-plugin.yml
+    release_date: '2022-12-21'
