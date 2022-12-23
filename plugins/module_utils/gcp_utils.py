@@ -215,27 +215,40 @@ class GcpSession(object):
 
     def _credentials(self):
         cred_type = self.module.params['auth_kind']
+
         if cred_type == 'application':
             credentials, project_id = google.auth.default(scopes=self.module.params['scopes'])
             return credentials
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_file'):
-            path = os.path.realpath(os.path.expanduser(self.module.params['service_account_file']))
-            if not os.path.exists(path):
+
+        if cred_type == 'serviceaccount':
+            service_account_file = self.module.params.get('service_account_file')
+            service_account_contents = self.module.params.get('service_account_contents')
+            if service_account_file is not None:
+                path = os.path.realpath(os.path.expanduser(service_account_file))
+                try:
+                    svc_acct_creds = service_account.Credentials.from_service_account_file(path)
+                except OSError as e:
+                    self.module.fail_json(
+                        msg="Unable to read service_account_file at %s: %s" % (path, e.strerror)
+                    )
+            elif service_account_contents is not None:
+                try:
+                    info = json.loads(service_account_contents)
+                except json.decoder.JSONDecodeError as e:
+                    self.module.fail_json(
+                        msg="Unable to decode service_account_contents as JSON: %s" % e
+                    )
+                svc_acct_creds = service_account.Credentials.from_service_account_info(info)
+            else:
                 self.module.fail_json(
-                    msg="Unable to find service_account_file at '%s'" % path
+                    msg='Service Account authentication requires setting either service_account_file or service_account_contents'
                 )
-            return service_account.Credentials.from_service_account_file(path).with_scopes(self.module.params['scopes'])
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_contents'):
-            try:
-                cred = json.loads(self.module.params.get('service_account_contents'))
-            except json.decoder.JSONDecodeError as e:
-                self.module.fail_json(
-                    msg="Unable to decode service_account_contents as JSON"
-                )
-            return service_account.Credentials.from_service_account_info(cred).with_scopes(self.module.params['scopes'])
+            return svc_acct_creds.with_scopes(self.module.params['scopes'])
+
         if cred_type == 'machineaccount':
             return google.auth.compute_engine.Credentials(
                 self.module.params['service_account_email'])
+
         self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
     def _headers(self):
