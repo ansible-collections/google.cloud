@@ -143,3 +143,34 @@ class GCPRequestDifferenceTestCase(unittest.TestCase):
         request2 = GcpRequest(value2)
         self.assertNotEquals(request1, request2)
         self.assertEqual(request1.difference(request2), difference)
+
+    def test_dicts_boolean_with_difference(self):
+        value1 = {
+            "foo": True,
+            "bar": False,
+            "baz": True,
+            "qux": False,
+        }
+
+        value2 = {
+            "foo": True,
+            "bar": False,
+            "baz": False,
+            "qux": True,
+        }
+
+        value2 = {
+            "foo": True,
+            "bar": False,
+            "baz": False,
+            "qux": True,
+        }
+
+        difference = {
+            "baz": True,
+            "qux": True,
+        }
+        request1 = GcpRequest(value1)
+        request2 = GcpRequest(value2)
+        self.assertNotEquals(request1, request2)
+        self.assertEqual(request1.difference(request2), difference)

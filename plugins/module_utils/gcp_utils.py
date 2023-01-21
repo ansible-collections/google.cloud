@@ -362,7 +362,7 @@ class GcpRequest(object):
     def _compare_dicts(self, req_dict, resp_dict):
         difference = {}
         for key in req_dict:
-            if resp_dict.get(key):
+            if resp_dict.get(key) is not None:
                 difference[key] = self._compare_value(req_dict.get(key), resp_dict.get(key))
 
         # Remove all empty values from difference.
@@ -408,7 +408,7 @@ class GcpRequest(object):
         diff = None
         # If a None is found, a difference does not exist.
         # Only differing values matter.
-        if not resp_value:
+        if resp_value is None:
             return None
 
         # Can assume non-None types at this point.
@@ -444,7 +444,7 @@ class GcpRequest(object):
             # Value1 False, resp_value 'false'
             if not req_value and to_text(resp_value) == 'false':
                 return None
-            return resp_value
+            return True
 
         # to_text may throw UnicodeErrors.
         # These errors shouldn't crash Ansible and should be hidden.
