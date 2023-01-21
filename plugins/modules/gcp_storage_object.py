@@ -43,11 +43,12 @@ options:
   src:
     description:
     - Source location of file (may be local machine or cloud depending on action). Cloud locations need to be urlencoded including slashes.
-    required: false
+    required: true
     type: path
   dest:
     description:
     - Destination location of file (may be local machine or cloud depending on action). Cloud location need to be urlencoded including slashes.
+      Required for upload and download.
     required: false
     type: path
   bucket:
@@ -183,6 +184,11 @@ def main():
         )
     )
 
+    if module.params["action"] == "upload" and module.params["dest"] is None:
+        module.fail_json(
+            msg="`dest` parameter is None: `dest` is required for the upload operation"
+        )
+
     if not HAS_GOOGLE_STORAGE_LIBRARY:
         module.fail_json(msg="Please install the google-cloud-storage Python library")
 
@@ -193,11 +199,12 @@ def main():
 
     creds = GcpSession(module, "storage")._credentials()
     client = storage.Client(
-        project=module.params['project'],
-        credentials=creds, client_info=ClientInfo(user_agent="Google-Ansible-MM-object")
+        project=module.params["project"],
+        credentials=creds,
+        client_info=ClientInfo(user_agent="Google-Ansible-MM-object"),
     )
 
-    bucket = client.get_bucket(module.params['bucket'])
+    bucket = client.get_bucket(module.params["bucket"])
 
     remote_file_exists = Blob(remote_file_path(module), bucket).exists()
     local_file_exists = os.path.isfile(local_file_path(module))
@@ -237,7 +244,7 @@ def main():
 
 def download_file(module, client, name, dest):
     try:
-        bucket = client.get_bucket(module.params['bucket'])
+        bucket = client.get_bucket(module.params["bucket"])
         blob = Blob(name, bucket)
         with open(dest, "wb") as file_obj:
             blob.download_to_file(file_obj)
@@ -248,7 +255,7 @@ def download_file(module, client, name, dest):
 
 def upload_file(module, client, src, dest):
     try:
-        bucket = client.get_bucket(module.params['bucket'])
+        bucket = client.get_bucket(module.params["bucket"])
         blob = Blob(dest, bucket)
         with open(src, "rb") as file_obj:
             blob.upload_from_file(file_obj)
@@ -259,7 +266,7 @@ def upload_file(module, client, src, dest):
 
 def delete_file(module, client, name):
     try:
-        bucket = client.get_bucket(module.params['bucket'])
+        bucket = client.get_bucket(module.params["bucket"])
         blob = Blob(name, bucket)
         blob.delete()
         return {}
@@ -285,14 +292,12 @@ def remote_file_path(module):
 
 def blob_to_dict(blob):
     return {
-        'bucket': {
-            'name': blob.bucket.path
-        },
-        'cache_control': blob.cache_control,
-        'chunk_size': blob.chunk_size,
-        'media_link': blob.media_link,
-        'self_link': blob.self_link,
-        'storage_class': blob.storage_class
+        "bucket": {"name": blob.bucket.path},
+        "cache_control": blob.cache_control,
+        "chunk_size": blob.chunk_size,
+        "media_link": blob.media_link,
+        "self_link": blob.self_link,
+        "storage_class": blob.storage_class,
     }
 
 
