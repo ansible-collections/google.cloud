@@ -159,13 +159,6 @@ class GCPRequestDifferenceTestCase(unittest.TestCase):
             "qux": True,
         }
 
-        value2 = {
-            "foo": True,
-            "bar": False,
-            "baz": False,
-            "qux": True,
-        }
-
         difference = {
             "baz": True,
             "qux": True,
