@@ -125,8 +125,8 @@ projects:
   - gcp-prod-gke-100
   - gcp-cicd-101
 filters:
-  - machineType = n1-standard-1
-  - scheduling.automaticRestart = true AND machineType = n1-standard-1
+  - status = RUNNING
+  - scheduling.automaticRestart = true AND status = RUNNING
 service_account_file: /tmp/service_account.json
 auth_kind: serviceaccount
 scopes:
