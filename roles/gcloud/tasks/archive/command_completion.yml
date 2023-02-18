@@ -1,6 +1,6 @@
 ---
 # task file to configure bash completion for gcloud
-- name: gcloud | Archive | Debian | Ensure bash completion is installed
+- name: Gcloud | Archive | Debian | Ensure bash completion is installed
   ansible.builtin.apt:
     name: "bash-completion"
   register: task_result
@@ -9,7 +9,7 @@
   delay: 2
   when: ansible_os_family == "Debian"
 
-- name: gcloud | Archive | RedHat | Ensure bash completion is installed
+- name: Gcloud | Archive | RedHat | Ensure bash completion is installed
   ansible.builtin.yum:
     name:
       - bash-completion
@@ -19,7 +19,7 @@
   delay: 2
   when: ansible_os_family == "RedHat"
 
-- name: gcloud | Archive | Ensure bash_completion.d directory exists
+- name: Gcloud | Archive | Ensure bash_completion.d directory exists
   ansible.builtin.file:
     path: /etc/bash_completion.d
     owner: root
@@ -27,7 +27,7 @@
     state: directory
     mode: 0755
 
-- name: gcloud | Archive | Link binaries to /usr/bin (like package install)
+- name: Gcloud | Archive | Link binaries to /usr/bin (like package install)
   ansible.builtin.file:
     src: "{{ gcloud_library_path }}/completion.bash.inc"
     dest: /etc/bash_completion.d/gcloud

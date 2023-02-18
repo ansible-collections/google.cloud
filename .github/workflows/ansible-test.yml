@@ -36,7 +36,7 @@ jobs:
         # validate-modules cannot be turned on until #498 is resolved.
         run: ansible-test sanity -v --color --skip validate-modules
       - name: Install ansible-lint
-        run: pip install ansible-lint
+        run: pip install ansible-lint==6.13.1
       - name: Run ansible-lint
         run: ansible-lint
   unit:
