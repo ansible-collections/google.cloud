@@ -1,6 +1,6 @@
 ---
 
-- name: gcloud | Load Distro and OS specific variables
+- name: Gcloud | Load Distro and OS specific variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
@@ -11,5 +11,5 @@
       paths:
         - 'vars'
 
-- name: gcloud | Install the google-cloud-sdk from {{ gcloud_install_type }}
+- name: Gcloud | Install the google-cloud-sdk from {{ gcloud_install_type }}
   ansible.builtin.include_tasks: "{{ gcloud_install_type }}/main.yml"

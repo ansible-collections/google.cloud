@@ -1,5 +1,5 @@
 ---
 # tasks file for gcloud
 
-- name: gcloud | Start package installation for specific distro
+- name: Gcloud | Start package installation for specific distro
   ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
