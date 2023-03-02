@@ -317,7 +317,7 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 )
 import json
 import time
-import ipaddress
+
 
 ################################################################################
 # Main
