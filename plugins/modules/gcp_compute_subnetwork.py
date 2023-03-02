@@ -317,6 +317,7 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 )
 import json
 import time
+import ipaddress
 
 ################################################################################
 # Main
@@ -499,8 +500,33 @@ def is_different(module, response):
         if k in response:
             request_vals[k] = v
 
-    return GcpRequest(request_vals) != GcpRequest(response_vals)
+    if request_vals['ipCidrRange']:
+      try:
+          result_superset = cidr_superset(request_vals['ipCidrRange'], response_vals['ipCidrRange'])
+          if result_superset:
+              gcp_req_request=GcpRequest(request_vals)
+              gcp_req_response=GcpRequest(response_vals)
+          else:
+              module.fail_json(msg="The new CIDR must be a superset of the original IP ranage!")
+      except Exception as e:
+          module.fail_json(msg="CIDR Error! str(e)")
 
+    return gcp_req_request != gcp_req_response
+
+def cidr_superset(cidr1, cidr2):
+    """
+    Check if CIDR1 is a superset of CIDR2.
+
+    Args:
+        cidr1 (str): The first CIDR address.
+        cidr2 (str): The second CIDR address.
+
+    Returns:
+        bool: True if CIDR1 is a superset of CIDR2, False otherwise.
+    """
+    net1 = ipaddress.ip_network(cidr1)
+    net2 = ipaddress.ip_network(cidr2)
+    return net2.subnet_of(net1)
 
 # Remove unnecessary properties from the response.
 # This is for doing comparisons with Ansible's current parameters.
