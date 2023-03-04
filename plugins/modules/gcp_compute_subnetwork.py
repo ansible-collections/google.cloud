@@ -355,7 +355,7 @@ def main():
     if fetch:
         if state == 'present':
             if module.params['network']['selfLink'] != fetch['network']: # found difference on same subnet within the same VPC network
-                module.fail_json(msg="Subnet already exists in a different VPC network: %s, please change the name or region" % fetch['network'])
+                module.fail_json(msg="Subnet already exists in a different VPC network: %s" % fetch['network'])
                 changed = False
             elif is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
