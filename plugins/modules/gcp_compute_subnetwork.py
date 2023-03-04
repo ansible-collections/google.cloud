@@ -502,8 +502,8 @@ def is_different(module, response):
 
     if request_vals['ipCidrRange']:
       try:
-          result_superset = cidr_superset(request_vals['ipCidrRange'], response_vals['ipCidrRange'])
-          if result_superset:
+          result_is_superset = cidr_superset(request_vals['ipCidrRange'], response_vals['ipCidrRange'])
+          if result_is_superset:
               gcp_req_request=GcpRequest(request_vals)
               gcp_req_response=GcpRequest(response_vals)
           else:
