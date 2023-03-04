@@ -1,5 +1,0 @@
-# https://github.com/ansible-community/antsibull-changelog/blob/main/docs/changelogs.rst#changelog-fragment-categories
-bugfixes:
-- >
-  gcp_compute_instance_info: fix incorrect documentation for filter which incorrectly
-  pointed to the gcloud filter logic rather than the API (fixes #549)

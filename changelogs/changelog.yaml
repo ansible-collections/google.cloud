@@ -38,3 +38,11 @@ releases:
     fragments:
     - fix-inventory-plugin.yml
     release_date: '2022-12-21'
+  1.1.3:
+    changes:
+      bugfixes:
+      - 'gcp_compute_instance_info: fix incorrect documentation for filter which incorrectly
+        pointed to the gcloud filter logic rather than the API (fixes #549)'
+    fragments:
+    - gce-changelog.yaml
+    release_date: '2023-03-04'

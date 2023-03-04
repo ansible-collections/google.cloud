@@ -5,6 +5,14 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
+v1.1.3
+======
+
+Bugfixes
+--------
+
+- gcp_compute_instance_info: fix incorrect documentation for filter which incorrectly pointed to the gcloud filter logic rather than the API (fixes #549)
+
 v1.1.2
 ======
 

@@ -6,7 +6,6 @@ plugins:
   callback: {}
   cliconf: {}
   connection: {}
-  filter: {}
   httpapi: {}
   inventory:
     gcp_compute:
@@ -868,6 +867,5 @@ plugins:
   netconf: {}
   shell: {}
   strategy: {}
-  test: {}
   vars: {}
-version: 1.1.2
+version: 1.1.3
