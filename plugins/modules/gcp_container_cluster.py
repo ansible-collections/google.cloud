@@ -628,6 +628,11 @@ options:
     required: false
     type: dict
     suboptions:
+      datapath_provider: 
+        description:
+        - The datapath provider selects the implementation of the Kubernetes networking model for service resolution and network policy enforcement.
+        required: false
+        type: str
       enable_intra_node_visibility:
         description:
         - Whether Intra-node visibility is enabled for this cluster. This makes same
@@ -1572,7 +1577,7 @@ def main():
             binary_authorization=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             release_channel=dict(type='dict', options=dict(channel=dict(type='str'))),
             shielded_nodes=dict(type='dict', options=dict(enabled=dict(type='bool'))),
-            network_config=dict(type='dict', options=dict(enable_intra_node_visibility=dict(type='bool'), default_snat_status=dict(type='bool'))),
+            network_config=dict(type='dict', options=dict(enable_intra_node_visibility=dict(type='bool'), default_snat_status=dict(type='bool'), datapath_provider=dict(type='str'))),
             enable_kubernetes_alpha=dict(type='bool'),
             location=dict(required=True, type='str', aliases=['zone']),
             kubectl_path=dict(type='str'),
@@ -2422,12 +2427,12 @@ class ClusterNetworkconfig(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'enableIntraNodeVisibility': self.request.get('enable_intra_node_visibility'), u'defaultSnatStatus': self.request.get('default_snat_status')}
+            {u'enableIntraNodeVisibility': self.request.get('enable_intra_node_visibility'), u'defaultSnatStatus': self.request.get('default_snat_status'), u'datapathProvider': self.request.get('datapath_provider')}
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'enableIntraNodeVisibility': self.request.get(u'enableIntraNodeVisibility'), u'defaultSnatStatus': self.request.get(u'defaultSnatStatus')}
+            {u'enableIntraNodeVisibility': self.request.get(u'enableIntraNodeVisibility'), u'defaultSnatStatus': self.request.get(u'defaultSnatStatus'), u'datapathProvider': self.request.get('datapath_provider') }
         )
 
 
