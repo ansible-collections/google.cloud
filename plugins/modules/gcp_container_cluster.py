@@ -552,6 +552,11 @@ options:
         - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
         required: false
         type: str
+      stack_type:
+        description:
+          - The IP stack type of the cluster, possible values: (STACK_TYPE_UNSPECIFIED, IPV4, IPV4_IPV6)
+        required: false
+        type: str
   initial_cluster_version:
     description:
     - The software version of the master endpoint and kubelets used in the cluster
@@ -1257,6 +1262,11 @@ ipAllocationPolicy:
       - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
       returned: success
       type: str
+    stackType:
+      description:
+        - The IP stack type of the cluster, possible values: (STACK_TYPE_UNSPECIFIED, IPV4, IPV4_IPV6)
+      type: str
+      returned: success
 endpoint:
   description:
   - The IP address of this cluster's master endpoint.
@@ -1564,6 +1574,7 @@ def main():
                     node_ipv4_cidr_block=dict(type='str'),
                     services_ipv4_cidr_block=dict(type='str'),
                     tpu_ipv4_cidr_block=dict(type='str'),
+                    stack_type=dict(type='str'),
                 ),
             ),
             initial_cluster_version=dict(type='str'),
@@ -2253,6 +2264,7 @@ class ClusterIpallocationpolicy(object):
                 u'nodeIpv4CidrBlock': self.request.get('node_ipv4_cidr_block'),
                 u'servicesIpv4CidrBlock': self.request.get('services_ipv4_cidr_block'),
                 u'tpuIpv4CidrBlock': self.request.get('tpu_ipv4_cidr_block'),
+                u'stackType': self.request.get('stack_type'),
             }
         )
 
