@@ -18,7 +18,7 @@ except ImportError:
 try:
     import google.auth
     import google.auth.compute_engine
-    from google.oauth2 import service_account
+    from google.oauth2 import service_account, credentials as oauth2
     from google.auth.transport.requests import AuthorizedSession
     HAS_GOOGLE_LIBRARIES = True
 except ImportError:
@@ -213,6 +213,11 @@ class GcpSession(object):
                 msg="Service Account File only works with Service Account-based authentication"
             )
 
+        if self.module.params.get('access_token') is not None and self.module.params['auth_kind'] != 'accesstoken':
+            self.module.fail_json(
+                msg='Supplying access_token requires auth_kind set to accesstoken'
+            )
+
     def _credentials(self):
         cred_type = self.module.params['auth_kind']
 
@@ -249,6 +254,14 @@ class GcpSession(object):
             return google.auth.compute_engine.Credentials(
                 self.module.params['service_account_email'])
 
+        if cred_type == 'accesstoken':
+            access_token = self.module.params['access_token']
+            if access_token is None:
+                self.module.fail_json(
+                    msg='An access token must be supplied when auth_kind is accesstoken'
+                )
+            return oauth2.Credentials(access_token, scopes=self.module.params['scopes'])
+
         self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
     def _headers(self):
@@ -279,7 +292,7 @@ class GcpModule(AnsibleModule):
                 auth_kind=dict(
                     required=True,
                     fallback=(env_fallback, ['GCP_AUTH_KIND']),
-                    choices=['machineaccount', 'serviceaccount', 'application'],
+                    choices=['machineaccount', 'serviceaccount', 'accesstoken', 'application'],
                     type='str'),
                 service_account_email=dict(
                     required=False,
@@ -294,6 +307,11 @@ class GcpModule(AnsibleModule):
                     fallback=(env_fallback, ['GCP_SERVICE_ACCOUNT_CONTENTS']),
                     no_log=True,
                     type='jsonarg'),
+                access_token=dict(
+                    required=False,
+                    fallback=(env_fallback, ['GCP_ACCESS_TOKEN']),
+                    no_log=True,
+                    type='str'),
                 scopes=dict(
                     required=False,
                     fallback=(env_fallback, ['GCP_SCOPES']),
