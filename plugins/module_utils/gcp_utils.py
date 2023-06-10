@@ -251,8 +251,9 @@ class GcpSession(object):
             return svc_acct_creds.with_scopes(self.module.params['scopes'])
 
         if cred_type == 'machineaccount':
-            return google.auth.compute_engine.Credentials(
-                self.module.params['service_account_email'])
+            email = self.module.params['service_account_email']
+            email = email if email is not None else "default"
+            return google.auth.compute_engine.Credentials(email)
 
         if cred_type == 'accesstoken':
             access_token = self.module.params['access_token']
