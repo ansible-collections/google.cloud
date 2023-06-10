@@ -39,6 +39,7 @@ class GcpKmsFilter():
             'auth_kind': kwargs.get('auth_kind', None),
             'service_account_file': kwargs.get('service_account_file', None),
             'service_account_email': kwargs.get('service_account_email', None),
+            'access_token': kwargs.get('access_token', None),
         }
         if not params['scopes']:
             params['scopes'] = ['https://www.googleapis.com/auth/cloudkms']

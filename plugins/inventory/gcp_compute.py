@@ -57,7 +57,7 @@ DOCUMENTATION = """
             description:
                 - The type of credential used.
             required: True
-            choices: ['application', 'serviceaccount', 'machineaccount']
+            choices: ['application', 'serviceaccount', 'machineaccount', 'accesstoken']
             env:
                 - name: GCP_AUTH_KIND
         scopes:
@@ -86,6 +86,11 @@ DOCUMENTATION = """
                   and the user does not wish to use the default email.
             env:
                 - name: GCP_SERVICE_ACCOUNT_EMAIL
+        access_token:
+            description:
+                - An OAuth2 access token if credential type is accesstoken.
+            env:
+                - name: GCP_ACCESS_TOKEN
         vars_prefix:
             description: prefix to apply to host variables, does not include facts nor params
             default: ''
@@ -558,6 +563,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             "service_account_file": self.get_option("service_account_file"),
             "service_account_contents": self.get_option("service_account_contents"),
             "service_account_email": self.get_option("service_account_email"),
+            "access_token": self.get_option("access_token"),
         }
 
         self.fake_module = GcpMockModule(params)
