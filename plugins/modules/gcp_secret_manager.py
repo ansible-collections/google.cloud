@@ -57,6 +57,10 @@ options:
     description:
     - Name of the secret to be used
     type: str
+    aliases:
+    - key
+    - secret
+    - secret_id
   value:
     description:
     - The secret value that the secret should have
@@ -80,6 +84,13 @@ options:
     - "all" is also acceptable on delete (which will delete all versions of a secret)
     type: str
     default: 'latest'
+  labels:
+    description:
+    - A set of key-value pairs to assign as labels to asecret
+    - only used in creation
+    - Note that the "value" piece of a label must contain only readable chars
+    type: dict
+    required: False
 '''
 
 EXAMPLES='''
@@ -120,7 +131,6 @@ EXAMPLES='''
     version: all
     state: absent
 
-- name: Get
 '''
 
 RETURN = '''
@@ -258,10 +268,14 @@ def snake_to_camel(snake):
 def create_secret(module):
     # build the payload
     payload = { "replication": { "automatic": {} } }
+    if module.params['labels']:
+        payload['labels'] = module.params['labels']
 
     url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets".format(**module.params)
     auth = get_auth(module)
     post_response = auth.post(url, body=payload, params={'secretId': module.params['name']})
+    # validate create
+    module.raise_for_status(post_response)
     return update_secret(module)
 
 def update_secret(module):
@@ -343,12 +357,14 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            name=dict(required=True, type='str', aliases=['key', 'secret']),
+            name=dict(required=True, type='str', aliases=['key', 'secret', 'secret_id']),
             value=dict(required=False, type='str'),
             version=dict(required=False, type='str', default='latest'),
-            return_value=dict(required=False, type='bool', default=True)
+            return_value=dict(required=False, type='bool', default=True),
+            labels=dict(required=False, type='dict', default=dict())
         )
     )
+
 
     if not module.params['scopes']:
         module.params['scopes'] = ["https://www.googleapis.com/auth/cloud-platform"]
