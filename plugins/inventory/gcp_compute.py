@@ -39,7 +39,7 @@ DOCUMENTATION = """
           description: >
             A list of filter value pairs. Available filters are listed here
             U(https://cloud.google.com/compute/docs/reference/rest/v1/instances/aggregatedList).
-            Each additional filter in the list will act be added as an AND condition
+            Each additional filter in the list will be added as an AND condition
             (filter1 and filter2)
           type: list
         hostnames:
