@@ -5,6 +5,9 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
+v1.2.0
+======
+
 v1.1.3
 ======
 
