@@ -46,3 +46,12 @@ releases:
     fragments:
     - gce-changelog.yaml
     release_date: '2023-03-04'
+  1.2.0:
+    changes:
+      bugfixes:
+      - Use default service account if `service_account_email` is unset.
+      minor_changes:
+      - Add DataPlane V2 Support.
+      - Add support for ip_allocation_policy->stack_type.
+      - Add auth support for GCP access tokens (#574).
+    release_date: '2023-07-07'

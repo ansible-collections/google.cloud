@@ -58,6 +58,10 @@ antsibull-changelog release
 This will remove all the changelog fragments from ./changelogs/fragments and
 merge them into CHANGELOG.rst.
 
+### Send a PR and merge
+
+Send a PR with these changes and merge them.
+
 ### Create a new GitHub release
 
 Creating
