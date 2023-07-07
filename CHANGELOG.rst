@@ -8,6 +8,18 @@ Google.Cloud Release Notes
 v1.2.0
 ======
 
+Minor Changes
+-------------
+
+- Add DataPlane V2 Support.
+- Add auth support for GCP access tokens (#574).
+- Add support for ip_allocation_policy->stack_type.
+
+Bugfixes
+--------
+
+- Use default service account if `service_account_email` is unset.
+
 v1.1.3
 ======
 
