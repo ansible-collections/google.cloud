@@ -23,9 +23,9 @@ module: gcp_secretmanager_info.py
 description:
 - Gather info for GCP Secret Manager
 short_description: Gather info for GCP Secret Manager - List secrets and versions metadata.
-author: Tze L. (https://github.com/tl-aiyor)
+author: Tze L. (https://gitlab.com/tze)
 requirements:
-- python >= 2.6
+- python >= 2.7
 - requests >= 2.18.4
 - google-auth >= 1.3.0
 options:
@@ -119,12 +119,12 @@ resources:
     versions:
       description:
       - An array consists of list of secret version metadata.
-      - This does not include 
+      - This does not include
       returned: success
       type: complex
       contains:
         name:
-          description: 
+          description:
           - The full name of the secret version (e.g., projects/111111111111/secrets/mysecret/versions/1).
           type: str
         createTime:
@@ -141,9 +141,10 @@ resources:
           type: str
 '''
 
+
 def main():
     module = GcpModule(argument_spec=dict(
-        project=dict(default=os.environ['GCP_PROJECT'], type='str')))
+        project=dict(default=os.environ.get('GCP_PROJECT'), type='str')))
 
     if not module.params['scopes']:
         module.params['scopes'] = [
@@ -157,7 +158,7 @@ def main():
     results = []
     for secret in secrets:
         secret_versions_url = "https://secretmanager.googleapis.com/v1/{name}/versions".format(
-          **secret
+            **secret
         )
 
         secret['versions'] = fetch_list(secret_versions_url, auth, 'versions')
@@ -165,9 +166,11 @@ def main():
     return_value = {'resources': results}
     module.exit_json(**return_value)
 
+
 def get_secret_metadata(link, auth):
     response = auth.get(link)
     return response.json()
+
 
 def fetch_list(link, auth, array_name):
     return auth.list(link, return_if_object, array_name=array_name)
@@ -196,4 +199,3 @@ def return_if_object(module, response):
 
 if __name__ == "__main__":
     main()
-  
