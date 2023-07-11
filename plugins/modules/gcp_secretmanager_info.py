@@ -109,7 +109,7 @@ resources:
       type: str
     etag:
       description:
-      - See reference for more info: https://cloud.google.com/secret-manager/docs/etags
+      - See reference for more info. [Secret Manager etags](U(https://cloud.google.com/secret-manager/docs/etags)).
       returned: success
       type: str
     createTime:
@@ -137,7 +137,7 @@ resources:
           type: str
         etag:
           description:
-          - See reference for more info: https://cloud.google.com/secret-manager/docs/etags
+          - See reference for more info. [Secret Manager etags](U(https://cloud.google.com/secret-manager/docs/etags)).
           type: str
 '''
 
