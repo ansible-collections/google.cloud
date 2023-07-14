@@ -14,7 +14,7 @@ DOCUMENTATION = '''
     - see https://cloud.google.com/iam/docs/service-account-creds for details on creating
       credentials for Google Cloud and the format of such credentials
     - once a secret value is retreived, it is returned decoded.  It is up to the developer
-      to maintain secrecy of this value once returned. 
+      to maintain secrecy of this value once returned.
 
     options:
         key:
@@ -62,7 +62,7 @@ DOCUMENTATION = '''
             type: jsonarg
             required: False
         access_token:
-            description: 
+            description:
             - support for GCP Access Token
             - defaults to OS env variable GCP_ACCESS_TOKEN if not present
             type: str
@@ -116,10 +116,8 @@ RETURN = '''
 # Imports
 ################################################################################
 
-import json
 import os
 import base64
-
 
 from ansible.plugins.lookup import LookupBase
 from ansible.errors import AnsibleError
@@ -139,11 +137,10 @@ try:
 except ImportError:
     HAS_GOOGLE_CLOUD_COLLECTION = False
 
-from ansible.errors import AnsibleError
-from ansible.utils.display import Display
 
 class GcpLookupException(Exception):
     pass
+
 
 class GcpMockModule(object):
     def __init__(self, params):
@@ -158,20 +155,23 @@ class GcpMockModule(object):
         except getattr(requests.exceptions, "RequestException"):
             self.fail_json(msg="GCP returned error: %s" % response.json())
 
+
 class LookupModule(LookupBase):
     def run(self, terms=None, variables=None, **kwargs):
         self._display = Display()
         if not HAS_GOOGLE_CLOUD_COLLECTION:
             raise AnsibleError(
-                "gcp_secret lookup needs a supported version of the google.cloud collection installed. Use `ansible-galaxy collection install google.cloud` to install it"
-        )
+                """gcp_secret lookup needs a supported version of the google.cloud
+                collection installed. Use `ansible-galaxy collection install google.cloud`
+                to install it"""
+            )
         self.set_options(var_options=variables, direct=kwargs)
         params = {
-            "key":          self.get_option("key"),
-            "version":      self.get_option("version"),
+            "key": self.get_option("key"),
+            "version": self.get_option("version"),
             "access_token": self.get_option("access_token"),
-            "scopes":       self.get_option("scopes"),
-            "on_error":     self.get_option("on_error")
+            "scopes": self.get_option("scopes"),
+            "on_error": self.get_option("on_error")
         }
 
         params['name'] = params['key']
@@ -184,7 +184,7 @@ class LookupModule(LookupBase):
         fake_module = GcpMockModule(params)
         result = self.get_secret(fake_module)
         return [base64.b64decode(result)]
-    
+
     def fallback_from_env(self, arg):
         if self.get_option(arg):
             return self.get_option(arg)
@@ -193,10 +193,9 @@ class LookupModule(LookupBase):
             if env_name in os.environ:
                 self.set_option(arg, os.environ[env_name])
             return self.get_option(arg)
-        
 
     # set version to the latest version because
-    # we can't be sure that "latest" is always going 
+    # we can't be sure that "latest" is always going
     # to be set if secret versions get disabled
     # see https://issuetracker.google.com/issues/286489671
     def get_latest_version(self, module, auth):
@@ -213,15 +212,14 @@ class LookupModule(LookupBase):
         else:
             self.raise_error(module, f"Unable to list secret versions via {response.request.url}: {response.json()}")
 
-        
     def raise_error(self, module, msg):
         if module.params['on_error'] == 'strict':
             raise GcpLookupException(msg)
         elif module.params['on_error'] == 'warn':
             self._display.warning(msg)
-        
+
         return None
-        
+
     def get_secret(self, module):
         auth = GcpSession(module, "secretmanager")
         if module.params['version'] == "latest":
@@ -241,12 +239,5 @@ class LookupModule(LookupBase):
         if response.status_code != 200:
             self.raise_error(module, f"Failed to lookup secret value via {response.request.url} {response.status_code}")
             return ''
-    
+
         return response.json()['payload']['data']
-
-    
-
-    
-
-
-
