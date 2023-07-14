@@ -71,8 +71,9 @@ options:
     type: dict
   path:
     description:
-    - The full name of the file that will hold the service account private key. The
-      management of this file will depend on the value of sync_file parameter.
+    - The full name of the file that will hold the service account private key.
+    - If the file already exists, it will attempt to be read. Ensure the file does
+      not exist or is alreay a valid key.
     - File path must be absolute.
     required: false
     type: path
@@ -192,8 +193,9 @@ serviceAccount:
   type: dict
 path:
   description:
-  - The full name of the file that will hold the service account private key. The
-    management of this file will depend on the value of sync_file parameter.
+  - The full name of the file that will hold the service account private key.
+  - If the file already exists, it will attempt to be read. Ensure the file does
+    not exist or is alreay a valid key.
   - File path must be absolute.
   returned: success
   type: str
