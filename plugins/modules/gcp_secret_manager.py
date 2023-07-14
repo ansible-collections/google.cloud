@@ -1,25 +1,35 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt
+# or https://www.gnu.org/licenses/gpl-3.0.txt)
 # SPDX-License-Identifier: GPL-3.0-or-later
+
 ################################################################################
 # Documentation
 ################################################################################
 
+
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1', 'status': ["preview"], 'supported_by': 'community'}
 
-DOCUMENTATION='''
+DOCUMENTATION = '''
 ---
 module: gcp_secret_manager
 description:
-- Simple create/delete of secrets
-- add or delete secret versions
-- other features like etags, replication, annontation expected to be managed outside of Ansible
+- Access secrets stored in Google Secrets Manager.
+- Create new secrets.
+- Create new secret values.
+- Add/remove versions of secrets.
+- Please note that other features like etags, replication, annontation expected to be managed outside of Ansible.
+short_description: Access and Update Google Cloud Secrets Manager objects
+author: Dave Costakos @RedHat
 requirements:
 - python >= 2.6
 - requests >= 2.18.4
 - google-auth >= 1.3.0
-options:
 options:
   project:
     description:
@@ -57,6 +67,7 @@ options:
     description:
     - Name of the secret to be used
     type: str
+    required: true
     aliases:
     - key
     - secret
@@ -69,7 +80,11 @@ options:
     type: str
   state:
     description:
-    - 'absent' or 'present': whether the secret should exist
+    - whether the secret should exist
+    default: present
+    choices:
+    - absent
+    - present
     type: str
   return_value:
     description:
@@ -81,19 +96,31 @@ options:
     description:
     - A version label to apply to the secret
     - Default is "latest" which is the newest version of the secret
-    - "all" is also acceptable on delete (which will delete all versions of a secret)
+    - The special "all" is also acceptable on delete (which will delete all versions of a secret)
     type: str
-    default: 'latest'
+    default: latest
   labels:
     description:
     - A set of key-value pairs to assign as labels to asecret
     - only used in creation
     - Note that the "value" piece of a label must contain only readable chars
     type: dict
-    required: False
+notes:
+- 'API Reference: U(https://cloud.google.com/secret-manager/docs/reference/rests)'
+- 'Official Documentation: U(https://cloud.google.com/secret-manager/docs/overview)'
+- for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
+  env variable.
+- for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
+  env variable.
+- For authentication, you can set service_account_email using the C(GCP_SERVICE_ACCOUNT_EMAIL)
+  env variable.
+- For authentication, you can set auth_kind using the C(GCP_AUTH_KIND) env variable.
+- For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
+- Environment variables values will only be used if the playbook values are not set.
+- The I(service_account_email) and I(service_account_file) options are mutually exclusive.
 '''
 
-EXAMPLES='''
+EXAMPLES = r'''
 - name: Create a new secret
   google.cloud.gcp_secret_manager:
     name: secret_key
@@ -110,7 +137,7 @@ EXAMPLES='''
 - name: Ensure secret exists but don't return the value
   google.cloud.gcp_secret_manager:
     name: secret_key
-    state: present 
+    state: present
     return_value: false
 
 - name: Add a new version of a secret
@@ -131,9 +158,15 @@ EXAMPLES='''
     version: all
     state: absent
 
+- name: Create a secret with labels
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    value: super_secret
+    labels:
+      key_name: "ansible_rox"
 '''
 
-RETURN = '''
+RETURN = r'''
 resources:
   description: List of resources
   returned: always
@@ -182,32 +215,34 @@ resources:
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     navigate_hash,
     GcpSession,
-    GcpModule,
-    GcpRequest,
-    remove_nones_from_dict,
-    replace_resource_dict,
+    GcpModule
 )
 
-import json
 # for decoding and validating secrets
+import json
 import base64
-import binascii
+import copy
 
 
 def get_auth(module):
     return GcpSession(module, 'secret-manager')
 
+
 def self_access_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version}:access".format(**module.params)
+
 
 def self_get_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version}".format(**module.params)
 
+
 def self_update_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version:version}".format(**module.params)
 
+
 def self_list_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions?filter=state:ENABLED".format(**module.params)
+
 
 def self_delete_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}".format(**module.params)
@@ -216,7 +251,7 @@ def self_delete_link(module):
 def fetch_resource(module, allow_not_found=True):
     auth = get_auth(module)
     # set version to the latest version because
-    # we can't be sure that "latest" is always going 
+    # we can't be sure that "latest" is always going
     # to be set if secret versions get disabled
     # see https://issuetracker.google.com/issues/286489671
     if module.params['version'] == "latest" or module.params['version'] == 'all':
@@ -224,7 +259,7 @@ def fetch_resource(module, allow_not_found=True):
         latest_version = None
         if version_list is None:
             return None
-        
+
         if "versions" in version_list:
             latest_version = sorted(version_list['versions'], key=lambda d: d['name'])[-1]['name'].split('/')[-1]
             module.params['calc_version'] = latest_version
@@ -233,7 +268,7 @@ def fetch_resource(module, allow_not_found=True):
             # handle the corner case that we tried to delete
             # a secret version that doesn't exist
             if module.params['state'] == "absent":
-                return { "action": "delete_secret" }
+                return {"action": "delete_secret"}
 
     link = self_access_link(module)
     access_obj = return_if_object(module, auth.get(link), allow_not_found)
@@ -245,29 +280,17 @@ def fetch_resource(module, allow_not_found=True):
         return None
     return merge_dicts(get_obj, access_obj)
 
+
 def merge_dicts(x, y):
-    z = x.copy()
+    z = copy.deepcopy(x)
     z.update(y)
     return z
 
-def snake_to_camel(snake):
-    result = ''
-    capitalize_next = False
-    for char in snake:
-        if char == '_':
-            capitalize_next = True
-        else:
-            if capitalize_next:
-                result += char.upper()
-                capitalize_next = False
-            else:
-                result += char
-    return str(result)
 
 # create secret is a create call + an add version call
 def create_secret(module):
     # build the payload
-    payload = { "replication": { "automatic": {} } }
+    payload = {"replication": {"automatic": {}}}
     if module.params['labels']:
         payload['labels'] = module.params['labels']
 
@@ -277,6 +300,7 @@ def create_secret(module):
     # validate create
     module.raise_for_status(post_response)
     return update_secret(module)
+
 
 def update_secret(module):
     # build the payload
@@ -290,11 +314,13 @@ def update_secret(module):
     url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}:addVersion".format(**module.params)
     return return_if_object(module, auth.post(url, payload), False)
 
+
 def list_secret_versions(module):
     # filter by only enabled secrets
     url = self_list_link(module)
     auth = get_auth(module)
     return return_if_object(module, auth.get(url), True)
+
 
 # technically we're destroying the version
 def delete_secret(module, destroy_all=False):
@@ -303,24 +329,25 @@ def delete_secret(module, destroy_all=False):
     version = module.params['version']
     auth = get_auth(module)
     if version.lower() == "all" or destroy_all:
-       url = self_delete_link(module)
-       return return_if_object(module, auth.delete(url))
+        url = self_delete_link(module)
+        return return_if_object(module, auth.delete(url))
     else:
-      url = self_get_link(module) + ":destroy"
-      return return_if_object(module, auth.post(url, {}), False)
+        url = self_get_link(module) + ":destroy"
+        return return_if_object(module, auth.post(url, {}), False)
+
 
 def return_if_object(module, response, allow_not_found=False):
     # If not found, return nothing.
     if allow_not_found and response.status_code == 404:
         return None
-    
+
     if response.status_code == 409:
         module.params['info'] = "exists already"
-        return None;
+        return None
 
     # probably a code error
     if response.status_code == 400:
-        module.fail_json(msg=f"unexpected REST failure: {response.json()['error']}")
+        module.fail_json(msg="unexpected REST failure: %s" % response.json()['error'])
 
     # If no content, return nothing.
     if response.status_code == 204:
@@ -334,11 +361,11 @@ def return_if_object(module, response, allow_not_found=False):
         if "name" in result:
             result['version'] = result['name'].split("/")[-1]
             result['name'] = result['name'].split("/")[3]
-        
+
         # base64 decode the value
         if "payload" in result and "data" in result['payload']:
             result['value'] = base64.b64decode(result['payload']['data']).decode("utf-8")
-    
+
     except getattr(json.decoder, 'JSONDecodeError', ValueError):
         module.fail_json(msg="Invalid JSON response with error: %s" % response.text)
 
@@ -351,7 +378,7 @@ def return_if_object(module, response, allow_not_found=False):
 def main():
     # limited support for parameters described in the "Secret" resource
     # in order to simplify and deploy primary use cases
-    # expectation is customers needing to support additional capabilities 
+    # expectation is customers needing to support additional capabilities
     # in the SecretPayload will do so outside of Ansible.
     # ref: https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets#Secret
     module = GcpModule(
@@ -364,7 +391,6 @@ def main():
             labels=dict(required=False, type='dict', default=dict())
         )
     )
-
 
     if not module.params['scopes']:
         module.params['scopes'] = ["https://www.googleapis.com/auth/cloud-platform"]
@@ -386,11 +412,11 @@ def main():
         # fail, let the user know
         # that no secret could be created without a value to encrypt
         elif state == 'present':
-            module.fail_json(msg="secret '{name}' not present in '{project}' and no value for the secret is provided".format(**module.params)),
+            module.fail_json(msg="secret '{name}' not present in '{project}' and no value for the secret is provided".format(**module.params))
 
         # secret is absent, success
         else:
-            fetch = { "msg": "secret '{name}' in project '{project}' not present".format(**module.params)}
+            fetch = {"msg": "secret '{name}' in project '{project}' not present".format(**module.params)}
 
     else:
         # delete the secret version (latest if no version is specified)
@@ -404,26 +430,25 @@ def main():
         if "value" in fetch and module.params.get('value') is not None:
             # Update secret
             if fetch['value'] != module.params['value']:
-                update = update_secret(module)
+                update_secret(module)
                 changed = True
             else:
                 fetch['msg'] = "values identical, no need to update secret"
-        
-        # pop value data if return_value == false 
-        if module.params['return_value'] == False:
+
+        # pop value data if return_value == false
+        if module.params['return_value'] is False:
             fetch.pop('value')
             fetch.pop('payload')
             if "msg" in fetch:
                 fetch['msg'] = f"{fetch['msg']} | not returning secret value since 'return_value is set to false"
             else:
                 fetch['msg'] = "not returning secret value since 'return_value is set to false"
-    
+
     fetch['changed'] = changed
     fetch['name'] = module.params['name']
 
     module.exit_json(**fetch)
-            
-    
+
+
 if __name__ == "__main__":
     main()
-    
