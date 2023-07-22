@@ -47,7 +47,7 @@ options:
         type: str
 notes:
   - for authentication, you can set service_account_file using the
-    c(gcp_service_account_file) env variable.
+    c(GCP_SERVICE_ACCOUNT_FILE) env variable.
   - for authentication, you can set service_account_contents using the
     c(GCP_SERVICE_ACCOUNT_CONTENTS) env variable.
   - For authentication, you can set service_account_email using the
