@@ -40,8 +40,20 @@ cleanup_resource() {
     extra_list_arg="$3"
     extra_delete_arg="$4"
 
-    for resource_id in $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}"); do
-        gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
+    if [ -z "$extra_list_arg" ]
+    then
+        resources=( $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)") )
+    else
+        resources=( $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}") )
+    fi
+
+    for resource_id in $resources; do
+        if [ -z "$extra_delete_arg" ]
+        then
+            gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q
+        else
+            gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q "${extra_delete_arg}"
+        fi
     done
 }
 
