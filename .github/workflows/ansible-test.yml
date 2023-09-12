@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ansible_collections/google/cloud
+          submodules: 'true'
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
