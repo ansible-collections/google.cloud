@@ -124,10 +124,10 @@ Run `ansible-test integration`. Currently some tests are disabled as [test are b
 ### Prequisites for role tests
 
 If you would like to use podman, you must
-install the `molecule[podman]` package in PyPI:
+install the `molecule-plugins[podman]` package in PyPI:
 
 ```
-pip install --upgrade molecule[podman]
+pip install --upgrade molecule-plugins[podman]
 ```
 
 ### Running role tests

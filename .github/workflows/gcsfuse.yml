@@ -42,7 +42,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           python -m pip install --upgrade pip
-          pip install molecule[docker] yamllint ansible ansible-lint docker
+          pip install molecule-plugins[docker] yamllint ansible ansible-lint docker
 
       - name: Run role test
         run: >-
