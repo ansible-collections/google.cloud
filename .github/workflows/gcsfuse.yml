@@ -11,7 +11,7 @@ on:
       - .github/workflows/gcsfuse.yml
 jobs:
   gcsfuse:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
