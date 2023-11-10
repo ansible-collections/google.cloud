@@ -35,7 +35,7 @@
         offset: 1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
 - name: create a metric
@@ -60,7 +60,7 @@
         offset: 1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -71,7 +71,7 @@
   google.cloud.gcp_logging_metric_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/cloud-platform
   register: results
@@ -102,7 +102,7 @@
         offset: 1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is false
@@ -132,7 +132,7 @@
         offset: 1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is true
@@ -143,7 +143,7 @@
   google.cloud.gcp_logging_metric_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/cloud-platform
   register: results
@@ -174,7 +174,7 @@
         offset: 1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is false

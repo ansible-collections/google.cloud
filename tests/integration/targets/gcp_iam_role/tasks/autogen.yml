@@ -24,7 +24,7 @@
     - iam.roles.delete
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
 - name: create a role
@@ -38,7 +38,7 @@
     - iam.roles.delete
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -49,7 +49,7 @@
   google.cloud.gcp_iam_role_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/iam
   register: results
@@ -69,7 +69,7 @@
     - iam.roles.delete
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is false
@@ -89,7 +89,7 @@
     - storage.objects.list
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -108,7 +108,7 @@
     - iam.roles.delete
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is true
@@ -119,7 +119,7 @@
   google.cloud.gcp_iam_role_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/iam
   register: results
@@ -139,7 +139,7 @@
     - iam.roles.delete
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is false

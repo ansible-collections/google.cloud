@@ -19,7 +19,7 @@
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
 - name: create a service account
@@ -28,7 +28,7 @@
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -39,7 +39,7 @@
   google.cloud.gcp_iam_service_account_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/iam
   register: results
@@ -54,7 +54,7 @@
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is false
@@ -68,7 +68,7 @@
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is true
@@ -79,7 +79,7 @@
   google.cloud.gcp_iam_service_account_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/iam
   register: results
@@ -94,7 +94,7 @@
     display_name: My Ansible test key
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is false

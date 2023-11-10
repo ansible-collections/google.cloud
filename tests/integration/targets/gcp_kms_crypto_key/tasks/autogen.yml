@@ -19,7 +19,7 @@
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: keyring
 - name: delete a crypto key
@@ -28,7 +28,7 @@
     key_ring: projects/{{ gcp_project }}/locations/us-central1/keyRings/key-key-ring
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
 - name: create a crypto key
@@ -37,7 +37,7 @@
     key_ring: projects/{{ gcp_project }}/locations/us-central1/keyRings/key-key-ring
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -49,7 +49,7 @@
       key_ring: "projects/{{ gcp_project }}/locations/us-central1/keyRings/key-key-ring"
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/cloudkms
   register: results
@@ -64,7 +64,7 @@
     key_ring: projects/{{ gcp_project }}/locations/us-central1/keyRings/key-key-ring
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is false

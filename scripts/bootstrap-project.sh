@@ -40,12 +40,15 @@ for SERVICE in "${SERVICE_LIST[@]}"; do
     gcloud services enable "$SERVICE" --project="$PROJECT_ID"
 done
 
-for ROLE in "${REQUIRED_ROLE_LIST[@]}"; do
-    echo "enabling role $ROLE..."
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-        --member="serviceAccount:$SERVICE_ACCOUNT_NAME" \
-        --role="$ROLE"
-done
+if [ -n "$SERVICE_ACCOUNT_NAME" ]
+then
+    for ROLE in "${REQUIRED_ROLE_LIST[@]}"; do
+        echo "enabling role $ROLE..."
+        gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+            --member="serviceAccount:$SERVICE_ACCOUNT_NAME" \
+            --role="$ROLE"
+    done
+fi
 
 if ! gcloud app describe --project="$PROJECT_ID" > /dev/null; then
     echo "creating appengine project..."

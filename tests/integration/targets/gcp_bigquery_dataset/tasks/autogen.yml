@@ -20,7 +20,7 @@
       dataset_id: my_example_dataset
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
 - name: create a dataset
@@ -30,7 +30,7 @@
       dataset_id: my_example_dataset
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is true
@@ -41,7 +41,7 @@
   google.cloud.gcp_bigquery_dataset_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/bigquery
   register: results
@@ -57,7 +57,7 @@
       dataset_id: my_example_dataset
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
 - name: assert changed is false
@@ -72,7 +72,7 @@
       dataset_id: my_example_dataset
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is true
@@ -83,7 +83,7 @@
   google.cloud.gcp_bigquery_dataset_info:
       project: "{{ gcp_project }}"
       auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
       scopes:
         - https://www.googleapis.com/auth/bigquery
   register: results
@@ -99,7 +99,7 @@
       dataset_id: my_example_dataset
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
 - name: assert changed is false
