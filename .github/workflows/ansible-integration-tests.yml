@@ -23,13 +23,13 @@ jobs:
           - stable-2.13
     steps:
       - name: check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ansible_collections/google/cloud
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # this is the minimum version required for Ansible 2.13
+          python-version: '3.9'  # this is the minimum version required for Ansible 2.15
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
