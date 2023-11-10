@@ -46,6 +46,7 @@ jobs:
           pip install molecule-plugins[docker] yamllint ansible ansible-lint docker
 
       - name: Run role test
+        working-directory: ansible_collections/google/cloud
         run: >-
           molecule --version &&
           ansible --version &&
