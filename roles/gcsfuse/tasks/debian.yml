@@ -14,7 +14,7 @@
 
 - name: Gcsfuse | Add the apt repository
   ansible.builtin.apt_repository:
-    repo: deb http://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main
+    repo: deb https://packages.cloud.google.com/apt gcsfuse-{{ ansible_distribution_release }} main
     state: present
     filename: gcsfuse
 
