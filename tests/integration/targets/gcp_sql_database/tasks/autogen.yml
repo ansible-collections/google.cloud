@@ -31,7 +31,7 @@
 - name: delete a database
   google.cloud.gcp_sql_database:
     name: "{{ resource_name }}"
-    charset: utf8mb4
+    charset: utf8
     instance: "{{ instance.name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -41,7 +41,7 @@
 - name: create a database
   google.cloud.gcp_sql_database:
     name: "{{ resource_name }}"
-    charset: utf8mb4
+    charset: utf8
     instance: "{{ instance.name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -69,7 +69,7 @@
 - name: create a database that already exists
   google.cloud.gcp_sql_database:
     name: "{{ resource_name }}"
-    charset: utf8mb4
+    charset: utf8
     instance: "{{ instance.name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -84,7 +84,7 @@
 - name: delete a database
   google.cloud.gcp_sql_database:
     name: "{{ resource_name }}"
-    charset: utf8mb4
+    charset: utf8
     instance: "{{ instance.name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -112,7 +112,7 @@
 - name: delete a database that does not exist
   google.cloud.gcp_sql_database:
     name: "{{ resource_name }}"
-    charset: utf8mb4
+    charset: utf8
     instance: "{{ instance.name }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
