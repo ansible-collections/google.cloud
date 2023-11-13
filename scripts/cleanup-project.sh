@@ -42,12 +42,13 @@ cleanup_resource() {
 
     if [ -z "$extra_list_arg" ]
     then
-        resources=( $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)") )
+        mapfile -t resources < <(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)")
     else
-        resources=( $(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}") )
+        mapfile -t resources < <(gcloud "${resource_group}" "${resource}" list --project="${PROJECT_ID}" --format="csv[no-heading](name)" "${extra_list_arg}")
     fi
 
-    for resource_id in $resources; do
+    for resource_id in "${resources[@]}"
+    do
         if [ -z "$extra_delete_arg" ]
         then
             gcloud "${resource_group}" "${resource}" delete "${resource_id}" --project="${PROJECT_ID}" -q
