@@ -12,6 +12,7 @@ jobs:
       matrix:
         ansible_version:
           - stable-2.14
+          - stable-2.15
     steps:
       - name: check out code
         uses: actions/checkout@v2
@@ -48,7 +49,7 @@ jobs:
       matrix:
         ansible_version:
           - stable-2.14
-          - stable-2.11
+          - stable-2.15
     steps:
       - name: check out code
         uses: actions/checkout@v2

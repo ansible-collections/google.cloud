@@ -18,9 +18,11 @@ jobs:
       run:
         working-directory: ansible_collections/google/cloud
     strategy:
+      max-parallel: 1
       matrix:
         ansible_version:
-          - stable-2.13
+          - stable-2.14
+          - stable-2.15
     steps:
       - name: check out code
         uses: actions/checkout@v2
