@@ -1,0 +1,4 @@
+---
+minor_changes:
+  - gcp_serviceusage_service - added backoff when checking for operation completion.
+  - gcp_serviceusage_service - use alloyb API for the integration test as spanner conflicts with other tests

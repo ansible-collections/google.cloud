@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a network
+- name: Create a network
   google.cloud.gcp_compute_network:
     name: network-route
     project: "{{ gcp_project }}"
@@ -22,146 +22,146 @@
     auto_create_subnetworks: true
     state: present
   register: network
-- name: delete a route
+- name: Delete a route
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - databases
+      - backends
+      - databases
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a route
+- name: Create a route
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - databases
+      - backends
+      - databases
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that route was created
+- name: Verify that route was created
   google.cloud.gcp_compute_route_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a route that already exists
+- name: Create a route that already exists
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - databases
+      - backends
+      - databases
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 # ---
-- name: update a route
+- name: Update a route
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/28
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - foobar
+      - backends
+      - foobar
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 #----------------------------------------------------------
-- name: delete a route
+- name: Delete a route
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - databases
+      - backends
+      - databases
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that route was deleted
+- name: Verify that route was deleted
   google.cloud.gcp_compute_route_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a route that does not exist
+- name: Delete a route that does not exist
   google.cloud.gcp_compute_route:
     name: "{{ resource_name }}"
     dest_range: 192.168.6.0/24
     next_hop_gateway: global/gateways/default-internet-gateway
     network: "{{ network }}"
     tags:
-    - backends
-    - databases
+      - backends
+      - databases
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a network
+- name: Delete a network
   google.cloud.gcp_compute_network:
     name: network-route
     project: "{{ gcp_project }}"

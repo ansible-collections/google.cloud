@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a address
+- name: Create a address
   google.cloud.gcp_compute_address:
     name: address-forwardingrule
     region: us-west1
@@ -22,7 +22,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: address
-- name: create a target pool
+- name: Create a target pool
   google.cloud.gcp_compute_target_pool:
     name: targetpool-forwardingrule
     region: us-west1
@@ -31,7 +31,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: targetpool
-- name: delete a forwarding rule
+- name: Delete a forwarding rule
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
@@ -44,7 +44,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a forwarding rule
+- name: Create a forwarding rule
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
@@ -57,27 +57,27 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that forwarding_rule was created
+- name: Verify that forwarding_rule was created
   google.cloud.gcp_compute_forwarding_rule_info:
-      filters:
-         - name = {{ resource_name }}
-      region: us-west1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    region: us-west1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a forwarding rule that already exists
+- name: Create a forwarding rule that already exists
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
@@ -90,12 +90,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a forwarding rule
+- name: Delete a forwarding rule
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
@@ -108,27 +108,27 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that forwarding_rule was deleted
+- name: Verify that forwarding_rule was deleted
   google.cloud.gcp_compute_forwarding_rule_info:
-      filters:
-         - name = {{ resource_name }}
-      region: us-west1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    region: us-west1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a forwarding rule that does not exist
+- name: Delete a forwarding rule that does not exist
   google.cloud.gcp_compute_forwarding_rule:
     name: "{{ resource_name }}"
     region: us-west1
@@ -141,14 +141,14 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a target pool
+- name: Delete a target pool
   google.cloud.gcp_compute_target_pool:
     name: targetpool-forwardingrule
     region: us-west1
@@ -158,7 +158,7 @@
     state: absent
   register: targetpool
   ignore_errors: true
-- name: delete a address
+- name: Delete a address
   google.cloud.gcp_compute_address:
     name: address-forwardingrule
     region: us-west1

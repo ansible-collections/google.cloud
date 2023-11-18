@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a reservation
+- name: Delete a reservation
   google.cloud.gcp_compute_reservation:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -27,7 +27,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a reservation
+- name: Create a reservation
   google.cloud.gcp_compute_reservation:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -41,27 +41,27 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that reservation was created
+- name: Verify that reservation was created
   google.cloud.gcp_compute_reservation_info:
-      filters:
-         - name = {{ resource_name }}
-      zone: us-central1-a
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a reservation that already exists
+- name: Create a reservation that already exists
   google.cloud.gcp_compute_reservation:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -75,12 +75,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a reservation
+- name: Delete a reservation
   google.cloud.gcp_compute_reservation:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -94,27 +94,27 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that reservation was deleted
+- name: Verify that reservation was deleted
   google.cloud.gcp_compute_reservation_info:
-      filters:
-         - name = {{ resource_name }}
-      zone: us-central1-a
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a reservation that does not exist
+- name: Delete a reservation that does not exist
   google.cloud.gcp_compute_reservation:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -128,7 +128,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

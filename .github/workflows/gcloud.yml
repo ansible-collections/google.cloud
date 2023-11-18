@@ -1,15 +1,16 @@
-name: "google.cloud.gcloud"
+---
+name: google.cloud.gcloud
 on:
   push:
     paths:
-      - 'roles/gcloud/**'
-      - '.github/workflows/gcloud.yml'
-      - 'molecule/gcloud/**'
+      - roles/gcloud/**
+      - .github/workflows/gcloud.yml
+      - molecule/gcloud/**
   pull_request:
     paths:
-      - 'roles/gcloud/**'
-      - '.github/workflows/gcloud.yml'
-      - 'molecule/gcloud/**'
+      - roles/gcloud/**
+      - .github/workflows/gcloud.yml
+      - molecule/gcloud/**
 jobs:
   molecule:
     runs-on: ubuntu-18.04

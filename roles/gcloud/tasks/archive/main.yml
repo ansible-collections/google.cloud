@@ -7,7 +7,7 @@
 
 - name: Gcloud | Archive | Get gcloud_status
   ansible.builtin.debug:
-    var: "gcloud_status"
+    var: gcloud_status
 
 - name: Gcloud | Archive | Set installed version if installation exists
   when: gcloud_status.stat.exists
@@ -30,11 +30,10 @@
           {{ gcloud_installed_version }} is already installed.
 
 - name: Gcloud | Archive | Start installation
-  when: gcloud_installed_version is undefined or
-        gcloud_version is version(gcloud_installed_version, '>')
+  when: gcloud_installed_version is undefined or gcloud_version is version(gcloud_installed_version, '>')
   ansible.builtin.include_tasks: archive_install.yml
 
-- name: Gcloud | Debian | Install the google-cloud-sdk additional components # noqa 301
+- name: Gcloud | Debian | Install the google-cloud-sdk additional components # noqa no-changed-when
   ansible.builtin.command: gcloud components install {{ item }}
   register: gcloud_install_comp_status
   changed_when: "'All components are up to date.' not in gcloud_install_comp_status.stderr_lines"

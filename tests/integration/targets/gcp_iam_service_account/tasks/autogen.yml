@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a service account
+- name: Delete a service account
   google.cloud.gcp_iam_service_account:
     name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
@@ -22,7 +22,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a service account
+- name: Create a service account
   google.cloud.gcp_iam_service_account:
     name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
@@ -31,24 +31,25 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that service_account was created
+- name: Verify that service_account was created
   google.cloud.gcp_iam_service_account_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/iam
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/iam
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 1
+      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*")
+        | list | length == 1
 # ----------------------------------------------------------------------------
-- name: create a service account that already exists
+- name: Create a service account that already exists
   google.cloud.gcp_iam_service_account:
     name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
@@ -57,12 +58,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a service account
+- name: Delete a service account
   google.cloud.gcp_iam_service_account:
     name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
@@ -71,24 +72,25 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that service_account was deleted
+- name: Verify that service_account was deleted
   google.cloud.gcp_iam_service_account_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/iam
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/iam
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*") | list | length == 0
+      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*")
+        | list | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a service account that does not exist
+- name: Delete a service account that does not exist
   google.cloud.gcp_iam_service_account:
     name: service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com
     display_name: My Ansible test key
@@ -97,7 +99,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

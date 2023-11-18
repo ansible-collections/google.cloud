@@ -7,13 +7,13 @@
 
 - name: Gcloud | Debian | Add the gcloud repository
   ansible.builtin.apt_repository:
-    repo: "deb {{ gcloud_apt_url }} {{ gcloud_apt_repo }} main"
+    repo: deb {{ gcloud_apt_url }} {{ gcloud_apt_repo }} main
     state: present
     filename: google-cloud-sdk
 
 - name: Gcloud | Debian | Install the google-cloud-sdk package
   ansible.builtin.apt:
-    name: "google-cloud-sdk"
+    name: google-cloud-sdk
     update_cache: "yes"
   register: task_result
   until: task_result is success
@@ -22,7 +22,7 @@
 
 - name: Gcloud | Debian | Install the google-cloud-sdk additional components
   ansible.builtin.apt:
-    name: "google-cloud-sdk-{{ item }}"
+    name: google-cloud-sdk-{{ item }}
     update_cache: "yes"
   register: task_result
   until: task_result is success

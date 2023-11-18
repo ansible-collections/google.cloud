@@ -1,11 +1,12 @@
-name: "Run integration tests for the cloud.google collection"
+---
+name: Run integration tests for the cloud.google collection
 on:
   pull_request: {}
   push:
     branches: master
 env:
-  GCP_SERVICE_ACCOUNT: "github-ci@ansible-gcp-ci.iam.gserviceaccount.com"
-  GCP_PROJECT: "ansible-gcp-ci"
+  GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
+  GCP_PROJECT: ansible-gcp-ci
   GCP_FOLDER_ID: "542027184392"
 jobs:
   integration:
@@ -31,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
-          python-version: '3.9'  # this is the minimum version required for Ansible 2.13
+          python-version: "3.9" # this is the minimum version required for Ansible 2.13
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
@@ -55,12 +56,12 @@ jobs:
         env:
           CI_SERVICE_ACCOUNT_FILE_CONTENTS: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
         with:
-          service_account: "$GCP_SERVICE_ACCOUNT"
-          credentials_json: "${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}"
+          service_account: $GCP_SERVICE_ACCOUNT
+          credentials_json: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
       - name: Run cleanup
-        run:  |
+        run: |
           ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
           ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_FOLDER_ID
       # run tests

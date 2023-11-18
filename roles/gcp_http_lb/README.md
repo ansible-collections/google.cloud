@@ -14,8 +14,8 @@ Role Variables
 
 ```
   gcp_http_lb_backend: the selflink for the backend that this load balancer will be supporting
-  gcp_project: the name of your gcp project
-  service_account_file: the path to your service account JSON file
+  gcp_http_lb_gcp_project: the name of your gcp project
+  gcp_http_lb_service_account_file: the path to your service account JSON file
 ```
 
 Example Playbook

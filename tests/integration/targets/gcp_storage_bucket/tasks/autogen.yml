@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a bucket
+- name: Delete a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -21,7 +21,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a bucket
+- name: Create a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -29,12 +29,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: create a bucket that already exists
+- name: Create a bucket that already exists
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -42,12 +42,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a bucket
+- name: Delete a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -55,12 +55,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: delete a bucket that does not exist
+- name: Delete a bucket that does not exist
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -68,7 +68,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

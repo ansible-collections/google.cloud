@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a SSL certificate
+- name: Delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
@@ -46,7 +46,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a SSL certificate
+- name: Create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
@@ -79,26 +79,26 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that ssl_certificate was created
+- name: Verify that ssl_certificate was created
   google.cloud.gcp_compute_ssl_certificate_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a SSL certificate that already exists
+- name: Create a SSL certificate that already exists
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
@@ -131,12 +131,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a SSL certificate
+- name: Delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
@@ -169,26 +169,26 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that ssl_certificate was deleted
+- name: Verify that ssl_certificate was deleted
   google.cloud.gcp_compute_ssl_certificate_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a SSL certificate that does not exist
+- name: Delete a SSL certificate that does not exist
   google.cloud.gcp_compute_ssl_certificate:
     name: "{{ resource_name }}"
     description: A certificate for testing. Do not use this certificate in production
@@ -221,7 +221,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
