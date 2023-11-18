@@ -306,7 +306,8 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name'), 'sha1_fingerprint': module.params['sha1_fingerprint']}
+    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name'),
+           'sha1_fingerprint': module.params['sha1_fingerprint']}
     return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/sslCerts/{sha1_fingerprint}".format(**res)
 
 
