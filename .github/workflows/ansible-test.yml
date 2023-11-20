@@ -2,7 +2,7 @@
 name: Run tests for the cloud.google collection
 on: [pull_request]
 env:
-  PYTHON_VERSION: "3.9" # minimum version for Ansible 2.14
+  PYTHON_VERSION: "3.9" # minimum version for Ansible 2.15
 jobs:
   sanity-and-lint:
     runs-on: ubuntu-latest
@@ -16,11 +16,11 @@ jobs:
           - stable-2.15
     steps:
       - name: check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ansible_collections/google/cloud
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       # Automation-hub requires python2.7 sanity tests
@@ -53,11 +53,11 @@ jobs:
           - stable-2.15
     steps:
       - name: check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ansible_collections/google/cloud
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
