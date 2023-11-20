@@ -151,17 +151,10 @@ storage_class:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
-    navigate_hash,
     GcpSession,
     GcpModule,
-    GcpRequest,
-    replace_resource_dict,
 )
-import json
 import os
-import mimetypes
-import hashlib
-import base64
 
 try:
     import google.cloud

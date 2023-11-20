@@ -5,7 +5,6 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-import ast
 import os
 import json
 
@@ -25,8 +24,7 @@ except ImportError:
     HAS_GOOGLE_LIBRARIES = False
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils.six import string_types
-from ansible.module_utils._text import to_text, to_native
+from ansible.module_utils._text import to_text
 
 
 def navigate_hash(source, path, default=None):

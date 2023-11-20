@@ -195,7 +195,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule
 import json
 
 ################################################################################
