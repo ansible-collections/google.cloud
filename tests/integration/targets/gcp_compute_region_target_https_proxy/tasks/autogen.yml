@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a instance group
+- name: Create a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-targethttpsproxy
     zone: us-central1-a
@@ -22,7 +22,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: instancegroup
-- name: create a region health check
+- name: Create a region health check
   google.cloud.gcp_compute_region_health_check:
     name: "{{ resource_name }}"
     type: HTTPS
@@ -35,20 +35,20 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: healthcheck
-- name: create a region backend service
+- name: Create a region backend service
   google.cloud.gcp_compute_region_backend_service:
     name: backendservice-targethttpsproxy
     region: us-central1
     backends:
-    - group: "{{ instancegroup.selfLink }}"
+      - group: "{{ instancegroup.selfLink }}"
     healthchecks:
-    - "{{ healthcheck.selfLink }}"
+      - "{{ healthcheck.selfLink }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: backendservice
-- name: create a region URL map
+- name: Create a region URL map
   google.cloud.gcp_compute_region_url_map:
     name: urlmap-targethttpsproxy
     region: us-central1
@@ -58,7 +58,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: urlmap
-- name: create a SSL certificate
+- name: Create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: sslcert-targethttpsproxy
     description: A certificate for testing. Do not use this certificate in production
@@ -91,119 +91,119 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: sslcert
-- name: delete a region target HTTPS proxy
+- name: Delete a region target HTTPS proxy
   google.cloud.gcp_compute_region_target_https_proxy:
     name: "{{ resource_name }}"
     region: us-central1
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}" # noqa: args[module]
     url_map: "{{ urlmap }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a region target HTTPS proxy
+- name: Create a region target HTTPS proxy
   google.cloud.gcp_compute_region_target_https_proxy:
     name: "{{ resource_name }}"
     region: us-central1
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}" # noqa: args[module]
     url_map: "{{ urlmap }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that region_target_https_proxy was created
+- name: Verify that region_target_https_proxy was created
   google.cloud.gcp_compute_region_target_https_proxy_info:
-      filters:
-         - name = {{ resource_name }}
-      region: us-central1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    region: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a region target HTTPS proxy that already exists
+- name: Create a region target HTTPS proxy that already exists
   google.cloud.gcp_compute_region_target_https_proxy:
     name: "{{ resource_name }}"
     region: us-central1
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}" # noqa: args[module]
     url_map: "{{ urlmap }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a region target HTTPS proxy
+- name: Delete a region target HTTPS proxy
   google.cloud.gcp_compute_region_target_https_proxy:
     name: "{{ resource_name }}"
     region: us-central1
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}" # noqa: args[module]
     url_map: "{{ urlmap }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that region_target_https_proxy was deleted
+- name: Verify that region_target_https_proxy was deleted
   google.cloud.gcp_compute_region_target_https_proxy_info:
-      filters:
-         - name = {{ resource_name }}
-      region: us-central1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    region: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a region target HTTPS proxy that does not exist
+- name: Delete a region target HTTPS proxy that does not exist
   google.cloud.gcp_compute_region_target_https_proxy:
     name: "{{ resource_name }}"
     region: us-central1
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}" # noqa: args[module]
     url_map: "{{ urlmap }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a SSL certificate
+- name: Delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: sslcert-targethttpsproxy
     description: A certificate for testing. Do not use this certificate in production
@@ -237,7 +237,7 @@
     state: absent
   register: sslcert
   ignore_errors: true
-- name: delete a region URL map
+- name: Delete a region URL map
   google.cloud.gcp_compute_region_url_map:
     name: urlmap-targethttpsproxy
     region: us-central1
@@ -248,21 +248,21 @@
     state: absent
   register: urlmap
   ignore_errors: true
-- name: delete a region backend service
+- name: Delete a region backend service
   google.cloud.gcp_compute_region_backend_service:
     name: backendservice-targethttpsproxy
     region: us-central1
     backends:
-    - group: "{{ instancegroup.selfLink }}"
+      - group: "{{ instancegroup.selfLink }}"
     healthchecks:
-    - "{{ healthcheck.selfLink }}"
+      - "{{ healthcheck.selfLink }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: backendservice
   ignore_errors: true
-- name: delete a region health check
+- name: Delete a region health check
   google.cloud.gcp_compute_region_health_check:
     name: "{{ resource_name }}"
     type: HTTPS
@@ -276,7 +276,7 @@
     state: absent
   register: healthcheck
   ignore_errors: true
-- name: delete a instance group
+- name: Delete a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-targethttpsproxy
     zone: us-central1-a

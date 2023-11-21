@@ -60,11 +60,6 @@ options:
   bucket:
     description:
     - The name of the bucket.
-    - 'This field represents a link to a Bucket resource in GCP. It can be specified
-      in two ways. First, you can place a dictionary with key ''name'' and value of
-      your resource''s name Alternatively, you can add `register: name-of-resource`
-      to a gcp_storage_bucket task and then set this bucket field to "{{ name-of-resource
-      }}"'
     required: true
     type: dict
   entity:
@@ -74,11 +69,6 @@ options:
       (such as "group-example@googlegroups.com") * domain-{{domain}} (such as "domain-example.com")
       * project-team-{{projectId}} * allUsers * allAuthenticatedUsers .'
     required: true
-    type: str
-  object:
-    description:
-    - The name of the object, if applied to an object.
-    required: false
     type: str
   role:
     description:
@@ -195,21 +185,6 @@ entityId:
   - The ID for the entity.
   returned: success
   type: str
-generation:
-  description:
-  - The content generation of the object, if applied to an object.
-  returned: success
-  type: int
-id:
-  description:
-  - The ID of the access-control entry.
-  returned: success
-  type: str
-object:
-  description:
-  - The name of the object, if applied to an object.
-  returned: success
-  type: str
 projectTeam:
   description:
   - The project team associated with the entity.
@@ -271,10 +246,7 @@ def main():
     state = module.params['state']
     kind = 'storage#objectAccessControl'
 
-    if module.params['id']:
-        fetch = fetch_resource(module, self_link(module), kind)
-    else:
-        fetch = {}
+    fetch = fetch_resource(module, self_link(module), kind)
     changed = False
 
     if fetch:
@@ -393,9 +365,6 @@ def response_to_hash(module, response):
         u'email': response.get(u'email'),
         u'entity': response.get(u'entity'),
         u'entityId': response.get(u'entityId'),
-        u'generation': response.get(u'generation'),
-        u'id': response.get(u'id'),
-        u'object': response.get(u'object'),
         u'projectTeam': DefaultObjectACLProjectteam(response.get(u'projectTeam', {}), module).from_response(),
         u'role': response.get(u'role'),
     }

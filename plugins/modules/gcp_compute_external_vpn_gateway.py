@@ -219,7 +219,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpModule,
     GcpRequest,
     remove_nones_from_dict,
-    replace_resource_dict,
 )
 import json
 import time

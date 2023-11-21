@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a project
+- name: Delete a project
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
     id: "{{ resource_prefix[0:30] }}"
@@ -24,7 +24,7 @@
       id: "{{ gcp_folder_id }}"
     state: absent
 #----------------------------------------------------------
-- name: create a project
+- name: Create a project
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
     id: "{{ resource_prefix[0:30] }}"
@@ -35,29 +35,30 @@
       id: "{{ gcp_folder_id }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 - name: Pause for 2 minutes for project to appear
   ansible.builtin.pause:
     minutes: 2
-- name: verify that project was created
+- name: Verify that project was created
   google.cloud.gcp_resourcemanager_project_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      # choose 1000 projects so iterate past the deleted ones.
-      page_size: 1000
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    # choose 1000 projects so iterate past the deleted ones.
+    page_size: 1000
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - results['resources'] | selectattr("lifecycleState", "equalto", "ACTIVE") | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30] }}.*") | list | length == 1
+      - results['resources'] | selectattr("lifecycleState", "equalto", "ACTIVE") | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30] }}.*") | list
+        | length == 1
 # ----------------------------------------------------------------------------
-- name: create a project that already exists
+- name: Create a project that already exists
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
     id: "{{ resource_prefix[0:30] }}"
@@ -68,12 +69,12 @@
       id: "{{ gcp_folder_id }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a project
+- name: Delete a project
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
     id: "{{ resource_prefix[0:30] }}"
@@ -84,29 +85,30 @@
       id: "{{ gcp_folder_id }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 - name: Pause for 2 minutes for project to appear
   ansible.builtin.pause:
     minutes: 2
-- name: verify that project was deleted
+- name: Verify that project was deleted
   google.cloud.gcp_resourcemanager_project_info:
-      project: "{{ resource_prefix[0:30] }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      # choose 1000 projects so iterate past the deleted ones.
-      page_size: 1000
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
+    project: "{{ resource_prefix[0:30] }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    # choose 1000 projects so iterate past the deleted ones.
+    page_size: 1000
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - results['resources'] | selectattr("lifecycleState", "equalto", "DELETE_REQUESTED") | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30] }}.*") | list | length == 1
+      - results['resources'] | selectattr("lifecycleState", "equalto", "DELETE_REQUESTED") | map(attribute='name') | select("match", ".*{{ resource_prefix[0:30] }}.*")
+        | list | length == 1
 # ----------------------------------------------------------------------------
-- name: delete a project that does not exist
+- name: Delete a project that does not exist
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
     id: "{{ resource_prefix[0:30] }}"
@@ -117,7 +119,7 @@
       id: "{{ gcp_folder_id }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

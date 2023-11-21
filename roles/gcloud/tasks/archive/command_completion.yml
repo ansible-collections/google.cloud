@@ -2,7 +2,7 @@
 # task file to configure bash completion for gcloud
 - name: Gcloud | Archive | Debian | Ensure bash completion is installed
   ansible.builtin.apt:
-    name: "bash-completion"
+    name: bash-completion
   register: task_result
   until: task_result is success
   retries: 10
@@ -25,7 +25,7 @@
     owner: root
     group: root
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: Gcloud | Archive | Link binaries to /usr/bin (like package install)
   ansible.builtin.file:

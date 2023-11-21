@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a instance group
+- name: Create a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-targetsslproxy
     zone: us-central1-a
@@ -22,7 +22,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: instancegroup
-- name: create a health check
+- name: Create a health check
   google.cloud.gcp_compute_health_check:
     name: healthcheck-targetsslproxy
     type: TCP
@@ -38,20 +38,20 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: healthcheck
-- name: create a backend service
+- name: Create a backend service
   google.cloud.gcp_compute_backend_service:
     name: backendservice-targetsslproxy
     backends:
-    - group: "{{ instancegroup.selfLink }}"
+      - group: "{{ instancegroup.selfLink }}"
     health_checks:
-    - "{{ healthcheck.selfLink }}"
+      - "{{ healthcheck.selfLink }}"
     protocol: SSL
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: backendservice
-- name: create a SSL certificate
+- name: Create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: sslcert-targetsslproxy
     description: A certificate for testing. Do not use this certificate in production
@@ -84,112 +84,112 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: sslcert
-- name: delete a target SSL proxy
+- name: Delete a target SSL proxy
   google.cloud.gcp_compute_target_ssl_proxy:
     name: "{{ resource_name }}"
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}"
     service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a target SSL proxy
+- name: Create a target SSL proxy
   google.cloud.gcp_compute_target_ssl_proxy:
     name: "{{ resource_name }}"
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}"
     service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that target_ssl_proxy was created
+- name: Verify that target_ssl_proxy was created
   google.cloud.gcp_compute_target_ssl_proxy_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a target SSL proxy that already exists
+- name: Create a target SSL proxy that already exists
   google.cloud.gcp_compute_target_ssl_proxy:
     name: "{{ resource_name }}"
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}"
     service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a target SSL proxy
+- name: Delete a target SSL proxy
   google.cloud.gcp_compute_target_ssl_proxy:
     name: "{{ resource_name }}"
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}"
     service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that target_ssl_proxy was deleted
+- name: Verify that target_ssl_proxy was deleted
   google.cloud.gcp_compute_target_ssl_proxy_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a target SSL proxy that does not exist
+- name: Delete a target SSL proxy that does not exist
   google.cloud.gcp_compute_target_ssl_proxy:
     name: "{{ resource_name }}"
     ssl_certificates:
-    - "{{ sslcert }}"
+      - "{{ sslcert }}"
     service: "{{ backendservice }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a SSL certificate
+- name: Delete a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: sslcert-targetsslproxy
     description: A certificate for testing. Do not use this certificate in production
@@ -223,13 +223,13 @@
     state: absent
   register: sslcert
   ignore_errors: true
-- name: delete a backend service
+- name: Delete a backend service
   google.cloud.gcp_compute_backend_service:
     name: backendservice-targetsslproxy
     backends:
-    - group: "{{ instancegroup.selfLink }}"
+      - group: "{{ instancegroup.selfLink }}"
     health_checks:
-    - "{{ healthcheck.selfLink }}"
+      - "{{ healthcheck.selfLink }}"
     protocol: SSL
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
@@ -237,7 +237,7 @@
     state: absent
   register: backendservice
   ignore_errors: true
-- name: delete a health check
+- name: Delete a health check
   google.cloud.gcp_compute_health_check:
     name: healthcheck-targetsslproxy
     type: TCP
@@ -254,7 +254,7 @@
     state: absent
   register: healthcheck
   ignore_errors: true
-- name: delete a instance group
+- name: Delete a instance group
   google.cloud.gcp_compute_instance_group:
     name: instancegroup-targetsslproxy
     zone: us-central1-a

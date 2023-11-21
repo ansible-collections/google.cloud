@@ -193,7 +193,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpModule,
     GcpRequest,
     remove_nones_from_dict,
-    replace_resource_dict,
 )
 import json
 import re
@@ -382,9 +381,13 @@ def wait_for_operation(module, response):
 def wait_for_completion(status, op_result, module):
     op_id = navigate_hash(op_result, ['name'])
     op_uri = async_op_url(module, {'op_id': op_id})
+    sleep_time = 1.0
     while not status:
         raise_if_errors(op_result, ['error'], module)
-        time.sleep(1.0)
+        time.sleep(sleep_time)
+        sleep_time *= 2
+        if sleep_time > 10.0:
+            sleep_time = 10.0
         op_result = fetch_resource(module, op_uri, False)
         status = navigate_hash(op_result, ['done'])
     return op_result

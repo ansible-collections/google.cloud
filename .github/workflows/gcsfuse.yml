@@ -1,4 +1,5 @@
-name: "google.cloud.gcsfuse"
+---
+name: google.cloud.gcsfuse
 on:
   push:
     paths:

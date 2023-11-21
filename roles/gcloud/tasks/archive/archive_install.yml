@@ -2,20 +2,20 @@
 - name: Gcloud | Archive | Ensure temp path exists
   ansible.builtin.file:
     path: "{{ gcloud_archive_path }}"
-    state: "directory"
+    state: directory
     mode: "0755"
 
 - name: Gcloud | Archive | Extract Cloud SDK archive
   ansible.builtin.unarchive:
     src: "{{ gcloud_archive_url }}"
     dest: "{{ gcloud_archive_path }}"
-    remote_src: yes
+    remote_src: true
     creates: "{{ gcloud_library_path }}"
 
 - name: Gcloud | Archive | Link binaries to /usr/bin (like package install)
   ansible.builtin.file:
     src: "{{ gcloud_library_path }}/bin/{{ item }}"
-    dest: "/usr/bin/{{ item }}"
+    dest: /usr/bin/{{ item }}
     state: link
   loop:
     - bq

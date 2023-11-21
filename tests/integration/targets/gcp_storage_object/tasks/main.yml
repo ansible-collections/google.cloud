@@ -1,18 +1,19 @@
 ---
 # Pre-test setup
-- name: create a temp file for uploading
-  tempfile:
+- name: Create a temp file for uploading
+  ansible.builtin.tempfile:
     state: file
   register: upload_temp
-- name: create a temp file for downloading
-  tempfile:
+- name: Create a temp file for downloading
+  ansible.builtin.tempfile:
     state: file
   register: download_temp
-- name: put content in the tempfile
-  copy:
-    content: "Ansible GCS test file"
+- name: Put content in the tempfile
+  ansible.builtin.copy:
+    content: Ansible GCS test file
     dest: "{{ upload_temp.path }}"
-- name: create a bucket
+    mode: 0644
+- name: Create a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"
@@ -21,51 +22,51 @@
     state: present
   register: bucket
 #----------------------------------------------------------
-- name: upload the object to gcs
+- name: Upload the object to gcs
   google.cloud.gcp_storage_object:
-    action: 'upload'
+    action: upload
     bucket: "{{ bucket.name }}"
     src: "{{ upload_temp.path }}"
-    dest: "ansible/{{ resource_name }}"
+    dest: ansible/{{ resource_name }}
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: download the object to disk
+- name: Download the object to disk
   google.cloud.gcp_storage_object:
-    action: 'download'
+    action: download
     bucket: "{{ bucket.name }}"
-    src: "ansible/{{ resource_name }}"
+    src: ansible/{{ resource_name }}
     dest: "{{ download_temp.path }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: delete the object
+- name: Delete the object
   google.cloud.gcp_storage_object:
-    action: 'delete'
+    action: delete
     bucket: "{{ bucket.name }}"
-    src: "ansible/{{ resource_name }}"
+    src: ansible/{{ resource_name }}
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: delete the bucket
+- name: Delete the bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
     project: "{{ gcp_project }}"

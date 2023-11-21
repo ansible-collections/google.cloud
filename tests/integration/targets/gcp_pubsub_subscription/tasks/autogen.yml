@@ -13,7 +13,7 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a topic
+- name: Create a topic
   google.cloud.gcp_pubsub_topic:
     name: topic-subscription
     project: "{{ gcp_project }}"
@@ -21,7 +21,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: topic
-- name: delete a subscription
+- name: Delete a subscription
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
@@ -31,7 +31,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a subscription
+- name: Create a subscription
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
@@ -41,24 +41,24 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that subscription was created
+- name: Verify that subscription was created
   google.cloud.gcp_pubsub_subscription_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/pubsub
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/pubsub
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - "\"{{resource_name}}\" in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - "\"{{ resource_name }}\" in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
-- name: create a subscription that already exists
+- name: Create a subscription that already exists
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
@@ -68,12 +68,12 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a subscription
+- name: Delete a subscription
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
@@ -83,24 +83,24 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that subscription was deleted
+- name: Verify that subscription was deleted
   google.cloud.gcp_pubsub_subscription_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file | default(omit) }}"
-      scopes:
-        - https://www.googleapis.com/auth/pubsub
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/pubsub
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
-      - "\"{{resource_name}}\" not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - "\"{{ resource_name }}\" not in \"{{ results['resources'] | map(attribute='name') | list }}\""
 # ----------------------------------------------------------------------------
-- name: delete a subscription that does not exist
+- name: Delete a subscription that does not exist
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
     topic: "{{ topic }}"
@@ -110,14 +110,14 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a topic
+- name: Delete a topic
   google.cloud.gcp_pubsub_topic:
     name: topic-subscription
     project: "{{ gcp_project }}"

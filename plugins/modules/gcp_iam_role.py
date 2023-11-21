@@ -183,7 +183,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpSession,
     GcpModule,
     GcpRequest,
-    replace_resource_dict,
 )
 import json
 

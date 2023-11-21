@@ -1,9 +1,9 @@
+---
 name: Upload release to Galaxy
 
 on:
   release:
     types: [created]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest

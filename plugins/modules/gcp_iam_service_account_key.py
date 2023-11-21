@@ -205,12 +205,10 @@ path:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, replace_resource_dict
 from ansible.module_utils._text import to_native
 import json
 import os
-import mimetypes
-import hashlib
 import base64
 
 ################################################################################

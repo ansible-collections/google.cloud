@@ -21,7 +21,7 @@ git clone <url> $TARGET_DIR/ansible_collections/google/cloud
 Then set up your Python virtual environment:
 
 ```shell
-cd $TARGET_DIR/ansible_collections/google
+cd $TARGET_DIR/ansible_collections/google/cloud
 python3 -m venv venv
 . ./venv/bin/activate
 pip3 install -r requirements.txt
