@@ -1,3 +1,0 @@
----
-minor_changes:
-  - ansible-test - add support for GCP application default credentials (https://github.com/ansible-collections/google.cloud/issues/359).

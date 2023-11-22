@@ -5,6 +5,22 @@ Google.Cloud Release Notes
 .. contents:: Topics
 
 
+v1.3.0
+======
+
+Minor Changes
+-------------
+
+- anisble-test - integration tests are now run against 2.14.0 and 2.15.0
+- ansible - 2.14.0 is now the minimum version supported
+- ansible-lint - fixed over a thousand reported errors
+- ansible-lint - upgraded to 6.22
+- ansible-test - add support for GCP application default credentials (https://github.com/ansible-collections/google.cloud/issues/359).
+- gcp_serviceusage_service - added backoff when checking for operation completion.
+- gcp_serviceusage_service - use alloyb API for the integration test as spanner conflicts with other tests
+- gcp_sql_ssl_cert - made sha1_fingerprint optional, which enables resource creation
+- gcp_storage_default_object_acl - removed non-existent fields; the resource is not usable.
+
 v1.2.0
 ======
 
