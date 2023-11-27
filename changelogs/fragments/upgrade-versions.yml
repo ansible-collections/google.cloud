@@ -1,6 +1,0 @@
----
-minor_changes:
-  - ansible - 2.14.0 is now the minimum version supported
-  - anisble-test - integration tests are now run against 2.14.0 and 2.15.0
-  - ansible-lint - upgraded to 6.22
-  - ansible-lint - fixed over a thousand reported errors

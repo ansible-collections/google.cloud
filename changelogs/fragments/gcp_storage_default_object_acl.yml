@@ -1,3 +1,0 @@
----
-minor_changes:
-  - gcp_storage_default_object_acl - removed non-existent fields; the resource is not usable.

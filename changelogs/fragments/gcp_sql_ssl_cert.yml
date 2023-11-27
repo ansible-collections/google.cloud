@@ -1,3 +1,0 @@
----
-minor_changes:
-  - gcp_sql_ssl_cert - made sha1_fingerprint optional, which enables resource creation
