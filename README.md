@@ -1,7 +1,7 @@
 # Google Cloud Platform Ansible Collection
 This collection provides a series of Ansible modules and plugins for interacting with the [Google Cloud Platform](https://cloud.google.com)
 
-This collection works with Ansible 2.9+
+This collection works with Ansible 2.14+
 
 # Installation
 ```bash
