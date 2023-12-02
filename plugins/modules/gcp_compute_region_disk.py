@@ -139,6 +139,19 @@ options:
           base64 to either encrypt or decrypt this resource.
         required: false
         type: str
+      kms_key_name:
+        description:
+        - The name of the encryption key that is stored in Google Cloud KMS.
+        - Your project's Compute Engine System service account (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`)
+          must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+        required: false
+        type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+        - If absent, the Compute Engine Service Agent service account is used.
+        required: false
+        type: str
   source_snapshot:
     description:
     - The source snapshot used to create this disk. You can provide this as a partial
@@ -161,6 +174,17 @@ options:
         description:
         - Specifies a 256-bit customer-supplied encryption key, encoded in RFC 4648
           base64 to either encrypt or decrypt this resource.
+        required: false
+        type: str
+      kms_key_name:
+        description:
+        - The name of the encryption key that is stored in Google Cloud KMS.
+        required: false
+        type: str
+      kms_key_service_account:
+        description:
+        - The service account used for the encryption request for the given KMS key.
+        - If absent, the Compute Engine Service Agent service account is used.
         required: false
         type: str
   project:
@@ -359,6 +383,19 @@ diskEncryptionKey:
         key that protects this resource.
       returned: success
       type: str
+    kmsKeyName:
+      description:
+      - The name of the encryption key that is stored in Google Cloud KMS.
+      - Your project's Compute Engine System service account (`service-{{PROJECT_NUMBER}}@compute-system.iam.gserviceaccount.com`)
+        must have `roles/cloudkms.cryptoKeyEncrypterDecrypter` to use this feature.
+      returned: success
+      type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+      - If absent, the Compute Engine Service Agent service account is used.
+      returned: success
+      type: str
 sourceSnapshot:
   description:
   - The source snapshot used to create this disk. You can provide this as a partial
@@ -382,6 +419,17 @@ sourceSnapshotEncryptionKey:
       description:
       - The RFC 4648 base64 encoded SHA-256 hash of the customer-supplied encryption
         key that protects this resource.
+      returned: success
+      type: str
+    kmsKeyName:
+      description:
+      - The name of the encryption key that is stored in Google Cloud KMS.
+      returned: success
+      type: str
+    kmsKeyServiceAccount:
+      description:
+      - The service account used for the encryption request for the given KMS key.
+      - If absent, the Compute Engine Service Agent service account is used.
       returned: success
       type: str
 sourceSnapshotId:
@@ -430,9 +478,13 @@ def main():
             replica_zones=dict(required=True, type='list', elements='str'),
             type=dict(type='str'),
             region=dict(required=True, type='str'),
-            disk_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
+            disk_encryption_key=dict(
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
             source_snapshot=dict(type='dict'),
-            source_snapshot_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str'))),
+            source_snapshot_encryption_key=dict(
+                type='dict', no_log=True, options=dict(raw_key=dict(type='str'), kms_key_name=dict(type='str'), kms_key_service_account=dict(type='str'))
+            ),
         )
     )
 
@@ -662,10 +714,22 @@ class RegionDiskDiskencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 class RegionDiskSourcesnapshotencryptionkey(object):
@@ -677,10 +741,22 @@ class RegionDiskSourcesnapshotencryptionkey(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get('raw_key')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get('raw_key'),
+                u'kmsKeyName': self.request.get('kms_key_name'),
+                u'kmsKeyServiceAccount': self.request.get('kms_key_service_account'),
+            }
+        )
 
     def from_response(self):
-        return remove_nones_from_dict({u'rawKey': self.request.get(u'rawKey')})
+        return remove_nones_from_dict(
+            {
+                u'rawKey': self.request.get(u'rawKey'),
+                u'kmsKeyName': self.request.get(u'kmsKeyName'),
+                u'kmsKeyServiceAccount': self.request.get(u'kmsKeyServiceAccount'),
+            }
+        )
 
 
 if __name__ == '__main__':
