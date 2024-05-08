@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright: (c) 2020, Pavlo Bashynskyi (@levonet) <levonet@gmail.com>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
@@ -37,7 +40,7 @@ class GcpSecretLookup():
 
     def client(self, secretmanager):
         if self.access_token is not None:
-            credentials=google.oauth2.credentials.Credentials(self.access_token)
+            credentials=google.oauth2.credentials.Credentials(self.access_token, scopes=self.scope)
             return secretmanager.SecretManagerServiceClient(credentials=credentials)
 
         if self.service_account_file is not None:
@@ -99,4 +102,4 @@ class GcpSecretLookup():
         if self.secret_id is None:
             raise AnsibleError("{0} lookup plugin required option: secret or resource id".format(self.plugin_name))
 
-        self.name = f"projects/{self.project_id}/secrets/{self.secret_id}/versions/{self.version_id}"
+        self.name = "projects/{}/secrets/{}/versions/{}".format(self.project_id, self.secret_id, self.version_id)
