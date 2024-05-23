@@ -261,7 +261,10 @@ def fetch_resource(module, allow_not_found=True):
             return None
 
         if "versions" in version_list:
-            latest_version = sorted(version_list['versions'], key=lambda d: d['name'])[-1]['name'].split('/')[-1]
+            versions_numbers = []
+            for version in version_list['versions']:
+                versions_numbers.append(version['name'].split('/')[-1])
+            latest_version = sorted(versions_numbers, key=int)[-1]
             module.params['calc_version'] = latest_version
         else:
             # if this occurs, there are no available secret versions

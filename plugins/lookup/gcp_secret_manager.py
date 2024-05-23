@@ -208,7 +208,10 @@ class LookupModule(LookupBase):
             self.raise_error(module, f"unable to list versions of secret {response.status_code}")
         version_list = response.json()
         if "versions" in version_list:
-            return sorted(version_list['versions'], key=lambda d: d['name'])[-1]['name'].split('/')[-1]
+            versions_numbers = []
+            for version in version_list['versions']:
+                versions_numbers.append(version['name'].split('/')[-1])
+            return sorted(versions_numbers, key=int)[-1]
         else:
             self.raise_error(module, f"Unable to list secret versions via {response.request.url}: {response.json()}")
 
