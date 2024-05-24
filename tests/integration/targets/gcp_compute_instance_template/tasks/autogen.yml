@@ -157,6 +157,92 @@
   ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
+#----------------------------------------------------------
+- name: create a instance template with ssd disk type
+  google.cloud.gcp_compute_instance_template:
+    name: "{{ resource_name }}"
+    properties:
+      disks:
+      - auto_delete: 'true'
+        boot: 'true'
+        initialize_params:
+          disk_size_gb: 10
+          disk_type: "pd-ssd"
+          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
+      machine_type: n1-standard-1
+      network_interfaces:
+      - network: "{{ network }}"
+        access_configs:
+        - name: test-config
+          type: ONE_TO_ONE_NAT
+          nat_ip: "{{ address }}"
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: present
+  register: result
+- name: assert changed is true
+  assert:
+    that:
+      - result.changed == true
+- name: verify that instance_template was created
+  google.cloud.gcp_compute_instance_template_info:
+      filters:
+         - name = {{ resource_name }}
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      scopes:
+        - https://www.googleapis.com/auth/compute
+  register: results
+- name: verify that command succeeded
+  assert:
+    that:
+      - results['resources'] | length == 1
+#----------------------------------------------------------
+- name: delete a instance template
+  google.cloud.gcp_compute_instance_template:
+    name: "{{ resource_name }}"
+    properties:
+      disks:
+      - auto_delete: 'true'
+        boot: 'true'
+        initialize_params:
+          disk_size_gb: 10
+          disk_type: "pd-ssd"
+          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
+      machine_type: n1-standard-1
+      network_interfaces:
+      - network: "{{ network }}"
+        access_configs:
+        - name: test-config
+          type: ONE_TO_ONE_NAT
+          nat_ip: "{{ address }}"
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    state: absent
+  register: result
+- name: assert changed is true
+  assert:
+    that:
+      - result.changed == true
+- name: verify that instance_template was deleted
+  google.cloud.gcp_compute_instance_template_info:
+      filters:
+         - name = {{ resource_name }}
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file }}"
+      scopes:
+        - https://www.googleapis.com/auth/compute
+  register: results
+- name: verify that command succeeded
+  assert:
+    that:
+      - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a instance template that does not exist
   google.cloud.gcp_compute_instance_template:
