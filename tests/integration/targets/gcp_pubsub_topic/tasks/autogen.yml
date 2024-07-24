@@ -44,7 +44,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'test-topic1' in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*test-topic1.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a topic that already exists
   google.cloud.gcp_pubsub_topic:
@@ -82,7 +82,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'test-topic1' not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*test-topic1.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a topic that does not exist
   google.cloud.gcp_pubsub_topic:

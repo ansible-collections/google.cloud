@@ -67,7 +67,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'www.testzone-4.com.'in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*www\\.testzone-4\\.com.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a resource record set that already exists
   google.cloud.gcp_dns_resource_record_set:
@@ -118,7 +118,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'www.testzone-4.com.'not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*www\\.testzone-4\\.com.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a resource record set that does not exist
   google.cloud.gcp_dns_resource_record_set:

@@ -66,7 +66,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'test-user' in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*test-user.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a user that already exists
   google.cloud.gcp_sql_user:
@@ -111,7 +111,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'test-user' not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*test-user.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a user that does not exist
   google.cloud.gcp_sql_user:
