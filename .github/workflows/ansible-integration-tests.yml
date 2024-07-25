@@ -21,9 +21,12 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
+        # Our current version strategy is to support both supported versions of ansible-core
+        # and test against the minimum version of Python supported by both. If/when we change
+        # the integration tests to support parallelism we can revisit.
         ansible_version:
-          - stable-2.14
-          - stable-2.15
+          - stable-2.16
+          - stable-2.17
     steps:
       - name: check out code
         uses: actions/checkout@v4
@@ -32,7 +35,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # this is the minimum version required for Ansible 2.15
+          python-version: '3.10'  # this is the minimum version required for Ansible 2.16
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
@@ -67,4 +70,4 @@ jobs:
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -v --color --python 3.9 --venv-system-site-packages
+        run: ansible-test integration -v --color --python 3.10 --venv-system-site-packages
