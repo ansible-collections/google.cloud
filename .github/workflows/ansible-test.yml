@@ -36,8 +36,12 @@ jobs:
         run: ansible-test sanity -v --color --skip validate-modules
       - name: Install ansible-lint
         run: pip install ansible-lint==24.7.0
+      - name: Debug the ansible-lint path
+        run: |
+          pwd
+          ls -al
       - name: Run ansible-lint
-        run: ansible-lint -c ${GITHUB_WORKSPACE}/ansible_collections/google/cloud/.ansible-lint
+        run: ansible-lint --show-relpath --exclude ./roles/google-cloud-ops-agents-ansible/
   unit:
     runs-on: ubuntu-latest
     defaults:
