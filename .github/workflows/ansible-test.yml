@@ -37,7 +37,7 @@ jobs:
       - name: Install ansible-lint
         run: pip install ansible-lint==24.7.0
       - name: Run ansible-lint
-        run: ansible-lint
+        run: ansible-lint -c ${GITHUB_WORKSPACE}/ansible_collections/google/cloud/.ansible-lint
   unit:
     runs-on: ubuntu-latest
     defaults:
