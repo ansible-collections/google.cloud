@@ -1,10 +1,10 @@
 ---
+profile: production
 parseable: true
 skip_list:
   - ANSIBLE0010
 use_default_rules: true
 verbosity: 1
 exclude_paths:
-  - ./roles/gcp_http_lb/
-  - ./tests/
-  - ./plugins
+  # Ignore submodule https://github.com/GoogleCloudPlatform/google-cloud-ops-agents-ansible
+  - roles/google-cloud-ops-agents-ansible/
