@@ -41,7 +41,7 @@ jobs:
           pwd
           ls -al
       - name: Run ansible-lint
-        run: ansible-lint --exclude ./roles/google_cloud_ops_agents/
+        run: ansible-lint --exclude roles/google_cloud_ops_agents/
   unit:
     runs-on: ubuntu-latest
     defaults:
