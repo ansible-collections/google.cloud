@@ -7,4 +7,4 @@ use_default_rules: true
 verbosity: 1
 exclude_paths:
   # Ignore submodule https://github.com/GoogleCloudPlatform/google-cloud-ops-agents-ansible
-  - roles/google-cloud-ops-agents-ansible/
+  - ./roles/google-cloud-ops-agents-ansible/
