@@ -62,7 +62,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'my-pool' in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*my-pool.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a node pool that already exists
   google.cloud.gcp_container_node_pool:
@@ -108,7 +108,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'my-pool' not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*my-pool.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a node pool that does not exist
   google.cloud.gcp_container_node_pool:

@@ -10,7 +10,7 @@
   when: ansible_os_family == "Debian"
 
 - name: Gcloud | Archive | RedHat | Ensure bash completion is installed
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name:
       - bash-completion
   register: task_result

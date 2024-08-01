@@ -55,7 +55,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'my-cluster' in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*my-cluster.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a cluster that already exists
   google.cloud.gcp_container_cluster:
@@ -104,7 +104,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "'my-cluster' not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*my-cluster.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a cluster that does not exist
   google.cloud.gcp_container_cluster:

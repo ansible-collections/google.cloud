@@ -16,6 +16,7 @@ ZONE="us-central1-a"
 main() {
     # note: the ordering here is deliberate, to start with
     # leaf resources and work upwards to parent resources.
+    cleanup_resource "container" "clusters" "" "--zone=$ZONE"
     cleanup_resource_per_region "compute" "vpn-tunnels"
     cleanup_resource "compute" "instances" "" "--zone=$ZONE"
     cleanup_resource_per_region "compute" "addresses"

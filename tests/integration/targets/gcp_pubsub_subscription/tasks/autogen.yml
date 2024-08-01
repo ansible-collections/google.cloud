@@ -56,7 +56,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "\"{{ resource_name }}\" in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a subscription that already exists
   google.cloud.gcp_pubsub_subscription:
@@ -98,7 +98,7 @@
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - "\"{{ resource_name }}\" not in \"{{ results['resources'] | map(attribute='name') | list }}\""
+      - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a subscription that does not exist
   google.cloud.gcp_pubsub_subscription:
