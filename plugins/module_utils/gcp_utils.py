@@ -17,6 +17,7 @@ except ImportError:
 try:
     import google.auth
     import google.auth.compute_engine
+    import google.auth.impersonated_credentials
     from google.oauth2 import service_account, credentials as oauth2
     from google.auth.transport.requests import AuthorizedSession
     HAS_GOOGLE_LIBRARIES = True
@@ -200,9 +201,9 @@ class GcpSession(object):
         if not HAS_GOOGLE_LIBRARIES:
             self.module.fail_json(msg="Please install the google-auth library")
 
-        if self.module.params.get('service_account_email') is not None and self.module.params['auth_kind'] != 'machineaccount':
+        if self.module.params.get('service_account_email') is not None and not self.module.params['auth_kind'] in ['machineaccount','impersonation']:
             self.module.fail_json(
-                msg="Service Account Email only works with Machine Account-based authentication"
+                msg="Service Account Email only works with Impersonation and Machine Account-based authentication"
             )
 
         if (self.module.params.get('service_account_file') is not None or
@@ -260,6 +261,20 @@ class GcpSession(object):
                     msg='An access token must be supplied when auth_kind is accesstoken'
                 )
             return oauth2.Credentials(access_token, scopes=self.module.params['scopes'])
+        
+        if cred_type == 'impersonation':
+            service_account_email = self.module.params.get('service_account_email')
+            if service_account_email is None:
+                self.module.fail_json(
+                        msg='Service Account impersonation authentication requires setting service_account_email'
+                )
+            source_credentials, _ = google.auth.default()
+            return google.auth.impersonated_credentials.Credentials(
+                source_credentials=source_credentials,
+                target_principal=self.module.params['service_account_email'],
+                target_scopes=self.module.params['scopes'],
+                lifetime=3600,
+                )
 
         self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
@@ -291,7 +306,7 @@ class GcpModule(AnsibleModule):
                 auth_kind=dict(
                     required=True,
                     fallback=(env_fallback, ['GCP_AUTH_KIND']),
-                    choices=['machineaccount', 'serviceaccount', 'accesstoken', 'application'],
+                    choices=['machineaccount', 'serviceaccount', 'accesstoken', 'application', 'impersonation'],
                     type='str'),
                 service_account_email=dict(
                     required=False,
