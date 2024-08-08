@@ -392,7 +392,10 @@ def main():
             fetch = {}
 
     fetch.update({'changed': changed})
-
+  
+    if "warnings" in fetch:
+        fetch["warnings"] = fetch["warnings"][0]["message"]
+      
     module.exit_json(**fetch)
 
 
