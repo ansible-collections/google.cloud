@@ -4,6 +4,15 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.4.1
+======
+
+Bugfixes
+--------
+
+- gcp_kms_filters - add DOCUMENTATION string
+- gcp_secret_manager - make an f-string usage backward compatible
+
 v1.4.0
 ======
 
