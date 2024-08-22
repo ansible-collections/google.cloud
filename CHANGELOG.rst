@@ -4,6 +4,24 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.4.0
+======
+
+Minor Changes
+-------------
+
+- ansible - 2.16.0 is now the minimum version supported
+- ansible - 3.10 is now the minimum Python version
+- ansible-test - integration tests are now run against 2.16.0 and 2.17.0
+- gcloud role - use dnf instead of yum on RHEL
+- gcp_secret_manager - add as a module and lookup plugin (https://github.com/ansible-collections/google.cloud/pull/578)
+- gcp_secret_manager - support more than 10 versions (https://github.com/ansible-collections/google.cloud/pull/634)
+- restore google_cloud_ops_agents submodule (https://github.com/ansible-collections/google.cloud/pull/594)
+
+Bugfixes
+--------
+
+- ansible-lint - remove jinja templates from test assertions
 
 v1.3.0
 ======
