@@ -443,7 +443,7 @@ def main():
             fetch.pop('value')
             fetch.pop('payload')
             if "msg" in fetch:
-                fetch['msg'] = f"{fetch['msg']} | not returning secret value since 'return_value is set to false"
+                fetch['msg'] = "{} | not returning secret value since 'return_value is set to false".format(fetch['msg'])
             else:
                 fetch['msg'] = "not returning secret value since 'return_value is set to false"
 

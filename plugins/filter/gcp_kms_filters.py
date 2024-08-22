@@ -13,6 +13,15 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+DOCUMENTATION = '''
+    author:
+    - Eric Anderson <eric.sysmin@gmail.com>
+    name: gcp_kms_filters
+    short_description: Support auth tokens as a Filter plugin
+    description:
+    - Enables the 'accesstoken' authentication choice.
+'''
+
 from ansible.errors import AnsibleError
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import GcpSession
 

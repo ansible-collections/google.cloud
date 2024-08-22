@@ -92,3 +92,11 @@ releases:
     fragments:
     - release-1-4-0.yml
     release_date: '2024-08-21'
+  1.4.1:
+    changes:
+      bugfixes:
+      - gcp_kms_filters - add DOCUMENTATION string
+      - gcp_secret_manager - make an f-string usage backward compatible
+    fragments:
+    - release-1-4-1.yml
+    release_date: '2024-08-22'
