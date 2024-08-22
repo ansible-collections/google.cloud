@@ -106,3 +106,4 @@ ansible-galaxy collection install google.cloud
   * Cloud Storage BucketAccessControl (gcp_storage_bucket_access_control, gcp_storage_bucket_access_control_info)
   * Cloud Storage DefaultObjectACL (gcp_storage_default_object_acl, gcp_storage_default_object_acl_info)
   * Cloud TPU Node (gcp_tpu_node, gcp_tpu_node_info)
+  * Secret Manager (gcp_secret_manager)
