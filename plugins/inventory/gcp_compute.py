@@ -112,6 +112,13 @@ DOCUMENTATION = """
             - Unless this option is enabled, the C(image) host variable will be C(null)
           type: bool
           default: False
+        hostname_prefix:
+            description: Ooptional preffix to add beofre a hostname is created, it could be static value or dynamic value
+            required: False
+            type: string
+            default: ''
+
+          
 """
 
 EXAMPLES = """
@@ -168,12 +175,13 @@ class GcpMockModule(object):
 
 class GcpInstance(object):
     def __init__(
-        self, json, hostname_ordering, project_disks, should_format=True, name_suffix=""
+        self, json, hostname_ordering, project_disks, should_format=True, name_suffix="", hostname_prefix=""
     ):
         self.hostname_ordering = hostname_ordering
         self.project_disks = project_disks
         self.name_suffix = name_suffix
         self.json = json
+        self.hostname_prefix = hostname_prefix
         if should_format:
             self.convert()
 
@@ -244,7 +252,7 @@ class GcpInstance(object):
             elif order == "private_ip":
                 name = self._get_privateip()
             elif order == "name":
-                name = self.json["name"] + self.name_suffix
+                name = self.hostname_prefix + self.json["name"]  + self.name_suffix
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
@@ -425,6 +433,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         :param config_data: configuration data
         :param format_items: format items or not
         """
+        hostname_prefix = self.get_option("hostname_prefix")
         if not items:
             return
 
@@ -436,7 +445,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         for host_json in items:
             host = GcpInstance(
-                host_json, hostname_ordering, project_disks, format_items, name_suffix
+                host_json, hostname_ordering, project_disks, format_items, name_suffix, hostname_prefix
             )
             self._populate_host(host)
 
