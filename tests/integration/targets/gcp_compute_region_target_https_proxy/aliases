@@ -1,2 +1,4 @@
 cloud/gcp
+# unsupported as testing this resource requires
+# a missing resource (compute_regional_ssl_cert)
 unsupported

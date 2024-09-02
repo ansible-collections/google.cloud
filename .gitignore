@@ -1,0 +1,10 @@
+# personal credentials are added here: do not check in.
+tests/integration/cloud-config-gcp.ini
+ansible.cfg
+# running ansible integration tests adds files here.
+tests/integration/inventory
+tests/output/
+__pycache__
+*.tar.gz
+venv/
+changelogs/.plugin-cache.yaml

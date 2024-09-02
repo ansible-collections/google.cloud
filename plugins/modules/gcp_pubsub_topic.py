@@ -117,6 +117,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -130,6 +131,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -150,6 +155,8 @@ notes:
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
 - For authentication, you can set service_account_email using the C(GCP_SERVICE_ACCOUNT_EMAIL)
+  env variable.
+- For authentication, you can set access_token using the C(GCP_ACCESS_TOKEN)
   env variable.
 - For authentication, you can set auth_kind using the C(GCP_AUTH_KIND) env variable.
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
@@ -232,7 +239,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpModule,
     GcpRequest,
     remove_nones_from_dict,
-    replace_resource_dict,
 )
 import json
 import re

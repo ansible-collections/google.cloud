@@ -52,6 +52,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -66,6 +67,10 @@ options:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
     type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
+    type: str
   scopes:
     description:
     - Array of scopes to be used
@@ -77,12 +82,19 @@ options:
     - This should not be set unless you know what you're doing.
     - This only alters the User Agent string for any API requests.
     type: str
+  page_size:
+    description:
+    - Indicates the number of projects that should be returned by the API
+      request
+    type: str
 notes:
 - for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
 - For authentication, you can set service_account_email using the C(GCP_SERVICE_ACCOUNT_EMAIL)
+  env variable.
+- For authentication, you can set access_token using the C(GCP_ACCESS_TOKEN)
   env variable.
 - For authentication, you can set auth_kind using the C(GCP_AUTH_KIND) env variable.
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
@@ -96,6 +108,7 @@ EXAMPLES = '''
     project: test_project
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
+    page_size: 100
 '''
 
 RETURN = '''
@@ -166,7 +179,7 @@ resources:
 ################################################################################
 # Imports
 ################################################################################
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule
 import json
 
 ################################################################################
@@ -175,7 +188,9 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict())
+    module = GcpModule(argument_spec=dict(
+        page_size=dict(type='int')
+    ))
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
@@ -190,7 +205,10 @@ def collection(module):
 
 def fetch_list(module, link):
     auth = GcpSession(module, 'resourcemanager')
-    return auth.list(link, return_if_object, array_name='projects')
+    params = {}
+    if "page_size" in module.params:
+        params["pageSize"] = module.params.get("page_size")
+    return auth.list(link, return_if_object, array_name='projects', params=params)
 
 
 def return_if_object(module, response):

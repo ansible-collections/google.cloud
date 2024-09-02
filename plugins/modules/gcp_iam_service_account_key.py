@@ -71,8 +71,9 @@ options:
     type: dict
   path:
     description:
-    - The full name of the file that will hold the service account private key. The
-      management of this file will depend on the value of sync_file parameter.
+    - The full name of the file that will hold the service account private key.
+    - If the file already exists, it will attempt to be read. Ensure the file does
+      not exist or is alreay a valid key.
     - File path must be absolute.
     required: false
     type: path
@@ -89,6 +90,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -102,6 +104,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -187,8 +193,9 @@ serviceAccount:
   type: dict
 path:
   description:
-  - The full name of the file that will hold the service account private key. The
-    management of this file will depend on the value of sync_file parameter.
+  - The full name of the file that will hold the service account private key.
+  - If the file already exists, it will attempt to be read. Ensure the file does
+    not exist or is alreay a valid key.
   - File path must be absolute.
   returned: success
   type: str
@@ -198,12 +205,10 @@ path:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, replace_resource_dict
 from ansible.module_utils._text import to_native
 import json
 import os
-import mimetypes
-import hashlib
 import base64
 
 ################################################################################

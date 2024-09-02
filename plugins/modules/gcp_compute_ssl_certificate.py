@@ -89,6 +89,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -102,6 +103,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -123,6 +128,8 @@ notes:
   env variable.
 - For authentication, you can set service_account_email using the C(GCP_SERVICE_ACCOUNT_EMAIL)
   env variable.
+- For authentication, you can set access_token using the C(GCP_ACCESS_TOKEN)
+  env variable.
 - For authentication, you can set auth_kind using the C(GCP_AUTH_KIND) env variable.
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
 - Environment variables values will only be used if the playbook values are not set.
@@ -133,7 +140,6 @@ EXAMPLES = '''
 - name: create a SSL certificate
   google.cloud.gcp_compute_ssl_certificate:
     name: test_object
-    region: us-central1
     description: A certificate for testing. Do not use this certificate in production
     certificate: |-
       -----BEGIN CERTIFICATE-----
@@ -209,7 +215,7 @@ privateKey:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest, replace_resource_dict
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import navigate_hash, GcpSession, GcpModule, GcpRequest
 import json
 import time
 

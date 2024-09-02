@@ -1,18 +1,19 @@
-name: "google.cloud.gcloud"
+---
+name: google.cloud.gcloud
 on:
   push:
     paths:
-      - 'roles/gcloud/**'
-      - '.github/workflows/gcloud.yml'
-      - 'molecule/gcloud/**'
+      - roles/gcloud/**
+      - .github/workflows/gcloud.yml
+      - molecule/gcloud/**
   pull_request:
     paths:
-      - 'roles/gcloud/**'
-      - '.github/workflows/gcloud.yml'
-      - 'molecule/gcloud/**'
+      - roles/gcloud/**
+      - .github/workflows/gcloud.yml
+      - molecule/gcloud/**
 jobs:
   molecule:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
@@ -22,41 +23,38 @@ jobs:
         molecule_playbook:
           - archive_playbook.yml
           - package_playbook.yml
-        molecule_distro:
-          - distro: centos:7
-            command: /usr/sbin/init
-          - distro: centos:8
-            command: /usr/sbin/init
-          - distro: ubuntu:16.04
-            command: /sbin/init
-          - distro: ubuntu:18.04
-            command: /lib/systemd/systemd
-          - distro: debian:9
-            command: /lib/systemd/systemd
         collection_role:
           - gcloud
     steps:
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           path: ansible_collections/google/cloud
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
-          sudo apt install docker
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg \
+            lsb-release
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg \
+            --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo \
+            "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           python -m pip install --upgrade pip
-          pip install molecule yamllint ansible-lint docker
+          pip install molecule-plugins[docker] yamllint ansible ansible-lint docker
 
       - name: Run role test
+        working-directory: ansible_collections/google/cloud
         run: >-
           molecule --version &&
           ansible --version &&
-          MOLECULE_COMMAND=${{ matrix.molecule_distro.command }}
-          MOLECULE_DISTRO=${{ matrix.molecule_distro.distro }}
           MOLECULE_PLAYBOOK=${{ matrix.molecule_playbook }}
+          MOLECULE_NO_LOG="false"
           molecule --debug test -s ${{ matrix.collection_role }}

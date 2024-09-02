@@ -22,7 +22,7 @@ DOCUMENTATION = """
         plugin:
             description: token that ensures this is a source file for the 'gcp_compute' plugin.
             required: True
-            choices: ['google.cloud.gcp_compute']
+            choices: ['google.cloud.gcp_compute', 'gcp_compute']
         zones:
           description: A list of regions in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
@@ -39,7 +39,7 @@ DOCUMENTATION = """
           description: >
             A list of filter value pairs. Available filters are listed here
             U(https://cloud.google.com/compute/docs/reference/rest/v1/instances/aggregatedList).
-            Each additional filter in the list will act be added as an AND condition
+            Each additional filter in the list will be added as an AND condition
             (filter1 and filter2)
           type: list
         hostnames:
@@ -48,30 +48,31 @@ DOCUMENTATION = """
               'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
+        name_suffix:
+          description: Custom domain suffix. If set, this string will be appended to all hosts.
+          default: ""
+          type: string
+          required: False
         auth_kind:
             description:
                 - The type of credential used.
             required: True
-            choices: ['application', 'serviceaccount', 'machineaccount']
+            choices: ['application', 'serviceaccount', 'machineaccount', 'accesstoken']
             env:
                 - name: GCP_AUTH_KIND
-                  version_added: "2.8.2"
         scopes:
             description: list of authentication scopes
             type: list
             default: ['https://www.googleapis.com/auth/compute']
             env:
                 - name: GCP_SCOPES
-                  version_added: "2.8.2"
         service_account_file:
             description:
                 - The path of a Service Account JSON file if serviceaccount is selected as type.
             type: path
             env:
                 - name: GCP_SERVICE_ACCOUNT_FILE
-                  version_added: "2.8.2"
                 - name: GCE_CREDENTIALS_FILE_PATH
-                  version_added: "2.8"
         service_account_contents:
             description:
                 - A string representing the contents of a Service Account JSON file. This should not be passed in as a dictionary,
@@ -79,14 +80,17 @@ DOCUMENTATION = """
             type: string
             env:
                 - name: GCP_SERVICE_ACCOUNT_CONTENTS
-            version_added: "2.8.2"
         service_account_email:
             description:
                 - An optional service account email address if machineaccount is selected
                   and the user does not wish to use the default email.
             env:
                 - name: GCP_SERVICE_ACCOUNT_EMAIL
-                  version_added: "2.8.2"
+        access_token:
+            description:
+                - An OAuth2 access token if credential type is accesstoken.
+            env:
+                - name: GCP_ACCESS_TOKEN
         vars_prefix:
             description: prefix to apply to host variables, does not include facts nor params
             default: ''
@@ -100,7 +104,6 @@ DOCUMENTATION = """
               which group names end up being used as.
           type: bool
           default: False
-          version_added: '2.8'
         retrieve_image_info:
           description:
             - Populate the C(image) host fact for the instances returned with the GCP image name
@@ -109,7 +112,6 @@ DOCUMENTATION = """
             - Unless this option is enabled, the C(image) host variable will be C(null)
           type: bool
           default: False
-          version_added: '2.8'
 """
 
 EXAMPLES = """
@@ -120,8 +122,8 @@ projects:
   - gcp-prod-gke-100
   - gcp-cicd-101
 filters:
-  - machineType = n1-standard-1
-  - scheduling.automaticRestart = true AND machineType = n1-standard-1
+  - status = RUNNING
+  - scheduling.automaticRestart = true AND status = RUNNING
 service_account_file: /tmp/service_account.json
 auth_kind: serviceaccount
 scopes:
@@ -131,6 +133,7 @@ keyed_groups:
   # Create groups from GCE labels
   - prefix: gcp
     key: labels
+name_suffix: .example.com
 hostnames:
   # List host by name instead of the default public ip
   - name
@@ -164,9 +167,12 @@ class GcpMockModule(object):
 
 
 class GcpInstance(object):
-    def __init__(self, json, hostname_ordering, project_disks, should_format=True):
+    def __init__(
+        self, json, hostname_ordering, project_disks, should_format=True, name_suffix=""
+    ):
         self.hostname_ordering = hostname_ordering
         self.project_disks = project_disks
+        self.name_suffix = name_suffix
         self.json = json
         if should_format:
             self.convert()
@@ -203,8 +209,8 @@ class GcpInstance(object):
 
     def _format_network_info(self, address):
         """
-            :param address: A GCP network address
-            :return a dict with network shortname and region
+        :param address: A GCP network address
+        :return a dict with network shortname and region
         """
         split = address.split("/")
         region = ""
@@ -216,8 +222,8 @@ class GcpInstance(object):
 
     def _format_metadata(self, metadata):
         """
-            :param metadata: A list of dicts where each dict has keys "key" and "value"
-            :return a dict with key/value pairs for each in list.
+        :param metadata: A list of dicts where each dict has keys "key" and "value"
+        :return a dict with key/value pairs for each in list.
         """
         new_metadata = {}
         for pair in metadata:
@@ -226,7 +232,7 @@ class GcpInstance(object):
 
     def hostname(self):
         """
-            :return the hostname of this instance
+        :return the hostname of this instance
         """
         for order in self.hostname_ordering:
             name = None
@@ -238,7 +244,7 @@ class GcpInstance(object):
             elif order == "private_ip":
                 name = self._get_privateip()
             elif order == "name":
-                name = self.json[u"name"]
+                name = self.json["name"] + self.name_suffix
             else:
                 raise AnsibleParserError("%s is not a valid hostname precedent" % order)
 
@@ -249,20 +255,20 @@ class GcpInstance(object):
 
     def _get_publicip(self):
         """
-            :return the publicIP of this instance or None
+        :return the publicIP of this instance or None
         """
         # Get public IP if exists
         for interface in self.json["networkInterfaces"]:
             if "accessConfigs" in interface:
                 for accessConfig in interface["accessConfigs"]:
                     if "natIP" in accessConfig:
-                        return accessConfig[u"natIP"]
+                        return accessConfig["natIP"]
         return None
 
     def _get_image(self):
         """
-            :param instance: A instance response from GCP
-            :return the image of this instance or None
+        :param instance: A instance response from GCP
+        :return the image of this instance or None
         """
         image = None
         if self.project_disks and "disks" in self.json:
@@ -273,13 +279,13 @@ class GcpInstance(object):
 
     def _get_privateip(self):
         """
-            :param item: A host response from GCP
-            :return the privateIP of this instance or None
+        :param item: A host response from GCP
+        :return the privateIP of this instance or None
         """
         # Fallback: Get private IP
-        for interface in self.json[u"networkInterfaces"]:
+        for interface in self.json["networkInterfaces"]:
             if "networkIP" in interface:
-                return interface[u"networkIP"]
+                return interface["networkIP"]
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -297,7 +303,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _populate_host(self, item):
         """
-            :param item: A GCP instance
+        :param item: A GCP instance
         """
         hostname = item.hostname()
         self.inventory.add_host(hostname)
@@ -315,8 +321,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def verify_file(self, path):
         """
-            :param path: the path to the inventory config file
-            :return the contents of the config file
+        :param path: the path to the inventory config file
+        :return the contents of the config file
         """
         if super(InventoryModule, self).verify_file(path):
             if path.endswith(("gcp.yml", "gcp.yaml")):
@@ -327,10 +333,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def fetch_list(self, params, link, query):
         """
-            :param params: a dict containing all of the fields relevant to build URL
-            :param link: a formatted URL
-            :param query: a formatted query string
-            :return the JSON response containing a list of instances.
+        :param params: a dict containing all of the fields relevant to build URL
+        :param link: a formatted URL
+        :param query: a formatted query string
+        :return the JSON response containing a list of instances.
         """
         lists = []
         resp = self._return_if_object(
@@ -343,7 +349,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                     self.fake_module,
                     self.auth_session.get(
                         link,
-                        params={"filter": query, "pageToken": resp.get("nextPageToken")},
+                        params={
+                            "filter": query,
+                            "pageToken": resp.get("nextPageToken"),
+                        },
                     ),
                 )
                 lists.append(resp.get("items"))
@@ -364,8 +373,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_query_options(self, filters):
         """
-            :param config_data: contents of the inventory config file
-            :return A fully built query string
+        :param config_data: contents of the inventory config file
+        :return A fully built query string
         """
         if not filters:
             return ""
@@ -385,9 +394,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _return_if_object(self, module, response):
         """
-            :param module: A GcpModule
-            :param response: A Requests response object
-            :return JSON response
+        :param module: A GcpModule
+        :param response: A Requests response object
+        :return JSON response
         """
         # If not found, return nothing.
         if response.status_code == 404:
@@ -412,9 +421,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _add_hosts(self, items, config_data, format_items=True, project_disks=None):
         """
-            :param items: A list of hosts
-            :param config_data: configuration data
-            :param format_items: format items or not
+        :param items: A list of hosts
+        :param config_data: configuration data
+        :param format_items: format items or not
         """
         if not items:
             return
@@ -423,9 +432,11 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self.get_option("hostnames"):
             hostname_ordering = self.get_option("hostnames")
 
+        name_suffix = self.get_option("name_suffix")
+
         for host_json in items:
             host = GcpInstance(
-                host_json, hostname_ordering, project_disks, format_items
+                host_json, hostname_ordering, project_disks, format_items, name_suffix
             )
             self._populate_host(host)
 
@@ -442,7 +453,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_project_disks(self, config_data, query):
         """
-            project space disk images
+        project space disk images
         """
 
         try:
@@ -508,20 +519,20 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def fetch_projects(self, params, link, query):
         module = GcpMockModule(params)
-        auth = GcpSession(module, 'cloudresourcemanager')
-        response = auth.get(link, params={'filter': query})
+        auth = GcpSession(module, "cloudresourcemanager")
+        response = auth.get(link, params={"filter": query})
         return self._return_if_object(module, response)
 
     def projects_for_folder(self, config_data, folder):
-        link = 'https://cloudresourcemanager.googleapis.com/v1/projects'.format()
-        query = 'parent.id = {0}'.format(folder)
+        link = "https://cloudresourcemanager.googleapis.com/v1/projects"
+        query = "parent.id = {0}".format(folder)
         projects = []
-        config_data['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
+        config_data["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
         projects_response = self.fetch_projects(config_data, link, query)
 
-        if 'projects' in projects_response:
-            for item in projects_response.get('projects'):
-                projects.append(item['projectId'])
+        if "projects" in projects_response:
+            for item in projects_response.get("projects"):
+                projects.append(item["projectId"])
         return projects
 
     def parse(self, inventory, loader, path, cache=True):
@@ -553,6 +564,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             "service_account_file": self.get_option("service_account_file"),
             "service_account_contents": self.get_option("service_account_contents"),
             "service_account_email": self.get_option("service_account_email"),
+            "access_token": self.get_option("access_token"),
         }
 
         self.fake_module = GcpMockModule(params)

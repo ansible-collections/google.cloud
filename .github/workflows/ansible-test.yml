@@ -1,0 +1,71 @@
+---
+name: Run tests for the cloud.google collection
+on: [pull_request]
+jobs:
+  sanity-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/google/cloud
+    strategy:
+      matrix:
+        # Our version strategy is to test against the current and previous version
+        # of ansible-core and each major version of Python supported by both.
+        # https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix
+        ansible_version:
+          - stable-2.16
+          - stable-2.17
+        python_version:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - name: check out code
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/google/cloud
+          submodules: 'true'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install ansible-base (${{ matrix.ansible_version }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      - name: Run ansible-test sanity
+        # validate-modules cannot be turned on until #498 is resolved.
+        run: ansible-test sanity -v --color --skip validate-modules
+      - name: Install ansible-lint
+        run: pip install ansible-lint==24.7.0
+      - name: Run ansible-lint
+        run: ansible-lint --exclude roles/google_cloud_ops_agents/
+  unit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible_collections/google/cloud
+    strategy:
+      matrix:
+        ansible_version:
+          - stable-2.16
+          - stable-2.17
+        python_version:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+    steps:
+      - name: check out code
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/google/cloud
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install test dependencies
+        run: pip install -r requirements-test.txt
+      - name: Install ansible-base (${{ matrix.ansible_version }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
+      - name: Run unit tests
+        run: ansible-test units -v --color --python "${{ matrix.python_version }}"

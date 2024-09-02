@@ -26,154 +26,154 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a firewall
+- name: Delete a firewall
   google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
-    - ip_protocol: tcp
-      ports:
-      - '22'
+      - ip_protocol: tcp
+        ports:
+          - "22"
     target_tags:
-    - test-ssh-server
-    - staging-ssh-server
+      - test-ssh-server
+      - staging-ssh-server
     source_tags:
-    - test-ssh-clients
+      - test-ssh-clients
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a firewall
+- name: Create a firewall
   google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
-    - ip_protocol: tcp
-      ports:
-      - '22'
+      - ip_protocol: tcp
+        ports:
+          - "22"
     target_tags:
-    - test-ssh-server
-    - staging-ssh-server
+      - test-ssh-server
+      - staging-ssh-server
     source_tags:
-    - test-ssh-clients
+      - test-ssh-clients
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that firewall was created
+- name: Verify that firewall was created
   google.cloud.gcp_compute_firewall_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: update the firewall
+- name: Update the firewall
   google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
-    - ip_protocol: tcp
-      ports:
-      - '55'
+      - ip_protocol: tcp
+        ports:
+          - "55"
     target_tags:
-    - test-ssh-server
-    - staging-ssh-server
+      - test-ssh-server
+      - staging-ssh-server
     source_tags:
-    - test-ssh-clients
+      - test-ssh-clients
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
 # ----------------------------------------------------------------------------
-- name: check firewall was updated.
+- name: Check firewall was updated.
   google.cloud.gcp_compute_firewall_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
-- name: verify that update succeeded
-  assert:
+- name: Verify that update succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'][0]['allowed'][0]['ports'][0] == '55'
 #----------------------------------------------------------
-- name: delete a firewall
+- name: Delete a firewall
   google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
-    - ip_protocol: tcp
-      ports:
-      - '22'
+      - ip_protocol: tcp
+        ports:
+          - "22"
     target_tags:
-    - test-ssh-server
-    - staging-ssh-server
+      - test-ssh-server
+      - staging-ssh-server
     source_tags:
-    - test-ssh-clients
+      - test-ssh-clients
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that firewall was deleted
+- name: Verify that firewall was deleted
   google.cloud.gcp_compute_firewall_info:
-      filters:
-         - name = {{ resource_name }}
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a firewall that does not exist
+- name: Delete a firewall that does not exist
   google.cloud.gcp_compute_firewall:
     name: "{{ resource_name }}"
     allowed:
-    - ip_protocol: tcp
-      ports:
-      - '22'
+      - ip_protocol: tcp
+        ports:
+          - "22"
     target_tags:
-    - test-ssh-server
-    - staging-ssh-server
+      - test-ssh-server
+      - staging-ssh-server
     source_tags:
-    - test-ssh-clients
+      - test-ssh-clients
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

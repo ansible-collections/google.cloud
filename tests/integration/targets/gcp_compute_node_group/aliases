@@ -1,2 +1,5 @@
 cloud/gcp
+# this test cannot run in CI, as the minimum
+# node group size is beyond the compute quota
+# limit of a default project.
 unsupported

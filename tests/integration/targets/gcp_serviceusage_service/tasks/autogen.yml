@@ -13,86 +13,91 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a service
+- name: Delete a service
   google.cloud.gcp_serviceusage_service:
-    name: spanner.googleapis.com
+    name: alloydb.googleapis.com
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a service
+- name: Create a service
   google.cloud.gcp_serviceusage_service:
-    name: spanner.googleapis.com
+    name: alloydb.googleapis.com
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that service was created
+- name: Verify that service was created
   google.cloud.gcp_serviceusage_service_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
-  register: results
-- name: verify that command succeeded
-  assert:
-    that:
-      - "'{{ (results['resources'] | selectattr('name', 'search', 'spanner.googleapis.com') | list | first).state }}' == 'ENABLED'"
-# ----------------------------------------------------------------------------
-- name: create a service that already exists
-  google.cloud.gcp_serviceusage_service:
-    name: spanner.googleapis.com
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
+  register: results
+- name: Verify that command succeeded
+  ansible.builtin.assert:
+    that:
+      - "'{{ (results['resources'] | selectattr('name', 'search', 'alloydb.googleapis.com') | list | first).state }}' == 'ENABLED'"
+# ----------------------------------------------------------------------------
+- name: Create a service that already exists
+  google.cloud.gcp_serviceusage_service:
+    name: alloydb.googleapis.com
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a service
+- name: Delete a service
   google.cloud.gcp_serviceusage_service:
-    name: spanner.googleapis.com
+    name: alloydb.googleapis.com
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that service was deleted
+# TODO(@toumorokoshi): investigate if the pause helps
+# prevent quota issues.
+# - name: Pause for 1 minute to keep from hitting quota limit
+#   ansible.builtin.pause:
+#     minutes: 1
+- name: Verify that service was deleted
   google.cloud.gcp_serviceusage_service_info:
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
-  register: results
-- name: verify that command succeeded
-  assert:
-    that:
-      - "'{{ (results['resources'] | selectattr('name', 'search', 'spanner.googleapis.com') | list | first).state }}' == 'DISABLED'"
-# ----------------------------------------------------------------------------
-- name: delete a service that does not exist
-  google.cloud.gcp_serviceusage_service:
-    name: spanner.googleapis.com
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
+  register: results
+- name: Verify that command succeeded
+  ansible.builtin.assert:
+    that:
+      - "'{{ (results['resources'] | selectattr('name', 'search', 'alloydb.googleapis.com') | list | first).state }}' == 'DISABLED'"
+# ----------------------------------------------------------------------------
+- name: Delete a service that does not exist
+  google.cloud.gcp_serviceusage_service:
+    name: alloydb.googleapis.com
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

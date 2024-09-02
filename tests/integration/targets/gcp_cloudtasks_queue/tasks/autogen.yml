@@ -13,93 +13,93 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: delete a queue
+- name: Delete a queue
   google.cloud.gcp_cloudtasks_queue:
     name: "{{ resource_name }}"
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a queue
+- name: Create a queue
   google.cloud.gcp_cloudtasks_queue:
     name: "{{ resource_name }}"
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that queue was created
+- name: Verify that queue was created
   google.cloud.gcp_cloudtasks_queue_info:
-      location: us-central1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
+    location: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 1
 # ----------------------------------------------------------------------------
-- name: create a queue that already exists
+- name: Create a queue that already exists
   google.cloud.gcp_cloudtasks_queue:
     name: "{{ resource_name }}"
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a queue
+- name: Delete a queue
   google.cloud.gcp_cloudtasks_queue:
     name: "{{ resource_name }}"
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that queue was deleted
+- name: Verify that queue was deleted
   google.cloud.gcp_cloudtasks_queue_info:
-      location: us-central1
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/cloud-platform
+    location: us-central1
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/cloud-platform
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | map(attribute='name') | select("match", ".*{{ resource_name }}.*") | list | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a queue that does not exist
+- name: Delete a queue that does not exist
   google.cloud.gcp_cloudtasks_queue:
     name: "{{ resource_name }}"
     location: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false

@@ -259,6 +259,7 @@ options:
       username:
         description:
         - The username to use for HTTP basic authentication to the master endpoint.
+          (unsupported with GKE >= 1.19).
         required: false
         type: str
       password:
@@ -266,6 +267,7 @@ options:
         - The password to use for HTTP basic authentication to the master endpoint.
           Because the master endpoint is open to the Internet, you should create a
           strong password with a minimum of 16 characters.
+          (unsupported with GKE >= 1.19).
         required: false
         type: str
       client_certificate_config:
@@ -550,6 +552,11 @@ options:
         - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
         required: false
         type: str
+      stack_type:
+        description:
+        - 'The IP stack type of the cluster, possible values: (STACK_TYPE_UNSPECIFIED, IPV4, IPV4_IPV6)'
+        required: false
+        type: str
   initial_cluster_version:
     description:
     - The software version of the master endpoint and kubelets used in the cluster
@@ -626,6 +633,11 @@ options:
     required: false
     type: dict
     suboptions:
+      datapath_provider:
+        description:
+        - The datapath provider selects the implementation of the Kubernetes networking model for service resolution and network policy enforcement.
+        required: false
+        type: str
       enable_intra_node_visibility:
         description:
         - Whether Intra-node visibility is enabled for this cluster. This makes same
@@ -679,6 +691,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -692,6 +705,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -711,9 +728,6 @@ EXAMPLES = '''
   google.cloud.gcp_container_cluster:
     name: my-cluster
     initial_node_count: 2
-    master_auth:
-      username: cluster_admin
-      password: my-secret-password
     node_config:
       machine_type: n1-standard-4
       disk_size_gb: 500
@@ -930,6 +944,7 @@ masterAuth:
     username:
       description:
       - The username to use for HTTP basic authentication to the master endpoint.
+        (unsupported with GKE >= 1.19).
       returned: success
       type: str
     password:
@@ -937,6 +952,7 @@ masterAuth:
       - The password to use for HTTP basic authentication to the master endpoint.
         Because the master endpoint is open to the Internet, you should create a strong
         password with a minimum of 16 characters.
+        (unsupported with GKE >= 1.19).
       returned: success
       type: str
     clientCertificateConfig:
@@ -1251,6 +1267,11 @@ ipAllocationPolicy:
       - Set to /netmask (e.g. /14) to have a range chosen with a specific netmask.
       returned: success
       type: str
+    stackType:
+      description:
+      - 'The IP stack type of the cluster, possible values: (STACK_TYPE_UNSPECIFIED, IPV4, IPV4_IPV6)'
+      type: str
+      returned: success
 endpoint:
   description:
   - The IP address of this cluster's master endpoint.
@@ -1473,7 +1494,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpModule,
     GcpRequest,
     remove_nones_from_dict,
-    replace_resource_dict,
 )
 import json
 import time
@@ -1558,6 +1578,7 @@ def main():
                     node_ipv4_cidr_block=dict(type='str'),
                     services_ipv4_cidr_block=dict(type='str'),
                     tpu_ipv4_cidr_block=dict(type='str'),
+                    stack_type=dict(type='str'),
                 ),
             ),
             initial_cluster_version=dict(type='str'),
@@ -1571,7 +1592,14 @@ def main():
             binary_authorization=dict(type='dict', options=dict(enabled=dict(type='bool'))),
             release_channel=dict(type='dict', options=dict(channel=dict(type='str'))),
             shielded_nodes=dict(type='dict', options=dict(enabled=dict(type='bool'))),
-            network_config=dict(type='dict', options=dict(enable_intra_node_visibility=dict(type='bool'), default_snat_status=dict(type='bool'))),
+            network_config=dict(
+                type='dict',
+                options=dict(
+                    enable_intra_node_visibility=dict(type='bool'),
+                    default_snat_status=dict(type='bool'),
+                    datapath_provider=dict(type='str'),
+                ),
+            ),
             enable_kubernetes_alpha=dict(type='bool'),
             location=dict(required=True, type='str', aliases=['zone']),
             kubectl_path=dict(type='str'),
@@ -1857,6 +1885,29 @@ class Kubectl(object):
         if not context:
             context = self.module.params['name']
 
+        user = {
+            'name': context,
+            'user': {
+                'auth-provider': {
+                    'config': {
+                        'access-token': token,
+                        'cmd-args': 'config config-helper --format=json',
+                        'cmd-path': '/usr/lib64/google-cloud-sdk/bin/gcloud',
+                        'expiry-key': '{.credential.token_expiry}',
+                        'token-key': '{.credential.access_token}',
+                    },
+                    'name': 'gcp',
+                },
+            },
+        }
+
+        auth_keyword = self.fetch['masterAuth'].keys()
+        if 'username' in auth_keyword and 'password' in auth_keyword:
+            user['user']['auth-provider'].update({
+                'username': str(self.fetch['masterAuth']['username']),
+                'password': str(self.fetch['masterAuth']['password']),
+            })
+
         return {
             'apiVersion': 'v1',
             'clusters': [{'name': context, 'cluster': {'certificate-authority-data': str(self.fetch['masterAuth']['clusterCaCertificate'])}}],
@@ -1864,25 +1915,7 @@ class Kubectl(object):
             'current-context': context,
             'kind': 'Config',
             'preferences': {},
-            'users': [
-                {
-                    'name': context,
-                    'user': {
-                        'auth-provider': {
-                            'config': {
-                                'access-token': token,
-                                'cmd-args': 'config config-helper --format=json',
-                                'cmd-path': '/usr/lib64/google-cloud-sdk/bin/gcloud',
-                                'expiry-key': '{.credential.token_expiry}',
-                                'token-key': '{.credential.access_token}',
-                            },
-                            'name': 'gcp',
-                        },
-                        'username': str(self.fetch['masterAuth']['username']),
-                        'password': str(self.fetch['masterAuth']['password']),
-                    },
-                }
-            ],
+            'users': [user],
         }
 
     """
@@ -2242,6 +2275,7 @@ class ClusterIpallocationpolicy(object):
                 u'nodeIpv4CidrBlock': self.request.get('node_ipv4_cidr_block'),
                 u'servicesIpv4CidrBlock': self.request.get('services_ipv4_cidr_block'),
                 u'tpuIpv4CidrBlock': self.request.get('tpu_ipv4_cidr_block'),
+                u'stackType': self.request.get('stack_type'),
             }
         )
 
@@ -2415,14 +2449,18 @@ class ClusterNetworkconfig(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict(
-            {u'enableIntraNodeVisibility': self.request.get('enable_intra_node_visibility'), u'defaultSnatStatus': self.request.get('default_snat_status')}
-        )
+        return remove_nones_from_dict({
+            u'enableIntraNodeVisibility': self.request.get('enable_intra_node_visibility'),
+            u'defaultSnatStatus': self.request.get('default_snat_status'),
+            u'datapathProvider': self.request.get('datapath_provider'),
+        })
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {u'enableIntraNodeVisibility': self.request.get(u'enableIntraNodeVisibility'), u'defaultSnatStatus': self.request.get(u'defaultSnatStatus')}
-        )
+        return remove_nones_from_dict({
+            u'enableIntraNodeVisibility': self.request.get(u'enableIntraNodeVisibility'),
+            u'defaultSnatStatus': self.request.get(u'defaultSnatStatus'),
+            u'datapathProvider': self.request.get('datapath_provider'),
+        })
 
 
 if __name__ == '__main__':

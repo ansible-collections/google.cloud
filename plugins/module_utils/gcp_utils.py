@@ -5,7 +5,6 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-import ast
 import os
 import json
 
@@ -18,15 +17,14 @@ except ImportError:
 try:
     import google.auth
     import google.auth.compute_engine
-    from google.oauth2 import service_account
+    from google.oauth2 import service_account, credentials as oauth2
     from google.auth.transport.requests import AuthorizedSession
     HAS_GOOGLE_LIBRARIES = True
 except ImportError:
     HAS_GOOGLE_LIBRARIES = False
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils.six import string_types
-from ansible.module_utils._text import to_text, to_native
+from ansible.module_utils._text import to_text
 
 
 def navigate_hash(source, path, default=None):
@@ -107,12 +105,12 @@ class GcpSession(object):
         kwargs = {'json': body}
         return self.full_delete(url, **kwargs)
 
-    def put(self, url, body=None):
+    def put(self, url, body=None, params=None):
         """
         This method should be avoided in favor of full_put
         """
         kwargs = {'json': body}
-        return self.full_put(url, **kwargs)
+        return self.full_put(url, params=params, **kwargs)
 
     def patch(self, url, body=None, **kwargs):
         """
@@ -213,29 +211,56 @@ class GcpSession(object):
                 msg="Service Account File only works with Service Account-based authentication"
             )
 
+        if self.module.params.get('access_token') is not None and self.module.params['auth_kind'] != 'accesstoken':
+            self.module.fail_json(
+                msg='Supplying access_token requires auth_kind set to accesstoken'
+            )
+
     def _credentials(self):
         cred_type = self.module.params['auth_kind']
+
         if cred_type == 'application':
             credentials, project_id = google.auth.default(scopes=self.module.params['scopes'])
             return credentials
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_file'):
-            path = os.path.realpath(os.path.expanduser(self.module.params['service_account_file']))
-            if not os.path.exists(path):
+
+        if cred_type == 'serviceaccount':
+            service_account_file = self.module.params.get('service_account_file')
+            service_account_contents = self.module.params.get('service_account_contents')
+            if service_account_file is not None:
+                path = os.path.realpath(os.path.expanduser(service_account_file))
+                try:
+                    svc_acct_creds = service_account.Credentials.from_service_account_file(path)
+                except OSError as e:
+                    self.module.fail_json(
+                        msg="Unable to read service_account_file at %s: %s" % (path, e.strerror)
+                    )
+            elif service_account_contents is not None:
+                try:
+                    info = json.loads(service_account_contents)
+                except json.decoder.JSONDecodeError as e:
+                    self.module.fail_json(
+                        msg="Unable to decode service_account_contents as JSON: %s" % e
+                    )
+                svc_acct_creds = service_account.Credentials.from_service_account_info(info)
+            else:
                 self.module.fail_json(
-                    msg="Unable to find service_account_file at '%s'" % path
+                    msg='Service Account authentication requires setting either service_account_file or service_account_contents'
                 )
-            return service_account.Credentials.from_service_account_file(path).with_scopes(self.module.params['scopes'])
-        if cred_type == 'serviceaccount' and self.module.params.get('service_account_contents'):
-            try:
-                cred = json.loads(self.module.params.get('service_account_contents'))
-            except json.decoder.JSONDecodeError as e:
-                self.module.fail_json(
-                    msg="Unable to decode service_account_contents as JSON"
-                )
-            return service_account.Credentials.from_service_account_info(cred).with_scopes(self.module.params['scopes'])
+            return svc_acct_creds.with_scopes(self.module.params['scopes'])
+
         if cred_type == 'machineaccount':
-            return google.auth.compute_engine.Credentials(
-                self.module.params['service_account_email'])
+            email = self.module.params['service_account_email']
+            email = email if email is not None else "default"
+            return google.auth.compute_engine.Credentials(email)
+
+        if cred_type == 'accesstoken':
+            access_token = self.module.params['access_token']
+            if access_token is None:
+                self.module.fail_json(
+                    msg='An access token must be supplied when auth_kind is accesstoken'
+                )
+            return oauth2.Credentials(access_token, scopes=self.module.params['scopes'])
+
         self.module.fail_json(msg="Credential type '%s' not implemented" % cred_type)
 
     def _headers(self):
@@ -266,7 +291,7 @@ class GcpModule(AnsibleModule):
                 auth_kind=dict(
                     required=True,
                     fallback=(env_fallback, ['GCP_AUTH_KIND']),
-                    choices=['machineaccount', 'serviceaccount', 'application'],
+                    choices=['machineaccount', 'serviceaccount', 'accesstoken', 'application'],
                     type='str'),
                 service_account_email=dict(
                     required=False,
@@ -281,6 +306,11 @@ class GcpModule(AnsibleModule):
                     fallback=(env_fallback, ['GCP_SERVICE_ACCOUNT_CONTENTS']),
                     no_log=True,
                     type='jsonarg'),
+                access_token=dict(
+                    required=False,
+                    fallback=(env_fallback, ['GCP_ACCESS_TOKEN']),
+                    no_log=True,
+                    type='str'),
                 scopes=dict(
                     required=False,
                     fallback=(env_fallback, ['GCP_SCOPES']),
@@ -305,7 +335,14 @@ class GcpModule(AnsibleModule):
         try:
             response.raise_for_status()
         except getattr(requests.exceptions, 'RequestException') as inst:
-            self.fail_json(msg="GCP returned error: %s" % response.json())
+            self.fail_json(
+                msg="GCP returned error: %s" % response.json(),
+                request={
+                    "url": response.request.url,
+                    "body": response.request.body,
+                    "method": response.request.method,
+                }
+            )
 
     def _merge_dictionaries(self, a, b):
         new = a.copy()
@@ -342,7 +379,7 @@ class GcpRequest(object):
     def _compare_dicts(self, req_dict, resp_dict):
         difference = {}
         for key in req_dict:
-            if resp_dict.get(key):
+            if resp_dict.get(key) is not None:
                 difference[key] = self._compare_value(req_dict.get(key), resp_dict.get(key))
 
         # Remove all empty values from difference.
@@ -388,7 +425,7 @@ class GcpRequest(object):
         diff = None
         # If a None is found, a difference does not exist.
         # Only differing values matter.
-        if not resp_value:
+        if resp_value is None:
             return None
 
         # Can assume non-None types at this point.
@@ -424,7 +461,7 @@ class GcpRequest(object):
             # Value1 False, resp_value 'false'
             if not req_value and to_text(resp_value) == 'false':
                 return None
-            return resp_value
+            return True
 
         # to_text may throw UnicodeErrors.
         # These errors shouldn't crash Ansible and should be hidden.

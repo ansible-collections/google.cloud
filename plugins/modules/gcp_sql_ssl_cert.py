@@ -88,7 +88,10 @@ options:
   sha1_fingerprint:
     description:
     - The SHA-1 of the certificate.
-    required: true
+    type: str
+  private_key:
+    description:
+    - The private key associated with the certificate.
     type: str
   project:
     description:
@@ -103,6 +106,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -116,6 +120,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -193,6 +201,11 @@ sha1Fingerprint:
   - The SHA-1 of the certificate.
   returned: success
   type: str
+privateKey:
+  description:
+  - The private key associated with the certificate.
+  returned: success
+  type: str
 '''
 
 ################################################################################
@@ -220,7 +233,8 @@ def main():
             create_time=dict(type='str'),
             expiration_time=dict(type='str'),
             instance=dict(required=True, type='dict'),
-            sha1_fingerprint=dict(required=True, type='str'),
+            sha1_fingerprint=dict(type='str'),
+            private_key=dict(type='str'),
         )
     )
 
@@ -257,12 +271,11 @@ def main():
 
 def create(module, link, kind):
     auth = GcpSession(module, 'sql')
-    return wait_for_operation(module, auth.post(link, resource_to_request(module)))
+    return wait_for_create_operation(module, auth.post(link, resource_to_request(module)))
 
 
 def update(module, link, kind):
-    auth = GcpSession(module, 'sql')
-    return wait_for_operation(module, auth.put(link, resource_to_request(module)))
+    module.fail_json(msg="SQL certificates cannot be modified")
 
 
 def delete(module, link, kind):
@@ -293,7 +306,8 @@ def fetch_resource(module, link, kind, allow_not_found=True):
 
 
 def self_link(module):
-    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name')}
+    res = {'project': module.params['project'], 'instance': replace_resource_dict(module.params['instance'], 'name'),
+           'sha1_fingerprint': module.params['sha1_fingerprint']}
     return "https://sqladmin.googleapis.com/sql/v1beta4/projects/{project}/instances/{instance}/sslCerts/{sha1_fingerprint}".format(**res)
 
 
@@ -360,6 +374,31 @@ def async_op_url(module, extra_data=None):
     combined = extra_data.copy()
     combined.update(module.params)
     return url.format(**combined)
+
+
+# The create response includes the certificate, but it's not usable until
+# the operation completes. The create response is also the only place the
+# private key is available, so return the newly created resource directly.
+def wait_for_create_operation(module, response):
+    op_result = return_if_object(module, response, 'sql#operation')
+    if op_result is None:
+        return {}
+    status = navigate_hash(op_result, ['operation', 'status'])
+    wait_done = wait_for_create_completion(status, op_result, module)
+    res = navigate_hash(op_result, ['clientCert', 'certInfo'])
+    res.update({'privateKey': navigate_hash(op_result, ['clientCert', 'certPrivateKey'])})
+    return res
+
+
+def wait_for_create_completion(status, op_result, module):
+    op_id = navigate_hash(op_result, ['operation', 'name'])
+    op_uri = async_op_url(module, {'op_id': op_id})
+    while status != 'DONE':
+        raise_if_errors(op_result, ['error', 'errors'], module)
+        time.sleep(1.0)
+        op_result = fetch_resource(module, op_uri, 'sql#operation', False)
+        status = navigate_hash(op_result, ['status'])
+    return op_result
 
 
 def wait_for_operation(module, response):

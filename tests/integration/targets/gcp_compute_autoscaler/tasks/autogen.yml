@@ -13,45 +13,46 @@
 #
 # ----------------------------------------------------------------------------
 # Pre-test setup
-- name: create a network
+- name: Create a network
   google.cloud.gcp_compute_network:
     name: network-instancetemplate
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    auto_create_subnetworks: true
     state: present
   register: network
-- name: create a address
+- name: Create a address
   google.cloud.gcp_compute_address:
     name: address-instancetemplate
     region: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: address
-- name: create a instance template
+- name: Create a instance template
   google.cloud.gcp_compute_instance_template:
     name: "{{ resource_name }}"
     properties:
       disks:
-      - auto_delete: 'true'
-        boot: 'true'
-        initialize_params:
-          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+        - auto_delete: "true"
+          boot: "true"
+          initialize_params:
+            source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
       machine_type: n1-standard-1
       network_interfaces:
-      - network: "{{ network }}"
-        access_configs:
-        - name: test-config
-          type: ONE_TO_ONE_NAT
-          nat_ip: "{{ address }}"
+        - network: "{{ network }}"
+          access_configs:
+            - name: test-config
+              type: ONE_TO_ONE_NAT
+              nat_ip: "{{ address }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: instancetemplate
-- name: create a instance group manager
+- name: Create a instance group manager
   google.cloud.gcp_compute_instance_group_manager:
     name: "{{ resource_name }}"
     base_instance_name: test1-child
@@ -60,10 +61,10 @@
     zone: us-central1-a
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: igm
-- name: delete a autoscaler
+- name: Delete a autoscaler
   google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -73,13 +74,13 @@
       min_num_replicas: 1
       cool_down_period_sec: 60
       cpu_utilization:
-        utilization_target: 0.5
+        utilization_target: !!float "0.5"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
 #----------------------------------------------------------
-- name: create a autoscaler
+- name: Create a autoscaler
   google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -89,33 +90,33 @@
       min_num_replicas: 1
       cool_down_period_sec: 60
       cpu_utilization:
-        utilization_target: 0.5
+        utilization_target: !!float "0.5"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that autoscaler was created
+- name: Verify that autoscaler was created
   google.cloud.gcp_compute_autoscaler_info:
-      filters:
-         - name = {{ resource_name }}
-      zone: us-central1-a
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 1
 # ----------------------------------------------------------------------------
-- name: create a autoscaler that already exists
+- name: Create a autoscaler that already exists
   google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -125,18 +126,18 @@
       min_num_replicas: 1
       cool_down_period_sec: 60
       cpu_utilization:
-        utilization_target: 0.5
+        utilization_target: !!float "0.5"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #----------------------------------------------------------
-- name: delete a autoscaler
+- name: Delete a autoscaler
   google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -146,33 +147,33 @@
       min_num_replicas: 1
       cool_down_period_sec: 60
       cpu_utilization:
-        utilization_target: 0.5
+        utilization_target: !!float "0.5"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is true
-  assert:
+- name: Assert changed is true
+  ansible.builtin.assert:
     that:
       - result.changed == true
-- name: verify that autoscaler was deleted
+- name: Verify that autoscaler was deleted
   google.cloud.gcp_compute_autoscaler_info:
-      filters:
-         - name = {{ resource_name }}
-      zone: us-central1-a
-      project: "{{ gcp_project }}"
-      auth_kind: "{{ gcp_cred_kind }}"
-      service_account_file: "{{ gcp_cred_file }}"
-      scopes:
-        - https://www.googleapis.com/auth/compute
+    filters:
+      - name = {{ resource_name }}
+    zone: us-central1-a
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
   register: results
-- name: verify that command succeeded
-  assert:
+- name: Verify that command succeeded
+  ansible.builtin.assert:
     that:
       - results['resources'] | length == 0
 # ----------------------------------------------------------------------------
-- name: delete a autoscaler that does not exist
+- name: Delete a autoscaler that does not exist
   google.cloud.gcp_compute_autoscaler:
     name: "{{ resource_name }}"
     zone: us-central1-a
@@ -182,20 +183,20 @@
       min_num_replicas: 1
       cool_down_period_sec: 60
       cpu_utilization:
-        utilization_target: 0.5
+        utilization_target: !!float "0.5"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: result
-- name: assert changed is false
-  assert:
+- name: Assert changed is false
+  ansible.builtin.assert:
     that:
       - result.changed == false
 #---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
-- name: delete a instance group manager
+- name: Delete a instance group manager
   google.cloud.gcp_compute_instance_group_manager:
     name: "{{ resource_name }}"
     base_instance_name: test1-child
@@ -204,48 +205,49 @@
     zone: us-central1-a
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: igm
   ignore_errors: true
-- name: delete a instance template
+- name: Delete a instance template
   google.cloud.gcp_compute_instance_template:
     name: "{{ resource_name }}"
     properties:
       disks:
-      - auto_delete: 'true'
-        boot: 'true'
-        initialize_params:
-          source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts
+        - auto_delete: "true"
+          boot: "true"
+          initialize_params:
+            source_image: projects/ubuntu-os-cloud/global/images/family/ubuntu-minimal-2204-lts
       machine_type: n1-standard-1
       network_interfaces:
-      - network: "{{ network }}"
-        access_configs:
-        - name: test-config
-          type: ONE_TO_ONE_NAT
-          nat_ip: "{{ address }}"
+        - network: "{{ network }}"
+          access_configs:
+            - name: test-config
+              type: ONE_TO_ONE_NAT
+              nat_ip: "{{ address }}"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: instancetemplate
   ignore_errors: true
-- name: delete a address
+- name: Delete a address
   google.cloud.gcp_compute_address:
     name: address-instancetemplate
     region: us-central1
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
   register: address
   ignore_errors: true
-- name: delete a network
+- name: Delete a network
   google.cloud.gcp_compute_network:
     name: network-instancetemplate
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    auto_create_subnetworks: true
     state: absent
   register: network
   ignore_errors: true

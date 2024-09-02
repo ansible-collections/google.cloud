@@ -1,5 +1,5 @@
 ---
-requires_ansible: '>=2.9'
+requires_ansible: ">=2.16.0"
 
 action_groups:
   gcp:
@@ -152,6 +152,7 @@ action_groups:
     - gcp_runtimeconfig_config_info
     - gcp_runtimeconfig_variable
     - gcp_runtimeconfig_variable_info
+    - gcp_secret_manager
     - gcp_serviceusage_service
     - gcp_serviceusage_service_info
     - gcp_sourcerepo_repository

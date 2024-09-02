@@ -522,6 +522,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -535,6 +536,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -827,7 +832,8 @@ metadata:
   type: dict
 machineType:
   description:
-  - A reference to a machine type which defines VM kind.
+  - A reference to a machine type which defines VM kind. See https://cloud.google.com/compute/docs/machine-types
+    for a list of current valid machine types.
   returned: success
   type: str
 minCpuPlatform:
@@ -1378,9 +1384,9 @@ def disk_type_selflink(name, params):
 def machine_type_selflink(name, params):
     if name is None:
         return
-    url = r"https://compute.googleapis.com/compute/v1/projects/.*/zones/.*/machineTypes/.*"
+    url = r"https://www.googleapis.com/compute/v1/projects/.*/zones/.*/machineTypes/.*"
     if not re.match(url, name):
-        name = "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/machineTypes/%s".format(**params) % name
+        name = "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/machineTypes/%s".format(**params) % name
     return name
 
 

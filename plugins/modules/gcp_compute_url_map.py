@@ -325,7 +325,7 @@ options:
           paths:
             description:
             - 'The list of path patterns to match. Each must start with / and the
-              only place a \* is allowed is at the end following a /. The string fed
+              only place a \\* is allowed is at the end following a /. The string fed
               to the path matcher does not include any text after the first ? or #,
               and those chars are not allowed here.'
             elements: str
@@ -2547,6 +2547,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -2560,6 +2561,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -2579,6 +2584,8 @@ notes:
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)
   env variable.
 - For authentication, you can set service_account_email using the C(GCP_SERVICE_ACCOUNT_EMAIL)
+  env variable.
+- For authentication, you can set access_token using the C(GCP_ACCESS_TOKEN)
   env variable.
 - For authentication, you can set auth_kind using the C(GCP_AUTH_KIND) env variable.
 - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
@@ -2899,7 +2906,7 @@ pathMatchers:
         paths:
           description:
           - 'The list of path patterns to match. Each must start with / and the only
-            place a \* is allowed is at the end following a /. The string fed to the
+            place a \\* is allowed is at the end following a /. The string fed to the
             path matcher does not include any text after the first ? or #, and those
             chars are not allowed here.'
           returned: success
@@ -4972,6 +4979,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             default_service=dict(type='dict'),
             description=dict(type='str'),
+            fingerprint=dict(type='str'),
             header_action=dict(
                 type='dict',
                 options=dict(
@@ -5486,6 +5494,7 @@ def main():
     changed = False
 
     if fetch:
+        module.params['fingerprint'] = fetch['fingerprint']
         if state == 'present':
             if is_different(module, fetch):
                 update(module, self_link(module), kind)
@@ -5534,6 +5543,7 @@ def resource_to_request(module):
         u'tests': UrlMapTestsArray(module.params.get('tests', []), module).to_request(),
         u'defaultUrlRedirect': UrlMapDefaulturlredirect(module.params.get('default_url_redirect', {}), module).to_request(),
         u'defaultRouteAction': UrlMapDefaultrouteaction(module.params.get('default_route_action', {}), module).to_request(),
+        u'fingerprint': module.params.get('fingerprint')
     }
     return_vals = {}
     for k, v in request.items():

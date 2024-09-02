@@ -103,6 +103,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -116,6 +117,10 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
     type: str
   scopes:
     description:
@@ -134,7 +139,7 @@ EXAMPLES = '''
 - name: create a project
   google.cloud.gcp_resourcemanager_project:
     name: My Sample Project
-    id: alextest-{{ 10000000000 | random }}
+    id: ansible-test-{{ 10000000000 | random }}
     auth_kind: serviceaccount
     service_account_file: "/tmp/auth.pem"
     parent:
@@ -203,6 +208,8 @@ id:
   type: str
 '''
 
+ACTIVE = "ACTIVE"
+
 ################################################################################
 # Imports
 ################################################################################
@@ -213,7 +220,6 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpModule,
     GcpRequest,
     remove_nones_from_dict,
-    replace_resource_dict,
 )
 import json
 import time
@@ -250,7 +256,7 @@ def main():
                 update(module, self_link(module))
                 fetch = fetch_resource(module, self_link(module))
                 changed = True
-        else:
+        elif fetch.get("lifecycleState") == ACTIVE:
             delete(module, self_link(module))
             fetch = {}
             changed = True
@@ -375,7 +381,7 @@ def async_op_url(module, extra_data=None):
 
 def wait_for_operation(module, response):
     op_result = return_if_object(module, response)
-    if op_result is None:
+    if not op_result:
         return {}
     status = navigate_hash(op_result, ['done'])
     wait_done = wait_for_completion(status, op_result, module)

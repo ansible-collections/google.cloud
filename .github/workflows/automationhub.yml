@@ -1,16 +1,16 @@
+---
 name: Upload release to Automation Hub
 
 on:
   release:
     types: [created]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: '3.x'
     - name: Install dependencies
@@ -22,4 +22,4 @@ jobs:
         ANSIBLE_AUTOMATION_HUB_API_KEY: ${{ secrets.ANSIBLE_AUTOMATION_HUB_API_KEY }}
       run: |
         ansible-galaxy collection build .
-        ansible-galaxy collection publish *.tar.gz --api-key=$ANSIBLE_GALAXY_API_KEY -s=https://cloud.redhat.com/api/automation-hub/
+        ansible-galaxy collection publish *.tar.gz --api-key=$ANSIBLE_AUTOMATION_HUB_API_KEY -s=https://cloud.redhat.com/api/automation-hub/
