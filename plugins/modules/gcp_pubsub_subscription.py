@@ -62,7 +62,7 @@ options:
       to a gcp_pubsub_topic task and then set this topic field to "{{ name-of-resource
       }}"'
     required: true
-    type: dict
+    type: dict            
   labels:
     description:
     - A set of key/value label pairs to assign to this Subscription.
@@ -634,8 +634,9 @@ def create(module, link):
 def update(module, link, fetch):
     auth = GcpSession(module, 'pubsub')
     params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
-    request = resource_to_request(module)
-    del request['name']
+    subscription =  resource_to_request(module)
+    del subscription['name']
+    request = { 'subscription': subscription }
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
@@ -651,7 +652,7 @@ def updateMask(request, response):
         update_mask.append('messageRetentionDuration')
     if request.get('retainAckedMessages') != response.get('retainAckedMessages'):
         update_mask.append('retainAckedMessages')
-    if request.get('expirationPolicy') != response.get('expirationPolicy'):
+    if request.get('expirationPolicy') and request.get('expirationPolicy') != response.get('expirationPolicy'):
         update_mask.append('expirationPolicy')
     if request.get('deadLetterPolicy') != response.get('deadLetterPolicy'):
         update_mask.append('deadLetterPolicy')
@@ -663,7 +664,6 @@ def updateMask(request, response):
 def delete(module, link):
     auth = GcpSession(module, 'pubsub')
     return return_if_object(module, auth.delete(link))
-
 
 def resource_to_request(module):
     request = {
@@ -838,7 +838,9 @@ class SubscriptionExpirationpolicy(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'ttl': self.request.get('ttl')})
+        ttl = self.request.get('ttl')
+        ttl = None if ttl == "" else ttl
+        return remove_nones_from_dict({u'ttl': ttl})
 
     def from_response(self):
         return remove_nones_from_dict({u'ttl': self.request.get(u'ttl')})
