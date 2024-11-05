@@ -94,7 +94,6 @@ options:
       to peer the TPU Node to is a Shared VPC network, the node must be created with
       this this field enabled.
     required: false
-    default: 'false'
     type: bool
   scheduling_config:
     description:

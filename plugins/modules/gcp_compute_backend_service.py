@@ -422,6 +422,11 @@ options:
     elements: str
     required: false
     type: list
+  fingerprint:
+    description:
+    - Fingerprint of this resource. A hash of the contents stored in this object. This
+      field is used in optimistic locking.
+    type: str
   description:
     description:
     - An optional description of this resource.
@@ -478,7 +483,7 @@ options:
     - The load balancing algorithm used within the scope of the locality.
     - The possible values are - * ROUND_ROBIN - This is a simple policy in which each
       healthy backend is selected in round robin order.
-    - "* LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts
+    - "* LEAST_REQUEST - An algorithm which selects two random healthy hosts
       and picks the host which has fewer active requests."
     - "* RING_HASH - The ring/modulo hash load balancer implements consistent hashing
       to backends. The algorithm has the property that the addition/removal of a host
@@ -566,6 +571,7 @@ options:
           be used to disable ejection or to ramp it up slowly. Defaults to 0.
         required: false
         type: int
+        default: 0
       enforcing_success_rate:
         description:
         - The percentage chance that a host will be actually ejected when an outlier
@@ -1210,7 +1216,7 @@ localityLbPolicy:
   - The load balancing algorithm used within the scope of the locality.
   - The possible values are - * ROUND_ROBIN - This is a simple policy in which each
     healthy backend is selected in round robin order.
-  - "* LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts and
+  - "* LEAST_REQUEST - An algorithm which selects two random healthy hosts and
     picks the host which has fewer active requests."
   - "* RING_HASH - The ring/modulo hash load balancer implements consistent hashing
     to backends. The algorithm has the property that the addition/removal of a host
@@ -1442,7 +1448,7 @@ def main():
                     # TODO: capacity_scaler does some value normalization
                     # server-side, so there needs to be a way to do proper
                     # value comparison.
-                    capacity_scaler=dict(default="1", type="str"),
+                    capacity_scaler=dict(default="1.0", type="str"),
                     description=dict(type="str"),
                     group=dict(required=True, type="str"),
                     max_connections=dict(type="int"),

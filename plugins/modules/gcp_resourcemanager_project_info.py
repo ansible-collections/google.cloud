@@ -86,7 +86,7 @@ options:
     description:
     - Indicates the number of projects that should be returned by the API
       request
-    type: str
+    type: int
 notes:
 - for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.

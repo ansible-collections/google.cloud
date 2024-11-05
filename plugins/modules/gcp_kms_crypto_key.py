@@ -104,6 +104,7 @@ options:
     - If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
       You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
     required: false
+    default: false
     type: bool
   project:
     description:

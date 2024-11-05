@@ -559,7 +559,7 @@ resources:
       - The load balancing algorithm used within the scope of the locality.
       - The possible values are - * ROUND_ROBIN - This is a simple policy in which
         each healthy backend is selected in round robin order.
-      - "* LEAST_REQUEST - An O(1) algorithm which selects two random healthy hosts
+      - "* LEAST_REQUEST - An algorithm which selects two random healthy hosts
         and picks the host which has fewer active requests."
       - "* RING_HASH - The ring/modulo hash load balancer implements consistent hashing
         to backends. The algorithm has the property that the addition/removal of a
