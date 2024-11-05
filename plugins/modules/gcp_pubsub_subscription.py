@@ -580,7 +580,9 @@ def main():
             push_config=dict(
                 type='dict',
                 options=dict(
-                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
+                    oidc_token=dict(type='dict',
+                                    no_log=False,
+                                    options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
                     push_endpoint=dict(required=True, type='str'),
                     attributes=dict(type='dict'),
                 ),

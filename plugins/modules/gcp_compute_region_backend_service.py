@@ -1507,6 +1507,7 @@ def main():
                 options=dict(
                     cache_key_policy=dict(
                         type='dict',
+                        no_log=False,
                         options=dict(
                             include_host=dict(type='bool'),
                             include_protocol=dict(type='bool'),

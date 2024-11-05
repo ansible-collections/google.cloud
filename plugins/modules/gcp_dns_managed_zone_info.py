@@ -308,7 +308,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(dns_name=dict(type='list', elements='str')))
+    module = GcpModule(argument_spec=dict(dns_name=dict(type='list', elements='str')), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/ndev.clouddns.readwrite']

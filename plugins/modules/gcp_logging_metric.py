@@ -528,7 +528,8 @@ def main():
                     labels=dict(
                         type='list',
                         elements='dict',
-                        options=dict(key=dict(required=True, type='str'), description=dict(type='str'), value_type=dict(default='STRING', type='str')),
+                        options=dict(key=dict(required=True, type='str', no_log=False),
+                                     description=dict(type='str'), value_type=dict(default='STRING', type='str')),
                     ),
                     display_name=dict(type='str'),
                 ),
