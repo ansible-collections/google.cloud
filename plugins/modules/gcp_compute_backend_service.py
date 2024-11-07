@@ -88,7 +88,7 @@ options:
           completely drained, offering 0% of its available Capacity. Valid range is
           [0.0,1.0].
         required: false
-        default: '1.0'
+        default: '1'
         type: str
       description:
         description:
@@ -1448,7 +1448,7 @@ def main():
                     # TODO: capacity_scaler does some value normalization
                     # server-side, so there needs to be a way to do proper
                     # value comparison.
-                    capacity_scaler=dict(default="1.0", type="str"),
+                    capacity_scaler=dict(default="1", type="str"),
                     description=dict(type="str"),
                     group=dict(required=True, type="str"),
                     max_connections=dict(type="int"),
