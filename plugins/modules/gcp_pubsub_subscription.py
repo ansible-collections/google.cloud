@@ -62,7 +62,7 @@ options:
       to a gcp_pubsub_topic task and then set this topic field to "{{ name-of-resource
       }}"'
     required: true
-    type: dict            
+    type: dict
   labels:
     description:
     - A set of key/value label pairs to assign to this Subscription.
@@ -634,9 +634,9 @@ def create(module, link):
 def update(module, link, fetch):
     auth = GcpSession(module, 'pubsub')
     params = {'updateMask': updateMask(resource_to_request(module), response_to_hash(module, fetch))}
-    subscription =  resource_to_request(module)
+    subscription = resource_to_request(module)
     del subscription['name']
-    request = { 'subscription': subscription }
+    request = {'subscription': subscription}
     return return_if_object(module, auth.patch(link, request, params=params))
 
 
@@ -664,6 +664,7 @@ def updateMask(request, response):
 def delete(module, link):
     auth = GcpSession(module, 'pubsub')
     return return_if_object(module, auth.delete(link))
+
 
 def resource_to_request(module):
     request = {
