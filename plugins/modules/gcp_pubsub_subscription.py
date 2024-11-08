@@ -92,14 +92,14 @@ options:
         type: str    
       max_duration:
         description:
-        - Subscription writes a new output file if the specified value of max duration is exceeded. Min: 1m, max: 10m.
+        - Subscription writes a new output file if the specified value of max duration is exceeded. Min: 60s, max: 600s.
         required: true
         type: str
       max_bytes:
         description:
-        - Cloud Storage Subscription writes a new output file if the specified value of max bytes is exceeded. Min: 1KB, max: 10GiB.
+        - Cloud Storage Subscription writes a new output file if the specified value of max bytes is exceeded. Min: 1000, max: 10737418240.
         required: false
-        type: str
+        type: int
       max_messages:
         description:
         - Cloud Storage Subscription writes a new output file if the specified number of messages is exceeded. Min: 1000.
@@ -643,7 +643,7 @@ def main():
                     file_suffix=dict(type='str'),
                     file_datetime_format=dict(type='str'),
                     max_duration=dict(type='str'),
-                    max_bytes=dict(type='str'),
+                    max_bytes=dict(type='int'),
                     max_messages=dict(type='int'),
                     output_format=dict(type='str'),
                     write_metadata=dict(type='bool'),
@@ -999,6 +999,20 @@ class SubscriptionCloudStorageConfig(object):
                 else {},
             }
         )
+        storageConfig = {
+            u'bucket': self.request.get('bucket', {}),
+            u'filenamePrefix': self.request.get('filenamePrefix', {}),
+            u'filenameSuffix': self.request.get('filenameSuffix', {}),
+            u'filenameDatetimeFormat': self.request.get('filenameDatetimeFormat', {}),
+            u'maxDuration': self.request.get('maxDuration', {}),
+            u'maxBytes': self.request.get('maxBytes', {}),
+            u'maxMessages': self.request.get('maxMessages', {}),
+            u'avroConfig': {'writeMetadata': self.request.get('avroConfig', {}).get('writeMetadata', False),
+                            'useTopicSchema': self.request.get('avroConfig', {}).get('useTopicSchema', False)}
+            if self.request.get('avroConfig', {})
+            else {},
+        }
+        return remove_nones_from_dict(storageConfig) if self.request else storageConfig
 
 
 if __name__ == '__main__':
