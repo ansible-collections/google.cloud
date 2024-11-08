@@ -1536,7 +1536,7 @@ def main():
                 ),
             ),
             pubsub_config=dict(type='dict', options=dict(topic=dict(required=True, type='str'), service_account_email=dict(type='str'))),
-            webhook_config=dict(type='dict', options=dict(secret=dict(required=True, type='str'))),
+            webhook_config=dict(type='dict', options=dict(secret=dict(required=True, type='str', no_log=True))),
             build=dict(
                 type='dict',
                 options=dict(
@@ -1568,7 +1568,11 @@ def main():
                     queue_ttl=dict(type='str'),
                     logs_bucket=dict(type='str'),
                     timeout=dict(default='600s', type='str'),
-                    secrets=dict(type='list', elements='dict', options=dict(kms_key_name=dict(required=True, type='str'), secret_env=dict(type='dict'))),
+                    secrets=dict(
+                        type='list',
+                        elements='dict',
+                        no_log=True,
+                        options=dict(kms_key_name=dict(required=True, type='str'), secret_env=dict(type='dict', no_log=True))),
                     steps=dict(
                         required=True,
                         type='list',
@@ -1580,7 +1584,7 @@ def main():
                             id=dict(type='str'),
                             entrypoint=dict(type='str'),
                             dir=dict(type='str'),
-                            secret_env=dict(type='list', elements='str'),
+                            secret_env=dict(type='list', elements='str', no_log=True),
                             timeout=dict(type='str'),
                             timing=dict(type='str'),
                             volumes=dict(
@@ -1609,7 +1613,7 @@ def main():
                             worker_pool=dict(type='str'),
                             logging=dict(type='str'),
                             env=dict(type='list', elements='str'),
-                            secret_env=dict(type='list', elements='str'),
+                            secret_env=dict(type='list', elements='str', no_log=True),
                             volumes=dict(type='list', elements='dict', options=dict(name=dict(type='str'), path=dict(type='str'))),
                         ),
                     ),

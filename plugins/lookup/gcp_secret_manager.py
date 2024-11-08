@@ -5,9 +5,8 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
-    author:
-    - Dave Costakos <dcostako@redhat.com>
     name: gcp_secret_manager
+    author: Dave Costakos (@davecostakos) <dcostako@redhat.com>
     short_description: Get Secrets from Google Cloud as a Lookup plugin
     description:
     - retrieve secret keys in Secret Manager for use in playbooks
@@ -59,7 +58,7 @@ DOCUMENTATION = '''
             description:
             - JSON Object representing the contents of a service_account_file obtained from Google Cloud
             - defaults to OS env variable GCP_SERVICE_ACCOUNT_INFO if not present
-            type: jsonarg
+            type: str
             required: False
         access_token:
             description:
@@ -84,6 +83,7 @@ DOCUMENTATION = '''
             description:
             - Authenticaiton scopes for Google Secret Manager
             type: list
+            elements: str
             default: ["https://www.googleapis.com/auth/cloud-platform"]
 '''
 

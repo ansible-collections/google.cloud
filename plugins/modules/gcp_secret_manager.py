@@ -25,7 +25,7 @@ description:
 - Add/remove versions of secrets.
 - Please note that other features like etags, replication, annontation expected to be managed outside of Ansible.
 short_description: Access and Update Google Cloud Secrets Manager objects
-author: Dave Costakos @RedHat
+author: Dave Costakos (@davecostakos) <dcostako@redhat.com>
 requirements:
 - python >= 2.6
 - requests >= 2.18.4
@@ -44,6 +44,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -58,11 +59,21 @@ options:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
     type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
+    type: str
   scopes:
     description:
     - Array of scopes to be used
     type: list
     elements: str
+  env_type:
+    description:
+    - Specifies which Ansible environment you're running this module within.
+    - This should not be set unless you know what you're doing.
+    - This only alters the User Agent string for any API requests.
+    type: str
   name:
     description:
     - Name of the secret to be used
@@ -105,6 +116,7 @@ options:
     - only used in creation
     - Note that the "value" piece of a label must contain only readable chars
     type: dict
+    default: {}
 notes:
 - 'API Reference: U(https://cloud.google.com/secret-manager/docs/reference/rests)'
 - 'Official Documentation: U(https://cloud.google.com/secret-manager/docs/overview)'
@@ -171,41 +183,42 @@ resources:
   description: List of resources
   returned: always
   type: complex
-  name:
-    description:
-    - The name of the secret
-    returned: success
-    type: str
-  version:
-    description:
-    - the version number of the secret returned
-    returned: success
-    type: str
-  url:
-    description:
-    - the Google Cloud URL used to make the request
-    returned: success
-    type: str
-  status_code:
-    description:
-    - the HTTP status code of the response to Google Cloud
-    returned: success
-    type: str
-  msg:
-    description:
-    - A message indicating what was done (or not done)
-    returned: success, failure
-    type: str
-  value:
-    description:
-    - The decrypted secret value, please use care with this
-    returned: success
-    type: str
-  payload:
-    description:
-    - The base 64 secret payload including CRC for validation
-    retunred: success
-    type: dict
+  contains:
+    name:
+      description:
+      - The name of the secret
+      returned: success
+      type: str
+    version:
+      description:
+      - the version number of the secret returned
+      returned: success
+      type: str
+    url:
+      description:
+      - the Google Cloud URL used to make the request
+      returned: success
+      type: str
+    status_code:
+      description:
+      - the HTTP status code of the response to Google Cloud
+      returned: success
+      type: str
+    msg:
+      description:
+      - A message indicating what was done (or not done)
+      returned: success, failure
+      type: str
+    value:
+      description:
+      - The decrypted secret value, please use care with this
+      returned: success
+      type: str
+    payload:
+      description:
+      - The base 64 secret payload including CRC for validation
+      returned: success
+      type: dict
 '''
 
 ################################################################################

@@ -60,7 +60,6 @@ options:
       to "true" AUTH is enabled on the instance.
     - Default value is "false" meaning AUTH is disabled.
     required: false
-    default: 'false'
     type: bool
   authorized_network:
     description:

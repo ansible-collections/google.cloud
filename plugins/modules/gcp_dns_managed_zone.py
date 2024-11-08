@@ -508,8 +508,12 @@ def main():
                     default_key_specs=dict(
                         type='list',
                         elements='dict',
+                        no_log=False,
                         options=dict(
-                            algorithm=dict(type='str'), key_length=dict(type='int'), key_type=dict(type='str'), kind=dict(default='dns#dnsKeySpec', type='str')
+                            algorithm=dict(type='str'),
+                            key_length=dict(type='int', no_log=False),
+                            key_type=dict(type='str'),
+                            kind=dict(default='dns#dnsKeySpec', type='str')
                         ),
                     ),
                 ),

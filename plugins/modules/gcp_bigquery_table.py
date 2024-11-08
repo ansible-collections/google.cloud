@@ -253,6 +253,7 @@ options:
           data .
         required: false
         type: int
+        default: 0
       source_format:
         description:
         - The data format.
@@ -328,6 +329,7 @@ options:
               when reading the data.
             required: false
             type: int
+            default: 0
       csv_options:
         description:
         - Additional properties to set if sourceFormat is set to CSV.
@@ -368,6 +370,7 @@ options:
               when reading the data.
             required: false
             type: int
+            default: 0
       bigtable_options:
         description:
         - Additional options if sourceFormat is set to BIGTABLE.
