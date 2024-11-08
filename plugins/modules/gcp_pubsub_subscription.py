@@ -984,21 +984,6 @@ class SubscriptionCloudStorageConfig(object):
         )
 
     def from_response(self):
-        return remove_nones_from_dict(
-            {
-                u'bucket': self.request.get('bucket'),
-                u'filenamePrefix': self.request.get('filenamePrefix', {}),
-                u'filenameSuffix': self.request.get('filenameSuffix', {}),
-                u'filenameDatetimeFormat': self.request.get('filenameDatetimeFormat', {}),
-                u'maxDuration': self.request.get('maxDuration', {}),
-                u'maxBytes': self.request.get('maxBytes', {}),
-                u'maxMessages': self.request.get('maxMessages', {}),
-                u'avroConfig': {'writeMetadata': self.request.get('avroConfig', {}).get('writeMetadata', False),
-                                'useTopicSchema': self.request.get('avroConfig', {}).get('useTopicSchema', False)}
-                if self.request.get('avroConfig', {})
-                else {},
-            }
-        )
         storageConfig = {
             u'bucket': self.request.get('bucket', {}),
             u'filenamePrefix': self.request.get('filenamePrefix', {}),
