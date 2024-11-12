@@ -89,7 +89,7 @@ options:
         description:
         - File object datetime format stored in a Bucket.
         required: false
-        type: str    
+        type: str
       max_duration:
         description:
         - Subscription writes a new output file if the specified value of max duration is exceeded. Min: 60s, max: 600s.
@@ -104,7 +104,7 @@ options:
         description:
         - Cloud Storage Subscription writes a new output file if the specified number of messages is exceeded. Min: 1000.
         required: false
-        type: int  
+        type: int
       output_format:
         description:
         - Specify the format of the output files that are to be stored in a Cloud Storage bucket as text or avro.
@@ -957,6 +957,7 @@ class SubscriptionRetrypolicy(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'minimumBackoff': self.request.get(u'minimumBackoff'), u'maximumBackoff': self.request.get(u'maximumBackoff')})
+
 
 class SubscriptionCloudStorageConfig(object):
     def __init__(self, request, module):
