@@ -1169,7 +1169,7 @@ def resource_to_request(module):
     request = {
         u'kind': 'bigquery#table',
         u'tableReference': TableTablereference(module.params.get('table_reference', {}), module).to_request(),
-        u'clustering': module.params.get('clustering'),
+        u'clustering': TableClustering(module.params.get('clustering', {}), module).to_request(),
         u'description': module.params.get('description'),
         u'friendlyName': module.params.get('friendly_name'),
         u'labels': module.params.get('labels'),
@@ -1247,7 +1247,7 @@ def is_different(module, response):
 def response_to_hash(module, response):
     return {
         u'tableReference': TableTablereference(response.get(u'tableReference', {}), module).from_response(),
-        u'clustering': response.get(u'clustering'),
+        u'clustering': TableClustering(response.get(u'clustering', {}), module).from_response(),
         u'creationTime': response.get(u'creationTime'),
         u'description': response.get(u'description'),
         u'friendlyName': response.get(u'friendlyName'),
@@ -1711,6 +1711,21 @@ class TableColumnsArray(object):
                 u'type': item.get(u'type'),
             }
         )
+
+
+class TableClustering(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({'fields': self.request})
+
+    def from_response(self):
+        return remove_nones_from_dict({'fields': self.request})
 
 
 if __name__ == '__main__':
