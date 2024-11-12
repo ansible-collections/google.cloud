@@ -92,17 +92,17 @@ options:
         type: str
       max_duration:
         description:
-        - Subscription writes a new output file if the specified value of max duration is exceeded. Min: 60s, max: 600s.
+        - Subscription writes a new output file if the specified value of max duration is exceeded. Min 60s, max 600s.
         required: true
         type: str
       max_bytes:
         description:
-        - Cloud Storage Subscription writes a new output file if the specified value of max bytes is exceeded. Min: 1000, max: 10737418240.
+        - Cloud Storage Subscription writes a new output file if the specified value of max bytes is exceeded. Min 1000, max 10737418240.
         required: false
         type: int
       max_messages:
         description:
-        - Cloud Storage Subscription writes a new output file if the specified number of messages is exceeded. Min: 1000.
+        - Cloud Storage Subscription writes a new output file if the specified number of messages is exceeded. Min 1000.
         required: false
         type: int
       output_format:
