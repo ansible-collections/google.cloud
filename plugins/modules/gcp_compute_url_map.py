@@ -70,6 +70,11 @@ options:
       the resource.
     required: false
     type: str
+  fingerprint:
+    description:
+    - Fingerprint of this resource. A hash of the contents stored in this object. This
+      field is used in optimistic locking.
+    type: str
   header_action:
     description:
     - Specifies changes to request and response headers that need to take effect for
@@ -357,7 +362,6 @@ options:
                       to the Access- Control-Allow-Credentials header. Defaults to
                       false.
                     required: false
-                    default: 'false'
                     type: bool
                   allow_headers:
                     description:
@@ -737,7 +741,6 @@ options:
                   used in TargetHttpProxys. Setting this true for TargetHttpsProxy
                   is not permitted. The default is set to false.
                 required: false
-                default: 'false'
                 type: bool
               path_redirect:
                 description:
@@ -780,7 +783,6 @@ options:
                   is removed prior to redirecting the request. If set to false, the
                   query portion of the original URL is retained.
                 required: false
-                default: 'false'
                 type: bool
       route_rules:
         description:
@@ -948,7 +950,6 @@ options:
                       is considered a match if the match criteria above are NOT met.
                       Defaults to false.
                     required: false
-                    default: 'false'
                     type: bool
                   prefix_match:
                     description:
@@ -1010,7 +1011,6 @@ options:
                 - Specifies that prefixMatch and fullPathMatch matches are case sensitive.
                 - Defaults to false.
                 required: false
-                default: 'false'
                 type: bool
               metadata_filters:
                 description:
@@ -1145,7 +1145,6 @@ options:
                       to the Access- Control-Allow-Credentials header. Defaults to
                       false.
                     required: false
-                    default: 'false'
                     type: bool
                   allow_headers:
                     description:
@@ -1181,7 +1180,6 @@ options:
                     - which indicates that the CORS policy is in effect. Defaults
                       to false.
                     required: false
-                    default: 'false'
                     type: bool
                   expose_headers:
                     description:
@@ -1531,7 +1529,6 @@ options:
                 - Setting this true for TargetHttpsProxy is not permitted. Defaults
                   to false.
                 required: false
-                default: 'false'
                 type: bool
               path_redirect:
                 description:
@@ -1569,7 +1566,6 @@ options:
                   is removed prior to redirecting the request. If set to false, the
                   query portion of the original URL is retained. Defaults to false.
                 required: false
-                default: 'false'
                 type: bool
       default_url_redirect:
         description:
@@ -1594,7 +1590,6 @@ options:
               in TargetHttpProxys. Setting this true for TargetHttpsProxy is not permitted.
               The default is set to false.
             required: false
-            default: 'false'
             type: bool
           path_redirect:
             description:
@@ -1636,7 +1631,6 @@ options:
               removed prior to redirecting the request. If set to false, the query
               portion of the original URL is retained.
             required: false
-            default: 'false'
             type: bool
       default_route_action:
         description:
@@ -1733,7 +1727,6 @@ options:
                         - If true, headerValue is set for the header, discarding any
                           values that were set for that header.
                         required: false
-                        default: 'false'
                         type: bool
                   response_headers_to_remove:
                     description:
@@ -1767,7 +1760,6 @@ options:
                         - If true, headerValue is set for the header, discarding any
                           values that were set for that header.
                         required: false
-                        default: 'false'
                         type: bool
           url_rewrite:
             description:
@@ -1960,14 +1952,12 @@ options:
                   that the actual request can include user credentials.
                 - This translates to the Access-Control-Allow-Credentials header.
                 required: false
-                default: 'false'
                 type: bool
               disabled:
                 description:
                 - If true, specifies the CORS policy is disabled. The default value
                   is false, which indicates that the CORS policy is in effect.
                 required: false
-                default: 'false'
                 type: bool
           fault_injection_policy:
             description:
@@ -2095,7 +2085,6 @@ options:
           Setting this true for TargetHttpsProxy is not permitted. The default is
           set to false.
         required: false
-        default: 'false'
         type: bool
       path_redirect:
         description:
@@ -2136,7 +2125,6 @@ options:
           prior to redirecting the request. If set to false, the query portion of
           the original URL is retained. The default is set to false.
         required: false
-        default: 'false'
         type: bool
   default_route_action:
     description:
@@ -2231,8 +2219,6 @@ options:
                       exist for the header.
                     - If true, headerValue is set for the header, discarding any values
                       that were set for that header.
-                    required: false
-                    default: 'false'
                     type: bool
               response_headers_to_remove:
                 description:
@@ -2266,7 +2252,6 @@ options:
                     - If true, headerValue is set for the header, discarding any values
                       that were set for that header.
                     required: false
-                    default: 'false'
                     type: bool
       url_rewrite:
         description:
@@ -2456,14 +2441,12 @@ options:
               the actual request can include user credentials.
             - This translates to the Access-Control-Allow-Credentials header.
             required: false
-            default: 'false'
             type: bool
           disabled:
             description:
             - If true, specifies the CORS policy is disabled. The default value is
               false, which indicates that the CORS policy is in effect.
             required: false
-            default: 'false'
             type: bool
       fault_injection_policy:
         description:

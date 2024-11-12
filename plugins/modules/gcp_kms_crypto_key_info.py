@@ -198,7 +198,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(key_ring=dict(required=True, type='str')))
+    module = GcpModule(argument_spec=dict(key_ring=dict(required=True, type='str', no_log=False)), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloudkms']

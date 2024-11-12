@@ -302,7 +302,6 @@ options:
                       is considered a match if the match criteria above are NOT met.
                       Defaults to false.
                     required: false
-                    default: 'false'
                     type: bool
                   prefix_match:
                     description:
@@ -364,7 +363,6 @@ options:
                 - Specifies that prefixMatch and fullPathMatch matches are case sensitive.
                 - Defaults to false.
                 required: false
-                default: 'false'
                 type: bool
               metadata_filters:
                 description:
@@ -499,7 +497,6 @@ options:
                       to the Access- Control-Allow-Credentials header. Defaults to
                       false.
                     required: false
-                    default: 'false'
                     type: bool
                   allow_headers:
                     description:
@@ -535,7 +532,6 @@ options:
                     - which indicates that the CORS policy is in effect. Defaults
                       to false.
                     required: false
-                    default: 'false'
                     type: bool
                   expose_headers:
                     description:
@@ -882,7 +878,6 @@ options:
                   used in TargetHttpProxys. Setting this true for TargetHttpsProxy
                   is not permitted. The default is set to false.
                 required: false
-                default: 'false'
                 type: bool
               path_redirect:
                 description:
@@ -926,7 +921,6 @@ options:
                   query portion of the original URL is retained. The default value
                   is false.
                 required: false
-                default: 'false'
                 type: bool
       path_rules:
         description:
@@ -993,7 +987,6 @@ options:
                       to the Access- Control-Allow-Credentials header. Defaults to
                       false.
                     required: false
-                    default: 'false'
                     type: bool
                   allow_headers:
                     description:
@@ -1373,7 +1366,6 @@ options:
                   used in TargetHttpProxys. Setting this true for TargetHttpsProxy
                   is not permitted. The default is set to false.
                 required: false
-                default: 'false'
                 type: bool
               path_redirect:
                 description:
@@ -1416,7 +1408,6 @@ options:
                   is removed prior to redirecting the request. If set to false, the
                   query portion of the original URL is retained.
                 required: false
-                default: 'false'
                 type: bool
       default_url_redirect:
         description:
@@ -1441,7 +1432,6 @@ options:
               in TargetHttpProxys. Setting this true for TargetHttpsProxy is not permitted.
               The default is set to false.
             required: false
-            default: 'false'
             type: bool
           path_redirect:
             description:
@@ -1483,7 +1473,6 @@ options:
               removed prior to redirecting the request. If set to false, the query
               portion of the original URL is retained.
             required: false
-            default: 'false'
             type: bool
   tests:
     description:
@@ -1541,7 +1530,6 @@ options:
           Setting this true for TargetHttpsProxy is not permitted. The default is
           set to false.
         required: false
-        default: 'false'
         type: bool
       path_redirect:
         description:
@@ -1582,7 +1570,6 @@ options:
           prior to redirecting the request. If set to false, the query portion of
           the original URL is retained.
         required: false
-        default: 'false'
         type: bool
   region:
     description:

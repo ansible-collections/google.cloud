@@ -43,7 +43,6 @@ options:
   src:
     description:
     - Source location of file (may be local machine or cloud depending on action). Cloud locations need to be urlencoded including slashes.
-    required: true
     type: path
   dest:
     description:
