@@ -92,6 +92,12 @@ options:
     - if false, no value will be returned or decrypted
     type: bool
     default: true
+  disable_previous_version:
+    description:
+    - if true, previous secret's version will be disabled
+    - if false, previous secret's version will not be disabled
+    type: bool
+    default: true
   version:
     description:
     - A version label to apply to the secret
@@ -145,6 +151,13 @@ EXAMPLES = r'''
     name: secret_key
     value: updated super secret
     state: present
+
+- name: Add a new version of a secret disabling previous one
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    value: updated super secret disabling previous
+    state: present
+    disable_previous_version: true
 
 - name: Delete version 1 of a secret (but not the secret itself)
   google.cloud.gcp_secret_manager:
@@ -248,6 +261,10 @@ def self_delete_link(module):
     return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}".format(**module.params)
 
 
+def self_disable_version(module):
+    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{disabling_version:version}".format(**module.params)
+
+
 def fetch_resource(module, allow_not_found=True):
     auth = get_auth(module)
     # set version to the latest version because
@@ -264,8 +281,10 @@ def fetch_resource(module, allow_not_found=True):
             versions_numbers = []
             for version in version_list['versions']:
                 versions_numbers.append(version['name'].split('/')[-1])
-            latest_version = sorted(versions_numbers, key=int)[-1]
-            module.params['calc_version'] = latest_version
+            sorted_versions = sorted(versions_numbers, key=int)
+            module.params['calc_version'] = sorted_versions[-1]
+            # save versions list to optionally disable the older one
+            module.params['all_versions'] = sorted_versions
         else:
             # if this occurs, there are no available secret versions
             # handle the corner case that we tried to delete
@@ -315,7 +334,20 @@ def update_secret(module):
     }
     auth = get_auth(module)
     url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}:addVersion".format(**module.params)
-    return return_if_object(module, auth.post(url, payload), False)
+    _add_version = return_if_object(module, auth.post(url, payload), False)
+
+    if module.params['disable_previous_version']:
+        # disable previous version
+        try:
+            module.params['disabling_version'] = module.params['all_versions'][-2]
+        except IndexError:
+            # first time creating a secret there's nothing that could be disabled
+            pass
+        _disable_url = self_disable_version(module)
+        return return_if_object(module, auth.post(_disable_url, payload), False)
+    else:
+        # do not disable previous version, same return as before
+        return _add_version
 
 
 def list_secret_versions(module):
@@ -391,6 +423,7 @@ def main():
             value=dict(required=False, type='str'),
             version=dict(required=False, type='str', default='latest'),
             return_value=dict(required=False, type='bool', default=True),
+            disable_previous_version=dict(required=False, type='bool', default=False),
             labels=dict(required=False, type='dict', default=dict())
         )
     )
@@ -399,6 +432,7 @@ def main():
         module.params['scopes'] = ["https://www.googleapis.com/auth/cloud-platform"]
 
     module.params['calc_version'] = module.params['version']
+    module.params['all_versions'] = module.params['version']
 
     state = module.params['state']
     fetch = fetch_resource(module, allow_not_found=True)
