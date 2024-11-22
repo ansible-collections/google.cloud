@@ -21,7 +21,7 @@ options:
             - The type of credential used.
         type: str
         required: true
-        choices: [ application, machineaccount, serviceaccount ]
+        choices: [ application, machineaccount, serviceaccount, impersonation ]
     service_account_contents:
         description:
             - The contents of a Service Account JSON file, either in a dictionary or as a JSON string that represents it.

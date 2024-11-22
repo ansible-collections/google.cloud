@@ -171,6 +171,7 @@ options:
     - machineaccount
     - serviceaccount
     - accesstoken
+    - impersonation
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -184,6 +185,7 @@ options:
     description:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
+    - Required service account to impersonate if impersonation is selected.
     type: str
   access_token:
     description:
