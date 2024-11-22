@@ -221,6 +221,11 @@ resources:
       returned: success
       type: complex
       contains:
+        query:
+          description:
+          - A query that BigQuery executes when the view is referenced.
+          required: true
+          type: str
         useLegacySql:
           description:
           - Specifies whether to use BigQuery's legacy SQL for this view .
@@ -451,6 +456,11 @@ resources:
                 skip when reading the data.
               returned: success
               type: int
+            range:
+              description:
+              - Range of a sheet to query from. Only used when non-empty.
+              required: false
+              type: str
         csvOptions:
           description:
           - Additional properties to set if sourceFormat is set to CSV.
