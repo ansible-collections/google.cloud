@@ -46,7 +46,7 @@ RUN yum -y install python-pip
 {% endif %}
 
 {# Install of Python3 #}
-{% if item.image in ["ubuntu:18.04", "ubuntu:20.04", "debian:10"] %}
+{% if item.image in ["ubuntu:18.04", "ubuntu:20.04", "ubuntu:24.04", "debian:10", "debian:11", "debian:12"] %}
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        apt-utils python3-setuptools python3-pip
@@ -99,13 +99,13 @@ RUN locale-gen en_US.UTF-8
 RUN mkdir -p /etc/ansible
 RUN echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
 
-{% if item.image in ["centos:7", "centos:8", "debian:9", "debian:10"] %}
+{% if item.image in ["centos:7", "centos:8", "debian:9", "debian:10", "debian:11", "debian:12"] %}
 VOLUME ["/sys/fs/cgroup"]
-{% elif item.image in ["ubuntu:16.04", "ubuntu:18.04", "ubuntu:20.04"] %}
+{% elif item.image in ["ubuntu:16.04", "ubuntu:18.04", "ubuntu:20.04", "ubuntu:24.04"] %}
 VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
 {% endif %}
 {% if item.image in ["centos:7", "centos:8"] %}
 CMD ["/usr/sbin/init"]
-{% elif item.image in ["ubuntu:16.04", "ubuntu:18.04", "ubuntu:20.04", "debian:9", "debian:10"] %}
+{% elif item.image in ["ubuntu:16.04", "ubuntu:18.04", "ubuntu:20.04", "ubuntu:24.04", "debian:9", "debian:10", "debian:11", "debian:12"] %}
 CMD ["/lib/systemd/systemd"]
 {% endif %}

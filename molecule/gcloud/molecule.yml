@@ -9,13 +9,13 @@ lint: |
   ansible-lint
 platforms:
   - name: instance
-    image: ubuntu:20.04
+    image: ubuntu:24.04
     privileged: true
     ansible.builtin.command: /lib/systemd/systemd
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
   - name: instance
-    image: debian:10
+    image: debian:12
     privileged: true
     ansible.builtin.command: /lib/systemd/systemd
     volumes:
