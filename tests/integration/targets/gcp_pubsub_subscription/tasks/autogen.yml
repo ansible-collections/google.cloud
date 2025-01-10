@@ -21,6 +21,13 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: topic
+- name: Create a bucket
+  google.cloud.gcp_storage_bucket:
+    name: topic-subscription-bucket
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    state: present
 - name: Delete a subscription
   google.cloud.gcp_pubsub_subscription:
     name: "{{ resource_name }}"
@@ -72,6 +79,45 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
+#----------------------------------------------------------
+- name: Update a subscription
+  google.cloud.gcp_pubsub_subscription:
+    name: "{{ resource_name }}"
+    topic: "{{ topic }}"
+    ack_deadline_seconds: 60
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    state: present
+  register: result
+- name: Assert changed is true
+  ansible.builtin.assert:
+    that:
+      - result.changed == true
+#----------------------------------------------------------
+- name: Update cloudStorageConfig of a subscription that already exists
+  google.cloud.gcp_pubsub_subscription:
+    name: "{{ resource_name }}"
+    topic: "{{ topic }}"
+    ack_deadline_seconds: 300
+    cloud_storage: {
+      bucket: "topic-subscription-bucket",
+      file_prefix: "test_",
+      file_suffix: "_test",
+      max_bytes: 10737418240,
+      max_duration: "600s",
+      output_format: "avro",
+      write_metadata: true
+    }
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    state: present
+  register: result
+- name: Assert changed is true
+  ansible.builtin.assert:
+    that:
+      - result.changed == true
 #----------------------------------------------------------
 - name: Delete a subscription
   google.cloud.gcp_pubsub_subscription:
@@ -126,3 +172,11 @@
     state: absent
   register: topic
   ignore_errors: true
+
+- name: Delete a bucket
+  google.cloud.gcp_storage_bucket:
+    name: topic-subscription-bucket
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    state: absent
