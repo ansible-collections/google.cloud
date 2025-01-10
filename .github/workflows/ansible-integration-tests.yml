@@ -70,4 +70,4 @@ jobs:
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -v --color --python 3.10 --venv-system-site-packages
+        run: ansible-test integration -v --color --python 3.11 --venv-system-site-packages
