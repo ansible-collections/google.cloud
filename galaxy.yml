@@ -10,7 +10,7 @@ namespace: google
 name: cloud
 
 # The version of the collection. Must be compatible with semantic versioning
-version: 1.4.1
+version: 1.5.0
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: README.md
@@ -33,7 +33,7 @@ license:
 
 # The path to the license file for the collection. This path is relative to the root of the collection. This key is
 # mutually exclusive with 'license'
-#license_file: ''
+# license_file: ''
 
 # A list of tags you want to associate with the collection for indexing/searching. A tag name has the same character
 # requirements as 'namespace' and 'name'
@@ -48,13 +48,13 @@ tags:
 # collection label 'namespace.name'. The value is a version range
 # L(specifiers,https://python-semanticversion.readthedocs.io/en/latest/#requirement-specification). Multiple version
 # range specifiers can be set and are separated by ','
-#dependencies: {}
+# dependencies: {}
 
 # The URL of the originating SCM repository
 repository: https://github.com/ansible-collections/google.cloud
 
 # The URL to any online docs
-#documentation: http://docs.example.com
+# documentation: http://docs.example.com
 
 # The URL to the homepage of the collection/project
 homepage: http://cloud.google.com

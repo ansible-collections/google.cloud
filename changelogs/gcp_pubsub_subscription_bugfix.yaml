@@ -1,2 +1,0 @@
-bugfixes:
-  - gcp_pubsub_subscription - improper subscription uprade PATCH request

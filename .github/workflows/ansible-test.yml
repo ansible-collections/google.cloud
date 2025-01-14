@@ -31,12 +31,11 @@ jobs:
       - name: Install ansible-base (${{ matrix.ansible_version }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
       - name: Run ansible-test sanity
-        # validate-modules cannot be turned on until #498 is resolved.
-        run: ansible-test sanity -v --color --skip validate-modules
+        run: ansible-test sanity -v --color
       - name: Install ansible-lint
-        run: pip install ansible-lint==24.7.0
+        run: pip install ansible-lint
       - name: Run ansible-lint
-        run: ansible-lint --exclude roles/google_cloud_ops_agents/
+        run: ansible-lint
   unit:
     runs-on: ubuntu-latest
     defaults:

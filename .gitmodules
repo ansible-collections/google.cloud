@@ -1,3 +1,0 @@
-[submodule "roles/google_cloud_ops_agents"]
-	path = roles/google_cloud_ops_agents
-	url = https://github.com/GoogleCloudPlatform/google-cloud-ops-agents-ansible.git

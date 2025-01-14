@@ -21,7 +21,7 @@
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Create a network
   google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
@@ -63,7 +63,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Delete a network
   google.cloud.gcp_compute_network:
     name: "{{ resource_name }}"
