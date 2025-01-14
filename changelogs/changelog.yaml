@@ -100,3 +100,20 @@ releases:
     fragments:
     - release-1-4-1.yml
     release_date: '2024-08-22'
+  1.5.0:
+    changes:
+      bugfixes:
+      - ansible - 2.17 is now the minimum version supported
+      - ansible - 3.11 is now the minimum Python version
+      - ansible-test - fixed sanity tests
+      - ansible-test - integration tests are now run against 2.17 and 2.18
+      - gcp_bigquery_table - properly handle BigQuery table clustering fields
+      - gcp_pubsub_subscription - fixed improper subscription uprade PATCH request
+      minor_changes:
+      - gcp_pubsub_subscription - allows to create GCS subscription
+    fragments:
+    - fix-bigquery-table-create-clustering.yml
+    - gcp_pubsub_subscription_bugfix.yaml
+    - gcp_pubsub_subscription_gcs_feature.yaml
+    - upgrade_anisble.yml
+    release_date: '2025-01-14'

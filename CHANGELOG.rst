@@ -4,6 +4,24 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.5.0
+======
+
+Minor Changes
+-------------
+
+- gcp_pubsub_subscription - allows to create GCS subscription
+
+Bugfixes
+--------
+
+- ansible - 2.17 is now the minimum version supported
+- ansible - 3.11 is now the minimum Python version
+- ansible-test - fixed sanity tests
+- ansible-test - integration tests are now run against 2.17 and 2.18
+- gcp_bigquery_table - properly handle BigQuery table clustering fields
+- gcp_pubsub_subscription - fixed improper subscription uprade PATCH request
+
 v1.4.1
 ======
 
