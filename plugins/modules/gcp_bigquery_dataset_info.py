@@ -311,7 +311,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict())
+    module = GcpModule(argument_spec=dict(), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/bigquery']

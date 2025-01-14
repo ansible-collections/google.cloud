@@ -450,7 +450,8 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(location=dict(required=True, type='str', aliases=['region', 'zone']), cluster=dict(required=True, type='dict')))
+    module = GcpModule(argument_spec=dict(location=dict(required=True, type='str', aliases=['region', 'zone']), cluster=dict(required=True, type='dict')),
+                       supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']

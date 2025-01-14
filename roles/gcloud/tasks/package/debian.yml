@@ -9,20 +9,20 @@
   ansible.builtin.apt_repository:
     repo: deb {{ gcloud_apt_url }} {{ gcloud_apt_repo }} main
     state: present
-    filename: google-cloud-sdk
+    filename: google-cloud-cli
 
-- name: Gcloud | Debian | Install the google-cloud-sdk package
+- name: Gcloud | Debian | Install the google-cloud-cli package
   ansible.builtin.apt:
-    name: google-cloud-sdk
+    name: google-cloud-cli
     update_cache: "yes"
   register: task_result
   until: task_result is success
   retries: 10
   delay: 2
 
-- name: Gcloud | Debian | Install the google-cloud-sdk additional components
+- name: Gcloud | Debian | Install the google-cloud-cli additional components
   ansible.builtin.apt:
-    name: google-cloud-sdk-{{ item }}
+    name: google-cloud-cli-{{ item }}
     update_cache: "yes"
   register: task_result
   until: task_result is success

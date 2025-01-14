@@ -234,7 +234,7 @@ def main():
             expiration_time=dict(type='str'),
             instance=dict(required=True, type='dict'),
             sha1_fingerprint=dict(type='str'),
-            private_key=dict(type='str'),
+            private_key=dict(type='str', no_log=False),
         )
     )
 

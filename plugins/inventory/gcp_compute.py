@@ -7,7 +7,6 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     name: gcp_compute
-    plugin_type: inventory
     short_description: Google Cloud Compute Engine inventory source
     requirements:
         - requests >= 2.18.4
@@ -27,14 +26,17 @@ DOCUMENTATION = """
           description: A list of regions in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
           type: list
+          elements: string
         folders:
           description: A folder that contains many projects
           type: list
           required: False
+          elements: string
         projects:
           description: A list of projects in which to describe GCE instances.
           type: list
           required: False
+          elements: string
         filters:
           description: >
             A list of filter value pairs. Available filters are listed here
@@ -42,12 +44,14 @@ DOCUMENTATION = """
             Each additional filter in the list will be added as an AND condition
             (filter1 and filter2)
           type: list
+          elements: string
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
               'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
+          elements: string
         name_suffix:
           description: Custom domain suffix. If set, this string will be appended to all hosts.
           default: ""
@@ -63,6 +67,7 @@ DOCUMENTATION = """
         scopes:
             description: list of authentication scopes
             type: list
+            elements: string
             default: ['https://www.googleapis.com/auth/compute']
             env:
                 - name: GCP_SCOPES

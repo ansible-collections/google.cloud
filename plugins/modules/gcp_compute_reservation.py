@@ -73,7 +73,6 @@ options:
       this reservation. Otherwise, it can be consumed by VMs with affinity for any
       reservation. Defaults to false.
     required: false
-    default: 'false'
     type: bool
   specific_reservation:
     description:
