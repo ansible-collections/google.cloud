@@ -30,7 +30,7 @@
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Create a bucket access control
   google.cloud.gcp_storage_bucket_access_control:
     bucket: "{{ bucket }}"
@@ -60,7 +60,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Delete a bucket access control
   google.cloud.gcp_storage_bucket_access_control:
     bucket: "{{ bucket }}"
@@ -90,7 +90,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: Delete a bucket

@@ -33,7 +33,7 @@ jobs:
       - name: Run ansible-test sanity
         run: ansible-test sanity -v --color
       - name: Install ansible-lint
-        run: pip install ansible-lint==24.7.0
+        run: pip install ansible-lint
       - name: Run ansible-lint
         run: ansible-lint
   unit:

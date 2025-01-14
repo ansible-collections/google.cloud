@@ -12,7 +12,7 @@
   ansible.builtin.copy:
     content: Ansible GCS test file
     dest: "{{ upload_temp.path }}"
-    mode: 0644
+    mode: "0644"
 - name: Create a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
@@ -21,7 +21,7 @@
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: present
   register: bucket
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Upload the object to gcs
   google.cloud.gcp_storage_object:
     action: upload

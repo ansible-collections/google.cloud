@@ -23,7 +23,7 @@
       type: folder
       id: "{{ gcp_folder_id }}"
     state: absent
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Create a project
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
@@ -73,7 +73,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Delete a project
   google.cloud.gcp_resourcemanager_project:
     name: "{{ resource_prefix[0:30] }}"
