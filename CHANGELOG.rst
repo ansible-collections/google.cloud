@@ -7,6 +7,11 @@ Google.Cloud Release Notes
 v1.5.0
 ======
 
+Major Changes
+-------------
+
+- google_cloud_ops_agents - role submodule removed because it prevents the collection from passing sanity and lint tests
+
 Minor Changes
 -------------
 
