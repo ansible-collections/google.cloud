@@ -1,68 +1,119 @@
 ---
+# Should be kept up to date with https://github.com/ansible-collections/collection_template/blob/main/.github/workflows/ansible-test.yml
+# Integration tests are run separately from the ansible-integration-tests.yml workflow.
 name: Run tests for the cloud.google collection
-on: [pull_request]
+on:
+  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
+  push:
+    branches:
+      - main
+      - stable-*
+  pull_request:
+  # Run CI once per day (at 06:00 UTC)
+  # This ensures that even if there haven't been commits that we are still
+  # testing against latest version of ansible-test for each ansible-core
+  # version
+  schedule:
+    - cron: '0 6 * * *'
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event.pull_request.number || github.sha
+    }}
+  cancel-in-progress: true
+
 jobs:
-  sanity-and-lint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ansible_collections/google/cloud
+
+###
+# Sanity tests (REQUIRED)
+#
+# https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
+
+  sanity:
+    name: Sanity (Ⓐ${{ matrix.ansible }})
     strategy:
       matrix:
-        # Our version strategy is to test against the current and previous version
-        # of ansible-core and each major version of Python supported by both.
-        # https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix
-        ansible_version:
+        ansible:
+          # It's important that Sanity is tested against all stable-X.Y branches
+          # Testing against `devel` may fail as new tests are added.
+          # An alternative to `devel` is the `milestone` branch with
+          # gets synchronized with `devel` every few weeks and therefore
+          # tends to be a more stable target. Be aware that it is not updated
+          # around creation of a new stable branch, this might cause a problem
+          # that two different versions of ansible-test use the same sanity test
+          # ignore.txt file.
+          # Add new versions announced in
+          # https://github.com/ansible-collections/news-for-maintainers in a timely manner,
+          # consider dropping testing against EOL versions and versions you don't support.
+          - stable-2.16
           - stable-2.17
           - stable-2.18
-        python_version:
-          - '3.11'
-          - '3.12'
-    steps:
-      - name: check out code
-        uses: actions/checkout@v4
-        with:
-          path: ansible_collections/google/cloud
-          submodules: 'true'
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install ansible-base (${{ matrix.ansible_version }})
-        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
-      - name: Run ansible-test sanity
-        run: ansible-test sanity -v --color
-      - name: Install ansible-lint
-        run: pip install ansible-lint
-      - name: Run ansible-lint
-        run: ansible-lint
-  unit:
+          - devel
+        # - milestone
+
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ansible_collections/google/cloud
+
+    steps:
+      # Run sanity tests inside a Docker container.
+      # The docker container has all the pinned dependencies that are
+      # required and all Python versions Ansible supports.
+      - name: Perform sanity testing
+        # See the documentation for the following GitHub action on
+        # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: sanity
+          # OPTIONAL If your sanity tests require code
+          # from other collections, install them like this
+          # test-deps: >-
+          #   ansible.netcommon
+          #   ansible.utils
+          # OPTIONAL If set to true, will test only against changed files,
+          # which should improve CI performance. See limitations on
+          # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
+          pull-request-change-detection: false
+
+###
+# Unit tests (OPTIONAL)
+#
+# https://docs.ansible.com/ansible/latest/dev_guide/testing_units.html
+
+  units:
+    runs-on: ubuntu-latest
+
+    name: Units (Ⓐ${{ matrix.ansible }})
     strategy:
+      # As soon as the first unit test fails, cancel the others to free up the CI queue
+      fail-fast: true
       matrix:
-        ansible_version:
+        ansible:
+          # Add new versions announced in
+          # https://github.com/ansible-collections/news-for-maintainers in a timely manner,
+          # consider dropping testing against EOL versions and versions you don't support.
+          - stable-2.16
           - stable-2.17
           - stable-2.18
-        python_version:
-          - '3.11'
-          - '3.12'
+          - devel
+        # - milestone
+
     steps:
-      - name: check out code
-        uses: actions/checkout@v4
+      - name: >-
+          Perform unit testing against
+          Ansible version ${{ matrix.ansible }}
+        # See the documentation for the following GitHub action on
+        # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
+        uses: ansible-community/ansible-test-gh-action@release/v1
         with:
-          path: ansible_collections/google/cloud
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Install test dependencies
-        run: pip install -r requirements-test.txt
-      - name: Install ansible-base (${{ matrix.ansible_version }})
-        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible_version }}.tar.gz --disable-pip-version-check
-      - name: Run unit tests
-        run: ansible-test units -v --color --python "${{ matrix.python_version }}"
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: units
+          # OPTIONAL If your unit tests require code
+          # from other collections, install them like this
+          test-deps: >-
+            ansible.netcommon
+            ansible.utils
+          # OPTIONAL If set to true, will test only against changed files,
+          # which should improve CI performance. See limitations on
+          # https://github.com/ansible-community/ansible-test-gh-action#pull-request-change-detection
+          pull-request-change-detection: false
