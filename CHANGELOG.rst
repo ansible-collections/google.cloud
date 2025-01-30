@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.5.1
+======
+
+Bugfixes
+--------
+
+- run integration test with Ansible 2.16 to match `requires_ansible` version
+
 v1.5.0
 ======
 

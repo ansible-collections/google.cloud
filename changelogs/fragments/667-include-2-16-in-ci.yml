@@ -1,2 +1,0 @@
-bugfixes:
-  - run integration test with Ansible 2.16 to match `requires_ansible` version
