@@ -121,3 +121,10 @@ releases:
     - remove-google_cloud_ops_agents-role.yml
     - upgrade_anisble.yml
     release_date: '2025-01-14'
+  1.5.1:
+    changes:
+      bugfixes:
+      - run integration test with Ansible 2.16 to match `requires_ansible` version
+    fragments:
+    - 667-include-2-16-in-ci.yml
+    release_date: '2025-01-30'
