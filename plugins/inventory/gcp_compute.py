@@ -18,10 +18,6 @@ DOCUMENTATION = """
         - Get inventory hosts from Google Cloud Platform GCE.
         - Uses a YAML configuration file that ends with gcp_compute.(yml|yaml) or gcp.(yml|yaml).
     options:
-        plugin:
-            description: token that ensures this is a source file for the 'gcp_compute' plugin.
-            required: True
-            choices: ['google.cloud.gcp_compute', 'gcp_compute']
         zones:
           description: A list of regions in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
