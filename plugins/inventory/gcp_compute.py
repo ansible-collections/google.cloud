@@ -487,38 +487,38 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                         session_responses.append(response_json)
                     page_token = "pageToken" in request_params
 
-            for response in session_responses:
-                if "items" in response:
-                    # example k would be a zone or region name
-                    # example v would be { "disks" : [], "otherkey" : "..." }
-                    for zone_or_region, aggregate in response["items"].items():
-                        if "zones" in zone_or_region:
-                            if "disks" in aggregate:
-                                zone = zone_or_region.replace("zones/", "")
-                                for disk in aggregate["disks"]:
-                                    if (
-                                        "zones" in config_data
-                                        and zone in config_data["zones"]
-                                    ):
-                                        # If zones specified, only store those zones' data
-                                        if "sourceImage" in disk:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["sourceImage"].split("/")[-1]
-                                        else:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["selfLink"].split("/")[-1]
+                for response in session_responses:
+                    if "items" in response:
+                        # example k would be a zone or region name
+                        # example v would be { "disks" : [], "otherkey" : "..." }
+                        for zone_or_region, aggregate in response["items"].items():
+                            if "zones" in zone_or_region:
+                                if "disks" in aggregate:
+                                    zone = zone_or_region.replace("zones/", "")
+                                    for disk in aggregate["disks"]:
+                                        if (
+                                            "zones" in config_data
+                                            and zone in config_data["zones"]
+                                        ):
+                                            # If zones specified, only store those zones' data
+                                            if "sourceImage" in disk:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["sourceImage"].split("/")[-1]
+                                            else:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["selfLink"].split("/")[-1]
 
-                                    else:
-                                        if "sourceImage" in disk:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["sourceImage"].split("/")[-1]
                                         else:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["selfLink"].split("/")[-1]
+                                            if "sourceImage" in disk:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["sourceImage"].split("/")[-1]
+                                            else:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["selfLink"].split("/")[-1]
 
         return self._project_disks
 
