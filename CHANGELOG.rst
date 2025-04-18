@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.5.2
+======
+
+Bugfixes
+--------
+
+- gcp_compute - fixed get_project_disks to process all responses (https://github.com/ansible-collections/google.cloud/pull/677).
+
 v1.5.1
 ======
 
