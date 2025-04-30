@@ -135,3 +135,10 @@ releases:
     fragments:
     - 677-get-project-disks.yaml
     release_date: '2025-04-18'
+  1.5.3:
+    changes:
+      bugfixes:
+      - updated README to match required format (https://github.com/ansible-collections/google.cloud/pull/682).
+    fragments:
+    - 682-update-readme.yaml
+    release_date: '2025-04-30'
