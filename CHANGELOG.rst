@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.5.3
+======
+
+Bugfixes
+--------
+
+- updated README to match required format (https://github.com/ansible-collections/google.cloud/pull/682).
+
 v1.5.2
 ======
 
