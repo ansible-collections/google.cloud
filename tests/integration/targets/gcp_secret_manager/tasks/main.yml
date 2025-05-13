@@ -1,0 +1,9 @@
+---
+- name: Secrets tests
+  ansible.builtin.include_tasks: secrets.yml
+- name: Secrets lookup tests
+  ansible.builtin.include_tasks: secretslookup.yml
+- name: Regional Secrets tests
+  ansible.builtin.include_tasks: regionalsecrets.yml
+- name: Regional Secrets lookup tests
+  ansible.builtin.include_tasks: regionalsecretslookup.yml

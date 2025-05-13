@@ -5,8 +5,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
+    author:
+    - Dave Costakos <dcostako@redhat.com>
     name: gcp_secret_manager
-    author: Dave Costakos (@davecostakos) <dcostako@redhat.com>
     short_description: Get Secrets from Google Cloud as a Lookup plugin
     description:
     - retrieve secret keys in Secret Manager for use in playbooks
@@ -14,6 +15,8 @@ DOCUMENTATION = '''
       credentials for Google Cloud and the format of such credentials
     - once a secret value is retreived, it is returned decoded.  It is up to the developer
       to maintain secrecy of this value once returned.
+    - if location option is defined, then it deals with the regional secrets of the
+      location
 
     options:
         key:
@@ -29,6 +32,10 @@ DOCUMENTATION = '''
             description:
             - The name of the google cloud project
             - defaults to OS env variable GCP_PROJECT if not present
+            type: str
+        location:
+            description:
+            - If provided, it defines the location of the regional secret.
             type: str
         auth_kind:
             description:
@@ -58,7 +65,7 @@ DOCUMENTATION = '''
             description:
             - JSON Object representing the contents of a service_account_file obtained from Google Cloud
             - defaults to OS env variable GCP_SERVICE_ACCOUNT_INFO if not present
-            type: str
+            type: jsonarg
             required: False
         access_token:
             description:
@@ -83,7 +90,6 @@ DOCUMENTATION = '''
             description:
             - Authenticaiton scopes for Google Secret Manager
             type: list
-            elements: str
             default: ["https://www.googleapis.com/auth/cloud-platform"]
 '''
 
@@ -103,6 +109,22 @@ EXAMPLES = '''
 - name: Test getting specific version of a secret (new version)
   ansible.builtin.debug:
     msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', version='2') }}"
+
+- name: Test regional secret using env variables for credentials
+  ansible.builtin.debug:
+    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1') }}"
+
+- name: Test regional secret using explicit credentials
+  ansible.builtin.debug:
+    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1', project='project', auth_kind='serviceaccount', service_account_file='file.json') }}"
+
+- name: Test getting specific version of a regional secret (old version)
+  ansible.builtin.debug:
+    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1', version='1') }}"
+
+- name: Test getting specific version of a regional secret (new version)
+  ansible.builtin.debug:
+    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1', version='2') }}"
 '''
 
 RETURN = '''
@@ -168,6 +190,7 @@ class LookupModule(LookupBase):
         self.set_options(var_options=variables, direct=kwargs)
         params = {
             "key": self.get_option("key"),
+            "location": self.get_option("location"),
             "version": self.get_option("version"),
             "access_token": self.get_option("access_token"),
             "scopes": self.get_option("scopes"),
@@ -199,7 +222,7 @@ class LookupModule(LookupBase):
     # to be set if secret versions get disabled
     # see https://issuetracker.google.com/issues/286489671
     def get_latest_version(self, module, auth):
-        url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions?filter=state:ENABLED".format(
+        url = (self.make_url_prefix(module) + "secrets/{name}/versions?filter=state:ENABLED").format(
             **module.params
         )
         response = auth.get(url)
@@ -234,7 +257,7 @@ class LookupModule(LookupBase):
         if module.params['calc_version'] is None:
             return ''
 
-        url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version}:access".format(
+        url = (self.make_url_prefix(module) + "secrets/{name}/versions/{calc_version}:access").format(
             **module.params
         )
         response = auth.get(url)
@@ -244,3 +267,8 @@ class LookupModule(LookupBase):
             return ''
 
         return response.json()['payload']['data']
+
+    def make_url_prefix(self, module):
+        if module.params['location']:
+            return "https://secretmanager.{location}.rep.googleapis.com/v1/projects/{project}/locations/{location}/"
+        return "https://secretmanager.googleapis.com/v1/projects/{project}/"
