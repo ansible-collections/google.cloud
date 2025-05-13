@@ -24,8 +24,9 @@ description:
 - Create new secret values.
 - Add/remove versions of secrets.
 - Please note that other features like etags, replication, annontation expected to be managed outside of Ansible.
+- Deals with regional secrets if location option is defined.
 short_description: Access and Update Google Cloud Secrets Manager objects
-author: Dave Costakos (@davecostakos) <dcostako@redhat.com>
+author: Dave Costakos @RedHat
 requirements:
 - python >= 2.6
 - requests >= 2.18.4
@@ -44,7 +45,6 @@ options:
     - application
     - machineaccount
     - serviceaccount
-    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -59,21 +59,11 @@ options:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
     type: str
-  access_token:
-    description:
-    - An OAuth2 access token if credential type is accesstoken.
-    type: str
   scopes:
     description:
     - Array of scopes to be used
     type: list
     elements: str
-  env_type:
-    description:
-    - Specifies which Ansible environment you're running this module within.
-    - This should not be set unless you know what you're doing.
-    - This only alters the User Agent string for any API requests.
-    type: str
   name:
     description:
     - Name of the secret to be used
@@ -83,6 +73,10 @@ options:
     - key
     - secret
     - secret_id
+  location:
+    description:
+    - If provided, it defines the location of the regional secret.
+    type: str
   value:
     description:
     - The secret value that the secret should have
@@ -116,7 +110,6 @@ options:
     - only used in creation
     - Note that the "value" piece of a label must contain only readable chars
     type: dict
-    default: {}
 notes:
 - 'API Reference: U(https://cloud.google.com/secret-manager/docs/reference/rests)'
 - 'Official Documentation: U(https://cloud.google.com/secret-manager/docs/overview)'
@@ -176,6 +169,57 @@ EXAMPLES = r'''
     value: super_secret
     labels:
       key_name: "ansible_rox"
+
+- name: Create a new regional secret
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    value: super_secret
+    state: present
+    auth_kind: serviceaccount
+    service_account_file: service_account_creds.json
+
+- name: Ensure the regional secret exists, fail otherwise and return the value
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    state: present
+
+- name: Ensure regional secret exists but don't return the value
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    state: present
+    return_value: false
+
+- name: Add a new version of a regional secret
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    value: updated super secret
+    state: present
+
+- name: Delete version 1 of a regional secret (but not the secret itself)
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    version: 1
+    state: absent
+
+- name: Delete all versions of a regional secret
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    version: all
+    state: absent
+
+- name: Create a regional secret with labels
+  google.cloud.gcp_secret_manager:
+    name: secret_key
+    location: us-central1
+    value: super_secret
+    labels:
+      key_name: "ansible_rox"
 '''
 
 RETURN = r'''
@@ -183,42 +227,46 @@ resources:
   description: List of resources
   returned: always
   type: complex
-  contains:
-    name:
-      description:
-      - The name of the secret
-      returned: success
-      type: str
-    version:
-      description:
-      - the version number of the secret returned
-      returned: success
-      type: str
-    url:
-      description:
-      - the Google Cloud URL used to make the request
-      returned: success
-      type: str
-    status_code:
-      description:
-      - the HTTP status code of the response to Google Cloud
-      returned: success
-      type: str
-    msg:
-      description:
-      - A message indicating what was done (or not done)
-      returned: success, failure
-      type: str
-    value:
-      description:
-      - The decrypted secret value, please use care with this
-      returned: success
-      type: str
-    payload:
-      description:
-      - The base 64 secret payload including CRC for validation
-      returned: success
-      type: dict
+  name:
+    description:
+    - The name of the secret
+    returned: success
+    type: str
+  location:
+    description:
+    - The location of the regional secret.
+    returned: success
+    type: str
+  version:
+    description:
+    - the version number of the secret returned
+    returned: success
+    type: str
+  url:
+    description:
+    - the Google Cloud URL used to make the request
+    returned: success
+    type: str
+  status_code:
+    description:
+    - the HTTP status code of the response to Google Cloud
+    returned: success
+    type: str
+  msg:
+    description:
+    - A message indicating what was done (or not done)
+    returned: success, failure
+    type: str
+  value:
+    description:
+    - The decrypted secret value, please use care with this
+    returned: success
+    type: str
+  payload:
+    description:
+    - The base 64 secret payload including CRC for validation
+    retunred: success
+    type: dict
 '''
 
 ################################################################################
@@ -241,24 +289,30 @@ def get_auth(module):
     return GcpSession(module, 'secret-manager')
 
 
+def make_url_prefix(module):
+    if module.params['location']:
+        return "https://secretmanager.{location}.rep.googleapis.com/v1/projects/{project}/locations/{location}/"
+    return "https://secretmanager.googleapis.com/v1/projects/{project}/"
+
+
 def self_access_link(module):
-    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version}:access".format(**module.params)
+    return (make_url_prefix(module) + "secrets/{name}/versions/{calc_version}:access").format(**module.params)
 
 
 def self_get_link(module):
-    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version}".format(**module.params)
+    return (make_url_prefix(module) + "secrets/{name}/versions/{calc_version}").format(**module.params)
 
 
 def self_update_link(module):
-    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions/{calc_version:version}".format(**module.params)
+    return (make_url_prefix(module) + "secrets/{name}/versions/{calc_version:version}").format(**module.params)
 
 
 def self_list_link(module):
-    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}/versions?filter=state:ENABLED".format(**module.params)
+    return (make_url_prefix(module) + "secrets/{name}/versions?filter=state:ENABLED").format(**module.params)
 
 
 def self_delete_link(module):
-    return "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}".format(**module.params)
+    return (make_url_prefix(module) + "secrets/{name}").format(**module.params)
 
 
 def fetch_resource(module, allow_not_found=True):
@@ -307,10 +361,12 @@ def merge_dicts(x, y):
 def create_secret(module):
     # build the payload
     payload = {"replication": {"automatic": {}}}
+    if module.params['location']:
+        payload = dict()
     if module.params['labels']:
         payload['labels'] = module.params['labels']
 
-    url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets".format(**module.params)
+    url = (make_url_prefix(module) + "secrets").format(**module.params)
     auth = get_auth(module)
     post_response = auth.post(url, body=payload, params={'secretId': module.params['name']})
     # validate create
@@ -327,7 +383,7 @@ def update_secret(module):
         }
     }
     auth = get_auth(module)
-    url = "https://secretmanager.googleapis.com/v1/projects/{project}/secrets/{name}:addVersion".format(**module.params)
+    url = (make_url_prefix(module) + "secrets/{name}:addVersion").format(**module.params)
     return return_if_object(module, auth.post(url, payload), False)
 
 
@@ -376,7 +432,11 @@ def return_if_object(module, response, allow_not_found=False):
         result['status_code'] = response.status_code
         if "name" in result:
             result['version'] = result['name'].split("/")[-1]
-            result['name'] = result['name'].split("/")[3]
+            if 'locations' in result['name'].split("/"):
+                result['location'] = result['name'].split("/")[3]
+                result['name'] = result['name'].split("/")[5]
+            else:
+                result['name'] = result['name'].split("/")[3]
 
         # base64 decode the value
         if "payload" in result and "data" in result['payload']:
@@ -401,6 +461,7 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str', aliases=['key', 'secret', 'secret_id']),
+            location=dict(required=False, type='str'),
             value=dict(required=False, type='str'),
             version=dict(required=False, type='str', default='latest'),
             return_value=dict(required=False, type='bool', default=True),
