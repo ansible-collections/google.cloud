@@ -49,7 +49,7 @@
     that:
       - result.changed == true
 # ----------------------------------------------------------
-- name: Create a parameter with lables
+- name: Create a parameter with labels
   google.cloud.gcp_parameter_manager:
     name: "{{ resource_name }}-2"
     version: "test_version"
@@ -83,7 +83,7 @@
     that:
       - result.changed == true
 # ----------------------------------------------------------
-- name: Create a parameter with format and lables
+- name: Create a parameter with format and labels
   google.cloud.gcp_parameter_manager:
     name: "{{ resource_name }}-4"
     version: "test_version"
