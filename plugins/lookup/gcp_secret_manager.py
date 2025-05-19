@@ -65,7 +65,7 @@ DOCUMENTATION = '''
             description:
             - JSON Object representing the contents of a service_account_file obtained from Google Cloud
             - defaults to OS env variable GCP_SERVICE_ACCOUNT_INFO if not present
-            type: jsonarg
+            type: str
             required: False
         access_token:
             description:
@@ -90,6 +90,7 @@ DOCUMENTATION = '''
             description:
             - Authenticaiton scopes for Google Secret Manager
             type: list
+            elements: str
             default: ["https://www.googleapis.com/auth/cloud-platform"]
 '''
 

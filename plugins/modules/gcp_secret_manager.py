@@ -45,6 +45,7 @@ options:
     - application
     - machineaccount
     - serviceaccount
+    - accesstoken
   service_account_contents:
     description:
     - The contents of a Service Account JSON file, either in a dictionary or as a
@@ -59,11 +60,21 @@ options:
     - An optional service account email address if machineaccount is selected and
       the user does not wish to use the default email.
     type: str
+  access_token:
+    description:
+    - An OAuth2 access token if credential type is accesstoken.
+    type: str
   scopes:
     description:
     - Array of scopes to be used
     type: list
     elements: str
+  env_type:
+    description:
+    - Specifies which Ansible environment you're running this module within.
+    - This should not be set unless you know what you're doing.
+    - This only alters the User Agent string for any API requests.
+    type: str
   name:
     description:
     - Name of the secret to be used
