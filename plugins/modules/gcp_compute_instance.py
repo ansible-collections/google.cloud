@@ -61,6 +61,12 @@ options:
     - Whether the resource should be protected against deletion.
     required: false
     type: bool
+  discard_local_ssd:
+    description:
+    - Discards the contents of any attached Local SSD disks when changing status
+      to TERMINATED. Defaults to true.
+    required: false
+    type: bool
   disks:
     description:
     - An array of disks that are associated with the instances that are created from
@@ -1112,6 +1118,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             can_ip_forward=dict(type='bool', aliases=['ip_forward']),
             deletion_protection=dict(type='bool'),
+            discard_local_ssd=dict(type='bool', required=False, default=True),
             disks=dict(
                 type='list',
                 elements='dict',
@@ -1506,7 +1513,7 @@ class InstancePower(object):
         return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/start".format(**self.module.params)
 
     def _stop_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop?discardLocalSsd={discard_local_ssd}".format(**self.module.params)
 
 
 def deletion_protection_update(module, request, response):
