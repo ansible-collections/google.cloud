@@ -64,7 +64,8 @@ options:
   discard_local_ssd:
     description:
     - Discards the contents of any attached Local SSD disks when changing status
-      to TERMINATED. Defaults to true.
+      to TERMINATED.
+    default: True
     required: false
     type: bool
   disks:
@@ -1513,7 +1514,9 @@ class InstancePower(object):
         return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/start".format(**self.module.params)
 
     def _stop_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop?discardLocalSsd={discard_local_ssd}".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop?discardLocalSsd={discard_local_ssd}".format(
+            **self.module.params
+        )
 
 
 def deletion_protection_update(module, request, response):
