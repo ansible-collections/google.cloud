@@ -142,3 +142,11 @@ releases:
     fragments:
     - 682-update-readme.yaml
     release_date: '2025-04-30'
+  1.5.4:
+    changes:
+      bugfixes:
+      - gcp_compute_instance - add discard_local_ssd flag to enable deletion of instances
+        with local disks (https://github.com/ansible-collections/google.cloud/pull/686).
+    fragments:
+    - 686-discard-local-ssd.yaml
+    release_date: '2025-06-03'
