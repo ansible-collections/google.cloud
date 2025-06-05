@@ -1,0 +1,9 @@
+---
+- name: Parameters tests
+  ansible.builtin.include_tasks: parameters.yml
+- name: Regional Parameters tests
+  ansible.builtin.include_tasks: regionalparameters.yml
+- name: Parameters lookup tests
+  ansible.builtin.include_tasks: parameterslookup.yml
+- name: Regional Parameters lookup tests
+  ansible.builtin.include_tasks: regionalparameterslookup.yml
