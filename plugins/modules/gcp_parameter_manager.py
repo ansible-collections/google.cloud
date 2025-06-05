@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt
 # or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -27,7 +28,7 @@ description:
 - Add/Remove parameter version.
 - Remove parameter.
 short_description: Access and Update Google Cloud Parameter Manager objects
-author: 
+author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 3.7
 - requests >= 2.32.3
@@ -35,7 +36,7 @@ requirements:
 options:
   project:
     description:
-    - The Google Cloud Platform project to use. Defaults to OS env variable 
+    - The Google Cloud Platform project to use. Defaults to OS env variable
       GCP_PROJECT if not present
     type: str
   auth_kind:
@@ -134,9 +135,10 @@ options:
     - only used in creation
     - Note that the "value" piece of a label must contain only readable chars
     type: dict
+    default: {}
 '''
 
-EXAMPLES = r'''
+EXAMPLES = '''
 - name: Create a new parameter
   google.cloud.gcp_parameter_manager:
     name: parameter_key
@@ -158,7 +160,7 @@ EXAMPLES = r'''
     name: parameter_key
     version: version_key
     format: JSON
-    value: "{\"key\":\"value\"}"
+    value: '{"key":"value"}'
     state: present
     auth_kind: serviceaccount
     service_account_file: service_account_creds.json
@@ -179,7 +181,7 @@ EXAMPLES = r'''
     name: parameter_key
     version: version_key
     format: JSON
-    value: "{\"key\":\"value\"}"
+    value: '{"key":"value"}'
     state: present
     auth_kind: serviceaccount
     service_account_file: service_account_creds.json
@@ -236,7 +238,7 @@ EXAMPLES = r'''
     name: parameter_key
     version: version_key
     format: JSON
-    value: "{\"key\":\"value\"}"
+    value: '{"key":"value"}'
     state: present
     auth_kind: serviceaccount
     service_account_file: service_account_creds.json
@@ -257,7 +259,7 @@ EXAMPLES = r'''
     name: parameter_key
     version: version_key
     format: JSON
-    value: "{\"key\":\"value\"}"
+    value: '{"key":"value"}'
     state: present
     auth_kind: serviceaccount
     service_account_file: service_account_creds.json
@@ -294,7 +296,7 @@ EXAMPLES = r'''
     state: absent
 '''
 
-RETURN = r'''
+RETURN = '''
 resources:
   description: List of resources
   returned: always
@@ -352,11 +354,11 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpSession,
     GcpModule
 )
-from google.auth.exceptions import RefreshError
 
 # for decoding and validating parameters
 import json
 import base64
+
 
 def get_auth(module):
     return GcpSession(module, 'parameter-manager')
@@ -489,8 +491,8 @@ def return_if_object(module, response, allow_not_found=False):
             result['location'] = result['name'].split("/")[3]
             result['name'] = result['name'].split("/")[5]
             if len(result['name'].split("/")) == 8:
-              result['version'] = result['name'].split("/")[-1]
-      
+                result['version'] = result['name'].split("/")[-1]
+
         # base64 decode the value
         if "payload" in result and "data" in result['payload']:
             result['value'] = base64.b64decode(result['payload']['data']).decode("utf-8")
@@ -509,8 +511,8 @@ def main():
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             name=dict(required=True, type='str', aliases=['key', 'parameter', 'parameter_id']),
-            version=dict(required=False, type='str', aliases=['version_id', 'parameter_verison_id']),
-            location=dict(required=False, type='str'),
+            version=dict(required=False, type='str', aliases=['version_id', 'parameter_version_id']),
+            location=dict(required=False, type='str', default='global'),
             value=dict(required=False, type='str'),
             format=dict(required=False, type='str', default='UNFORMATTED', choices=['UNFORMATTED', 'JSON', 'YAML']),
             return_value=dict(required=False, type='bool', default=True),
@@ -521,7 +523,7 @@ def main():
     try :
         if module.params.get('scopes') is None:
             module.params['scopes'] = ["https://www.googleapis.com/auth/cloud-platform"]
-        
+
         if module.params.get('project') is None:
             module.fail_json(msg="The project is required. Please specify the Google Cloud project to use.")
 
@@ -532,7 +534,6 @@ def main():
         if fetch:
             fetch_version = check_parameter_version_exist(module, allow_not_found=True)
 
-        
         if state == 'present':
             # if parameter not exist
             if not fetch:
@@ -544,7 +545,9 @@ def main():
                     changed = True
                 # specified present and verison is provided but value is not provided
                 elif module.params.get('version') and module.params.get('value') is None:
-                    module.fail_json(msg="parameter '{name}' not present in '{project}' and no value for the parameter version is provided".format(**module.params))
+                    module.fail_json(
+                        msg="parameter '{name}' not present in '{project}' and no value for the parameter version is provided".format(**module.params)
+                    )
                 # specified present and verison is not provided
                 # that no parameter could be created without a version
                 elif module.params.get('value'):
@@ -554,7 +557,7 @@ def main():
                 else:
                     fetch = create_parameter(module)
                     changed = True
-          
+
             elif not fetch_version:
                 # doesn't exist, must create
                 if module.params.get('version') and module.params.get('value'):
@@ -570,14 +573,16 @@ def main():
                 # specified present but no value
                 # that no parameter could be created without a value to encrypt
                 else:
-                    module.fail_json(msg="parameter '{name}' present in '{project}' and no value and version for the parameter is provided".format(**module.params))
+                    module.fail_json(
+                        msg="parameter '{name}' present in '{project}' and no value and version for the parameter is provided".format(**module.params)
+                    )
 
             else:
                 # parameter and parameter version both exist
                 # check if the value is the same
                 # if not, delete the version and create new one
                 # if the value is the same, do nothing
-                if "value" in fetch_version and module.params.get('value','') is not None:
+                if "value" in fetch_version and module.params.get('value', '') is not None:
                     if fetch_version['value'] != module.params.get('value'):
                         fetch['msg'] = 'values not identical, but parameter version name is same'
                         # Delete existing version and create new one
@@ -586,9 +591,9 @@ def main():
                         changed = True
                     else:
                         module.exit_json(msg="parameter '{name}' is already exist and value is the same".format(**module.params))
-                elif module.params.get('value','') is None:
+                elif module.params.get('value', '') is None:
                     module.fail_json(msg="parameter '{name}' present in '{project}' and no value for the parameter version is provided".format(**module.params))
-                
+
         else:
             if fetch is None:
                 fetch = {}
@@ -620,13 +625,12 @@ def main():
                         module.fail_json(msg="parameter {name} has nested version resources".format(**module.params))
                 else:
                     module.exit_json(msg="parameter {name} is not exist".format(**module.params))
-                
-        
+
         # # pop value data if return_value == false
         if module.params.get('return_value') is False:
             if "value" in fetch:
                 fetch.pop('value')
-            if "payload" in fetch:   
+            if "payload" in fetch:
                 fetch.pop('payload')
             if "msg" in fetch:
                 fetch['msg'] = "{} | not returning parameter value since 'return_value' is set to false".format(fetch['msg'])
@@ -635,8 +639,6 @@ def main():
 
         fetch['changed'] = changed
         fetch['name'] = module.params.get('name')
-    except RefreshError as e:
-        module.fail_json(msg=f"Failed to refresh OAuth token: {str(e)}")
     except Exception as e:
         module.fail_json(msg=f"An unexpected error occurred: {str(e)}")
 

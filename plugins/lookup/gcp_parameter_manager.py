@@ -5,9 +5,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
-    author:
-    - 
     name: gcp_parameter_manager
+    author: Google Inc. (@googlecloudplatform)
+
     short_description: Get Parameters from Google Cloud as a Lookup plugin
     description:
     - retrieve parameter keys in parameter Manager for use in playbooks
@@ -69,7 +69,7 @@ DOCUMENTATION = '''
             description:
             - JSON Object representing the contents of a service_account_file obtained from Google Cloud
             - defaults to OS env variable GCP_SERVICE_ACCOUNT_INFO if not present
-            type: jsonarg
+            type: dict
             required: False
         access_token:
             description:
@@ -94,6 +94,7 @@ DOCUMENTATION = '''
             description:
             - Authenticaiton scopes for Google parameter Manager
             type: list
+            elements: str
             default: ["https://www.googleapis.com/auth/cloud-platform"]
 '''
 
@@ -105,13 +106,14 @@ EXAMPLES = '''
 
 - name: Test parameter using explicit credentials
   ansible.builtin.debug:
-    msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key', version='test_version', project='project', auth_kind='serviceaccount', service_account_file='file.json') }}"
+    msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key', version='test_version', project='project', auth_kind='serviceaccount',
+                    service_account_file='file.json') }}"
 
-- name: Test getting specific version of a parameter 
+- name: Test getting specific version of a parameter
   ansible.builtin.debug:
     msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key', version='test-version') }}"
 
-- name: Test getting latest version of a parameter 
+- name: Test getting latest version of a parameter
   ansible.builtin.debug:
     msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key') }}"
 
@@ -129,7 +131,8 @@ EXAMPLES = '''
 
 - name: Test regional parameter using explicit credentials
   ansible.builtin.debug:
-    msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key', location='us-central1', version='test_version', project='project', auth_kind='serviceaccount', service_account_file='file.json') }}"
+    msg: "{{ lookup('google.cloud.gcp_parameter_manager', key='parameter_key', location='us-central1', version='test_version', project='project',
+                    auth_kind='serviceaccount', service_account_file='file.json') }}"
 
 - name: Test getting specific version of a regional parameter
   ansible.builtin.debug:
@@ -247,7 +250,7 @@ class LookupModule(LookupBase):
             self._display.warning(msg)
 
         return None
-    
+
     def get_latest_version(self, module, auth):
         url = (self.make_url_prefix(module) + "parameters/{name}/versions?orderBy=create_time desc&filter=disabled=false").format(
             **module.params
@@ -279,7 +282,7 @@ class LookupModule(LookupBase):
         # there was an error listing parameter versions
         if module.params.get('version') is None:
             return ''
-        
+
         if module.params.get('render_secret') is not None:
             url = (self.make_url_prefix(module) + "parameters/{name}/versions/{version}:render").format(
                 **module.params
@@ -293,7 +296,7 @@ class LookupModule(LookupBase):
         if response.status_code != 200:
             self.raise_error(module, f"Failed to lookup parameter value via {response.request.url} {response.status_code}")
             return ''
-        
+
         response_json = response.json()
         if module.params.get('render_secret') is not None:
             if 'renderedPayload' not in response_json:
