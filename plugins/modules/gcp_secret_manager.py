@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt
 # or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -26,7 +27,7 @@ description:
 - Please note that other features like etags, replication, annontation expected to be managed outside of Ansible.
 - Deals with regional secrets if location option is defined.
 short_description: Access and Update Google Cloud Secrets Manager objects
-author: Dave Costakos @RedHat
+author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
 - requests >= 2.18.4
@@ -121,6 +122,7 @@ options:
     - only used in creation
     - Note that the "value" piece of a label must contain only readable chars
     type: dict
+    default: {}
 notes:
 - 'API Reference: U(https://cloud.google.com/secret-manager/docs/reference/rests)'
 - 'Official Documentation: U(https://cloud.google.com/secret-manager/docs/overview)'
@@ -136,7 +138,7 @@ notes:
 - The I(service_account_email) and I(service_account_file) options are mutually exclusive.
 '''
 
-EXAMPLES = r'''
+EXAMPLES = '''
 - name: Create a new secret
   google.cloud.gcp_secret_manager:
     name: secret_key
@@ -233,51 +235,52 @@ EXAMPLES = r'''
       key_name: "ansible_rox"
 '''
 
-RETURN = r'''
+RETURN = '''
 resources:
   description: List of resources
   returned: always
   type: complex
-  name:
-    description:
-    - The name of the secret
-    returned: success
-    type: str
-  location:
-    description:
-    - The location of the regional secret.
-    returned: success
-    type: str
-  version:
-    description:
-    - the version number of the secret returned
-    returned: success
-    type: str
-  url:
-    description:
-    - the Google Cloud URL used to make the request
-    returned: success
-    type: str
-  status_code:
-    description:
-    - the HTTP status code of the response to Google Cloud
-    returned: success
-    type: str
-  msg:
-    description:
-    - A message indicating what was done (or not done)
-    returned: success, failure
-    type: str
-  value:
-    description:
-    - The decrypted secret value, please use care with this
-    returned: success
-    type: str
-  payload:
-    description:
-    - The base 64 secret payload including CRC for validation
-    retunred: success
-    type: dict
+  contains:
+    name:
+      description:
+      - The name of the secret
+      returned: success
+      type: str
+    location:
+      description:
+      - The location of the regional secret.
+      returned: success
+      type: str
+    version:
+      description:
+      - The version number of the secret returned
+      returned: success
+      type: str
+    url:
+      description:
+      - The Google Cloud URL used to make the request
+      returned: success
+      type: str
+    status_code:
+      description:
+      - The HTTP status code of the response to Google Cloud
+      returned: success
+      type: str
+    msg:
+      description:
+      - A message indicating what was done (or not done)
+      returned: success, failure
+      type: str
+    value:
+      description:
+      - The decrypted secret value, please use care with this
+      returned: success
+      type: str
+    payload:
+      description:
+      - The base 64 secret payload including CRC for validation
+      returned: success
+      type: dict
 '''
 
 ################################################################################

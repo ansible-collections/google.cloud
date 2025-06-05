@@ -5,8 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
-    author:
-    - Dave Costakos <dcostako@redhat.com>
+    author: Google Inc. (@googlecloudplatform)
     name: gcp_secret_manager
     short_description: Get Secrets from Google Cloud as a Lookup plugin
     description:
@@ -117,7 +116,8 @@ EXAMPLES = '''
 
 - name: Test regional secret using explicit credentials
   ansible.builtin.debug:
-    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1', project='project', auth_kind='serviceaccount', service_account_file='file.json') }}"
+    msg: "{{ lookup('google.cloud.gcp_secret_manager', key='secret_key', location='us-central1', project='project', auth_kind='serviceaccount',
+                    service_account_file='file.json') }}"
 
 - name: Test getting specific version of a regional secret (old version)
   ansible.builtin.debug:
