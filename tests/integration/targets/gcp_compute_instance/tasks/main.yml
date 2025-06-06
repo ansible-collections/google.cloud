@@ -1,3 +1,34 @@
 ---
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
+
+- name: Test nic_type scenarios
+  block:
+    - name: Create network
+      google.cloud.gcp_compute_network:
+        name: "{{ resource_prefix }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        auto_create_subnetworks: true
+        state: present
+      register: _network
+
+    - name: Loop over testcase
+      ansible.builtin.include_tasks: gvnic.yml
+      loop: "{{ testcases | dict2items }}"
+      vars:
+        testcases:
+          gvnic: GVNIC
+          virtio: VIRTIO_NET
+          default: default
+
+  always:
+    - name: Delete network
+      google.cloud.gcp_compute_network:
+        name: "{{ resource_prefix }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        auto_create_subnetworks: true
+        state: absent
