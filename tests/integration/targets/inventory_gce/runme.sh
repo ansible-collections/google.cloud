@@ -13,7 +13,7 @@ RC=0
 set +e
 for ts in playbooks/testcase_*.yml;
 do
-    testcase="$( basename $ts | sed -e 's/testcase_//' | sed -e 's/.yml//' )"
+    testcase=$( basename "$ts" | sed -e 's/testcase_//' | sed -e 's/.yml//' )
     ansible-playbook playbooks/test.yml "$@" --extra-vars "testcase=${testcase}"
     RC=$?
     test $RC -ne 0 && break
