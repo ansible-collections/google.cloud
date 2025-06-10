@@ -1,0 +1,22 @@
+---
+- name: TEST | print hosts
+  ansible.builtin.debug:
+    var: groups
+
+- name: TEST | fetch instance info for vm1
+  google.cloud.gcp_compute_instance_info:
+    filters:
+      - name = {{ prefix }}-vm1
+    zone: "{{ gcp_zone }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+    scopes:
+      - https://www.googleapis.com/auth/compute
+  register: _vm
+
+- name: TEST | compare API vs inventory hostnames
+  ansible.builtin.assert:
+    that:
+      - _vm.resources | length > 0
+      - _vm.resources[0].hostname in groups['gcp_dns_static']
