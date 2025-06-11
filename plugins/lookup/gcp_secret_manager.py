@@ -204,8 +204,23 @@ class LookupModule(LookupBase):
         )
         response = auth.get(url)
         self._display.vvv(msg=f"List Version Response: {response.status_code} for {response.request.url}: {response.json()}")
-        if response.status_code != 200:
-            self.raise_error(module, f"unable to list versions of secret {response.status_code}")
+        if response.status_code >= 500:  # generic server error
+            self.raise_error(
+                module,
+                f"server error encountered while looking for secret '{module.params['name']}', code: {response.status_code}"
+            )
+        elif response.status_code >= 400:  # generic client request error
+            self.raise_error(
+                module,
+                f"client error encountered while looking for secret '{module.params['name']}', code: {response.status_code}"
+            )
+        elif response.status_code >= 300:  # all other possible errors
+            self.raise_error(
+                module,
+                f"unable to list versions for secret '{module.params['name']}', code: {response.status_code}"
+            )
+        else:
+            pass
         version_list = response.json()
         if "versions" in version_list:
             versions_numbers = []
