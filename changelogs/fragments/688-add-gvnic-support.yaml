@@ -1,3 +1,0 @@
-minor_changes:
-  - gcp_compute - added GVNIC support to compute instance
-    (https://github.com/ansible-collections/google.cloud/pull/688).
