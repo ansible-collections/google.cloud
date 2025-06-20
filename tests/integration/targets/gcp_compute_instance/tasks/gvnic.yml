@@ -3,7 +3,8 @@
   ansible.builtin.debug:
     msg: "Testing {{ item.key }} scenario"
 
-- block:
+- name: Test GVNIC scenarios
+  block:
     - name: Create disk
       google.cloud.gcp_compute_disk:
         name: "{{ resource_prefix }}-{{ item.key }}"

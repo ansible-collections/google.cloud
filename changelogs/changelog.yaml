@@ -142,3 +142,21 @@ releases:
     fragments:
     - 682-update-readme.yaml
     release_date: '2025-04-30'
+  1.6.0:
+    changes:
+      bugfixes:
+      - gcp_secret_manager - cleaned up error responses (https://github.com/ansible-collections/google.cloud/pull/690).
+      - gcp_serviceusage_service - updated documentation (https://github.com/ansible-collections/google.cloud/pull/691).
+      minor_changes:
+      - gcp_compute - added GVNIC support to compute instance (https://github.com/ansible-collections/google.cloud/pull/688).
+      - gcp_compute - added ``discard_local_ssd`` flag to compute instance (https://github.com/ansible-collections/google.cloud/pull/686).
+      - gcp_compute - added hostname support to dynamic inventory (https://github.com/ansible-collections/google.cloud/pull/689).
+      - gcp_secret_manager - added support for regional secret manager (https://github.com/ansible-collections/google.cloud/pull/685).
+    fragments:
+    - 685-support-for-regional-secret-manager.yaml
+    - 686-add-discard_local_ssd-flag-to-compute-instance.yaml
+    - 688-add-gvnic-support.yaml
+    - 689-hostname-support-for-dynamic-inventory.yaml
+    - 690-clear-up-error-responses-from-gcp_secret_manager-lookup.yaml
+    - 691-updated-documentation-for-gcp_serviceusage_service.yaml
+    release_date: '2025-06-20'

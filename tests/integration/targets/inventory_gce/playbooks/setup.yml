@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars_files:
-    - vars.yml
+    - ../vars.yml
   tasks:
     - name: SETUP | Create network
       google.cloud.gcp_compute_network:

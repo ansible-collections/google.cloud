@@ -11,7 +11,7 @@ RC=0
 # we want to run teardown regardless of playbook exit status, so catch the
 # exit code of ansible-playbook manually
 set +e
-for ts in playbooks/testcase_*.yml;
+for ts in testcase_*.yml;
 do
     testcase=$( basename "$ts" | sed -e 's/testcase_//' | sed -e 's/.yml//' )
     ansible-playbook playbooks/test.yml "$@" --extra-vars "testcase=${testcase}"

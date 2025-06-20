@@ -4,6 +4,23 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.6.0
+======
+
+Minor Changes
+-------------
+
+- gcp_compute - added GVNIC support to compute instance (https://github.com/ansible-collections/google.cloud/pull/688).
+- gcp_compute - added ``discard_local_ssd`` flag to compute instance (https://github.com/ansible-collections/google.cloud/pull/686).
+- gcp_compute - added hostname support to dynamic inventory (https://github.com/ansible-collections/google.cloud/pull/689).
+- gcp_secret_manager - added support for regional secret manager (https://github.com/ansible-collections/google.cloud/pull/685).
+
+Bugfixes
+--------
+
+- gcp_secret_manager - cleaned up error responses (https://github.com/ansible-collections/google.cloud/pull/690).
+- gcp_serviceusage_service - updated documentation (https://github.com/ansible-collections/google.cloud/pull/691).
+
 v1.5.3
 ======
 
