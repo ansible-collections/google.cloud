@@ -1,0 +1,3 @@
+bugfixes:
+  - gcp_serviceusage_service - updated documentation
+    (https://github.com/ansible-collections/google.cloud/pull/691).
