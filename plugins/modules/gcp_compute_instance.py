@@ -395,6 +395,19 @@ options:
           field to "{{ name-of-resource }}"'
         required: false
         type: dict
+      nic_type:
+        description:
+        - Type of network interface card attached to instance.
+        - If unspecified it will use the default provided by GCP.
+        - As the next generation network interface which succeeds VirtIO, gVNIC
+          replaces VirtIO-Net as the only supported network interface in Compute
+          Engine for all new machine types (Generation 3 and onwards).
+        - Newer machine series and networking features require gVNIC instead of VirtIO.
+        required: false
+        type: str
+        choices:
+        - VIRTIO_NET
+        - GVNIC
   scheduling:
     description:
     - Sets the scheduling options for this instance.
@@ -1174,6 +1187,7 @@ def main():
                     network=dict(type='dict'),
                     network_ip=dict(type='str'),
                     subnetwork=dict(type='dict'),
+                    nic_type=dict(type='str', choices=['VIRTIO_NET', 'GVNIC']),
                 ),
             ),
             scheduling=dict(
@@ -1715,6 +1729,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
                 u'networkIP': item.get('network_ip'),
                 u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
+                u'nicType': item.get('nic_type'),
             }
         )
 
@@ -1726,6 +1741,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'network': item.get(u'network'),
                 u'networkIP': item.get(u'networkIP'),
                 u'subnetwork': item.get(u'subnetwork'),
+                u'nicType': item.get(u'nicType'),
             }
         )
 
