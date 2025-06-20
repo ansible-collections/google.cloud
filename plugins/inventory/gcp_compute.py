@@ -23,7 +23,7 @@ DOCUMENTATION = """
             required: True
             choices: ['google.cloud.gcp_compute', 'gcp_compute']
         zones:
-          description: A list of regions in which to describe GCE instances.
+          description: A list of zones in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
           type: list
           elements: string
@@ -48,7 +48,7 @@ DOCUMENTATION = """
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
+              'public_ip', 'private_ip', 'name', 'hostname' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
           elements: string
@@ -121,7 +121,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 plugin: google.cloud.gcp_compute
-zones: # populate inventory with instances in these regions
+zones: # populate inventory with instances in these zones
   - us-east1-a
 projects:
   - gcp-prod-gke-100
@@ -248,6 +248,8 @@ class GcpInstance(object):
                 name = self._get_publicip()
             elif order == "private_ip":
                 name = self._get_privateip()
+            elif order == "hostname":
+                name = self.json.get("hostname", self.json["name"] + self.name_suffix)
             elif order == "name":
                 name = self.json["name"] + self.name_suffix
             else:
