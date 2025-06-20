@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.5.4
+======
+
+Bugfixes
+--------
+
+- gcp_compute_instance - add discard_local_ssd flag to enable deletion of instances with local disks (https://github.com/ansible-collections/google.cloud/pull/686).
+
 v1.5.3
 ======
 
