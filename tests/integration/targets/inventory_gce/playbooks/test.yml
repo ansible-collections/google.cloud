@@ -12,12 +12,12 @@
         content: "{{ lookup('template', '../templates/inventory.yml.j2') }}"
         mode: preserve
 
-    - name: slurp
+    - name: TEST | slurp
       ansible.builtin.slurp:
         src: "../{{ inventory_filename }}"
       register: _inv
 
-    - name: debug
+    - name: TEST | debug
       ansible.builtin.debug:
         msg: "{{ _inv.content | b64decode }}"
         verbosity: 3
