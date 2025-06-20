@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars_files:
-    - vars.yml
+    - ../vars.yml
   tasks:
     - name: TEST | render inventory file
       ansible.builtin.copy:
@@ -27,4 +27,4 @@
 
     - name: TEST | run test case
       ansible.builtin.include_tasks:
-        file: "testcase_{{ testcase }}.yml"
+        file: "../testcase_{{ testcase }}.yml"
