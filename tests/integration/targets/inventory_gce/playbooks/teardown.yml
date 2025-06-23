@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars_files:
-    - vars.yml
+    - ../vars.yml
   tasks:
     - name: TEARDOWN | Delete instance  # noqa: ignore-errors
       google.cloud.gcp_compute_instance:
