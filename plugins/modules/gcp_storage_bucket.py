@@ -186,6 +186,33 @@ options:
         - 'Some valid choices include: "OWNER", "READER"'
         required: true
         type: str
+  iam_configuration:
+    description:
+    - IAM configuration for the storage bucket.
+    required: false
+    type: dict
+    suboptions:
+      public_access_prevention:
+        description:
+        - The bucket's public access prevention status.
+        required: false
+        type: str
+        default: inherited
+        choices:
+        - inherited
+        - enforced
+      uniform_bucket_level_access:
+        description:
+        - The bucket's uniform bucket-level access configuration.
+        required: false
+        type: dict
+        suboptions:
+          enabled:
+            description:
+            - Whether or not the bucket uses uniform bucket-level access.
+            - If set, access checks only use bucket-level IAM policies or above.
+            required: false
+            type: bool
   lifecycle:
     description:
     - The bucket's lifecycle configuration.
@@ -209,7 +236,7 @@ options:
             suboptions:
               storage_class:
                 description:
-                - Target storage class. Required iff the type of the action is SetStorageClass.
+                - Target storage class. Required if the type of the action is SetStorageClass.
                 required: false
                 type: str
               type:
@@ -627,6 +654,29 @@ defaultObjectAcl:
       - The access permission for the entity.
       returned: success
       type: str
+iamConfiguration:
+  description:
+  - IAM configuration for the storage bucket.
+  returned: success
+  type: complex
+  contains:
+      publicAccessPrevention:
+        description:
+        - The bucket's public access prevention status.
+        returned: success
+        type: str
+      uniformBucketLevelAccess:
+        description:
+        - The bucket's uniform bucket-level access configuration.
+        returned: success
+        type: complex
+        contains:
+          enabled:
+            description:
+            - Whether or not the bucket uses uniform bucket-level access.
+            - If set, access checks only use bucket-level IAM policies or above.
+            returned: success
+            type: bool
 id:
   description:
   - The ID of the bucket. For buckets, the id and name properities are the same.
@@ -922,6 +972,21 @@ def main():
                     role=dict(required=True, type='str'),
                 ),
             ),
+            iam_configuration=dict(
+                type='dict',
+                options=dict(
+                    public_access_prevention=dict(
+                        type='str', default='inherited',
+                        choices=['inherited', 'enforced'],
+                    ),
+                    uniform_bucket_level_access=dict(
+                        type='dict',
+                        options=dict(
+                            enabled=dict(type='bool'),
+                        ),
+                    ),
+                ),
+            ),
             lifecycle=dict(
                 type='dict',
                 options=dict(
@@ -1017,6 +1082,7 @@ def resource_to_request(module):
         u'cors': BucketCorsArray(module.params.get('cors', []), module).to_request(),
         u'defaultEventBasedHold': module.params.get('default_event_based_hold'),
         u'defaultObjectAcl': BucketDefaultobjectaclArray(module.params.get('default_object_acl', []), module).to_request(),
+        u'iamConfiguration': BucketIamconfiguration(module.params.get('iam_configuration', {}), module).to_request(),
         u'lifecycle': BucketLifecycle(module.params.get('lifecycle', {}), module).to_request(),
         u'location': module.params.get('location'),
         u'logging': BucketLogging(module.params.get('logging', {}), module).to_request(),
@@ -1095,8 +1161,9 @@ def response_to_hash(module, response):
         u'acl': BucketAclArray(response.get(u'acl', []), module).from_response(),
         u'cors': BucketCorsArray(response.get(u'cors', []), module).from_response(),
         u'defaultEventBasedHold': response.get(u'defaultEventBasedHold'),
-        u'defaultObjectAcl': BucketDefaultobjectaclArray(module.params.get('default_object_acl', []), module).to_request(),
+        u'defaultObjectAcl': BucketDefaultobjectaclArray(module.params.get('default_object_acl', []), module).from_response(),
         u'id': response.get(u'id'),
+        u'iamConfiguration': BucketIamconfiguration(response.get('iamConfiguration', {}), module).from_response(),
         u'lifecycle': BucketLifecycle(response.get(u'lifecycle', {}), module).from_response(),
         u'location': response.get(u'location'),
         u'logging': BucketLogging(response.get(u'logging', {}), module).from_response(),
@@ -1427,6 +1494,28 @@ class BucketWebsite(object):
 
     def from_response(self):
         return remove_nones_from_dict({u'mainPageSuffix': self.request.get(u'mainPageSuffix'), u'notFoundPage': self.request.get(u'notFoundPage')})
+
+
+class BucketIamconfiguration(object):
+    def __init__(self, transport, module):
+        self.module = module
+        # transport can be either the request or response objects
+        if transport:
+            self.transport = transport
+        else:
+            self.transport = {}
+
+    def to_request(self):
+        return remove_nones_from_dict({
+            u'publicAccessPrevention': self.transport.get('public_access_prevention'),
+            u'uniformBucketLevelAccess': self.transport.get('uniform_bucket_level_access'),
+        })
+
+    def from_response(self):
+        return remove_nones_from_dict({
+            u'publicAccessPrevention': self.transport.get('publicAccessPrevention'),
+            u'uniformBucketLevelAccess': self.transport.get('uniformBucketLevelAccess'),
+        })
 
 
 if __name__ == '__main__':
