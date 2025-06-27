@@ -56,17 +56,17 @@ options:
       dataset_id:
         description:
         - The ID of the dataset containing this table.
-        required: false
+        required: true
         type: str
       project_id:
         description:
         - The ID of the project containing this table.
-        required: false
+        required: true
         type: str
       table_id:
         description:
         - The ID of the the table.
-        required: false
+        required: true
         type: str
   clustering:
     description:
@@ -1016,7 +1016,11 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            table_reference=dict(type='dict', options=dict(dataset_id=dict(type='str'), project_id=dict(type='str'), table_id=dict(type='str'))),
+            table_reference=dict(type='dict', options=dict(
+                dataset_id=dict(type='str', required=True),
+                project_id=dict(type='str', required=True),
+                table_id=dict(type='str', required=True)
+            )),
             clustering=dict(type='list', elements='str'),
             description=dict(type='str'),
             friendly_name=dict(type='str'),
