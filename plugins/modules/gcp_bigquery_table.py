@@ -181,7 +181,7 @@ options:
           fields:
             description:
             - Describes the nested schema fields if the type property is set to RECORD.
-            elements: str
+            elements: raw
             required: false
             type: list
           mode:
@@ -296,7 +296,7 @@ options:
                 description:
                 - Describes the nested schema fields if the type property is set to
                   RECORD .
-                elements: str
+                elements: raw
                 required: false
                 type: list
               mode:
@@ -1045,7 +1045,7 @@ def main():
                         elements='dict',
                         options=dict(
                             description=dict(type='str'),
-                            fields=dict(type='list', elements='str'),
+                            fields=dict(type='list', elements='raw'),
                             mode=dict(type='str'),
                             name=dict(type='str'),
                             type=dict(type='str'),
@@ -1072,7 +1072,7 @@ def main():
                                 elements='dict',
                                 options=dict(
                                     description=dict(type='str'),
-                                    fields=dict(type='list', elements='str'),
+                                    fields=dict(type='list', elements='raw'),
                                     mode=dict(type='str'),
                                     name=dict(type='str'),
                                     type=dict(type='str'),
