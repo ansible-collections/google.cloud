@@ -32,7 +32,7 @@ SERVICE_LIST=(
 
 REQUIRED_ROLE_LIST=(
     "roles/storage.objectAdmin"
-    "roles/storage.legacyBucketReader"
+    "roles/storage.bucketViewer"
     "roles/storage.objectCreator"
     "roles/source.admin"
 )
