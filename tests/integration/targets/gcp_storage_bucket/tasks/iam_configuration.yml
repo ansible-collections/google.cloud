@@ -1,0 +1,86 @@
+---
+- name: Run test cases
+  block:
+  # --------------------------------------------------------------------------
+  - name: Create default bucket
+    google.cloud.gcp_storage_bucket:
+      name: "{{ resource_name }}-default"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      state: present
+    register: result
+
+  - name: Assert changed is true and default values are returned
+    ansible.builtin.assert:
+      that:
+        - result.changed == true
+        - result.iamConfiguration.publicAccessPrevention == 'inherited'
+        - result.iamConfiguration.uniformBucketLevelAccess.enabled == false
+  # --------------------------------------------------------------------------
+  - name: Create bucket with enforced PAP
+    google.cloud.gcp_storage_bucket:
+      name: "{{ resource_name }}-pap"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      state: present
+      iam_configuration:
+        public_access_prevention: enforced
+    register: result
+
+  - name: Assert changed is true and IAM PAP is 'enforced'
+    ansible.builtin.assert:
+      that:
+        - result.changed == true
+        - result.iamConfiguration.publicAccessPrevention == 'enforced'
+  # --------------------------------------------------------------------------
+  - name: Create bucket with UBLA enabled
+    google.cloud.gcp_storage_bucket:
+      name: "{{ resource_name }}-ublae"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      state: present
+      iam_configuration:
+        uniform_bucket_level_access:
+          enabled: true
+    register: result
+
+  - name: Assert changed is true and IAM UBLA is enabled
+    ansible.builtin.assert:
+      that:
+        - result.changed == true
+        - result.iamConfiguration.uniformBucketLevelAccess.enabled == true
+  # --------------------------------------------------------------------------
+  - name: Create bucket with UBLA disabled
+    google.cloud.gcp_storage_bucket:
+      name: "{{ resource_name }}-ublad"
+      project: "{{ gcp_project }}"
+      auth_kind: "{{ gcp_cred_kind }}"
+      service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      state: present
+      iam_configuration:
+        uniform_bucket_level_access:
+          enabled: false
+    register: result
+
+  - name: Assert changed is true and IAM UBLA is disabled
+    ansible.builtin.assert:
+      that:
+        - result.changed == true
+        - result.iamConfiguration.uniformBucketLevelAccess.enabled == false
+  # --------------------------------------------------------------------------
+  always:
+    - name: Clean up buckets
+      google.cloud.gcp_storage_bucket:
+        name: "{{ resource_name }}-{{ item }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: absent
+      loop:
+        - default
+        - pap
+        - ublae
+        - ublad
