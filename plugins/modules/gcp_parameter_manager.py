@@ -640,7 +640,7 @@ def main():
         fetch['changed'] = changed
         fetch['name'] = module.params.get('name')
     except Exception as e:
-        module.fail_json(msg=f"An unexpected error occurred: {str(e)}")
+        module.fail_json(msg=str(e))
 
     module.exit_json(**fetch)
 
