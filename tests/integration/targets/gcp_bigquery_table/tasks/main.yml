@@ -1,3 +1,8 @@
 ---
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
+
+- name: Run nested test cases
+  ansible.builtin.include_tasks: nested.yml
+  vars:
+    dataset_name: "{{ resource_name | replace('-', '_') }}_nested"
