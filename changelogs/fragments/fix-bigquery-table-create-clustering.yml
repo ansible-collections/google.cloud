@@ -1,2 +1,0 @@
-bugfixes:
-  - gcp_bigquery_table - properly handle BigQuery table clustering fields

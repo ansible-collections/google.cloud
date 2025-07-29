@@ -764,7 +764,9 @@ def main():
                     accelerators=dict(type='list', elements='dict', options=dict(accelerator_count=dict(type='int'), accelerator_type=dict(type='str'))),
                     disk_type=dict(type='str'),
                     min_cpu_platform=dict(type='str'),
-                    taints=dict(type='list', elements='dict', options=dict(key=dict(type='str'), value=dict(type='str'), effect=dict(type='str'))),
+                    taints=dict(type='list',
+                                elements='dict',
+                                options=dict(key=dict(type='str', no_log=False), value=dict(type='str'), effect=dict(type='str'))),
                     shielded_instance_config=dict(
                         type='dict', options=dict(enable_secure_boot=dict(type='bool'), enable_integrity_monitoring=dict(type='bool'))
                     ),

@@ -104,6 +104,7 @@ options:
     - If set to true, the request will create a CryptoKey without any CryptoKeyVersions.
       You must use the `google_kms_key_ring_import_job` resource to import the CryptoKeyVersion.
     required: false
+    default: false
     type: bool
   project:
     description:
@@ -284,7 +285,7 @@ def main():
             purpose=dict(default='ENCRYPT_DECRYPT', type='str'),
             rotation_period=dict(type='str'),
             version_template=dict(type='dict', options=dict(algorithm=dict(required=True, type='str'), protection_level=dict(type='str'))),
-            key_ring=dict(required=True, type='str'),
+            key_ring=dict(required=True, type='str', no_log=False),
             skip_initial_version_creation=dict(type='bool', default=False),
         )
     )

@@ -12,7 +12,7 @@ gcloud_yum_baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x8
 gcloud_yum_key: https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 # default values for gcloud archive installation
-gcloud_version: 268.0.0
+gcloud_version: 505.0.0
 gcloud_archive_name: google-cloud-sdk-{{ gcloud_version }}-linux-{{ ansible_architecture }}.tar.gz
 gcloud_archive_url: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/{{ gcloud_archive_name }}
 gcloud_archive_path: /usr/lib

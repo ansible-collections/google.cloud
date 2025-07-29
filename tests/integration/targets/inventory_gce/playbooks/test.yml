@@ -1,0 +1,30 @@
+---
+- name: Test
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars.yml
+  tasks:
+    - name: TEST | render inventory file
+      ansible.builtin.copy:
+        dest: "../{{ inventory_filename }}"
+        content: "{{ lookup('template', '../templates/inventory.yml.j2') }}"
+        mode: preserve
+
+    - name: TEST | slurp
+      ansible.builtin.slurp:
+        src: "../{{ inventory_filename }}"
+      register: _inv
+
+    - name: TEST | debug
+      ansible.builtin.debug:
+        msg: "{{ _inv.content | b64decode }}"
+        verbosity: 3
+
+    - name: TEST | refresh inventory
+      ansible.builtin.meta: refresh_inventory
+
+    - name: TEST | run test case
+      ansible.builtin.include_tasks:
+        file: "../testcase_{{ testcase }}.yml"

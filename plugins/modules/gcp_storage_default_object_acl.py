@@ -62,6 +62,10 @@ options:
     - The name of the bucket.
     required: true
     type: dict
+  object:
+    description:
+    - The target of the ACL.
+    type: str
   entity:
     description:
     - 'The entity holding the permission, in one of the following forms: * user-{{userId}}

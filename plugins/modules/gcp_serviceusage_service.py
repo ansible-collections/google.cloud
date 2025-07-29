@@ -103,6 +103,8 @@ options:
     type: str
 notes:
 - 'Getting Started: U(https://cloud.google.com/service-usage/docs/getting-started)'
+- For this module to work, the serviceusage.googleapis.com service must be enabled
+  U(https://cloud.google.com/service-usage/docs/enable-disable#gcloud) already.
 - for authentication, you can set service_account_file using the C(GCP_SERVICE_ACCOUNT_FILE)
   env variable.
 - for authentication, you can set service_account_contents using the C(GCP_SERVICE_ACCOUNT_CONTENTS)

@@ -93,7 +93,7 @@ options:
       max_duration:
         description:
         - Subscription writes a new output file if the specified value of max duration is exceeded. Min 60s, max 600s.
-        required: true
+        required: false
         type: str
       max_bytes:
         description:
@@ -108,7 +108,7 @@ options:
       output_format:
         description:
         - Specify the format of the output files that are to be stored in a Cloud Storage bucket as text or avro.
-        required: true
+        required: false
         type: str
       write_metadata:
         description:
@@ -654,7 +654,9 @@ def main():
             push_config=dict(
                 type='dict',
                 options=dict(
-                    oidc_token=dict(type='dict', options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
+                    oidc_token=dict(type='dict',
+                                    no_log=False,
+                                    options=dict(service_account_email=dict(required=True, type='str'), audience=dict(type='str'))),
                     push_endpoint=dict(required=True, type='str'),
                     attributes=dict(type='dict'),
                 ),

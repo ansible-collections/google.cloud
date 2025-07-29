@@ -1,0 +1,76 @@
+---
+- name: Debug
+  ansible.builtin.debug:
+    msg: "Testing {{ item.key }} scenario"
+
+- name: Test GVNIC scenarios
+  block:
+    - name: Create disk
+      google.cloud.gcp_compute_disk:
+        name: "{{ resource_prefix }}-{{ item.key }}"
+        size_gb: 50
+        source_image: projects/rhel-cloud/global/images/rhel-9-v20250513
+        zone: us-central1-a
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: present
+      register: _disk
+
+    - name: Create instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-{{ item.key }}"
+        machine_type: n1-standard-1
+        disks:
+          - auto_delete: "true"
+            boot: "true"
+            source: "{{ _disk }}"
+        network_interfaces:
+          - network: "{{ _network }}"
+            nic_type: "{{ item.value if item.value != 'default' else omit }}"
+        zone: us-central1-a
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: present
+      register: _result
+
+    - name: Verify instance was created
+      google.cloud.gcp_compute_instance_info:
+        filters:
+          - name = {{ resource_name }}-{{ item.key }}
+        zone: us-central1-a
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        scopes:
+          - https://www.googleapis.com/auth/compute
+      register: _info
+
+    # The default option won't expose nicType via API, param will be missing
+    - name: Pass assertions
+      ansible.builtin.assert:
+        that:
+          - _result.changed == true
+          - _result.networkInterfaces[0].nicType | default('default') == item.value
+          - _info.resources[0].networkInterfaces[0].nicType | default('default') == item.value
+
+  always:
+    - name: Delete instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-{{ item.key }}"
+        machine_type: n1-standard-1
+        zone: us-central1-a
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: absent
+
+    - name: Delete disk
+      google.cloud.gcp_compute_disk:
+        name: "{{ resource_prefix }}-{{ item.key }}"
+        zone: us-central1-a
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: absent

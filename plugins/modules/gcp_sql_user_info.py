@@ -158,7 +158,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(instance=dict(required=True, type='dict')))
+    module = GcpModule(argument_spec=dict(instance=dict(required=True, type='dict')), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/sqlservice.admin']

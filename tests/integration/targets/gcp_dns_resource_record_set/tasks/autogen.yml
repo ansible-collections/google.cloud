@@ -36,7 +36,7 @@
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Create a resource record set
   google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
@@ -87,7 +87,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Delete a resource record set
   google.cloud.gcp_dns_resource_record_set:
     name: www.testzone-4.com.
@@ -138,7 +138,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#---------------------------------------------------------
+# ---------------------------------------------------------
 # Post-test teardown
 # If errors happen, don't crash the playbook!
 - name: Delete a managed zone

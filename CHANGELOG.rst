@@ -4,6 +4,70 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.6.0
+======
+
+Minor Changes
+-------------
+
+- gcp_compute - added GVNIC support to compute instance (https://github.com/ansible-collections/google.cloud/pull/688).
+- gcp_compute - added ``discard_local_ssd`` flag to compute instance (https://github.com/ansible-collections/google.cloud/pull/686).
+- gcp_compute - added hostname support to dynamic inventory (https://github.com/ansible-collections/google.cloud/pull/689).
+- gcp_secret_manager - added support for regional secret manager (https://github.com/ansible-collections/google.cloud/pull/685).
+
+Bugfixes
+--------
+
+- gcp_secret_manager - cleaned up error responses (https://github.com/ansible-collections/google.cloud/pull/690).
+- gcp_serviceusage_service - updated documentation (https://github.com/ansible-collections/google.cloud/pull/691).
+
+v1.5.3
+======
+
+Bugfixes
+--------
+
+- updated README to match required format (https://github.com/ansible-collections/google.cloud/pull/682).
+
+v1.5.2
+======
+
+Bugfixes
+--------
+
+- gcp_compute - fixed get_project_disks to process all responses (https://github.com/ansible-collections/google.cloud/pull/677).
+
+v1.5.1
+======
+
+Bugfixes
+--------
+
+- run integration test with Ansible 2.16 to match `requires_ansible` version
+
+v1.5.0
+======
+
+Major Changes
+-------------
+
+- google_cloud_ops_agents - role submodule removed because it prevents the collection from passing sanity and lint tests
+
+Minor Changes
+-------------
+
+- gcp_pubsub_subscription - allows to create GCS subscription
+
+Bugfixes
+--------
+
+- ansible - 2.17 is now the minimum version supported
+- ansible - 3.11 is now the minimum Python version
+- ansible-test - fixed sanity tests
+- ansible-test - integration tests are now run against 2.17 and 2.18
+- gcp_bigquery_table - properly handle BigQuery table clustering fields
+- gcp_pubsub_subscription - fixed improper subscription uprade PATCH request
+
 v1.4.1
 ======
 

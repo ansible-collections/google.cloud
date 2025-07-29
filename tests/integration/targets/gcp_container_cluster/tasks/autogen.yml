@@ -25,7 +25,7 @@
     auth_kind: serviceaccount
     service_account_file: "{{ gcp_cred_file | default(omit) }}"
     state: absent
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Create a cluster
   google.cloud.gcp_container_cluster:
     name: my-cluster
@@ -74,7 +74,7 @@
   ansible.builtin.assert:
     that:
       - result.changed == false
-#----------------------------------------------------------
+# ----------------------------------------------------------
 - name: Delete a cluster
   google.cloud.gcp_container_cluster:
     name: my-cluster

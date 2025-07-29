@@ -1,0 +1,38 @@
+---
+gcp_region: us-central1
+gcp_zones:
+  - "{{ gcp_region }}-a"
+  - "{{ gcp_region }}-b"
+  - "{{ gcp_region }}-c"
+  - "{{ gcp_region }}-f"
+gcp_zone: "{{ gcp_zones | first }}"
+gcp_disk_image: projects/centos-cloud/global/images/centos-stream-9-v20250513
+
+prefix: "{{ resource_prefix | default('d3adb33f') }}"
+sut:
+  - name: vm1
+    hostname: "vm1.static.{{ prefix }}.com"
+    labels:
+      dns: static
+  - name: vm2
+    labels:
+      cluster: db
+      env: prod
+  - name: vm3
+    labels:
+      cluster: web
+      env: prod
+
+testcase: basic
+testcases:
+  basic:
+    filters:
+      - status = RUNNING
+    hostnames:
+      - name
+  hostname:
+    hostnames:
+      - hostname
+      - name
+
+inventory_filename: test.gcp_compute.yml

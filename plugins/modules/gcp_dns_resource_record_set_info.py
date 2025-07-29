@@ -160,7 +160,7 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(managed_zone=dict(required=True, type='dict')))
+    module = GcpModule(argument_spec=dict(managed_zone=dict(required=True, type='dict')), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/ndev.clouddns.readwrite']

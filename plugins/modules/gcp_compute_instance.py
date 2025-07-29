@@ -61,6 +61,13 @@ options:
     - Whether the resource should be protected against deletion.
     required: false
     type: bool
+  discard_local_ssd:
+    description:
+    - Discards the contents of any attached Local SSD disks when changing status
+      to TERMINATED.
+    default: True
+    required: false
+    type: bool
   disks:
     description:
     - An array of disks that are associated with the instances that are created from
@@ -388,6 +395,19 @@ options:
           field to "{{ name-of-resource }}"'
         required: false
         type: dict
+      nic_type:
+        description:
+        - Type of network interface card attached to instance.
+        - If unspecified it will use the default provided by GCP.
+        - As the next generation network interface which succeeds VirtIO, gVNIC
+          replaces VirtIO-Net as the only supported network interface in Compute
+          Engine for all new machine types (Generation 3 and onwards).
+        - Newer machine series and networking features require gVNIC instead of VirtIO.
+        required: false
+        type: str
+        choices:
+        - VIRTIO_NET
+        - GVNIC
   scheduling:
     description:
     - Sets the scheduling options for this instance.
@@ -1117,6 +1137,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             can_ip_forward=dict(type='bool', aliases=['ip_forward']),
             deletion_protection=dict(type='bool'),
+            discard_local_ssd=dict(type='bool', required=False, default=True),
             disks=dict(
                 type='list',
                 elements='dict',
@@ -1124,7 +1145,9 @@ def main():
                     auto_delete=dict(type='bool'),
                     boot=dict(type='bool'),
                     device_name=dict(type='str'),
-                    disk_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'), rsa_encrypted_key=dict(type='str'))),
+                    disk_encryption_key=dict(type='dict',
+                                             no_log=True,
+                                             options=dict(raw_key=dict(type='str', no_log=True), rsa_encrypted_key=dict(type='str', no_log=True))),
                     index=dict(type='int'),
                     initialize_params=dict(
                         type='dict',
@@ -1133,7 +1156,7 @@ def main():
                             disk_size_gb=dict(type='int'),
                             disk_type=dict(type='str'),
                             source_image=dict(type='str', aliases=['image', 'image_family']),
-                            source_image_encryption_key=dict(type='dict', options=dict(raw_key=dict(type='str'))),
+                            source_image_encryption_key=dict(type='dict', no_log=True, options=dict(raw_key=dict(type='str', no_log=True))),
                         ),
                     ),
                     interface=dict(type='str'),
@@ -1170,6 +1193,7 @@ def main():
                     network_ip=dict(type='str'),
                     subnetwork=dict(type='dict'),
                     stack_type=dict(type='str'),
+                    nic_type=dict(type='str', choices=['VIRTIO_NET', 'GVNIC']),
                 ),
             ),
             scheduling=dict(
@@ -1510,7 +1534,9 @@ class InstancePower(object):
         return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/start".format(**self.module.params)
 
     def _stop_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop?discardLocalSsd={discard_local_ssd}".format(
+            **self.module.params
+        )
 
 
 def deletion_protection_update(module, request, response):
@@ -1710,6 +1736,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'networkIP': item.get('network_ip'),
                 u'stackType': item.get('stack_type'),
                 u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
+                u'nicType': item.get('nic_type'),
             }
         )
 
@@ -1722,6 +1749,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'networkIP': item.get(u'networkIP'),
                 u'stackType': item.get('stackType'),
                 u'subnetwork': item.get(u'subnetwork'),
+                u'nicType': item.get(u'nicType'),
             }
         )
 

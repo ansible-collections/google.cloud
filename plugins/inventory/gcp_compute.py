@@ -7,7 +7,6 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     name: gcp_compute
-    plugin_type: inventory
     short_description: Google Cloud Compute Engine inventory source
     requirements:
         - requests >= 2.18.4
@@ -24,17 +23,20 @@ DOCUMENTATION = """
             required: True
             choices: ['google.cloud.gcp_compute', 'gcp_compute']
         zones:
-          description: A list of regions in which to describe GCE instances.
+          description: A list of zones in which to describe GCE instances.
                        If none provided, it defaults to all zones available to a given project.
           type: list
+          elements: string
         folders:
           description: A folder that contains many projects
           type: list
           required: False
+          elements: string
         projects:
           description: A list of projects in which to describe GCE instances.
           type: list
           required: False
+          elements: string
         filters:
           description: >
             A list of filter value pairs. Available filters are listed here
@@ -42,12 +44,14 @@ DOCUMENTATION = """
             Each additional filter in the list will be added as an AND condition
             (filter1 and filter2)
           type: list
+          elements: string
         hostnames:
           description: A list of options that describe the ordering for which
               hostnames should be assigned. Currently supported hostnames are
-              'public_ip', 'private_ip', 'name' or 'labels.vm_name'.
+              'public_ip', 'private_ip', 'name', 'hostname' or 'labels.vm_name'.
           default: ['public_ip', 'private_ip', 'name']
           type: list
+          elements: string
         name_suffix:
           description: Custom domain suffix. If set, this string will be appended to all hosts.
           default: ""
@@ -63,6 +67,7 @@ DOCUMENTATION = """
         scopes:
             description: list of authentication scopes
             type: list
+            elements: string
             default: ['https://www.googleapis.com/auth/compute']
             env:
                 - name: GCP_SCOPES
@@ -116,7 +121,7 @@ DOCUMENTATION = """
 
 EXAMPLES = """
 plugin: google.cloud.gcp_compute
-zones: # populate inventory with instances in these regions
+zones: # populate inventory with instances in these zones
   - us-east1-a
 projects:
   - gcp-prod-gke-100
@@ -243,6 +248,8 @@ class GcpInstance(object):
                 name = self._get_publicip()
             elif order == "private_ip":
                 name = self._get_privateip()
+            elif order == "hostname":
+                name = self.json.get("hostname", self.json["name"] + self.name_suffix)
             elif order == "name":
                 name = self.json["name"] + self.name_suffix
             else:
@@ -482,38 +489,38 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                         session_responses.append(response_json)
                     page_token = "pageToken" in request_params
 
-            for response in session_responses:
-                if "items" in response:
-                    # example k would be a zone or region name
-                    # example v would be { "disks" : [], "otherkey" : "..." }
-                    for zone_or_region, aggregate in response["items"].items():
-                        if "zones" in zone_or_region:
-                            if "disks" in aggregate:
-                                zone = zone_or_region.replace("zones/", "")
-                                for disk in aggregate["disks"]:
-                                    if (
-                                        "zones" in config_data
-                                        and zone in config_data["zones"]
-                                    ):
-                                        # If zones specified, only store those zones' data
-                                        if "sourceImage" in disk:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["sourceImage"].split("/")[-1]
-                                        else:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["selfLink"].split("/")[-1]
+                for response in session_responses:
+                    if "items" in response:
+                        # example k would be a zone or region name
+                        # example v would be { "disks" : [], "otherkey" : "..." }
+                        for zone_or_region, aggregate in response["items"].items():
+                            if "zones" in zone_or_region:
+                                if "disks" in aggregate:
+                                    zone = zone_or_region.replace("zones/", "")
+                                    for disk in aggregate["disks"]:
+                                        if (
+                                            "zones" in config_data
+                                            and zone in config_data["zones"]
+                                        ):
+                                            # If zones specified, only store those zones' data
+                                            if "sourceImage" in disk:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["sourceImage"].split("/")[-1]
+                                            else:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["selfLink"].split("/")[-1]
 
-                                    else:
-                                        if "sourceImage" in disk:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["sourceImage"].split("/")[-1]
                                         else:
-                                            self._project_disks[
-                                                disk["selfLink"]
-                                            ] = disk["selfLink"].split("/")[-1]
+                                            if "sourceImage" in disk:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["sourceImage"].split("/")[-1]
+                                            else:
+                                                self._project_disks[
+                                                    disk["selfLink"]
+                                                ] = disk["selfLink"].split("/")[-1]
 
         return self._project_disks
 

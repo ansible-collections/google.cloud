@@ -100,3 +100,63 @@ releases:
     fragments:
     - release-1-4-1.yml
     release_date: '2024-08-22'
+  1.5.0:
+    changes:
+      bugfixes:
+      - ansible - 2.17 is now the minimum version supported
+      - ansible - 3.11 is now the minimum Python version
+      - ansible-test - fixed sanity tests
+      - ansible-test - integration tests are now run against 2.17 and 2.18
+      - gcp_bigquery_table - properly handle BigQuery table clustering fields
+      - gcp_pubsub_subscription - fixed improper subscription uprade PATCH request
+      major_changes:
+      - google_cloud_ops_agents - role submodule removed because it prevents the collection
+        from passing sanity and lint tests
+      minor_changes:
+      - gcp_pubsub_subscription - allows to create GCS subscription
+    fragments:
+    - fix-bigquery-table-create-clustering.yml
+    - gcp_pubsub_subscription_bugfix.yaml
+    - gcp_pubsub_subscription_gcs_feature.yaml
+    - remove-google_cloud_ops_agents-role.yml
+    - upgrade_anisble.yml
+    release_date: '2025-01-14'
+  1.5.1:
+    changes:
+      bugfixes:
+      - run integration test with Ansible 2.16 to match `requires_ansible` version
+    fragments:
+    - 667-include-2-16-in-ci.yml
+    release_date: '2025-01-30'
+  1.5.2:
+    changes:
+      bugfixes:
+      - gcp_compute - fixed get_project_disks to process all responses (https://github.com/ansible-collections/google.cloud/pull/677).
+    fragments:
+    - 677-get-project-disks.yaml
+    release_date: '2025-04-18'
+  1.5.3:
+    changes:
+      bugfixes:
+      - updated README to match required format (https://github.com/ansible-collections/google.cloud/pull/682).
+    fragments:
+    - 682-update-readme.yaml
+    release_date: '2025-04-30'
+  1.6.0:
+    changes:
+      bugfixes:
+      - gcp_secret_manager - cleaned up error responses (https://github.com/ansible-collections/google.cloud/pull/690).
+      - gcp_serviceusage_service - updated documentation (https://github.com/ansible-collections/google.cloud/pull/691).
+      minor_changes:
+      - gcp_compute - added GVNIC support to compute instance (https://github.com/ansible-collections/google.cloud/pull/688).
+      - gcp_compute - added ``discard_local_ssd`` flag to compute instance (https://github.com/ansible-collections/google.cloud/pull/686).
+      - gcp_compute - added hostname support to dynamic inventory (https://github.com/ansible-collections/google.cloud/pull/689).
+      - gcp_secret_manager - added support for regional secret manager (https://github.com/ansible-collections/google.cloud/pull/685).
+    fragments:
+    - 685-support-for-regional-secret-manager.yaml
+    - 686-add-discard_local_ssd-flag-to-compute-instance.yaml
+    - 688-add-gvnic-support.yaml
+    - 689-hostname-support-for-dynamic-inventory.yaml
+    - 690-clear-up-error-responses-from-gcp_secret_manager-lookup.yaml
+    - 691-updated-documentation-for-gcp_serviceusage_service.yaml
+    release_date: '2025-06-20'
