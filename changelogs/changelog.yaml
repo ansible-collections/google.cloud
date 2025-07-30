@@ -160,3 +160,17 @@ releases:
     - 690-clear-up-error-responses-from-gcp_secret_manager-lookup.yaml
     - 691-updated-documentation-for-gcp_serviceusage_service.yaml
     release_date: '2025-06-20'
+  1.7.0:
+    changes:
+      bugfixes:
+      - gcp_bigquery_table - fixed nested schema definitions (https://github.com/ansible-collections/google.cloud/issues/637).
+      minor_changes:
+      - gcp_parameter_manager - added module support for managing parameters and versions
+        (https://github.com/ansible-collections/google.cloud/pull/684).
+      - gcp_storage_bucket - added support for iam_configuration (https://github.com/ansible-collections/google.cloud/pull/693).
+      - lookup - added lookup via gcp_parameter_manager (https://github.com/ansible-collections/google.cloud/pull/684).
+    fragments:
+    - 684-add-support-for-parameter-manager-module-lookup.yaml
+    - 693-add-gcs-iam-configuration.yaml
+    - 694-fix-nested-bigquery-schema.yaml
+    release_date: '2025-07-29'
