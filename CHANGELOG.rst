@@ -4,6 +4,21 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.7.0
+======
+
+Minor Changes
+-------------
+
+- gcp_parameter_manager - added module support for managing parameters and versions (https://github.com/ansible-collections/google.cloud/pull/684).
+- gcp_storage_bucket - added support for iam_configuration (https://github.com/ansible-collections/google.cloud/pull/693).
+- lookup - added lookup via gcp_parameter_manager (https://github.com/ansible-collections/google.cloud/pull/684).
+
+Bugfixes
+--------
+
+- gcp_bigquery_table - fixed nested schema definitions (https://github.com/ansible-collections/google.cloud/issues/637).
+
 v1.6.0
 ======
 
