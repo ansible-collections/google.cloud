@@ -16,6 +16,10 @@ DOCUMENTATION = '''
       to maintain secrecy of this value once returned.
     - if location option is defined, then it deals with the regional secrets of the
       location
+    requirements:
+    - python >= 2.6
+    - requests >= 2.18.4
+    - google-auth >= 1.3.0
 
     options:
         key:
@@ -60,10 +64,12 @@ DOCUMENTATION = '''
             - see https://cloud.google.com/iam/docs/service-account-creds for details
             type: str
             required: False
-        service_account_info:
+        service_account_contents:
             description:
             - JSON Object representing the contents of a service_account_file obtained from Google Cloud
-            - defaults to OS env variable GCP_SERVICE_ACCOUNT_INFO if not present
+            - defaults to OS env variable GCP_SERVICE_ACCOUNT_CONTENTS if not present
+            aliases:
+            - service_account_info
             type: str
             required: False
         access_token:
@@ -201,7 +207,7 @@ class LookupModule(LookupBase):
         params['name'] = params['key']
 
         # support GCP_* env variables for some parameters
-        for param in ["project", "auth_kind", "service_account_file", "service_account_info", "service_account_email", "access_token"]:
+        for param in ["project", "auth_kind", "service_account_file", "service_account_contents", "service_account_email", "access_token"]:
             params[param] = self.fallback_from_env(param)
 
         self._display.vvv(msg=f"Module Parameters: {params}")
