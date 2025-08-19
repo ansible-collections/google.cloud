@@ -57,7 +57,7 @@ DOCUMENTATION = """
             description:
                 - The type of credential used.
             required: True
-            choices: ['application', 'serviceaccount', 'machineaccount', 'accesstoken']
+            choices: ['application', 'serviceaccount', 'machineaccount', 'accesstoken', 'impersonation']
             env:
                 - name: GCP_AUTH_KIND
         scopes:
@@ -85,6 +85,7 @@ DOCUMENTATION = """
             description:
                 - An optional service account email address if machineaccount is selected
                   and the user does not wish to use the default email.
+                - Required service account to impersonate if impersonation is selected.
             env:
                 - name: GCP_SERVICE_ACCOUNT_EMAIL
         access_token:
