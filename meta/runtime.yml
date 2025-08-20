@@ -20,7 +20,30 @@ plugin_routing:
           new customers. If your organization hasn't previously used Cloud
           Source Repositories, you can't enable the API or use Cloud Source
           Repositories.
-          Please use M(google.cloud.gcp_cloudbuildv2_repository) instead.
+    gcp_mlengine_model:
+      tombstone:
+        removal_date: 2025-01-31
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_model_info:
+      tombstone:
+        removal_date: 2025-01-31
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_version:
+      tombstone:
+        removal_date: 2025-01-31
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_version_info:
+      tombstone:
+        removal_date: 2025-01-31
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
 
 action_groups:
   gcp:
