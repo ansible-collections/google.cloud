@@ -370,6 +370,7 @@ def merge_dicts(x, y):
     z.update(y)
     return z
 
+
 def check_secret_exists(module):
     url = (make_url_prefix(module) + "secrets/{name}").format(**module.params)
     auth = get_auth(module)
@@ -391,6 +392,7 @@ def create_secret_without_value(module):
     module.raise_for_status(post_response)
     return {"msg": "Secret '{name}' created without a value".format(**module.params)}
 
+
 # Create a secret AND its first version
 def create_secret_with_value(module):
     # build the payload
@@ -406,6 +408,7 @@ def create_secret_with_value(module):
     # validate create
     module.raise_for_status(post_response)
     return update_secret(module)
+
 
 def update_secret(module):
     # build the payload
@@ -514,18 +517,18 @@ def main():
 
     # nothing came back, so the secret doesn't exist
     # Logic to handle a secret that does NOT exist
+    # Create the secret AND its first version with a value or Create the secret but without a value (empty secret)
     if not secret_exists:
         if state == 'present':
             if module.params.get('value'):
-                # Create the secret AND its first version with a value
                 fetch = create_secret_with_value(module)
                 changed = True
             else:
-                # Create the secret but without a value (empty secret)
                 fetch = create_secret_without_value(module)
                 changed = True
-        else: # state is 'absent'
-            # Secret doesn't exist, so no changes needed
+        else:
+            # state is 'absent'
+            # secret doesn't exist, so no changes needed
             fetch = {"msg": "secret '{name}' in project '{project}' not present".format(**module.params)}
 
     else:
