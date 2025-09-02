@@ -335,7 +335,7 @@ class Connection(connection.ConnectionBase):
             if cmd == "put":
                 parts.append(str(in_path))
                 parts.append(f"{self.user}@{self.host}:{out_path}")
-            elif cmd == "fetch":
+            elif cmd == "get":
                 parts.append(f"{self.user}@{self.host}:{in_path}")
                 parts.append(str(out_path))
 
@@ -433,10 +433,10 @@ class Connection(connection.ConnectionBase):
 
         return self._run(cmd=full_cmd, in_data=in_data, sudoable=sudoable)
 
-    def put_file(self, in_path: str, out_path: str) -> tuple[int, bytes, bytes]:  # type: ignore[override]
-        """uploads a file to the cloud instance"""
-
-        super(Connection, self).put_file(in_path, out_path)
+    def _transfer_file(
+        self, in_path: str, out_path: str, cmd: str
+    ) -> tuple[int, bytes, bytes]:
+        """Common reads for both put and fetch"""
 
         self.host: T.Optional[str] = self.get_option("instance")
         self.user: T.Optional[str] = self.get_option("remote_user")
@@ -452,7 +452,7 @@ class Connection(connection.ConnectionBase):
         self.gcp_zone: T.Optional[str] = self.get_option("zone")
         self.timeout: int = int(self.get_option("timeout") or DEFAULT_TIMEOUT)
 
-        D.vvv(f"PUT: {in_path} TO {out_path}", host=self.host)
+        D.vvv(f"{cmd.upper()}: {in_path} TO {out_path}", host=self.host)
         if not ospath.exists(
             converters.to_bytes(in_path, errors="surrogate_or_strict")
         ):
@@ -460,11 +460,20 @@ class Connection(connection.ConnectionBase):
                 f"File or module does not exist: {converters.to_native(in_path)}"
             )
 
-        full_cmd: T.List[str] = self._build_command("scp", "put", in_path, out_path)
+        full_cmd: T.List[str] = self._build_command("scp", cmd, in_path, out_path)
 
         return self._run(full_cmd, None)
+
+    def put_file(self, in_path: str, out_path: str) -> tuple[int, bytes, bytes]:  # type: ignore[override]
+        """uploads a file to the cloud instance"""
+
+        super(Connection, self).put_file(in_path, out_path)
+
+        return self._transfer_file(in_path, out_path, "put")
 
     def fetch_file(self, in_path: str, out_path: str) -> None:
         """downloads a file from the cloud instance"""
 
         super(Connection, self).fetch_file(in_path, out_path)
+
+        return self._transfer_file(in_path, out_path, "get")
