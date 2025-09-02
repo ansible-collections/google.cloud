@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Red Hat
+# Copyright (c) 202/ Red Hat
 # GNU General Public License v3.0+ https://www.gnu.org/licenses/gpl-3.0.txt
 
 from __future__ import absolute_import, annotations
@@ -221,13 +221,13 @@ DOCUMENTATION = """
 
 D = display.Display()
 DEFAULT_TIMEOUT: int = 10
-DEFAULT_GCLOUD: str | None = shutil.which("gcloud")
+DEFAULT_GCLOUD: T.Optional[str] = shutil.which("gcloud")
 
 
 class Connection(connection.ConnectionBase):
     """Connections via `gcloud compute ssh`"""
 
-    gcloud_executable: str | None = None
+    gcloud_executable: T.Optional[str] = None
 
     has_pipelining = False
     transport = "gcloud-ssh"  # type: ignore[override]
@@ -236,7 +236,7 @@ class Connection(connection.ConnectionBase):
 
         super(Connection, self).__init__(*args, **kwargs)
 
-        exec: str | None = self.get_option("gcloud_executable")
+        exec: T.Optional[str] = self.get_option("gcloud_executable")
         if exec is None:
             self.gcloud_executable = DEFAULT_GCLOUD
         else:
@@ -303,8 +303,8 @@ class Connection(connection.ConnectionBase):
         self,
         what: str,
         cmd: str,
-        in_path: str | None = None,  # only used for scp
-        out_path: str | None = None,  # only used for scp
+        in_path: T.Optional[str] = None,  # only used for scp
+        out_path: T.Optional[str] = None,  # only used for scp
     ) -> T.List[str]:
         parts: T.List[str]
 
@@ -344,7 +344,7 @@ class Connection(connection.ConnectionBase):
     def _run(
         self,
         cmd: list[str],
-        in_data: bytes | None,
+        in_data: T.Optional[bytes],
         sudoable: bool = True,
         checkrc: bool = True,
     ) -> tuple[int, bytes, bytes]:
@@ -355,7 +355,7 @@ class Connection(connection.ConnectionBase):
         # I could just not open a pty and be done with it, because I am
         # not writing the whole pipelining and keyboard interaction just now.
         # It may come at a later date so I am just laying the groundwork
-        p: subprocess.Popen[bytes] | None = None
+        p: T.Optional[subprocess.Popen[bytes]] = None
         master_fd: int = 0
         slave_fd: int = 0
         if in_data is None:  # attempt to open a pty
@@ -403,26 +403,26 @@ class Connection(connection.ConnectionBase):
         return (p.returncode, stdout, stderr)
 
     def exec_command(
-        self, cmd: str, in_data: bytes | None = None, sudoable: bool = True
+        self, cmd: str, in_data: T.Optional[bytes] = None, sudoable: bool = True
     ) -> tuple[int, bytes, bytes]:
         """run a command on the remote instance"""
 
         super(Connection, self).exec_command(cmd, in_data=in_data, sudoable=sudoable)
 
-        self.host: str | None = self.get_option("instance")
-        self.user: str | None = self.get_option("remote_user")
-        self.ssh_args: str | None = self.get_option("ssh_args")
-        self.ssh_extra_args: str | None = self.get_option("ssh_extra_args")
-        self.scp_extra_args: str | None = self.get_option("scp_extra_args")
-        self.private_key_file: str | None = self.get_option("private_key_file")
-        self.use_tty: bool | None = self.get_option("use_tty")
+        self.host: T.Optional[str] = self.get_option("instance")
+        self.user: T.Optional[str] = self.get_option("remote_user")
+        self.ssh_args: T.Optional[str] = self.get_option("ssh_args")
+        self.ssh_extra_args: T.Optional[str] = self.get_option("ssh_extra_args")
+        self.scp_extra_args: T.Optional[str] = self.get_option("scp_extra_args")
+        self.private_key_file: T.Optional[str] = self.get_option("private_key_file")
+        self.use_tty: bool = bool(self.get_option("use_tty"))
         if self.private_key_file is not None:  # to silence pyright
             self.private_key_file = ospath.abspath(
                 ospath.expanduser(self.private_key_file)
             )
-        self.gcp_configuration: str | None = self.get_option("configuration")
-        self.gcp_project: str | None = self.get_option("project")
-        self.gcp_zone: str | None = self.get_option("zone")
+        self.gcp_configuration: T.Optional[str] = self.get_option("configuration")
+        self.gcp_project: T.Optional[str] = self.get_option("project")
+        self.gcp_zone: T.Optional[str] = self.get_option("zone")
         self.timeout: int = int(self.get_option("timeout") or DEFAULT_TIMEOUT)
 
         display.Display().vvv(
@@ -438,18 +438,18 @@ class Connection(connection.ConnectionBase):
 
         super(Connection, self).put_file(in_path, out_path)
 
-        self.host: str | None = self.get_option("instance")
-        self.user: str | None = self.get_option("remote_user")
-        self.ssh_args: str | None = self.get_option("ssh_args")
-        self.scp_extra_args: str | None = self.get_option("scp_extra_args")
-        self.private_key_file: str | None = self.get_option("private_key_file")
+        self.host: T.Optional[str] = self.get_option("instance")
+        self.user: T.Optional[str] = self.get_option("remote_user")
+        self.ssh_args: T.Optional[str] = self.get_option("ssh_args")
+        self.scp_extra_args: T.Optional[str] = self.get_option("scp_extra_args")
+        self.private_key_file: T.Optional[str] = self.get_option("private_key_file")
         if self.private_key_file is not None:  # to silence pyright
             self.private_key_file = ospath.abspath(
                 ospath.expanduser(self.private_key_file)
             )
-        self.gcp_configuration: str | None = self.get_option("configuration")
-        self.gcp_project: str | None = self.get_option("project")
-        self.gcp_zone: str | None = self.get_option("zone")
+        self.gcp_configuration: T.Optional[str] = self.get_option("configuration")
+        self.gcp_project: T.Optional[str] = self.get_option("project")
+        self.gcp_zone: T.Optional[str] = self.get_option("zone")
         self.timeout: int = int(self.get_option("timeout") or DEFAULT_TIMEOUT)
 
         D.vvv(f"PUT: {in_path} TO {out_path}", host=self.host)
