@@ -239,7 +239,7 @@ class GcpInstance(object):
             name = None
             if order.startswith("labels."):
                 if "labels" in self.json:
-                    name = self.json["labels"].get(order[7:])
+                    name = self.json[u"labels"].get(order[7:])
             elif order == "public_ip":
                 name = self._get_publicip()
             elif order == "private_ip":
