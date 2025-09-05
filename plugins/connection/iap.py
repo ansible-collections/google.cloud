@@ -419,12 +419,10 @@ DOCUMENTATION = """
       type: string
       default: smart
       choices:
-        sftp: This is the most reliable way to copy things with SSH.
-        scp: Deprecated in OpenSSH. For OpenSSH >=9.0 you must add an additional option
-          to enable scp C(scp_extra_args="-O").
-        piped: Creates an SSH pipe with C(dd) on either side to copy the data.
-        smart: Tries each method in order (sftp > scp > piped), until one succeeds or
-          they all fail.
+        - sftp
+        - scp
+        - piped
+        - smart
       env:
         - name: ANSIBLE_SSH_TRANSFER_METHOD
       ini:
