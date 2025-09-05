@@ -1,0 +1,32 @@
+---
+prefix: "{{ resource_prefix | default('d3adb33f') }}"
+
+gcp_region: us-central1
+gcp_zones:
+  - "{{ gcp_region }}-a"
+  - "{{ gcp_region }}-b"
+  - "{{ gcp_region }}-c"
+  - "{{ gcp_region }}-f"
+gcp_zone: "{{ gcp_zones | last }}"
+gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+gcp_machine_type: g1-small
+
+sut:
+  - name: vm1
+    labels:
+      test: "{{ prefix }}"
+      cluster: web
+  - name: vm2
+    labels:
+      test: "{{ prefix }}"
+      cluster: web
+  - name: vm3
+    labels:
+      test: "{{ prefix }}"
+      cluster: db
+
+ansible_python_interpreter: /usr/bin/python3
+
+# these are only useful when connection != local
+ansible_ssh_user: cloud-user
+ansible_ssh_private_key_file: "{{ playbook_dir }}/ssh_key"

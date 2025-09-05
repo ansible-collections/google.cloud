@@ -1,0 +1,66 @@
+---
+- name: Setup test suite
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars.yml
+  environment:
+    GCP_SERVICE_ACCOUNT_FILE: "{{ gcp_cred_file }}"
+    GCP_AUTH_KIND: "{{ gcp_cred_kind }}"
+    GCP_PROJECT: "{{ gcp_project }}"
+  tasks:
+    - name: SETUP | Create SSH key pair
+      community.crypto.openssh_keypair:
+        path: "{{ ansible_ssh_private_key_file }}"
+        type: ed25519
+      register: _keypair
+
+    - name: SETUP | Create network
+      google.cloud.gcp_compute_network:
+        name: "{{ prefix }}"
+        auto_create_subnetworks: true
+        state: present
+      register: _network
+
+    - name: SETUP | Allow SSH through IAP
+      google.cloud.gcp_compute_firewall:
+        name: all-iap
+        state: present
+        source_ranges:
+          - 35.235.240.0/20
+        allowed:
+          - ip_protocol: tcp
+            ports:
+              - 22
+        network: "{{ _network }}"
+
+    - name: SETUP | Create instances
+      google.cloud.gcp_compute_instance:
+        name: "{{ prefix }}-{{ item.name }}"
+        machine_type: "{{ gcp_machine_type }}"
+        disks:
+          - auto_delete: true
+            boot: true
+            initialize_params:
+              source_image: "{{ gcp_disk_image }}"
+              disk_type: pd-standard
+        network_interfaces:
+          - network: "{{ _network }}"
+        metadata:
+          ssh-keys: "{{ ansible_ssh_user }}:{{ _keypair.public_key }}"
+        labels: "{{ item.labels | default({}) }}"
+        hostname: "{{ item.hostname | default(omit) }}"
+        zone: "{{ gcp_zone }}"
+        state: present
+      loop: "{{ sut }}"
+
+    - name: SETUP | Render dynamic inventory file
+      ansible.builtin.copy:
+        dest: ../test.gcp_compute.yml
+        content: "{{ lookup('template', '../templates/inventory.yml.j2') }}"
+        mode: preserve
+
+    - name: SETUP | Give time for instances to be up
+      ansible.builtin.pause:
+        seconds: 30

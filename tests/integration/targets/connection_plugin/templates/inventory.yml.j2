@@ -1,0 +1,31 @@
+---
+plugin: google.cloud.gcp_compute
+
+zones:
+{{ gcp_zones | to_nice_yaml }}
+
+projects:
+- {{ gcp_project }}
+
+auth_kind: {{ gcp_cred_kind }}
+
+service_account_file: {{ gcp_cred_file }}
+
+scopes:
+- 'https://www.googleapis.com/auth/cloud-platform'
+- 'https://www.googleapis.com/auth/compute.readonly'
+
+keyed_groups:
+- prefix: gcp
+  key: labels
+
+filters:
+- 'labels.test:{{ prefix }}'
+
+hostnames:
+- name
+
+# set variables for the connection plugin
+compose:
+    ansible_gcloud_zone: zone
+    ansible_gcloud_project: project
