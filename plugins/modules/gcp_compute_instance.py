@@ -1288,6 +1288,7 @@ def extra_disks_update(module, request, response):
             {u'source': d},
         )
 
+
 def label_fingerprint_update(module, request, response):
     auth = GcpSession(module, 'compute')
     auth.post(
