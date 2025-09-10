@@ -2,7 +2,7 @@
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
 
-- name: Test nic_type scenarios
+- name: Extra non-autogen tests
   block:
     - name: Create network
       google.cloud.gcp_compute_network:
@@ -14,14 +14,22 @@
         state: present
       register: _network
 
-    - name: Loop over testcase
+    - name: Test GVNIC test cases
       ansible.builtin.include_tasks: gvnic.yml
       loop: "{{ testcases | dict2items }}"
       vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
         testcases:
           gvnic: GVNIC
           virtio: VIRTIO_NET
           default: default
+
+    - name: Test attach disks
+      ansible.builtin.include_tasks: attach-disks.yml
+      vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
 
   always:
     - name: Delete network
