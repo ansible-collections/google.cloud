@@ -1,0 +1,3 @@
+bugfixes:
+  - gcp_compute_instance - add suppport for attaching disks to compute instances
+    (https://github.com/ansible-collections/google.cloud/pull/711).
