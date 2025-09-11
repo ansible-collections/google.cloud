@@ -1,3 +1,0 @@
-minor_changes:
-  - iap - enable use of Identity Aware Proxy ssh connections to compute instances
-    (https://github.com/ansible-collections/google.cloud/pull/709).
