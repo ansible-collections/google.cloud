@@ -174,3 +174,18 @@ releases:
     - 693-add-gcs-iam-configuration.yaml
     - 694-fix-nested-bigquery-schema.yaml
     release_date: '2025-07-29'
+  1.8.0:
+    changes:
+      bugfixes:
+      - gcp_compute_instance - add suppport for attaching disks to compute instances
+        (https://github.com/ansible-collections/google.cloud/pull/711).
+      - gcp_secret_manager - use service_account_contents instead of service_account_info
+        (https://github.com/ansible-collections/google.cloud/pull/703).
+      minor_changes:
+      - iap - enable use of Identity Aware Proxy ssh connections to compute instances
+        (https://github.com/ansible-collections/google.cloud/pull/709).
+    fragments:
+    - 703-fix-improper-names-for-service_account_contents.yml
+    - 709-iap-connection-plugin.yml
+    - 711-attach-disk-to-instance.yml
+    release_date: '2025-09-11'
