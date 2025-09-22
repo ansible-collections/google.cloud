@@ -14,6 +14,7 @@ from __future__ import annotations
 # 1. Changed default private_key_file default to ~/.ssh/google_compute_engine
 # 2. Make host_key_checking default to False
 # 3. Added known_hosts_file option pointing to ~/.ssh/google_compute_known_hosts
+# 4. Added missing scp_if_ssh option to fix compatibility issues
 DOCUMENTATION = """
   name: iap
   short_description: connect via SSH through Google Cloud's Identity Aware Proxy (IAP)
@@ -257,6 +258,19 @@ DOCUMENTATION = """
         - name: ansible_scp_extra_args
       cli:
         - name: scp_extra_args
+    scp_if_ssh:
+      description:
+        - Fallback to SCP (Secure Copy Protocol) when SFTP is not available.
+        - When enabled and SFTP fails, Ansible will try to use SCP for file transfers.
+      type: bool
+      default: smart
+      ini:
+        - section: ssh_connection
+          key: scp_if_ssh
+      env:
+        - name: ANSIBLE_SCP_IF_SSH
+      vars:
+        - name: ansible_scp_if_ssh
     sftp_extra_args:
       description: Extra exclusive to the C(sftp) CLI
       type: string
