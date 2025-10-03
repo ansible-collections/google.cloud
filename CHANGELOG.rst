@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.9.0
+======
+
+Minor Changes
+-------------
+
+- iap - added scp_if_ssh option (https://github.com/ansible-collections/google.cloud/pull/716).
+
 v1.8.0
 ======
 

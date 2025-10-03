@@ -189,3 +189,10 @@ releases:
     - 709-iap-connection-plugin.yml
     - 711-attach-disk-to-instance.yml
     release_date: '2025-09-11'
+  1.9.0:
+    changes:
+      minor_changes:
+      - iap - added scp_if_ssh option (https://github.com/ansible-collections/google.cloud/pull/716).
+    fragments:
+    - 716-iap-scp-if-ssh-option.yml
+    release_date: '2025-10-03'
