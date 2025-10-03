@@ -787,3 +787,4 @@ class Connection(sshconn.Connection):
         os.unlink(self.ssh_config)
 
         self._connected = False
+
