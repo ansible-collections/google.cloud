@@ -2,6 +2,9 @@
 
 set -eux
 
+# prereq
+ansible-galaxy collection install community.crypto
+
 # test infra
 ansible-playbook playbooks/setup.yml "$@"
 
