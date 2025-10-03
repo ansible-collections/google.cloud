@@ -1,3 +1,0 @@
-minor_changes:
-  - iap - added scp_if_ssh option
-    (https://github.com/ansible-collections/google.cloud/pull/716).
