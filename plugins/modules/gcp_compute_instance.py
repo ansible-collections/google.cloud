@@ -967,6 +967,11 @@ networkInterfaces:
         .
       returned: success
       type: dict
+    stack_type:
+      description:
+      - The IP stack type of the network, possible values: (IPV4_IPV6, IPV4_ONLY)
+      returned: success
+      type: str
     networkIP:
       description:
       - An IPv4 internal network address to assign to the instance for this network
@@ -1187,6 +1192,7 @@ def main():
                     network=dict(type='dict'),
                     network_ip=dict(type='str'),
                     subnetwork=dict(type='dict'),
+                    stack_type=dict(type='str'),
                     nic_type=dict(type='str', choices=['VIRTIO_NET', 'GVNIC']),
                 ),
             ),
@@ -1756,6 +1762,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'aliasIpRanges': InstanceAliasiprangesArray(item.get('alias_ip_ranges', []), self.module).to_request(),
                 u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
                 u'networkIP': item.get('network_ip'),
+                u'stackType': item.get('stack_type'),
                 u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
                 u'nicType': item.get('nic_type'),
             }
@@ -1768,6 +1775,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'aliasIpRanges': InstanceAliasiprangesArray(item.get(u'aliasIpRanges', []), self.module).from_response(),
                 u'network': item.get(u'network'),
                 u'networkIP': item.get(u'networkIP'),
+                u'stackType': item.get('stackType'),
                 u'subnetwork': item.get(u'subnetwork'),
                 u'nicType': item.get(u'nicType'),
             }
