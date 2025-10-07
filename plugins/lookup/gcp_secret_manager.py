@@ -213,7 +213,7 @@ class LookupModule(LookupBase):
         self._display.vvv(msg=f"Module Parameters: {params}")
         fake_module = GcpMockModule(params)
         result = self.get_secret(fake_module)
-        return [base64.b64decode(result)]
+        return [base64.b64decode(result).decode("utf-8")]
 
     def fallback_from_env(self, arg):
         if self.get_option(arg):
