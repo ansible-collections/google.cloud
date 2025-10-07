@@ -1,12 +1,14 @@
 # Copyright (c), Google Inc, 2017
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import (absolute_import, annotations, division, print_function)
 
 __metaclass__ = type
 
 import os
 import json
+import time
+import typing as T
 
 try:
     import requests
@@ -484,3 +486,197 @@ class GcpRequest(object):
                 new_dict[key] = self._convert_value(value[key])
             return new_dict
         return to_text(value)
+
+
+# avoid stuttering
+Module = GcpModule
+Request = GcpRequest
+RequestException = GcpRequestException
+Session = GcpSession
+
+
+class Resource(object):
+    """
+    Convenience class to handle requests to the API
+    """
+
+    module: T.Optional[Module]
+    kind: T.Optional[str]
+    product: T.Optional[str]
+    # transport can be k/v dictionary
+    transport: dict[str, T.Any] = {}
+
+    def __init__(self, transport: dict[str, T.Any], **kwargs: dict[str, T.Any]) -> None:
+        self.transport = transport
+        self.kind = kwargs.get("kind")
+        self.module = kwargs.get("module")
+        self.product = kwargs.get("product")
+
+    def session(self) -> Session:
+        "Returns an authenticated GCP session"
+
+        return Session(self.module, self.product)
+
+    def if_object(
+        self,
+        response: T.Optional[requests.Response],
+        allow_not_found: bool = False
+    ) -> T.Optional[dict]:
+        """
+        Convenience function to analyze the requests.Response object and decide
+        if it should raise an ansible error or not.
+        """
+
+        if response is None:
+            return None
+
+        # If not found, return nothing.
+        if allow_not_found and response.status_code == 404:
+            return None
+
+        # If no content, return nothing.
+        if response.status_code == 204:
+            return None
+
+        result = None
+        try:
+            self.module.raise_for_status(response)
+            result = response.json()
+        except getattr(json.decoder, 'JSONDecodeError', ValueError):
+            self.module.fail_json(
+                msg=f"Invalid JSON response with error: {response.text}"
+            )
+
+        if navigate_hash(result, ['error', 'errors']):
+            self.module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+
+        return result
+
+    def _request(self) -> dict[str, T.Any]:
+        "Placeholder for auto-generated subclasses"
+
+        return {}
+
+    def _response(self, response: dict[str, T.Any]) -> dict[str, T.Any]:
+        "Placeholder for auto-generated subclasses"
+
+        return response
+
+    def to_request(self) -> T.Optional[dict[str, T.Any]]:
+        "This should be built from self.transport"
+
+        req = self._request()
+        return remove_nones_from_dict(req)
+
+    def from_response(self, response: dict[str, T.Any] = {}) -> T.Optional[dict[str, T.Any]]:
+        """
+        This can either build the response from the provided k/v dictionary
+        or default to self.transport
+        """
+
+        if len(response) == 0:
+            rsp = self._response(response)
+        else:
+            rsp = response
+
+        if self.kind is not None:
+            rsp["kind"] = self.kind
+
+        rsp.update(self._response(response=rsp))
+
+        return remove_nones_from_dict(rsp)
+
+    def fetch(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
+        """
+        Make GET request.
+        """
+
+        return self.if_object(self.session().get(link), allow_not_found)
+
+    def wait_for_op(self, op_url: str, retries: int) -> T.Optional[dict]:
+        "Retry the given number of times for an async operation to succeed"
+
+        for _ in range(1, retries):
+            op = self.session().get(op_url)
+            op_obj = self.if_object(op, allow_not_found=False)
+            if op_obj:
+                done: bool = navigate_hash(op_obj, ["done"], False)
+                if done:
+                    return op_obj["response"]
+
+            time.sleep(1.0)  # TODO: should we relax the check?
+
+        self.module.fail_json(msg="Failed to poll for async op completion")
+
+    def async_op(self, op_func: T.Callable, link: str, async_link: str, retries: int) -> T.Optional[dict]:
+        "Perform an asynchronous operation and wait for the result"
+
+        op_result: T.Optional[dict[str, T.Any]] = op_func(link)
+
+        op_id: str = navigate_hash(op_result, ["name"], "")
+        params: dict[str, T.Any] = self.module.params
+        params.update({"op_id": op_id})
+        op_url: str = async_link.format(**params)
+
+        return self.with_kind(self.wait_for_op(op_url, retries))
+
+    def create_async(self, link: str, async_link: str, retries: int):
+        "Perform an asynchronous create"
+
+        return self.async_op(
+            op_func=self.create,
+            link=link,
+            async_link=async_link,
+            retries=retries
+        )
+
+    def delete_async(self, link: str, async_link: str, retries: int):
+        "Perform an asynchronous delete"
+
+        return self.async_op(
+            op_func=self.delete,
+            link=link,
+            async_link=async_link,
+            retries=retries
+        )
+
+    def with_kind(self, response_obj):
+        "Make sure all responses have the kind attached to them"
+
+        response_obj.update({"kind": self.kind})
+        return response_obj
+
+    def create(self, link) -> T.Optional[dict]:
+        """
+        Make POST request.
+        """
+
+        return self.with_kind(
+            self.if_object(
+                self.session().post(
+                    link,
+                    self.to_request()
+                )
+            )
+        )
+
+    def update(self, link) -> T.Optional[dict]:
+        """
+        Make PUT request.
+        """
+
+        return self.with_kind(
+            self.if_object(
+                self.session().put(
+                    link,
+                    self.to_request()
+                )
+            )
+        )
+
+    def delete(self, link) -> T.Optional[dict]:
+        """
+        Make DELETE request.
+        """
+
+        return self.if_object(self.session().delete(link))
