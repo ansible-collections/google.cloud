@@ -62,6 +62,6 @@ class ModuleDocFragment(object):
       - For authentication, you can set scopes using the C(GCP_SCOPES) env variable.
       - Environment variables values will only be used if the playbook values are
         not set.
-      - The I(service_account_email), I(service_account_file),
-        I(service_account_file) and I(access_token) options are mutually exclusive.
+      - The O(service_account_email), O(service_account_file),
+        O(service_account_file) and O(access_token) options are mutually exclusive.
     """

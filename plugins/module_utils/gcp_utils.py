@@ -5,6 +5,7 @@ from __future__ import (absolute_import, annotations, division, print_function)
 
 __metaclass__ = type
 
+import fnmatch
 import os
 import json
 import time
@@ -494,6 +495,113 @@ Request = GcpRequest
 RequestException = GcpRequestException
 Session = GcpSession
 
+# Define a type alias for a nested dictionary structure
+NestedDict = T.Dict[str, T.Union[T.Any, "NestedDict", T.List[T.Any]]]
+
+
+def deep_equal(base_dict: NestedDict, compare_dict: NestedDict) -> bool:
+    """
+    Compares two dictionaries. Returns True if and only if:
+    1. Every key present in base_dict is also present in compare_dict.
+    2. For every matching key, the value in base_dict strictly matches
+       the value in compare_dict.
+       - If the values are non-dict and non-sequence types, they must be equal.
+       - If the values are sequences, the comparison is done recursively for each
+         element in both sequences.
+       - If the values are both dictionaries, the comparison is done recursively.
+    """
+
+    # Check if all keys in base_dict are present in compare_dict
+    if not base_dict.keys() <= compare_dict.keys():
+        return False  # Missing key in compare_dict is a difference
+
+    # Iterate through the keys of the base dictionary to compare vs the other
+    for key, base_value in base_dict.items():
+        compare_value = compare_dict[key]  # We know the key exists here
+
+        # --- Handle Nested Dictionaries ---
+        if isinstance(base_value, dict) and isinstance(compare_value, dict):
+            # Recursively check nested dictionaries
+            if not deep_equal(base_value, compare_value):
+                return False
+
+        # --- Handle Lists/Tuples/Sets ---
+        elif isinstance(base_value, (list, tuple)) and isinstance(compare_value, (list, tuple)):
+            # if the lists are of different length, return false
+            if not len(base_value) != len(compare_value):
+                return False
+            # else, recursively check every member of the sequence
+            for idx, val in enumerate(base_value):
+                if not deep_equal(val, compare_value[idx]):
+                    return False
+
+        # --- Handle All Other Values ---
+        elif base_value != compare_value:
+            return False
+
+    # If the loop completes without returning False, the dictionaries match
+    return True
+
+
+def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str = ".", glob_excludes: T.List[str] = []) -> T.List[str]:
+    """
+    Recursively traverses a nested dictionary and returns a list of
+    dot-separated strings representing the full key paths.
+
+    Returns:
+        A list of strings, e.g., ['a.b.c', 'a.d', 'e'].
+    """
+    items = []
+
+    for key, value in data.items():
+        # Construct the full path for the current key
+        new_key = f"{parent_key}{separator}{key}" if parent_key else key
+
+        # Check the key against exclusion patterns
+        is_excluded = False
+        for pattern in glob_excludes:
+            if fnmatch.fnmatch(key, pattern):
+                is_excluded = True
+                break
+
+        if is_excluded:
+            continue
+
+        # Check if the value is a dictionary
+        if isinstance(value, dict):
+            items.extend(flatten_nested_dict(value, new_key, separator))
+        else:
+            items.append(new_key)
+
+    return items
+
+
+class ResourceOpConfig(object):
+    verb: str
+    uri: str
+    timeout: int
+    async_uri: str
+
+    def __init__(self, verb: str, uri: str, timeout: int, async_uri: str) -> None:
+        self.verb = verb.lower()
+        self.uri = uri
+        self.timeout = timeout
+        self.async_uri = async_uri
+
+    def get(self, key: str) -> T.Any:
+        return getattr(self, key)
+
+
+class ResourceOpConfigs(object):
+    read: ResourceOpConfig
+    create: ResourceOpConfig
+    update: ResourceOpConfig
+    delete: ResourceOpConfig
+
+    def __init__(self, op_configs: dict[str, ResourceOpConfig]):
+        for k, v in op_configs.items():
+            setattr(self, k, v)
+
 
 class Resource(object):
     """
@@ -503,11 +611,12 @@ class Resource(object):
     module: T.Optional[Module]
     kind: T.Optional[str]
     product: T.Optional[str]
-    # transport can be k/v dictionary
-    transport: dict[str, T.Any] = {}
+    request: NestedDict = {}
+    response: NestedDict = {}
 
-    def __init__(self, transport: dict[str, T.Any], **kwargs: dict[str, T.Any]) -> None:
-        self.transport = transport
+    def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: dict[str, T.Any]) -> None:
+        if request is not None:
+            self.request = request
         self.kind = kwargs.get("kind")
         self.module = kwargs.get("module")
         self.product = kwargs.get("product")
@@ -521,7 +630,7 @@ class Resource(object):
         self,
         response: T.Optional[requests.Response],
         allow_not_found: bool = False
-    ) -> T.Optional[dict]:
+    ) -> T.Optional[NestedDict]:
         """
         Convenience function to analyze the requests.Response object and decide
         if it should raise an ansible error or not.
@@ -542,61 +651,56 @@ class Resource(object):
         try:
             self.module.raise_for_status(response)
             result = response.json()
-        except getattr(json.decoder, 'JSONDecodeError', ValueError):
+        except getattr(json.decoder, "JSONDecodeError", ValueError):
             self.module.fail_json(
                 msg=f"Invalid JSON response with error: {response.text}"
             )
 
-        if navigate_hash(result, ['error', 'errors']):
-            self.module.fail_json(msg=navigate_hash(result, ['error', 'errors']))
+        if navigate_hash(result, ["error", "errors"]):
+            self.module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
 
         return result
 
-    def _request(self) -> dict[str, T.Any]:
+    def _request(self) -> NestedDict:
         "Placeholder for auto-generated subclasses"
 
-        return {}
+        return self.request
 
-    def _response(self, response: dict[str, T.Any]) -> dict[str, T.Any]:
+    def _response(self) -> NestedDict:
         "Placeholder for auto-generated subclasses"
 
-        return response
+        return self.response
 
-    def to_request(self) -> T.Optional[dict[str, T.Any]]:
-        "This should be built from self.transport"
+    def to_request(self) -> T.Optional[NestedDict]:
+        "This should be built from self.request"
 
         req = self._request()
         return remove_nones_from_dict(req)
 
-    def from_response(self, response: dict[str, T.Any] = {}) -> T.Optional[dict[str, T.Any]]:
+    def from_response(self, response: NestedDict) -> NestedDict:
         """
-        This can either build the response from the provided k/v dictionary
-        or default to self.transport
+        This should set self.response from the given dictionary and then build the
+        response from there
         """
 
-        if len(response) == 0:
-            rsp = self._response(response)
-        else:
-            rsp = response
-
+        self.response = response
         if self.kind is not None:
-            rsp["kind"] = self.kind
+            self.response["kind"] = self.kind
+        self.response.update(self._response())
 
-        rsp.update(self._response(response=rsp))
+        return remove_nones_from_dict(self.response)
 
-        return remove_nones_from_dict(rsp)
-
-    def fetch(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
+    def get(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
         """
         Make GET request.
         """
 
         return self.if_object(self.session().get(link), allow_not_found)
 
-    def wait_for_op(self, op_url: str, retries: int) -> T.Optional[dict]:
+    def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
         "Retry the given number of times for an async operation to succeed"
 
-        for _ in range(1, retries):
+        for retry in range(1, retries):
             op = self.session().get(op_url)
             op_obj = self.if_object(op, allow_not_found=False)
             if op_obj:
@@ -608,29 +712,49 @@ class Resource(object):
 
         self.module.fail_json(msg="Failed to poll for async op completion")
 
-    def async_op(self, op_func: T.Callable, link: str, async_link: str, retries: int) -> T.Optional[dict]:
+    def async_op(self, op_func: T.Callable, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous operation and wait for the result"
 
-        op_result: T.Optional[dict[str, T.Any]] = op_func(link)
+        op_result: T.Optional[NestedDict] = op_func(link)
 
         op_id: str = navigate_hash(op_result, ["name"], "")
-        params: dict[str, T.Any] = self.module.params
+        params: NestedDict = self.module.params
         params.update({"op_id": op_id})
         op_url: str = async_link.format(**params)
 
         return self.with_kind(self.wait_for_op(op_url, retries))
 
-    def create_async(self, link: str, async_link: str, retries: int):
-        "Perform an asynchronous create"
+    def post_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
+        "Perform an asynchronous post"
 
         return self.async_op(
-            op_func=self.create,
+            op_func=self.post,
             link=link,
             async_link=async_link,
             retries=retries
         )
 
-    def delete_async(self, link: str, async_link: str, retries: int):
+    def put_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
+        "Perform an asynchronous put"
+
+        return self.async_op(
+            op_func=self.put,
+            link=link,
+            async_link=async_link,
+            retries=retries
+        )
+
+    def patch_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
+        "Perform an asynchronous patch"
+
+        return self.async_op(
+            op_func=self.patch,
+            link=link,
+            async_link=async_link,
+            retries=retries
+        )
+
+    def delete_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous delete"
 
         return self.async_op(
@@ -640,13 +764,14 @@ class Resource(object):
             retries=retries
         )
 
-    def with_kind(self, response_obj):
+    def with_kind(self, response_obj: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
         "Make sure all responses have the kind attached to them"
 
-        response_obj.update({"kind": self.kind})
+        if response_obj is not None and len(response_obj) > 0:
+            response_obj.update({"kind": self.kind})
         return response_obj
 
-    def create(self, link) -> T.Optional[dict]:
+    def post(self, link) -> T.Optional[NestedDict]:
         """
         Make POST request.
         """
@@ -660,7 +785,7 @@ class Resource(object):
             )
         )
 
-    def update(self, link) -> T.Optional[dict]:
+    def put(self, link) -> T.Optional[NestedDict]:
         """
         Make PUT request.
         """
@@ -674,9 +799,42 @@ class Resource(object):
             )
         )
 
-    def delete(self, link) -> T.Optional[dict]:
+    def patch(self, link) -> T.Optional[NestedDict]:
+        """
+        Make PATCH request
+        """
+
+        return self.with_kind(
+            self.if_object(
+                self.session().patch(
+                    link,
+                    self.to_request()
+                )
+            )
+        )
+
+    def delete(self, link) -> T.Optional[NestedDict]:
         """
         Make DELETE request.
         """
 
         return self.if_object(self.session().delete(link))
+
+    def diff(self, response: NestedDict) -> bool:
+        """
+        Returns the difference between request and response
+        """
+
+        req: NestedDict = self.to_request() or {}
+        rsp: NestedDict = self.from_response(response)
+
+        return not deep_equal(req, rsp)
+
+    def dot_fields(self) -> T.List[str]:
+        # these 3 are free-form dicts, we don't want to list all the possible children
+        exclusions: T.List[str] = [
+            "labels.*",
+            "annotations.*",
+            "tags.*",
+        ]
+        return flatten_nested_dict(self.to_request() or {}, separator=".", glob_excludes=exclusions)
