@@ -136,9 +136,8 @@ EXAMPLES = '''
 
 RETURN = '''
     _raw:
-        description: the contents of the secret requested (please use "no_log" to not expose this secret)
-        type: list
-        elements: str
+        description: the content of the requested secret (please use "no_log" to not expose this secret)
+        type: str
 '''
 
 ################################################################################
@@ -288,7 +287,7 @@ class LookupModule(LookupBase):
             self.raise_error(module, f"Failed to lookup secret value via {response.request.url} {response.status_code}")
             return ''
 
-        return response.json()['payload']['data']
+        return response.json()['payload']['data'].decode("utf-8")
 
     def make_url_prefix(self, module):
         if module.params['location']:
