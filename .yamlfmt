@@ -12,5 +12,11 @@ formatter:
   # Ensures no trailing spaces, a common yamllint error.
   trim_trailing_whitespace: true
 
-  # Prevents aggressively refolding multiline strings.
-  scan_folded_as_literal: true
+  # Inline comments are padded with 2 spaces
+  pad_line_comments: 2
+
+  # Leave line length alone
+  max_line_length: 0
+
+  # Have arrays indent
+  indentless_arrays: false

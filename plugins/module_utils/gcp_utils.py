@@ -560,7 +560,7 @@ def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str =
         # Check the key against exclusion patterns
         is_excluded = False
         for pattern in glob_excludes:
-            if fnmatch.fnmatch(key, pattern):
+            if fnmatch.fnmatch(new_key, pattern):
                 is_excluded = True
                 break
 
@@ -569,7 +569,7 @@ def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str =
 
         # Check if the value is a dictionary
         if isinstance(value, dict):
-            items.extend(flatten_nested_dict(value, new_key, separator))
+            items.extend(flatten_nested_dict(value, new_key, separator, glob_excludes=glob_excludes))
         else:
             items.append(new_key)
 
