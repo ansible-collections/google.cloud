@@ -656,8 +656,13 @@ class Resource(object):
                 msg=f"Invalid JSON response with error: {response.text}"
             )
 
+        # old-style responses
         if navigate_hash(result, ["error", "errors"]):
             self.module.fail_json(msg=navigate_hash(result, ["error", "errors"]))
+
+        # new-style responses
+        if navigate_hash(result, ["error", "message"]):
+            self.module.fail_json(msg=navigate_hash(result, ["error", "message"]))
 
         return result
 
