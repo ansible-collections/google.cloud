@@ -20,3 +20,6 @@ formatter:
 
   # Have arrays indent
   indentless_arrays: false
+
+  # Respect fold block signs (>)
+  scan_folded_as_literal: true

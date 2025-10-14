@@ -582,10 +582,10 @@ class ResourceOpConfig(object):
     timeout: int
     async_uri: str
 
-    def __init__(self, verb: str, uri: str, timeout: int, async_uri: str) -> None:
+    def __init__(self, verb: str, uri: str, timeout_minutes: int, async_uri: str) -> None:
         self.verb = verb.lower()
         self.uri = uri
-        self.timeout = timeout
+        self.timeout = timeout_minutes * 60
         self.async_uri = async_uri
 
     def get(self, key: str) -> T.Any:
