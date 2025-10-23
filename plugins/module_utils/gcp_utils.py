@@ -543,7 +543,7 @@ def deep_equal(base_dict: NestedDict, compare_dict: NestedDict) -> bool:
     return True
 
 
-def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str = ".", glob_excludes: T.List[str] = []) -> T.List[str]:
+def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str = ".", **kwargs) -> T.List[str]:
     """
     Recursively traverses a nested dictionary and returns a list of
     dot-separated strings representing the full key paths.
@@ -559,6 +559,7 @@ def flatten_nested_dict(data: NestedDict, parent_key: str = "", separator: str =
 
         # Check the key against exclusion patterns
         is_excluded = False
+        glob_excludes = kwargs.get("glob_excludes", [])
         for pattern in glob_excludes:
             if fnmatch.fnmatch(new_key, pattern):
                 is_excluded = True
