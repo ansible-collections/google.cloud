@@ -793,7 +793,7 @@ def main():
                         type="bool",
                     ),
                 ),
-                required_together=[["authorized_external_networks", "enablePublicIp"]],
+                required_together=[["authorized_external_networks", "enable_public_ip"]],
             ),
             observability_config=dict(
                 type="dict",
