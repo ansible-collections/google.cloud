@@ -405,7 +405,7 @@ EXAMPLES = r"""
     state: present
     location: us-central1
     network_config:
-      network: "projects/{{ gcp_project_id }}/global/networks/{{ resource_name }}"
+      network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
     initial_user:
       user: pgroot
       password: Test123Test

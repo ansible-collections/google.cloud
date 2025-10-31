@@ -366,7 +366,7 @@ EXAMPLES = r"""
     location: us-central1
     instance_type: PRIMARY
     cluster:
-      name: "projects/{{ gcp_project_id }}/locations/us-central1/clusters/{{ resource_name }}-cluster"
+      name: "projects/{{ gcp_project_number }}/locations/us-central1/clusters/{{ resource_name }}-cluster"
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
