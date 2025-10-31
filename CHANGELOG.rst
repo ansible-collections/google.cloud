@@ -4,6 +4,19 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.10.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_alloydb_* - added gcp_alloydb_cluster, gcp_alloydb_instance, gcp_alloydb_backup, and gcp_alloydb_user modules (https://github.com/ansible-collections/google.cloud/pull/722)
+
+Bugfixes
+--------
+
+- gcp_secret_manager - return the secret value as type `str` rather than `bytes` (https://github.com/ansible-collections/google.cloud/pull/721)
+
 v1.9.0
 ======
 
