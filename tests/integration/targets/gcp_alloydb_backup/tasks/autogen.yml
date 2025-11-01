@@ -49,6 +49,9 @@
             state: present
             location: us-central1
             cluster_type: PRIMARY
+            initial_user:
+              user: pgroot
+              password: Test123Test
             network_config:
               network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
             project: "{{ gcp_project }}"
