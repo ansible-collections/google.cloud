@@ -46,6 +46,18 @@ releases:
     fragments:
     - gce-changelog.yaml
     release_date: '2023-03-04'
+  1.10.0:
+    changes:
+      bugfixes:
+      - gcp_secret_manager - return the secret value as type `str` rather than `bytes`
+        (https://github.com/ansible-collections/google.cloud/pull/721)
+      minor_changes:
+      - gcp_alloydb_* - added gcp_alloydb_cluster, gcp_alloydb_instance, gcp_alloydb_backup,
+        and gcp_alloydb_user modules (https://github.com/ansible-collections/google.cloud/pull/722)
+    fragments:
+    - 721-fix-secret-manager-lookup-return.yml
+    - 722-add-alloydb-modules.yml
+    release_date: '2025-10-31'
   1.2.0:
     changes:
       bugfixes:
