@@ -869,10 +869,12 @@ def main():
                     authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -882,10 +884,12 @@ def main():
                     read_authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -895,6 +899,7 @@ def main():
                     webhook_secret_secret_version=dict(
                         type="str",
                         required=True,
+                        no_log=False,
                     ),
                     workspace=dict(
                         type="str",
@@ -908,10 +913,12 @@ def main():
                     authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -925,10 +932,12 @@ def main():
                     read_authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -953,6 +962,7 @@ def main():
                     webhook_secret_secret_version=dict(
                         type="str",
                         required=True,
+                        no_log=False,
                     ),
                 ),
             ),
@@ -967,9 +977,11 @@ def main():
                     ),
                     authorizer_credential=dict(
                         type="dict",
+                        no_log=False,
                         options=dict(
                             oauth_token_secret_version=dict(
                                 type="str",
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -996,6 +1008,7 @@ def main():
                     ),
                     private_key_secret_version=dict(
                         type="str",
+                        no_log=False,
                     ),
                     service_directory_config=dict(
                         type="dict",
@@ -1011,6 +1024,7 @@ def main():
                     ),
                     webhook_secret_secret_version=dict(
                         type="str",
+                        no_log=False,
                     ),
                 ),
             ),
@@ -1020,10 +1034,12 @@ def main():
                     authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -1036,10 +1052,12 @@ def main():
                     read_authorizer_credential=dict(
                         type="dict",
                         required=True,
+                        no_log=False,
                         options=dict(
                             user_token_secret_version=dict(
                                 type="str",
                                 required=True,
+                                no_log=False,
                             ),
                             username=dict(
                                 type="str",
@@ -1064,6 +1082,7 @@ def main():
                     webhook_secret_secret_version=dict(
                         type="str",
                         required=True,
+                        no_log=False,
                     ),
                 ),
             ),
