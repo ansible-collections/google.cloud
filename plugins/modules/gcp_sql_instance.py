@@ -832,6 +832,7 @@ def main():
             backend_type=dict(type='str'),
             connection_name=dict(type='str'),
             database_version=dict(type='str'),
+            root_password=dict(type='str'),
             failover_replica=dict(type='dict', options=dict(name=dict(type='str'))),
             instance_type=dict(type='str'),
             ipv6_address=dict(type='str'),
@@ -878,9 +879,12 @@ def main():
                         ),
                     ),
                     tier=dict(type='str'),
+                    edition=dict(type='str', choices=['ENTERPRISE', 'ENTERPRISE_PLUS']),
+                    deletion_protection_enabled=dict(type='bool'),
                     availability_type=dict(type='str'),
+                    location_preference=dict(type='dict', options=dict(follow_gae_apps=dict(type='string'), zone=dict(type='str'), secondary_zone=dict(type='str'), kind=dict(type='str'))),
                     backup_configuration=dict(
-                        type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'))
+                        type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'), point_in_time_recovery_enabled=dict(type='bool'))
                     ),
                     user_labels=dict(type='dict'),
                 ),
@@ -941,6 +945,7 @@ def resource_to_request(module):
         u'backendType': module.params.get('backend_type'),
         u'connectionName': module.params.get('connection_name'),
         u'databaseVersion': module.params.get('database_version'),
+        u'rootPassword': module.params.get('root_password'),
         u'failoverReplica': InstanceFailoverreplica(module.params.get('failover_replica', {}), module).to_request(),
         u'instanceType': module.params.get('instance_type'),
         u'ipv6Address': module.params.get('ipv6_address'),
@@ -1204,9 +1209,12 @@ class InstanceSettings(object):
                 u'databaseFlags': InstanceDatabaseflagsArray(self.request.get('database_flags', []), self.module).to_request(),
                 u'ipConfiguration': InstanceIpconfiguration(self.request.get('ip_configuration', {}), self.module).to_request(),
                 u'tier': self.request.get('tier'),
+                u'edition': self.request.get('edition'),
+                u'deletionProtectionEnabled': self.request.get('deletion_protection_enabled'),
                 u'availabilityType': self.request.get('availability_type'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get('backup_configuration', {}), self.module).to_request(),
                 u'userLabels': self.request.get('user_labels'),
+                u'locationPreference': InstanceLocationPreference(self.request.get('location_preference', {}), self.module).to_request(),
             }
         )
 
@@ -1216,9 +1224,12 @@ class InstanceSettings(object):
                 u'databaseFlags': InstanceDatabaseflagsArray(self.request.get(u'databaseFlags', []), self.module).from_response(),
                 u'ipConfiguration': InstanceIpconfiguration(self.request.get(u'ipConfiguration', {}), self.module).from_response(),
                 u'tier': self.request.get(u'tier'),
+                u'edition': self.request.get('edition'),
+                u'deletionProtectionEnabled': self.request.get('deletion_protection_enabled'),
                 u'availabilityType': self.request.get(u'availabilityType'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get(u'backupConfiguration', {}), self.module).from_response(),
                 u'userLabels': self.request.get(u'userLabels'),
+                u'locationPreference': InstanceLocationPreference(self.request.get('location_preference', {}), self.module).from_response(),
             }
         )
 
@@ -1316,12 +1327,22 @@ class InstanceBackupconfiguration(object):
 
     def to_request(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get('enabled'), u'binaryLogEnabled': self.request.get('binary_log_enabled'), u'startTime': self.request.get('start_time')}
+            {
+              u'enabled': self.request.get('enabled'),
+              u'binaryLogEnabled': self.request.get('binary_log_enabled'),
+              u'startTime': self.request.get('start_time'),
+              u'pointInTimeRecoveryEnabled': self.request.get('binary_log_enabled'),
+            }
         )
 
     def from_response(self):
         return remove_nones_from_dict(
-            {u'enabled': self.request.get(u'enabled'), u'binaryLogEnabled': self.request.get(u'binaryLogEnabled'), u'startTime': self.request.get(u'startTime')}
+            {
+              u'enabled': self.request.get(u'enabled'),
+              u'binaryLogEnabled': self.request.get(u'binaryLogEnabled'),
+              u'startTime': self.request.get('start_time'),
+              u'pointInTimeRecoveryEnabled': self.request.get('binary_log_enabled'),
+            }
         )
 
 
@@ -1387,6 +1408,33 @@ class InstanceServercacert(object):
             }
         )
 
+class InstanceLocationPreference(object):
+    def __init__(self, request, module):
+        self.module = module
+        if request:
+            self.request = request
+        else:
+            self.request = {}
+
+    def to_request(self):
+        return remove_nones_from_dict(
+          {
+            u'followGaeApplication': self.request.get('follow_gae_application'),
+            u'zone': self.request.get('zone'),
+            u'secondaryZone': self.request.get('secondary_zone'),
+            u'kind': self.request.get('kind'),
+          }
+        )
+
+    def from_response(self):
+        return remove_nones_from_dict(
+          {
+            u'followGaeApplication': self.request.get('follow_gae_application'),
+            u'zone': self.request.get('zone'),
+            u'secondaryZone': self.request.get('secondary_zone'),
+            u'kind': self.request.get('kind'),
+          }
+        )
 
 if __name__ == '__main__':
     main()
