@@ -58,6 +58,13 @@ releases:
     - 721-fix-secret-manager-lookup-return.yml
     - 722-add-alloydb-modules.yml
     release_date: '2025-10-31'
+  1.10.1:
+    changes:
+      bugfixes:
+      - Fix runtime.yml to correctly note Ansible 2.17 minimum version (https://github.com/ansible-collections/google.cloud/pull/730)
+    fragments:
+    - 730-ansible-2-17-required.yml
+    release_date: '2025-11-12'
   1.2.0:
     changes:
       bugfixes:
