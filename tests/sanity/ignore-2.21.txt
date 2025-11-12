@@ -1,4 +1,3 @@
-# https://forum.ansible.com/t/ansible-test-validate-modules-sanity-test-report-bad-return-values-that-cannot-be-accessed-with-jinjas-dot-notation/44833
 plugins/modules/gcp_compute_instance.py validate-modules:bad-return-value-key
 plugins/modules/gcp_compute_instance_info.py validate-modules:bad-return-value-key
 plugins/modules/gcp_compute_instance_template.py validate-modules:bad-return-value-key
