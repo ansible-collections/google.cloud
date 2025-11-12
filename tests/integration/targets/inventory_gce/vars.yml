@@ -6,7 +6,7 @@ gcp_zones:
   - "{{ gcp_region }}-c"
   - "{{ gcp_region }}-f"
 gcp_zone: "{{ gcp_zones | first }}"
-gcp_disk_image: projects/centos-cloud/global/images/centos-stream-9-v20250513
+gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
 
 prefix: "{{ resource_prefix | default('d3adb33f') }}"
 sut:

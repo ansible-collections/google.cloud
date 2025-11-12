@@ -1,0 +1,4 @@
+plugins/modules/gcp_compute_instance.py validate-modules:bad-return-value-key
+plugins/modules/gcp_compute_instance_info.py validate-modules:bad-return-value-key
+plugins/modules/gcp_compute_instance_template.py validate-modules:bad-return-value-key
+plugins/modules/gcp_compute_instance_template_info.py validate-modules:bad-return-value-key

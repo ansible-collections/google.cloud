@@ -4,6 +4,49 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.10.1
+=======
+
+Bugfixes
+--------
+
+- Fix runtime.yml to correctly note Ansible 2.17 minimum version (https://github.com/ansible-collections/google.cloud/pull/730)
+
+v1.10.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_alloydb_* - added gcp_alloydb_cluster, gcp_alloydb_instance, gcp_alloydb_backup, and gcp_alloydb_user modules (https://github.com/ansible-collections/google.cloud/pull/722)
+
+Bugfixes
+--------
+
+- gcp_secret_manager - return the secret value as type `str` rather than `bytes` (https://github.com/ansible-collections/google.cloud/pull/721)
+
+v1.9.0
+======
+
+Minor Changes
+-------------
+
+- iap - added scp_if_ssh option (https://github.com/ansible-collections/google.cloud/pull/716).
+
+v1.8.0
+======
+
+Minor Changes
+-------------
+
+- iap - enable use of Identity Aware Proxy ssh connections to compute instances (https://github.com/ansible-collections/google.cloud/pull/709).
+
+Bugfixes
+--------
+
+- gcp_compute_instance - add suppport for attaching disks to compute instances (https://github.com/ansible-collections/google.cloud/pull/711).
+- gcp_secret_manager - use service_account_contents instead of service_account_info (https://github.com/ansible-collections/google.cloud/pull/703).
+
 v1.7.0
 ======
 

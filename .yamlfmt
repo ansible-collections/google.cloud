@@ -1,0 +1,25 @@
+# .yamlfmt
+formatter:
+  type: basic
+
+  # Ansible's universal standard for indentation.
+  indent: 2
+
+  # Keeps single blank lines between tasks and prevents unwanted breaks
+  # within Jinja2 variables (e.g., {{ my_var }}).
+  retain_line_breaks_single: true
+
+  # Ensures no trailing spaces, a common yamllint error.
+  trim_trailing_whitespace: true
+
+  # Inline comments are padded with 2 spaces
+  pad_line_comments: 2
+
+  # Leave line length alone
+  max_line_length: 0
+
+  # Have arrays indent
+  indentless_arrays: false
+
+  # Respect fold block signs (>)
+  scan_folded_as_literal: true

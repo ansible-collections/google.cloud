@@ -1,0 +1,34 @@
+---
+- name: Teardown test suite
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars.yml
+  environment:
+    GCP_SERVICE_ACCOUNT_FILE: "{{ gcp_cred_file }}"
+    GCP_AUTH_KIND: "{{ gcp_cred_kind }}"
+    GCP_PROJECT: "{{ gcp_project }}"
+  tasks:
+    - name: TEARDOWN | Destroy instances  # noqa: ignore-errors
+      google.cloud.gcp_compute_instance:
+        name: "{{ prefix }}-{{ item.name }}"
+        machine_type: "{{ gcp_machine_type }}"
+        zone: "{{ gcp_zone }}"
+        state: absent
+      loop: "{{ sut }}"
+      ignore_errors: true
+
+    - name: TEARDOWN | Remove IAP firewall rule  # noqa: ignore-errors
+      google.cloud.gcp_compute_firewall:
+        name: all-iap
+        state: absent
+        network:
+          selfLink: "networks/{{ prefix }}"
+      ignore_errors: true
+
+    - name: TEARDOWN | Destroy network  # noqa: ignore-errors
+      google.cloud.gcp_compute_network:
+        name: "{{ prefix }}"
+        state: absent
+      ignore_errors: true

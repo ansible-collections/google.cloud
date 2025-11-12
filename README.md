@@ -13,6 +13,10 @@ buckets, Cloud SQL instances, and more.
 
 ### Resources Supported
 
+* AlloyDB Backup (gcp_alloydb_cluster)
+* AlloyDB Cluster (gcp_alloydb_cluster)
+* AlloyDB Instance (gcp_alloydb_instance)
+* AlloyDB User (gcp_alloydb_user)
 * App Engine FirewallRule (gcp_appengine_firewall_rule, gcp_appengine_firewall_rule_info)
 * BigQuery Dataset (gcp_bigquery_dataset, gcp_bigquery_dataset_info)
 * BigQuery Table (gcp_bigquery_table, gcp_bigquery_table_info)
@@ -105,7 +109,7 @@ buckets, Cloud SQL instances, and more.
 
 ### Ansible version compatibility
 
-This collection is tested to work with Ansible 2.16+.
+This collection is tested to work with Ansible 2.17+.
 
 ### Python version compatibility
 
