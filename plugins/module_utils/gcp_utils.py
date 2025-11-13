@@ -1,7 +1,7 @@
 # Copyright (c), Google Inc, 2017
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
-from __future__ import (absolute_import, annotations, division, print_function)
+from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
@@ -13,9 +13,13 @@ import typing as T
 
 try:
     import requests
+    from requests import Response as RequestsResponse
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
+
+    class RequestsResponse:
+        pass
 
 try:
     import google.auth
@@ -599,7 +603,7 @@ class ResourceOpConfigs(object):
     update: ResourceOpConfig
     delete: ResourceOpConfig
 
-    def __init__(self, op_configs: dict[str, ResourceOpConfig]):
+    def __init__(self, op_configs: T.Dict[str, ResourceOpConfig]):
         for k, v in op_configs.items():
             setattr(self, k, v)
 
@@ -615,7 +619,7 @@ class Resource(object):
     request: NestedDict = {}
     response: NestedDict = {}
 
-    def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: dict[str, T.Any]) -> None:
+    def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: T.Dict[str, T.Any]) -> None:
         if request is not None:
             self.request = request
         self.kind = kwargs.get("kind")
@@ -629,7 +633,7 @@ class Resource(object):
 
     def if_object(
         self,
-        response: T.Optional[requests.Response],
+        response: T.Optional[RequestsResponse],
         allow_not_found: bool = False
     ) -> T.Optional[NestedDict]:
         """
