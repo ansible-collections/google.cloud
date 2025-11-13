@@ -13,10 +13,11 @@ import typing as T
 
 try:
     import requests
+    from requests import Response as RequestsResponse
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
-    class requests:
+    class RequestsResponse:
         pass
 
 try:
@@ -631,7 +632,7 @@ class Resource(object):
 
     def if_object(
         self,
-        response: T.Optional[requests.Response],
+        response: T.Optional[RequestsResponse],
         allow_not_found: bool = False
     ) -> T.Optional[NestedDict]:
         """
