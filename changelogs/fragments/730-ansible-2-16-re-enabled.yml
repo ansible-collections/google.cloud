@@ -1,2 +1,0 @@
-Bugfixes
-  - Revert removal of Ansible 2.16 support (https://github.com/ansible-collections/google.cloud/pull/734)

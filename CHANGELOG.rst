@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.10.2
+=======
+
+Bugfixes
+--------
+
+- Revert removal of Ansible 2.16 support (https://github.com/ansible-collections/google.cloud/pull/734)
+
 v1.10.1
 =======
 
