@@ -31,7 +31,7 @@ jobs:
 # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
 
   sanity:
-    name: Sanity (Ⓐ${{ matrix.ansible }} / Ⓟ{{ matrix.python }})
+    name: Sanity (Ⓐ${{ matrix.ansible }} / Ⓟ${{ matrix.python }})
     strategy:
       matrix:
         ansible:
