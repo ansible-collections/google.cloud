@@ -31,7 +31,7 @@ jobs:
 # https://docs.ansible.com/ansible/latest/dev_guide/testing_sanity.html
 
   sanity:
-    name: Sanity (Ⓐ${{ matrix.ansible }})
+    name: Sanity (Ⓐ${{ matrix.ansible }} / Ⓟ{{ matrix.python }})
     strategy:
       matrix:
         ansible:
@@ -109,7 +109,7 @@ jobs:
         uses: ansible-community/ansible-test-gh-action@d3a8ec7a59694e25e210fcd44738910149537f0e # 1.17.0
         with:
           ansible-core-version: ${{ matrix.ansible }}
-          origin-python-version: ${{ matrix.python }}
+          target-python-version: ${{ matrix.python }}
           testing-type: sanity
           # OPTIONAL If your sanity tests require code
           # from other collections, install them like this
