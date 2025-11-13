@@ -16,6 +16,8 @@ try:
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
+    class requests:
+        pass
 
 try:
     import google.auth
