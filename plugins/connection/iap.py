@@ -262,7 +262,6 @@ DOCUMENTATION = """
       description:
         - Fallback to SCP (Secure Copy Protocol) when SFTP is not available.
         - When enabled and SFTP fails, Ansible will try to use SCP for file transfers.
-      type: bool
       default: smart
       ini:
         - section: ssh_connection
