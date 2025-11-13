@@ -109,7 +109,7 @@ buckets, Cloud SQL instances, and more.
 
 ### Ansible version compatibility
 
-This collection is tested to work with Ansible 2.17+.
+This collection is tested to work with Ansible 2.16+.
 
 ### Python version compatibility
 
