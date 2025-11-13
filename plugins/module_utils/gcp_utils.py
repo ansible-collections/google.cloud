@@ -17,6 +17,7 @@ try:
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
+
     class RequestsResponse:
         pass
 
@@ -602,7 +603,7 @@ class ResourceOpConfigs(object):
     update: ResourceOpConfig
     delete: ResourceOpConfig
 
-    def __init__(self, op_configs: dict[str, ResourceOpConfig]):
+    def __init__(self, op_configs: T.Dict[str, ResourceOpConfig]):
         for k, v in op_configs.items():
             setattr(self, k, v)
 
@@ -618,7 +619,7 @@ class Resource(object):
     request: NestedDict = {}
     response: NestedDict = {}
 
-    def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: dict[str, T.Any]) -> None:
+    def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: T.Dict[str, T.Any]) -> None:
         if request is not None:
             self.request = request
         self.kind = kwargs.get("kind")
