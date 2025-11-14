@@ -862,7 +862,7 @@ class Resource(object):
         return flatten_nested_dict(self.to_request() or {}, separator=".", glob_excludes=exclusions)
 
 
-def debug(module: AnsibleModule | None, **kwargs) -> None:
+def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
     "Prints debugging output using module logging"
 
     if module is not None:
