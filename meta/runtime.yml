@@ -1,6 +1,49 @@
 ---
 requires_ansible: ">=2.16.0"
 
+plugin_routing:
+  modules:
+    gcp_sourcerepo_repository:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Effective June 17, 2024, Cloud Source Repositories isn't available to
+          new customers. If your organization hasn't previously used Cloud
+          Source Repositories, you can't enable the API or use Cloud Source
+          Repositories.
+    gcp_sourcerepo_repository_info:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Effective June 17, 2024, Cloud Source Repositories isn't available to
+          new customers. If your organization hasn't previously used Cloud
+          Source Repositories, you can't enable the API or use Cloud Source
+          Repositories.
+    gcp_mlengine_model:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_model_info:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_version:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+    gcp_mlengine_version_info:
+      deprecation:
+        removal_version: 2.0.0
+        warning_text: >
+          Cloud AI Platform is deprecated and access will be discontinued
+          January 31 2025 in favor of Vertex AI.
+
 action_groups:
   gcp:
     - gcp_appengine_firewall_rule
