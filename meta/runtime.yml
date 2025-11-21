@@ -4,24 +4,30 @@ requires_ansible: ">=2.16.0"
 plugin_routing:
   modules:
     gcp_sourcerepo_repository:
-      deprecation:
-        removal_version: 1.10.2
+      tombstone:
+        removal_date: 2024-06-17
         warning_text: >
           Effective June 17, 2024, Cloud Source Repositories isn't available to
           new customers. If your organization hasn't previously used Cloud
           Source Repositories, you can't enable the API or use Cloud Source
           Repositories.
-        alternative: M(google.cloud.gcp_cloudbuildv2_repository)
+          Please use M(google.cloud.gcp_cloudbuildv2_repository) instead.
     gcp_sourcerepo_repository_info:
-      deprecation:
-        removal_version: 1.10.2
+      tombstone:
+        removal_date: 2024-06-17
         warning_text: >
           Effective June 17, 2024, Cloud Source Repositories isn't available to
           new customers. If your organization hasn't previously used Cloud
           Source Repositories, you can't enable the API or use Cloud Source
-          Repositories.action_groups:
-        alternative: M(google.cloud.gcp_cloudbuildv2_repository)
+          Repositories.
+          Please use M(google.cloud.gcp_cloudbuildv2_repository) instead.
+
+action_groups:
   gcp:
+    - gcp_alloydb_backup
+    - gcp_alloydb_cluster
+    - gcp_alloydb_instance
+    - gcp_alloydb_user
     - gcp_appengine_firewall_rule
     - gcp_appengine_firewall_rule_info
     - gcp_bigquery_dataset
@@ -32,6 +38,8 @@ plugin_routing:
     - gcp_bigtable_instance_info
     - gcp_cloudbuild_trigger
     - gcp_cloudbuild_trigger_info
+    - gcp_cloudbuildv2_connection
+    - gcp_cloudbuildv2_repository
     - gcp_cloudfunctions_cloud_function
     - gcp_cloudfunctions_cloud_function_info
     - gcp_cloudscheduler_job
@@ -159,6 +167,7 @@ plugin_routing:
     - gcp_mlengine_model_info
     - gcp_mlengine_version
     - gcp_mlengine_version_info
+    - gcp_parameter_manager
     - gcp_pubsub_subscription
     - gcp_pubsub_subscription_info
     - gcp_pubsub_topic
@@ -174,8 +183,6 @@ plugin_routing:
     - gcp_secret_manager
     - gcp_serviceusage_service
     - gcp_serviceusage_service_info
-    - gcp_sourcerepo_repository
-    - gcp_sourcerepo_repository_info
     - gcp_spanner_database
     - gcp_spanner_database_info
     - gcp_spanner_instance
