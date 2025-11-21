@@ -1,7 +1,26 @@
 ---
 requires_ansible: ">=2.16.0"
 
-action_groups:
+plugin_routing:
+  modules:
+    gcp_sourcerepo_repository:
+      deprecation:
+        removal_version: 1.10.2
+        warning_text: >
+          Effective June 17, 2024, Cloud Source Repositories isn't available to
+          new customers. If your organization hasn't previously used Cloud
+          Source Repositories, you can't enable the API or use Cloud Source
+          Repositories.
+        alternative: M(google.cloud.gcp_cloudbuildv2_repository)
+    gcp_sourcerepo_repository_info:
+      deprecation:
+        removal_version: 1.10.2
+        warning_text: >
+          Effective June 17, 2024, Cloud Source Repositories isn't available to
+          new customers. If your organization hasn't previously used Cloud
+          Source Repositories, you can't enable the API or use Cloud Source
+          Repositories.action_groups:
+        alternative: M(google.cloud.gcp_cloudbuildv2_repository)
   gcp:
     - gcp_appengine_firewall_rule
     - gcp_appengine_firewall_rule_info
