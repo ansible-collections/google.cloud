@@ -325,6 +325,7 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 import json
 import time
 
+
 ################################################################################
 # Main
 ################################################################################
@@ -360,7 +361,10 @@ def main():
 
     if fetch:
         if state == 'present':
-            if is_different(module, fetch):
+            if module.params['network']['selfLink'] != fetch['network']: # found difference on same subnet within the same VPC network
+                module.fail_json(msg="Subnet already exists in a different VPC network: %s" % fetch['network'])
+                changed = False
+            elif is_different(module, fetch):
                 update(module, self_link(module), kind, fetch)
                 fetch = fetch_resource(module, self_link(module), kind)
                 changed = True
