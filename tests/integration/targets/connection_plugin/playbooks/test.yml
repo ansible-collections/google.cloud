@@ -23,3 +23,15 @@
     - name: TEST | Debug
       ansible.builtin.debug:
         msg: "{{ _content['content'] | b64decode }}"
+
+    - name: TEST | Reset connection
+      ansible.builtin.meta: reset_connection
+
+    - name: TEST | Loop operations
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+      loop:
+        - /tmp/file1
+        - /tmp/file2
+        - /tmp/file3

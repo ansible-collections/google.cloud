@@ -123,8 +123,11 @@ DOCUMENTATION = """
       ini:
         - section: ssh_connection
           key: known_hosts_file
+        - section: gcloud
+          key: known_hosts_file
       vars:
         - name: ansible_known_hosts_file
+        - name: ansible_gcloud_known_hosts_file
         - name: ansible_ssh_known_hosts_file
     host_key_checking:
       description: Determines if SSH should reject or not a connection after checking
@@ -183,7 +186,7 @@ DOCUMENTATION = """
     ssh_args:
       description: arguments to pass to all ssh cli tools.
       type: string
-      default: '-C -o controlmaster=auto -o controlpersist=60s'
+      default: '-C -o ControlMaster=auto -o ControlPersist=60s'
       ini:
         - section: ssh_connection
           key: ssh_args
@@ -501,20 +504,19 @@ DOCUMENTATION = """
 """
 
 import os
-import re
 import pty
-import shlex
+import re
 import select
+import shlex
 import shutil
 import subprocess
 import threading
 import time
-import tempfile
 import typing as T
 from os import path as ospath
 
-from ansible.plugins.connection import ssh as sshconn
 from ansible import errors
+from ansible.plugins.connection import ssh as sshconn
 from ansible.utils import display
 
 D = display.Display()
@@ -545,7 +547,6 @@ class IAP:
         config: T.Optional[str] = None,
         token_file: T.Optional[str] = None,
     ) -> None:
-
         self.host = host
         self.remote_port = remote_port
         cmd: T.List[str] = [
@@ -652,7 +653,7 @@ class IAP:
     def terminate(self) -> None:
         """Gracefully terminate the IAP subprocess"""
 
-        D.vvv("IAP: STOPPING TUNNEL", host=self.host)
+        D.vvv("IAP: STOPPING TUNNEL PROCESS", host=self.host)
         if self.process is not None and self.process.poll() is None:
             try:
                 self.process.terminate()
@@ -676,12 +677,10 @@ class Connection(sshconn.Connection):
     lock: threading.Lock = threading.Lock()
 
     gcloud_executable: T.Optional[str] = None
-    ssh_config: str
 
     transport = "gcloud-iap"  # type: ignore[override]
 
     def __init__(self, *args: T.Any, **kwargs: T.Any) -> None:
-
         super(Connection, self).__init__(*args, **kwargs)
 
         # If the gcloud binary isn't found/configured, bail out immediately
@@ -696,6 +695,20 @@ class Connection(sshconn.Connection):
                 "Plugin Error: no gcloud binary found in $PATH and "
                 "no executable defined in ansible config"
             )
+
+    def exec_command(
+        self, cmd: str, in_data: bytes | None = None, sudoable: bool = True
+    ) -> T.Tuple[int, bytes, bytes]:
+        """
+        Monkey patch upstream's exec_command
+        Upstream SSH plugin thinks it is unnecessary to call _connect() so I do it for them
+        """
+
+        self._connect()
+
+        return super(Connection, self).exec_command(
+            cmd, in_data=in_data, sudoable=sudoable
+        )
 
     def _connect(self) -> Connection:
         """Upstream ssh is empty, overload with the stuff starting the IAP tunnel"""
@@ -714,7 +727,9 @@ class Connection(sshconn.Connection):
             raise errors.AnsibleAssertionError("No host defined")
 
         with self.lock:
-            if host not in self.iaps:
+            if host in self.iaps:
+                D.vvv("IAP: REUSING EXISTING TUNNEL", host=host)
+            else:
                 self.iaps[host] = IAP(
                     str(self.gcloud_executable),
                     host=host,
@@ -743,28 +758,21 @@ class Connection(sshconn.Connection):
                 D.vvvvv(line, host=host)
             raise errors.AnsibleRuntimeError("Failure when starting IAP tunnel")
 
-        # override port with the random IAP port
-        self.set_option("port", self.iaps[host].local_port)
-
         # read path to the supplied known hosts file
         ukhf: str = ospath.abspath(
             ospath.expanduser(str(self.get_option("known_hosts_file")))
         )
-        # have to trick SSH to connect to localhost instead of the instances
-        fd, self.ssh_config = tempfile.mkstemp(
-            suffix="ssh_config", prefix="ansible_gcloud", text=True
-        )
-        with open(fd, "w") as fp:
-            fp.write("Host *\n")
-            fp.write("  HostName localhost\n")  # trick
-            fp.write("  HostKeyAlias {}\n".format(host))  # avoid multiple entries
-            fp.write("  UserKnownHostsFile {}\n".format(ukhf))  # as defined in opts
 
-        # prepend our generated ssh config to all ssh_args if not already present
-        if self.ssh_config not in str(self.get_option("ssh_args")):
-            self.set_option(
-                "ssh_args", f"-F {self.ssh_config} " + str(self.get_option("ssh_args"))
-            )
+        # have to trick SSH to connect to localhost instead of the instances
+        self.set_option("port", self.iaps[host].local_port)
+        our_opts: T.List[str] = [
+            "-oHostname=localhost",
+            f"-oHostKeyAlias={host}",
+            f"-oUserKnownHostsFile={ukhf}",
+        ]
+        ssh_args: str = self.get_option("ssh_args")
+        if our_opts[0] not in ssh_args:  # only append our options once
+            self.set_option("ssh_args", f"{' '.join(our_opts)} " + ssh_args)
 
         self._connected = True
 
@@ -776,13 +784,13 @@ class Connection(sshconn.Connection):
         all IAP tunnels as well
         """
 
+        host: T.Optional[str] = self.get_option("host")
+
+        D.vvv("IAP: CLOSING TUNNEL", host=host)
         # Terminate IAP
         with self.lock:
             for iap in self.iaps.values():
                 iap.terminate()
             self.iaps.clear()
-
-        # remove ssh config
-        os.unlink(self.ssh_config)
 
         self._connected = False
