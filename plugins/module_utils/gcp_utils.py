@@ -8,6 +8,7 @@ __metaclass__ = type
 import fnmatch
 import os
 import json
+import pprint
 import time
 import typing as T
 
@@ -705,11 +706,13 @@ class Resource(object):
         Make GET request.
         """
 
+        debug(self.module, method="get", link=link)
         return self.if_object(self.session().get(link), allow_not_found)
 
     def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
         "Retry the given number of times for an async operation to succeed"
 
+        debug(self.module, msg="Waiting for async op", op_url=op_url, retries=retries)
         for retry in range(1, retries):
             op = self.session().get(op_url)
             op_obj = self.if_object(op, allow_not_found=False)
@@ -718,6 +721,7 @@ class Resource(object):
                 if done:
                     return op_obj["response"]
 
+            debug(self.module, op_url=op_url, retry=retry)
             time.sleep(1.0)  # TODO: should we relax the check?
 
         self.module.fail_json(msg="Failed to poll for async op completion")
@@ -728,7 +732,7 @@ class Resource(object):
         op_result: T.Optional[NestedDict] = op_func(link)
 
         op_id: str = navigate_hash(op_result, ["name"], "")
-        params: NestedDict = self.module.params
+        params: NestedDict = self.module.params.copy()
         params.update({"op_id": op_id})
         op_url: str = async_link.format(**params)
 
@@ -737,6 +741,7 @@ class Resource(object):
     def post_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous post"
 
+        debug(self.module, method="post_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.post,
             link=link,
@@ -747,6 +752,7 @@ class Resource(object):
     def put_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous put"
 
+        debug(self.module, method="put_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.put,
             link=link,
@@ -757,6 +763,7 @@ class Resource(object):
     def patch_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous patch"
 
+        debug(self.module, method="patch_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.patch,
             link=link,
@@ -767,6 +774,7 @@ class Resource(object):
     def delete_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous delete"
 
+        debug(self.module, method="delete_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.delete,
             link=link,
@@ -786,6 +794,7 @@ class Resource(object):
         Make POST request.
         """
 
+        debug(self.module, method="post", link=link)
         return self.with_kind(
             self.if_object(
                 self.session().post(
@@ -800,6 +809,7 @@ class Resource(object):
         Make PUT request.
         """
 
+        debug(self.module, method="put", link=link)
         return self.with_kind(
             self.if_object(
                 self.session().put(
@@ -814,6 +824,7 @@ class Resource(object):
         Make PATCH request
         """
 
+        debug(self.module, method="patch", link=link)
         return self.with_kind(
             self.if_object(
                 self.session().patch(
@@ -828,6 +839,7 @@ class Resource(object):
         Make DELETE request.
         """
 
+        debug(self.module, method="delete", link=link)
         return self.if_object(self.session().delete(link))
 
     def diff(self, response: NestedDict) -> bool:
@@ -848,3 +860,11 @@ class Resource(object):
             "tags.*",
         ]
         return flatten_nested_dict(self.to_request() or {}, separator=".", glob_excludes=exclusions)
+
+
+def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
+    "Prints debugging output using module logging"
+
+    if module is not None:
+        if module._verbosity >= 3:
+            module.log(pprint.saferepr(kwargs))

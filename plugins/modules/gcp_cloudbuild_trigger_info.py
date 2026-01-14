@@ -76,6 +76,12 @@ options:
     - Array of scopes to be used
     type: list
     elements: str
+  location:
+    default: global
+    description:
+      - The [Cloud Build location](https://cloud.google.com/build/docs/locations) for the trigger.
+      - If not specified, "global" is used.
+    type: str
   env_type:
     description:
     - Specifies which Ansible environment you're running this module within.
@@ -814,7 +820,12 @@ import json
 
 
 def main():
-    module = GcpModule(argument_spec=dict(), supports_check_mode=True)
+    module = GcpModule(argument_spec=dict(
+        location=dict(
+            type="str",
+            default="global",
+        ),
+    ), supports_check_mode=True)
 
     if not module.params['scopes']:
         module.params['scopes'] = ['https://www.googleapis.com/auth/cloud-platform']
@@ -824,7 +835,7 @@ def main():
 
 
 def collection(module):
-    return "https://cloudbuild.googleapis.com/v1/projects/{project}/triggers".format(**module.params)
+    return "https://cloudbuild.googleapis.com/v1/projects/{project}/locations/{location}/triggers".format(**module.params)
 
 
 def fetch_list(module, link):
