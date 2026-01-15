@@ -4,6 +4,20 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.11.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_cloudbuildv2_* - added gcp_cloudbuildv2_connection and gcp_cloudbuildv2_repository modules (https://github.com/ansible-collections/google.cloud/pull/729).
+
+Bugfixes
+--------
+
+- connection plugin - fix attribute error when using reset_connection (https://github.com/ansible-collections/google.cloud/issues/737).
+- connection plugin - fix ssh error in tasks with loops (https://github.com/ansible-collections/google.cloud/issues/738).
+
 v1.10.2
 =======
 
