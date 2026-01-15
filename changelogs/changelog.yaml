@@ -72,6 +72,18 @@ releases:
     fragments:
     - 730-ansible-2-16-re-enabled.yml
     release_date: '2025-11-13'
+  1.11.0:
+    changes:
+      bugfixes:
+      - connection plugin - fix attribute error when using reset_connection (https://github.com/ansible-collections/google.cloud/issues/737).
+      - connection plugin - fix ssh error in tasks with loops (https://github.com/ansible-collections/google.cloud/issues/738).
+      minor_changes:
+      - gcp_cloudbuildv2_* - added gcp_cloudbuildv2_connection and gcp_cloudbuildv2_repository
+        modules (https://github.com/ansible-collections/google.cloud/pull/729).
+    fragments:
+    - 729-add-cloudbuild-v2.yml
+    - 739-iap-connection-fixes.yml
+    release_date: '2026-01-14'
   1.2.0:
     changes:
       bugfixes:
