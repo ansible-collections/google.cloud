@@ -35,17 +35,30 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_text
 
 
-def navigate_hash(source, path, default=None):
-    if not source:
-        return None
+def navigate_hash(source: T.Dict, path: T.List, default: T.Any = None) -> T.Any:
+    """
+    Navigates a k/v dictionary for a path represented by a list,
+    with an optional default value if the path isn't found.
+    """
 
-    key = path[0]
-    path = path[1:]
+    if not path or not isinstance(source, dict):
+        return default
+
+    key: str
+    subpath: T.List
+    try:
+        key, *subpath = path
+    except ValueError:  # catch when path list is empty
+        return default
+
     if key not in source:
         return default
-    result = source[key]
-    if path:
-        return navigate_hash(result, path, default)
+
+    result: T.Any = source[key]
+
+    if len(subpath) > 0:
+        return navigate_hash(result, subpath, default)
+
     return result
 
 
@@ -868,3 +881,40 @@ def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
     if module is not None:
         if module._verbosity >= 3:
             module.log(pprint.saferepr(kwargs))
+
+
+def empty(data: T.Any) -> bool:
+    """
+    Quick function to test if something is "empty".
+    """
+    if data is None:
+        return True
+    if len(data) == 0:
+        return True
+
+    return False
+
+
+def remove_nones(data: T.Optional[NestedDict]) -> NestedDict:
+    """
+    Removes keys with None values from a dict. It is necessary to make
+    a distinction between this and empties because there are some APIs
+    that accept (or even require) empty values.
+    """
+
+    if isinstance(data, dict):
+        return {k: v for k, v in data.items() if v is not None}
+    else:
+        return {}
+
+
+def remove_empties(data: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
+    """
+    Removes keys with "empty" values from a dict. Basically the original
+    remove_nones_from_dict behavior.
+    """
+
+    if isinstance(data, dict):
+        return {k: v for k, v in data.items() if not empty(v)}
+    else:
+        return None
