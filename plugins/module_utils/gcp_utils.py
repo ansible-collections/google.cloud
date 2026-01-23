@@ -889,10 +889,14 @@ def empty(data: T.Any) -> bool:
     """
     if data is None:
         return True
-    if len(data) == 0:
+    elif isinstance(data, int):
+        return data == 0
+    elif isinstance(data, float):
+        return data == 0.0
+    elif len(data) == 0:
         return True
-
-    return False
+    else:
+        return False
 
 
 def remove_nones(data: T.Optional[NestedDict]) -> NestedDict:
