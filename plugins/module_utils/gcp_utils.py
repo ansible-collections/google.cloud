@@ -632,6 +632,8 @@ class Resource(object):
     product: T.Optional[str]
     request: NestedDict = {}
     response: NestedDict = {}
+    encode_func: T.Callable
+    decode_func: T.Callable
 
     def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: T.Dict[str, T.Any]) -> None:
         if request is not None:
@@ -639,6 +641,9 @@ class Resource(object):
         self.kind = kwargs.get("kind")
         self.module = kwargs.get("module")
         self.product = kwargs.get("product")
+
+    def debug(self, **kwargs) -> None:
+        debug(self.module, **kwargs)
 
     def session(self) -> Session:
         "Returns an authenticated GCP session"
@@ -698,8 +703,11 @@ class Resource(object):
     def to_request(self) -> T.Optional[NestedDict]:
         "This should be built from self.request"
 
-        req = self._request()
-        return remove_nones_from_dict(req)
+        req = remove_empties(self._request())
+        if getattr(self, "encode_func", False):
+            req = self.encode_func(req)
+
+        return req
 
     def from_response(self, response: NestedDict) -> NestedDict:
         """
@@ -712,29 +720,38 @@ class Resource(object):
             self.response["kind"] = self.kind
         self.response.update(self._response())
 
-        return remove_nones_from_dict(self.response)
+        rsp = remove_empties(self.response)
+
+        if getattr(self, "decode_func", False):
+            rsp = self.decode_func(rsp)
+
+        return rsp
 
     def get(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
         """
         Make GET request.
         """
 
-        debug(self.module, method="get", link=link)
+        self.debug(method="get", link=link)
         return self.if_object(self.session().get(link), allow_not_found)
 
     def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
         "Retry the given number of times for an async operation to succeed"
 
-        debug(self.module, msg="Waiting for async op", op_url=op_url, retries=retries)
+        self.debug(msg="Waiting for async op", op_url=op_url, retries=retries)
         for retry in range(1, retries):
             op = self.session().get(op_url)
             op_obj = self.if_object(op, allow_not_found=False)
             if op_obj:
                 done: bool = navigate_hash(op_obj, ["done"], False)
                 if done:
-                    return op_obj["response"]
+                    rsp = op_obj["response"]
+                    if getattr(self, "decode_func", False):
+                        rsp = self.decode_func(rsp)
 
-            debug(self.module, op_url=op_url, retry=retry)
+                    return rsp
+
+            self.debug(op_url=op_url, retry=retry)
             time.sleep(1.0)  # TODO: should we relax the check?
 
         self.module.fail_json(msg="Failed to poll for async op completion")
@@ -754,7 +771,6 @@ class Resource(object):
     def post_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous post"
 
-        debug(self.module, method="post_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.post,
             link=link,
@@ -765,7 +781,6 @@ class Resource(object):
     def put_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous put"
 
-        debug(self.module, method="put_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.put,
             link=link,
@@ -776,7 +791,6 @@ class Resource(object):
     def patch_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous patch"
 
-        debug(self.module, method="patch_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.patch,
             link=link,
@@ -787,7 +801,6 @@ class Resource(object):
     def delete_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous delete"
 
-        debug(self.module, method="delete_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.delete,
             link=link,
@@ -807,14 +820,10 @@ class Resource(object):
         Make POST request.
         """
 
-        debug(self.module, method="post", link=link)
+        req = self.to_request()
+        self.debug(method="post", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().post(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().post(link, req))
         )
 
     def put(self, link) -> T.Optional[NestedDict]:
@@ -822,14 +831,10 @@ class Resource(object):
         Make PUT request.
         """
 
-        debug(self.module, method="put", link=link)
+        req = self.to_request()
+        self.debug(method="put", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().put(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().put(link, req))
         )
 
     def patch(self, link) -> T.Optional[NestedDict]:
@@ -837,14 +842,10 @@ class Resource(object):
         Make PATCH request
         """
 
-        debug(self.module, method="patch", link=link)
+        req = self.to_request()
+        self.debug(method="patch", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().patch(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().patch(link, req))
         )
 
     def delete(self, link) -> T.Optional[NestedDict]:
@@ -852,8 +853,9 @@ class Resource(object):
         Make DELETE request.
         """
 
-        debug(self.module, method="delete", link=link)
-        return self.if_object(self.session().delete(link))
+        req = self.to_request()
+        self.debug(method="delete", link=link, request=req)
+        return self.if_object(self.session().delete(link, req))
 
     def diff(self, response: NestedDict) -> bool:
         """
@@ -872,7 +874,7 @@ class Resource(object):
             "annotations.*",
             "tags.*",
         ]
-        return flatten_nested_dict(self.to_request() or {}, separator=".", glob_excludes=exclusions)
+        return flatten_nested_dict(self._request() or {}, separator=".", glob_excludes=exclusions)
 
 
 def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
@@ -889,11 +891,11 @@ def empty(data: T.Any) -> bool:
     """
     if data is None:
         return True
-    elif isinstance(data, int):
-        return data == 0
-    elif isinstance(data, float):
-        return data == 0.0
-    elif len(data) == 0:
+    elif data == {}:
+        return True
+    elif data == []:
+        return True
+    elif data == "":
         return True
     else:
         return False
