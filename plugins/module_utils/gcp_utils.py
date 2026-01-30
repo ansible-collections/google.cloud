@@ -853,7 +853,11 @@ class Resource(object):
         Make DELETE request.
         """
 
-        req = self.to_request()
+        req = {}
+        if getattr(self, "encode_func", False):
+            # normally, you don't need to pass a request body on deletes, but *some* APIs
+            # require it so you still pass it through the encoder function
+            req = self.encode_func(req)
         self.debug(method="delete", link=link, request=req)
         return self.if_object(self.session().delete(link, req))
 
