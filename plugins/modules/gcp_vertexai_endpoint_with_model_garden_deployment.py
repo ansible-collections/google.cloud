@@ -986,7 +986,7 @@ EXAMPLES = r"""
 - name: Deploy Basic Model
   google.cloud.gcp_vertexai_endpoint_with_model_garden_deployment:
     state: present
-    publisher_model_name = publishers/google/models/paligemma@paligemma-224-float32
+    publisher_model_name: publishers/google/models/paligemma@paligemma-224-float32
     endpoint_config:
       endpoint_display_name: my-endpoint
     model_config:
@@ -1018,12 +1018,12 @@ EXAMPLES = r"""
 - name: Deploy Basic Model with PSC Endpoint
   google.cloud.gcp_vertexai_endpoint_with_model_garden_deployment:
     state: present
-    publisher_model_name = publishers/google/models/paligemma@paligemma-224-float32
+    publisher_model_name: publishers/google/models/paligemma@paligemma-224-float32
     display_name: my-psc-endoint
     endpoint_config:
       private_service_connect_config:
         enable_private_service_connect: true
-        project_allowlist
+        project_allowlist:
           - my-project-id
     model_config:
       accept_eula: true

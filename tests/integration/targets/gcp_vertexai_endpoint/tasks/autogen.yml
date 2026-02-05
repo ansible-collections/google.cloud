@@ -54,6 +54,10 @@
                   --ranges="{{ resource_name }}-peering" \
                   --network="{{ _network.name }}" \
                   --project="{{ gcp_project }}"
+              register: _cmd
+              failed_when:
+                - "'finished successfully' not in _cmd.stderr"
+              changed_when: true
           always:
             - name: Delete temporary directory
               ansible.builtin.file:

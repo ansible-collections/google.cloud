@@ -25,6 +25,7 @@
         - name: Create BigQuery Dataset
           google.cloud.gcp_bigquery_dataset:
             state: present
+            name: "{{ resource_name | regex_replace('-', '_') }}"
             dataset_reference:
               dataset_id: "{{ resource_name | regex_replace('-', '_') }}"
             project: "{{ gcp_project }}"
@@ -115,6 +116,7 @@
         - name: Delete BigQuery Dataset
           google.cloud.gcp_bigquery_dataset:
             state: absent
+            name: "{{ resource_name | regex_replace('-', '_') }}"
             dataset_reference:
               dataset_id: "{{ resource_name | regex_replace('-', '_') }}"
             project: "{{ gcp_project }}"
