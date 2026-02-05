@@ -75,10 +75,7 @@ options:
   labels:
     description:
       - The labels with user-defined metadata to organize your Endpoints.
-      - >-
-        Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters,
-
-        underscores and dashes.
+      - Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes.
       - International characters are allowed.
       - See https://goo.gl/xmQnxf for more information and examples of labels.
     type: dict
@@ -95,10 +92,7 @@ options:
     type: str
   network:
     description:
-      - >-
-        The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the
-
-        Endpoint should be peered.
+      - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered.
       - Private services access must already be configured for the network.
       - If left unspecified, the Endpoint is not peered with any network.
       - Only one of the fields, network or enable_private_service_connect, can be set.
@@ -113,10 +107,7 @@ options:
       bigquery_destination:
         description:
           - BigQuery table for logging.
-          - >-
-            If only given a project, a new dataset will be created with name `logging_<endpoint-display-name>_<endpoint-id>` where will be made
-
-            BigQuery-dataset-name compatible (e.g.
+          - If only given a project, a new dataset will be created with name `logging_<endpoint-display-name>_<endpoint-id>` where will be made BigQuery-dataset-name compatible (e.g.
           - most special characters will become underscores).
           - If no table name is given, a new table will be created with name `request_response_logging`.
         suboptions:
@@ -214,12 +205,7 @@ options:
       - A map from a DeployedModel's id to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel.
       - If a DeployedModel's id is not listed in this map, then it receives no traffic.
       - The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment.
-      - >-
-        See the `deployModel` [example](https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint) and
-
-        [documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints/deployModel) for more
-
-        information.
+      - See the `deployModel` [example](https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint) and [documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints/deployModel) for more information.
       - ~> **Note:** To set the map to empty, set `"{}"`, apply, and then remove the field from your config.
     type: str
 requirements:
@@ -227,7 +213,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.Endpoint resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Endpoint
@@ -258,7 +244,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -286,24 +272,15 @@ deployedModels:
         maxReplicaCount:
           description:
             - The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases.
-            - >-
-              If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many
-
-              replicas is guaranteed (barring service outages).
+            - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages).
             - If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
-            - >-
-              If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale
-
-              beyond certain replica number.
+            - If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number.
           returned: success
           type: int
         minReplicaCount:
           description:
             - The minimum number of replicas this DeployedModel will be always deployed on.
-            - >-
-              If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some
-
-              of these extra replicas may be freed.
+            - If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some of these extra replicas may be freed.
             - If the requested value is too large, the deployment will error.
           returned: success
           type: int
@@ -324,42 +301,22 @@ deployedModels:
             metricName:
               description:
                 - The resource metric name.
-                - >-
-                  Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` *
-
-                  `aiplatform.googleapis.com/prediction/online/cpu/utilization`.
+                - 'Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`.'
               returned: success
               type: str
             target:
               description:
-                - >-
-                  The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain
-
-                  percentage, the machine replicas change.
+                - The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change.
                 - The default value is 60 (representing 60%) if not provided.
               returned: success
               type: int
           description:
-            - >-
-              The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value
-
-              (default to 60 if not set).
+            - The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set).
             - At most one entry is allowed per metric.
-            - >-
-              If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and
-
-              scale up when either metrics exceeds its target value while scale down if both metrics are under their target value.
+            - If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value.
             - The default target value is 60 for both metrics.
-            - >-
-              If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not
-
-              explicitly set.
-            - >-
-              For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set
-
-              autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to
-
-              `80`.
+            - If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set.
+            - For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
           elements: dict
           returned: success
           type: list
@@ -379,12 +336,7 @@ deployedModels:
             machineType:
               description:
                 - The type of the machine.
-                - >-
-                  See the [list of machine types supported for
-
-                  prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported
-
-                  for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
+                - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
                 - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
                 - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
                 - 'TODO: Try to better unify the required vs optional.'
@@ -397,27 +349,18 @@ deployedModels:
         maxReplicaCount:
           description:
             - The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases.
-            - >-
-              If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many
-
-              replicas is guaranteed (barring service outages).
+            - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages).
             - If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
             - If this value is not provided, will use min_replica_count as the default value.
             - The value of this field impacts the charge against Vertex CPU and GPU quotas.
-            - >-
-              Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of
-
-              GPUs per replica in the selected machine type).
+            - Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
           returned: success
           type: int
         minReplicaCount:
           description:
             - The minimum number of machine replicas this DeployedModel will be always deployed on.
             - This value must be greater than or equal to 1.
-            - >-
-              If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these
-
-              extra replicas may be freed.
+            - If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
           returned: success
           type: int
       description:
@@ -433,10 +376,7 @@ deployedModels:
     enableAccessLogging:
       description:
         - These logs are like standard server access logs, containing information like timestamp and latency for each prediction request.
-        - >-
-          Note that Stackdriver logs may incur a cost, especially if your project receives prediction requests at a high queries per second rate
-
-          (QPS).
+        - Note that Stackdriver logs may incur a cost, especially if your project receives prediction requests at a high queries per second rate (QPS).
         - Estimate your costs before enabling this option.
       returned: success
       type: bool
@@ -494,10 +434,7 @@ deployedModels:
           type: str
       description:
         - Output only.
-        - >-
-          Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private
-
-          services access.
+        - Provide paths for users to send predict/explain/health requests directly to the deployed model services running on Cloud via private services access.
         - This field is populated if network is configured.
       returned: success
       type: dict
@@ -546,7 +483,7 @@ updateTime:
     - Timestamp when this Endpoint was last updated.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

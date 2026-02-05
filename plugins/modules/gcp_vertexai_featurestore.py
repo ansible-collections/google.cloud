@@ -103,10 +103,7 @@ options:
     default: 4000
     description:
       - TTL in days for feature values that will be stored in online serving storage.
-      - >-
-        The Feature Store online storage periodically removes obsolete feature values older than onlineStorageTtlDays since the feature generation
-
-        time.
+      - The Feature Store online storage periodically removes obsolete feature values older than onlineStorageTtlDays since the feature generation time.
       - Note that onlineStorageTtlDays should be less than or equal to offlineStorageTtlDays for each EntityType under a featurestore.
       - If not set, default to 4000 days.
     type: int
@@ -128,7 +125,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.Featurestore resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Featurestore
@@ -166,7 +163,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -175,10 +172,7 @@ changed:
   type: bool
 createTime:
   description:
-    - >-
-      The timestamp of when the featurestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional
-
-      digits.
+    - The timestamp of when the featurestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
 etag:
@@ -192,13 +186,10 @@ state:
   type: str
 updateTime:
   description:
-    - >-
-      The timestamp of when the featurestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional
-
-      digits.
+    - The timestamp of when the featurestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

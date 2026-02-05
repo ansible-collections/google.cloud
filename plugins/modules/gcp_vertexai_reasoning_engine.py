@@ -104,10 +104,7 @@ options:
                 type: str
               value:
                 description:
-                  - >-
-                    Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service
-
-                    environment variables.
+                  - Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables.
                   - If a variable cannot be resolved, the reference in the input string will be unchanged.
                   - 'The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).'
                   - Escaped references will never be expanded, regardless of whether the variable exists or not.
@@ -134,10 +131,7 @@ options:
               dns_peering_configs:
                 description:
                   - DNS peering configurations.
-                  - >-
-                    When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the
-
-                    target network's Cloud DNS.
+                  - When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS.
                   - The user must grant the dns.peer role to the Vertex AI service Agent on the target project.
                 elements: dict
                 suboptions:
@@ -180,10 +174,7 @@ options:
           secret_env:
             description:
               - Environment variables where the value is a secret in Cloud Secret Manager.
-              - >-
-                To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine service
-
-                Agent.
+              - To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine service Agent.
             elements: dict
             suboptions:
               name:
@@ -214,10 +205,7 @@ options:
       package_spec:
         description:
           - User provided package spec of the ReasoningEngine.
-          - >-
-            Ignored when users directly specify a deployment image through deploymentSpec.first_party_image_override, but keeping the field_behavior to
-
-            avoid introducing breaking changes.
+          - Ignored when users directly specify a deployment image through deploymentSpec.first_party_image_override, but keeping the field_behavior to avoid introducing breaking changes.
         suboptions:
           dependency_files_gcs_uri:
             description:
@@ -241,10 +229,7 @@ options:
       service_account:
         description:
           - The service account that the Reasoning Engine artifact runs as.
-          - >-
-            It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex
-
-            extensions.
+          - It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions.
           - If not specified, the Vertex AI Reasoning Engine service Agent in the project will be used.
         type: str
       source_code_spec:
@@ -304,7 +289,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.ReasoningEngine resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Basic Reasoning Engine
@@ -338,7 +323,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -364,7 +349,7 @@ updateTime:
     - The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

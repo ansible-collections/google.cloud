@@ -133,10 +133,7 @@ options:
   vector_search_config:
     description:
       - Configuration for vector search.
-      - >-
-        It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms
-
-        search can be performed during online serving.
+      - It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
     suboptions:
       brute_force_config:
         description:
@@ -146,10 +143,7 @@ options:
       crowding_column:
         description:
           - Column of crowding.
-          - >-
-            This column contains crowding attribute which is a constraint on a neighbor list produced by nearest neighbor search requiring that no more
-
-            than some value k' of the k neighbors returned have the same value of crowdingAttribute.
+          - This column contains crowding attribute which is a constraint on a neighbor list produced by nearest neighbor search requiring that no more than some value k' of the k neighbors returned have the same value of crowdingAttribute.
         type: str
       distance_measure_type:
         choices:
@@ -158,10 +152,7 @@ options:
           - DOT_PRODUCT_DISTANCE
         description:
           - The distance measure used in nearest neighbor search.
-          - >-
-            For details on allowed values, see the [API
-
-            documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureOnlineStores.featureViews#DistanceMeasureType).
+          - For details on allowed values, see the [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureOnlineStores.featureViews#DistanceMeasureType).
         type: str
       embedding_column:
         description:
@@ -195,7 +186,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.FeatureOnlineStoreFeatureview resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Feature Online Store Featureview
@@ -211,7 +202,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -220,10 +211,7 @@ changed:
   type: bool
 createTime:
   description:
-    - >-
-      The timestamp of when the featureOnlinestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional
-
-      digits.
+    - The timestamp of when the featureOnlinestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
 state:
@@ -232,13 +220,10 @@ state:
   type: str
 updateTime:
   description:
-    - >-
-      The timestamp of when the featureOnlinestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
-
-      fractional digits.
+    - The timestamp of when the featureOnlinestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

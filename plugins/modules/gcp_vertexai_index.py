@@ -34,10 +34,7 @@ DOCUMENTATION = r"""
 author:
   - Google Inc. (@googlecloudplatform)
 description:
-  - >-
-    A representation of a collection of database items organized in a way that allows for approximate nearest neighbor (a.k.a ANN) algorithms
-
-    search.
+  - A representation of a collection of database items organized in a way that allows for approximate nearest neighbor (a.k.a ANN) algorithms search.
 extends_documentation_fragment:
   - google.cloud.gcp
 module: gcp_vertexai_index
@@ -74,10 +71,7 @@ options:
       - The value must be the followings.
       - If not set, BATCH_UPDATE will be used by default.
       - '* BATCH_UPDATE: user can call indexes.patch with files on Cloud Storage of datapoints to update.'
-      - >-
-        * STREAM_UPDATE: user can call indexes.upsertDatapoints/DeleteDatapoints to update the Index and the updates will be applied in
-
-        corresponding DeployedIndexes in nearly real-time.
+      - '* STREAM_UPDATE: user can call indexes.upsertDatapoints/DeleteDatapoints to update the Index and the updates will be applied in corresponding DeployedIndexes in nearly real-time.'
     type: str
   labels:
     description:
@@ -86,10 +80,7 @@ options:
   metadata:
     description:
       - Additional information about the Index.
-      - >-
-        Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be
-
-        provided.
+      - Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
       - Attempts to create an Index without this field will result in an API error.
     required: true
     suboptions:
@@ -130,10 +121,7 @@ options:
           approximate_neighbors_count:
             description:
               - The default number of neighbors to find via approximate search before exact reordering is performed.
-              - >-
-                Exact reordering is a procedure where results returned by an approximate search algorithm are reordered via a more expensive distance
-
-                computation.
+              - Exact reordering is a procedure where results returned by an approximate search algorithm are reordered via a more expensive distance computation.
               - Required if tree-AH algorithm is used.
             type: int
           dimensions:
@@ -145,10 +133,7 @@ options:
             default: DOT_PRODUCT_DISTANCE
             description:
               - The distance measure used in nearest neighbor search.
-              - >-
-                The value must be one of the followings: * SQUARED_L2_DISTANCE: Euclidean (L_2) Distance * L1_DISTANCE: Manhattan (L_1) Distance *
-
-                COSINE_DISTANCE: Cosine Distance.
+              - 'The value must be one of the followings: * SQUARED_L2_DISTANCE: Euclidean (L_2) Distance * L1_DISTANCE: Manhattan (L_1) Distance * COSINE_DISTANCE: Cosine Distance.'
               - Defined as 1 - cosine similarity.
               - '* DOT_PRODUCT_DISTANCE: Dot Product Distance.'
               - Defined as a negative of the dot product.
@@ -164,10 +149,7 @@ options:
               - Index data is split into equal parts to be processed.
               - These are called "shards".
               - The shard size must be specified when creating an index.
-              - >-
-                The value must be one of the followings: * SHARD_SIZE_SMALL: Small (2GB) * SHARD_SIZE_MEDIUM: Medium (20GB) * SHARD_SIZE_LARGE: Large
-
-                (50GB).
+              - 'The value must be one of the followings: * SHARD_SIZE_SMALL: Small (2GB) * SHARD_SIZE_MEDIUM: Medium (20GB) * SHARD_SIZE_LARGE: Large (50GB).'
             type: str
         type: dict
       contents_delta_uri:
@@ -175,18 +157,12 @@ options:
           - Allows inserting, updating  or deleting the contents of the Matching Engine Index.
           - The string must be a valid Cloud Storage directory path.
           - If this field is set when calling IndexService.UpdateIndex, then no other Index field can be also updated as part of the same call.
-          - >-
-            The expected structure and format of the files this URI points to is described at
-
-            https://cloud.google.com/vertex-ai/docs/matching-engine/using-matching-engine#input-data-format.
+          - The expected structure and format of the files this URI points to is described at https://cloud.google.com/vertex-ai/docs/matching-engine/using-matching-engine#input-data-format.
         type: str
       is_complete_overwrite:
         default: false
         description:
-          - >-
-            If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex, then existing content of the Index will be
-
-            replaced by the data from the contentsDeltaUri.
+          - If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex, then existing content of the Index will be replaced by the data from the contentsDeltaUri.
         type: bool
     type: dict
   region:
@@ -207,7 +183,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.Index resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Index
@@ -250,7 +226,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -321,7 +297,7 @@ updateTime:
     - The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

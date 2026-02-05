@@ -54,18 +54,12 @@ options:
           metric_name:
             description:
               - The resource metric name.
-              - >-
-                Supported metrics: For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` *
-
-                `aiplatform.googleapis.com/prediction/online/cpu/utilization`.
+              - 'Supported metrics: For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`.'
             required: true
             type: str
           target:
             description:
-              - >-
-                The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain
-
-                percentage, the machine replicas change.
+              - The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change.
               - The default value is 60 (representing 60%) if not provided.
             type: int
         type: list
@@ -86,35 +80,23 @@ options:
           machine_type:
             description:
               - The type of the machine.
-              - >-
-                See the [list of machine types supported for
-
-                prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types).
+              - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types).
             type: str
         type: dict
       max_replica_count:
         description:
           - The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases.
-          - >-
-            If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many
-
-            replicas is guaranteed (barring service outages).
+          - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages).
           - If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
           - If this value is not provided, will use min_replica_count as the default value.
           - The value of this field impacts the charge against Vertex CPU and GPU quotas.
-          - >-
-            Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of
-
-            GPUs per replica in the selected machine type).
+          - Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
         type: int
       min_replica_count:
         description:
           - The minimum number of machine replicas this DeployedModel will be always deployed on.
           - This value must be greater than or equal to 1.
-          - >-
-            If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these
-
-            extra replicas may be freed.
+          - If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
         required: true
         type: int
     type: dict
@@ -142,7 +124,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.DeploymentResourcePool resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Deployment Resource Pool
@@ -160,7 +142,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -176,7 +158,7 @@ state:
   description: The current state of the resource.
   returned: always
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

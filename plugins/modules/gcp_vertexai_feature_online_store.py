@@ -34,10 +34,7 @@ DOCUMENTATION = r"""
 author:
   - Google Inc. (@googlecloudplatform)
 description:
-  - >-
-    Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency. The Feature
-
-    Online Store is a top-level container.
+  - Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency. The Feature Online Store is a top-level container.
 extends_documentation_fragment:
   - google.cloud.gcp
 module: gcp_vertexai_feature_online_store
@@ -177,7 +174,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.FeatureOnlineStore resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Feature Online Store
@@ -193,7 +190,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -202,10 +199,7 @@ changed:
   type: bool
 createTime:
   description:
-    - >-
-      The timestamp of when the feature online store was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
-
-      fractional digits.
+    - The timestamp of when the feature online store was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
 etag:
@@ -216,21 +210,15 @@ etag:
 state:
   description:
     - The state of the Feature Online Store.
-    - >-
-      See the possible states in [this
-
-      link](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores#state).
+    - See the possible states in [this link](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores#state).
   returned: success
   type: str
 updateTime:
   description:
-    - >-
-      The timestamp of when the feature online store was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
-
-      fractional digits.
+    - The timestamp of when the feature online store was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

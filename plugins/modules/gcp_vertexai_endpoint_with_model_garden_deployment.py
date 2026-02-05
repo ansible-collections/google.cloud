@@ -40,9 +40,9 @@ extends_documentation_fragment:
 module: gcp_vertexai_endpoint_with_model_garden_deployment
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations/deploy)'
-  - 'Use models in Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)'
   - 'Overview of Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/explore-models)'
   - 'Overview of self-deployed models Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/self-deployed-models)'
+  - 'Use models in Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)'
 options:
   deploy_config:
     description:
@@ -54,43 +54,23 @@ options:
         suboptions:
           autoscaling_metric_specs:
             description:
-              - >-
-                The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value
-
-                (default to 60 if not set).
+              - The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set).
               - At most one entry is allowed per metric.
-              - >-
-                If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and
-
-                scale up when either metrics exceeds its target value while scale down if both metrics are under their target value.
+              - If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value.
               - The default target value is 60 for both metrics.
-              - >-
-                If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not
-
-                explicitly set.
-              - >-
-                For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set
-
-                autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to
-
-                `80`.
+              - If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set.
+              - For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
             elements: dict
             suboptions:
               metric_name:
                 description:
                   - The resource metric name.
-                  - >-
-                    Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` *
-
-                    `aiplatform.googleapis.com/prediction/online/cpu/utilization`.
+                  - 'Supported metrics:  * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`.'
                 required: true
                 type: str
               target:
                 description:
-                  - >-
-                    The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain
-
-                    percentage, the machine replicas change.
+                  - The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change.
                   - The default value is 60 (representing 60%) if not provided.
                 type: int
             type: list
@@ -105,22 +85,12 @@ options:
                 type: int
               accelerator_type:
                 description:
-                  - >-
-                    Possible values: ACCELERATOR_TYPE_UNSPECIFIED NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4
-
-                    NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 TPU_V2 TPU_V3 TPU_V4_POD
-
-                    TPU_V5_LITEPOD.
+                  - 'Possible values: ACCELERATOR_TYPE_UNSPECIFIED NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD.'
                 type: str
               machine_type:
                 description:
                   - The type of the machine.
-                  - >-
-                    See the [list of machine types supported for
-
-                    prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported
-
-                    for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
+                  - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types)  See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
                   - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
                   - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
                 type: str
@@ -130,18 +100,12 @@ options:
                 type: int
               reservation_affinity:
                 description:
-                  - >-
-                    A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a
-
-                    Shared Reservation, or exclusively from on-demand capacity.
+                  - A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.
                 suboptions:
                   key:
                     description:
                       - Corresponds to the label key of a reservation resource.
-                      - >-
-                        To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation
-
-                        as its value.
+                      - To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.
                     type: str
                   reservation_affinity_type:
                     description:
@@ -166,36 +130,24 @@ options:
           max_replica_count:
             description:
               - The maximum number of replicas that may be deployed on when the traffic against it increases.
-              - >-
-                If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas
-
-                is guaranteed (barring service outages).
+              - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages).
               - If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
               - If this value is not provided, will use min_replica_count as the default value.
               - The value of this field impacts the charge against Vertex CPU and GPU quotas.
-              - >-
-                Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of
-
-                GPUs per replica in the selected machine type).
+              - Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
             type: int
           min_replica_count:
             description:
               - The minimum number of machine replicas that will be always deployed on.
               - This value must be greater than or equal to 1.
-              - >-
-                If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be
-
-                freed.
+              - If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
             required: true
             type: int
           required_replica_count:
             description:
               - Number of required available replicas for the deployment to succeed.
               - This field is only needed when partial deployment/mutation is desired.
-              - >-
-                If set, the deploy/mutate operation will succeed once available_replica_count reaches required_replica_count, and the rest of the replicas
-
-                will be retried.
+              - If set, the deploy/mutate operation will succeed once available_replica_count reaches required_replica_count, and the rest of the replicas will be retried.
               - If not set, the default required_replica_count will be min_replica_count.
             type: int
           spot:
@@ -319,48 +271,22 @@ options:
       container_spec:
         description:
           - Specification of a container for serving predictions.
-          - >-
-            Some fields in this message correspond to fields in the [Kubernetes Container v1 core
-
-            specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+          - Some fields in this message correspond to fields in the [Kubernetes Container v1 core specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
         suboptions:
           args:
             description:
               - Specifies arguments for the command that runs when the container starts.
               - This overrides the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd).
               - Specify this field as an array of executable and arguments, similar to a Docker `CMD`'s "default parameters" form.
-              - >-
-                If you don't specify this field but do specify the command field, then the command from the `command` field runs without any additional
-
-                arguments.
-              - >-
-                See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and
-
-                `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
-              - >-
-                If you don't specify this field and don't specify the `command` field, then the container's
-
-                [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#cmd) and `CMD` determine what runs based on their default behavior.
-              - >-
-                See the Docker documentation about [how `CMD` and `ENTRYPOINT`
-
-                interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
-              - >-
-                In this field, you can reference [environment variables set by Vertex
-
-                AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the
-
-                env field.
+              - If you don't specify this field but do specify the command field, then the command from the `command` field runs without any additional arguments.
+              - See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
+              - If you don't specify this field and don't specify the `command` field, then the container's [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#cmd) and `CMD` determine what runs based on their default behavior.
+              - See the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
+              - In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field.
               - You cannot reference environment variables set in the Docker image.
-              - >-
-                In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from
-
-                Bash variable expansion, which does not use parentheses.
+              - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
               - If a variable cannot be resolved, the reference in the input string is used unchanged.
-              - >-
-                To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `args` field
-
-                of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `args` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
             elements: str
             type: list
           command:
@@ -368,36 +294,16 @@ options:
               - Specifies the command that runs when the container starts.
               - This overrides the container's [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint).
               - Specify this field as an array of executable and arguments, similar to a Docker `ENTRYPOINT`'s "exec" form, not its "shell" form.
-              - >-
-                If you do not specify this field, then the container's `ENTRYPOINT` runs, in conjunction with the args field or the container's
-
-                [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd), if either exists.
-              - >-
-                If this field is not specified and the container does not have an `ENTRYPOINT`, then refer to the Docker documentation about [how `CMD` and
-
-                `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
+              - If you do not specify this field, then the container's `ENTRYPOINT` runs, in conjunction with the args field or the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd), if either exists.
+              - If this field is not specified and the container does not have an `ENTRYPOINT`, then refer to the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
               - If you specify this field, then you can also specify the `args` field to provide additional arguments for this command.
               - However, if you specify this field, then the container's `CMD` is ignored.
-              - >-
-                See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and
-
-                `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
-              - >-
-                In this field, you can reference [environment variables set by Vertex
-
-                AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the
-
-                env field.
+              - See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
+              - In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field.
               - You cannot reference environment variables set in the Docker image.
-              - >-
-                In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from
-
-                Bash variable expansion, which does not use parentheses.
+              - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
               - If a variable cannot be resolved, the reference in the input string is used unchanged.
-              - >-
-                To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `command`
-
-                field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `command` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
             elements: str
             type: list
           deployment_timeout:
@@ -411,14 +317,8 @@ options:
               - After the container starts running, code running in the container can read these environment variables.
               - Additionally, the command and args fields can reference these variables.
               - Later entries in this list can also reference earlier entries.
-              - >-
-                For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, {
-
-                "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur.
-              - >-
-                This field corresponds to the `env` field of the Kubernetes Containers [v1 core
-
-                API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - 'For example, the following example sets the variable `VAR_2` to have the value `foo bar`:  ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ```  If you switch the order of the variables in the example, then the expansion does not occur.'
+              - This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
             elements: dict
             suboptions:
               name:
@@ -429,10 +329,7 @@ options:
                 type: str
               value:
                 description:
-                  - >-
-                    Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service
-
-                    environment variables.
+                  - Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables.
                   - If a variable cannot be resolved, the reference in the input string will be unchanged.
                   - 'The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).'
                   - Escaped references will never be expanded, regardless of whether the variable exists or not.
@@ -465,10 +362,7 @@ options:
                 suboptions:
                   command:
                     description:
-                      - >-
-                        Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's
-
-                        filesystem.
+                      - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
                       - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
                       - To use a shell, you need to explicitly call out to that shell.
                       - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
@@ -589,46 +483,19 @@ options:
               - HTTP path on the container to send health checks to.
               - Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy.
               - Read more about [health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#health).
-              - >-
-                For example, if you set this field to `/bar`, then Vertex AI intermittently sends a GET request to the `/bar` path on the port of your
-
-                container specified by the first value of this `ModelContainerSpec`'s ports field.
-              - >-
-                If you don't specify this field, it defaults to the following value when you deploy this Model to an
-
-                Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT:
-
-                The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.
-              - >-
-                (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment
-
-                variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL:
-
-                DeployedModel.id of the `DeployedModel`.
-              - >-
-                (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment
-
-                variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+              - For example, if you set this field to `/bar`, then Vertex AI intermittently sends a GET request to the `/bar` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field.
+              - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
+              - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
+              - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
             type: str
           image_uri:
             description:
               - URI of the Docker image to be used as the custom container for serving predictions.
               - This URI must identify an image in Artifact Registry or Container Registry.
-              - >-
-                Learn more about the [container publishing
-
-                requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing), including permissions
-
-                requirements for the Vertex AI Service Agent.
+              - Learn more about the [container publishing requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing), including permissions requirements for the Vertex AI Service Agent.
               - The container image is ingested upon ModelService.UploadModel, stored internally, and this original path is afterwards not used.
-              - >-
-                To learn about the requirements for the Docker image itself, see [Custom container
-
-                requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#).
-              - >-
-                You can use the URI to one of Vertex AI's [pre-built container images for
-
-                prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field.
+              - To learn about the requirements for the Docker image itself, see [Custom container requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#).
+              - You can use the URI to one of Vertex AI's [pre-built container images for prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field.
             required: true
             type: str
           liveness_probe:
@@ -641,10 +508,7 @@ options:
                 suboptions:
                   command:
                     description:
-                      - >-
-                        Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's
-
-                        filesystem.
+                      - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
                       - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
                       - To use a shell, you need to explicitly call out to that shell.
                       - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
@@ -764,18 +628,9 @@ options:
             description:
               - List of ports to expose from the container.
               - Vertex AI sends any prediction requests that it receives to the first port on this list.
-              - >-
-                Vertex AI also sends [liveness and health
-
-                checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port.
-              - >-
-                If you do not specify this field, it defaults to following value: ```json [ { "containerPort": 8080 } ] ``` Vertex AI does not use ports
-
-                other than the first one listed.
-              - >-
-                This field corresponds to the `ports` field of the Kubernetes Containers [v1 core
-
-                API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - Vertex AI also sends [liveness and health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port.
+              - 'If you do not specify this field, it defaults to following value:  ```json [ { "containerPort": 8080 } ] ```  Vertex AI does not use ports other than the first one listed.'
+              - This field corresponds to the `ports` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
             elements: dict
             suboptions:
               container_port:
@@ -789,26 +644,10 @@ options:
               - HTTP path on the container to send prediction requests to.
               - Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port.
               - Vertex AI then returns the container's response in the API response.
-              - >-
-                For example, if you set this field to `/foo`, then when Vertex AI receives a prediction request, it forwards the request body in a POST
-
-                request to the `/foo` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field.
-              - >-
-                If you don't specify this field, it defaults to the following value when you deploy this Model to an
-
-                Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT:
-
-                The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.
-              - >-
-                (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment
-
-                variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL:
-
-                DeployedModel.id of the `DeployedModel`.
-              - >-
-                (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment
-
-                variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+              - For example, if you set this field to `/foo`, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the `/foo` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field.
+              - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
+              - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
+              - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
             type: str
           shared_memory_size_mb:
             description:
@@ -824,10 +663,7 @@ options:
                 suboptions:
                   command:
                     description:
-                      - >-
-                        Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's
-
-                        filesystem.
+                      - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
                       - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
                       - To use a shell, you need to explicitly call out to that shell.
                       - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
@@ -962,10 +798,7 @@ options:
   publisher_model_name:
     description:
       - The Model Garden model to deploy.
-      - >-
-        Format: `publishers/{publisher}/models/{publisher_model}@{version_id}`, or
-
-        `publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001`.
+      - 'Format: `publishers/{publisher}/models/{publisher_model}@{version_id}`, or `publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001`.'
     type: str
   state:
     choices:
@@ -980,7 +813,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.EndpointWithModelGardenDeployment resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Deploy Basic Model
@@ -1031,7 +864,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -1049,17 +882,14 @@ deployedModelId:
   description:
     - Output only.
     - The unique numeric ID that Vertex AI assigns to the model at the time it is deployed to the endpoint.
-    - >-
-      It is required to undeploy the model from the endpoint during resource deletion as described in
-
-      https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/undeployModel.
+    - It is required to undeploy the model from the endpoint during resource deletion as described in https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/undeployModel.
   returned: success
   type: str
 state:
   description: The current state of the resource.
   returned: always
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

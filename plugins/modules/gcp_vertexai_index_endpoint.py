@@ -70,10 +70,7 @@ options:
     type: dict
   network:
     description:
-      - >-
-        The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the
-
-        index endpoint should be peered.
+      - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the index endpoint should be peered.
       - Private services access must already be configured for the network.
       - If left unspecified, the index endpoint is not peered with any network.
       - '[Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`.'
@@ -135,7 +132,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.IndexEndpoint resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Index Endpoint
@@ -159,7 +156,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -195,7 +192,7 @@ updateTime:
     - The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

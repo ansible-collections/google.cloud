@@ -34,10 +34,7 @@ DOCUMENTATION = r"""
 author:
   - Google Inc. (@googlecloudplatform)
 description:
-  - >-
-    Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature
-
-    that describes apple.
+  - Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature that describes apple.
 extends_documentation_fragment:
   - google.cloud.gcp
 module: gcp_vertexai_featurestore_entitytype_feature
@@ -51,10 +48,7 @@ options:
     type: str
   entitytype:
     description:
-      - >-
-        The name of the Featurestore to use, in the format
-
-        projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entitytype}.
+      - The name of the Featurestore to use, in the format projects/{project}/locations/{location}/featurestores/{featurestore}/entityTypes/{entitytype}.
     required: true
     type: str
   labels:
@@ -64,10 +58,7 @@ options:
   name:
     description:
       - The name of the feature.
-      - >-
-        The feature can be up to 64 characters long and can consist only of ASCII Latin letters A-Z and a-z, underscore(_), and ASCII digits 0-9
-
-        starting with a letter.
+      - The feature can be up to 64 characters long and can consist only of ASCII Latin letters A-Z and a-z, underscore(_), and ASCII digits 0-9 starting with a letter.
       - The value will be unique given an entity type.
     required: true
     type: str
@@ -91,7 +82,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.FeaturestoreEntitytypeFeature resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Featurestore Entitytype Feature
@@ -104,7 +95,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -127,13 +118,10 @@ state:
   type: str
 updateTime:
   description:
-    - >-
-      The timestamp when the entity type was most recently updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine
-
-      fractional digits.
+    - The timestamp when the entity type was most recently updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports

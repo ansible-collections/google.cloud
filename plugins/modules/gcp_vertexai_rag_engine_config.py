@@ -34,14 +34,7 @@ DOCUMENTATION = r"""
 author:
   - Google Inc. (@googlecloudplatform)
 description:
-  - >-
-    Vertex AI RAG Engine lets you scale your RagManagedDb instance based on your usage and performance requirements using a choice of two tiers,
-
-    and optionally, lets you delete your Vertex AI RAG Engine data using a third tier. The tier is a project-level setting that's available in
-
-    the RagEngineConfig resource that impacts all RAG corpora using RagManagedDb. The following tiers are available in RagEngineConfig: Basic,
-
-    Scaled and Unprovisioned.
+  - 'Vertex AI RAG Engine lets you scale your RagManagedDb instance based on your usage and performance requirements using a choice of two tiers, and optionally, lets you delete your Vertex AI RAG Engine data using a third tier. The tier is a project-level setting that''s available in the RagEngineConfig resource that impacts all RAG corpora using RagManagedDb. The following tiers are available in RagEngineConfig: Basic, Scaled and Unprovisioned.'
 extends_documentation_fragment:
   - google.cloud.gcp
 module: gcp_vertexai_rag_engine_config
@@ -57,10 +50,7 @@ options:
     default: basic
     description:
       - The config of the RagManagedDb used by RagEngine.
-      - >-
-        Basic tier is a cost-effective and low compute tier suitable for the following cases: Experimenting with RagManagedDb, Small data size,
-
-        Latency insensitive workload, Only using RAG Engine with external vector DBs.
+      - 'Basic tier is a cost-effective and low compute tier suitable for the following cases: Experimenting with RagManagedDb, Small data size, Latency insensitive workload, Only using RAG Engine with external vector DBs.'
       - 'NOTE: This is the default tier if not explicitly chosen.'
       - Scaled tier offers production grade performance along with autoscaling functionality.
       - It is suitable for customers with large amounts of data or performance sensitive workloads.
@@ -88,7 +78,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP VertexAI.RagEngineConfig resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Basic RAG Engine Config
@@ -121,7 +111,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -138,7 +128,7 @@ state:
   description: The current state of the resource.
   returned: always
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
