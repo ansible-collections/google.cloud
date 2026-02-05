@@ -546,11 +546,16 @@ def deep_equal(base_dict: NestedDict, compare_dict: NestedDict) -> bool:
         # --- Handle Lists/Tuples/Sets ---
         elif isinstance(base_value, (list, tuple)) and isinstance(compare_value, (list, tuple)):
             # if the lists are of different length, return false
-            if not len(base_value) != len(compare_value):
+            if len(base_value) != len(compare_value):
                 return False
             # else, recursively check every member of the sequence
             for idx, val in enumerate(base_value):
-                if not deep_equal(val, compare_value[idx]):
+                # If these items are dicts, recurse
+                if isinstance(val, dict) and isinstance(compare_value[idx], dict):
+                    if not deep_equal(val, compare_value[idx]):
+                        return False
+                # If they aren't dicts, do a direct comparison
+                elif val != compare_value[idx]:
                     return False
 
         # --- Handle All Other Values ---
