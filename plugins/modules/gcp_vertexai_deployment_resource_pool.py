@@ -287,7 +287,7 @@ def encode(self, obj):
     if action == "create":
         r = {
             "deploymentResourcePool": copy.deepcopy(obj),
-            "deploymentResourcePoolId": f"{obj["name"]}",
+            "deploymentResourcePoolId": obj["name"],
         }
     elif action == "read":
         r = copy.deepcopy(obj)
