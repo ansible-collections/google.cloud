@@ -872,13 +872,19 @@ class Resource(object):
         return not deep_equal(req, rsp)
 
     def dot_fields(self) -> T.List[str]:
+        req = self.to_request() or {}
+        dotfields: T.List[str] = []
+
         # these 3 are free-form dicts, we don't want to list all the possible children
-        exclusions: T.List[str] = [
-            "labels.*",
-            "annotations.*",
-            "tags.*",
-        ]
-        return flatten_nested_dict(self._request() or {}, separator=".", glob_excludes=exclusions)
+        exclusions = ["labels", "annotations", "tags"]
+        for i in exclusions:
+            if i in req.keys():
+                dotfields.extend(i)
+
+        fields = flatten_nested_dict(req, separator=".", glob_excludes=[f"{x}.*" for x in exclusions])
+        dotfields.extend(fields)
+
+        return dotfields
 
 
 def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
