@@ -494,7 +494,7 @@ def main():
             try:
                 # --------- BEGIN delete code ---------
                 # --------- BEGIN pre-delete custom code ---------
-                if params["force_destroy"] == True:
+                if params.get("force_destroy"):
                     delete_uri += "?force=true"
                 # --------- END pre-delete custom code ---------
                 is_async = delete_async_uri != ""
