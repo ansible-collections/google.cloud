@@ -35,17 +35,30 @@ from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils._text import to_text
 
 
-def navigate_hash(source, path, default=None):
-    if not source:
-        return None
+def navigate_hash(source: T.Dict, path: T.List, default: T.Any = None) -> T.Any:
+    """
+    Navigates a k/v dictionary for a path represented by a list,
+    with an optional default value if the path isn't found.
+    """
 
-    key = path[0]
-    path = path[1:]
+    if not path or not isinstance(source, dict):
+        return default
+
+    key: str
+    subpath: T.List
+    try:
+        key, *subpath = path
+    except ValueError:  # catch when path list is empty
+        return default
+
     if key not in source:
         return default
-    result = source[key]
-    if path:
-        return navigate_hash(result, path, default)
+
+    result: T.Any = source[key]
+
+    if len(subpath) > 0:
+        return navigate_hash(result, subpath, default)
+
     return result
 
 
@@ -533,11 +546,16 @@ def deep_equal(base_dict: NestedDict, compare_dict: NestedDict) -> bool:
         # --- Handle Lists/Tuples/Sets ---
         elif isinstance(base_value, (list, tuple)) and isinstance(compare_value, (list, tuple)):
             # if the lists are of different length, return false
-            if not len(base_value) != len(compare_value):
+            if len(base_value) != len(compare_value):
                 return False
             # else, recursively check every member of the sequence
             for idx, val in enumerate(base_value):
-                if not deep_equal(val, compare_value[idx]):
+                # If these items are dicts, recurse
+                if isinstance(val, dict) and isinstance(compare_value[idx], dict):
+                    if not deep_equal(val, compare_value[idx]):
+                        return False
+                # If they aren't dicts, do a direct comparison
+                elif val != compare_value[idx]:
                     return False
 
         # --- Handle All Other Values ---
@@ -619,6 +637,8 @@ class Resource(object):
     product: T.Optional[str]
     request: NestedDict = {}
     response: NestedDict = {}
+    encode_func: T.Callable
+    decode_func: T.Callable
 
     def __init__(self, request: T.Optional[NestedDict] = None, **kwargs: T.Dict[str, T.Any]) -> None:
         if request is not None:
@@ -626,6 +646,9 @@ class Resource(object):
         self.kind = kwargs.get("kind")
         self.module = kwargs.get("module")
         self.product = kwargs.get("product")
+
+    def debug(self, **kwargs) -> None:
+        debug(self.module, **kwargs)
 
     def session(self) -> Session:
         "Returns an authenticated GCP session"
@@ -685,8 +708,11 @@ class Resource(object):
     def to_request(self) -> T.Optional[NestedDict]:
         "This should be built from self.request"
 
-        req = self._request()
-        return remove_nones_from_dict(req)
+        req = remove_empties(self._request())
+        if getattr(self, "encode_func", False):
+            req = self.encode_func(req)
+
+        return req
 
     def from_response(self, response: NestedDict) -> NestedDict:
         """
@@ -699,29 +725,38 @@ class Resource(object):
             self.response["kind"] = self.kind
         self.response.update(self._response())
 
-        return remove_nones_from_dict(self.response)
+        rsp = remove_empties(self.response)
+
+        if getattr(self, "decode_func", False):
+            rsp = self.decode_func(rsp)
+
+        return rsp
 
     def get(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
         """
         Make GET request.
         """
 
-        debug(self.module, method="get", link=link)
+        self.debug(method="get", link=link)
         return self.if_object(self.session().get(link), allow_not_found)
 
     def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
         "Retry the given number of times for an async operation to succeed"
 
-        debug(self.module, msg="Waiting for async op", op_url=op_url, retries=retries)
+        self.debug(msg="Waiting for async op", op_url=op_url, retries=retries)
         for retry in range(1, retries):
             op = self.session().get(op_url)
             op_obj = self.if_object(op, allow_not_found=False)
             if op_obj:
                 done: bool = navigate_hash(op_obj, ["done"], False)
                 if done:
-                    return op_obj["response"]
+                    rsp = op_obj["response"]
+                    if getattr(self, "decode_func", False):
+                        rsp = self.decode_func(rsp)
 
-            debug(self.module, op_url=op_url, retry=retry)
+                    return rsp
+
+            self.debug(op_url=op_url, retry=retry)
             time.sleep(1.0)  # TODO: should we relax the check?
 
         self.module.fail_json(msg="Failed to poll for async op completion")
@@ -741,7 +776,6 @@ class Resource(object):
     def post_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous post"
 
-        debug(self.module, method="post_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.post,
             link=link,
@@ -752,7 +786,6 @@ class Resource(object):
     def put_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous put"
 
-        debug(self.module, method="put_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.put,
             link=link,
@@ -763,7 +796,6 @@ class Resource(object):
     def patch_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous patch"
 
-        debug(self.module, method="patch_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.patch,
             link=link,
@@ -774,7 +806,6 @@ class Resource(object):
     def delete_async(self, link: str, async_link: str, retries: int) -> T.Optional[NestedDict]:
         "Perform an asynchronous delete"
 
-        debug(self.module, method="delete_async", link=link, async_link=async_link)
         return self.async_op(
             op_func=self.delete,
             link=link,
@@ -794,14 +825,10 @@ class Resource(object):
         Make POST request.
         """
 
-        debug(self.module, method="post", link=link)
+        req = self.to_request()
+        self.debug(method="post", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().post(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().post(link, req))
         )
 
     def put(self, link) -> T.Optional[NestedDict]:
@@ -809,14 +836,10 @@ class Resource(object):
         Make PUT request.
         """
 
-        debug(self.module, method="put", link=link)
+        req = self.to_request()
+        self.debug(method="put", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().put(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().put(link, req))
         )
 
     def patch(self, link) -> T.Optional[NestedDict]:
@@ -824,14 +847,10 @@ class Resource(object):
         Make PATCH request
         """
 
-        debug(self.module, method="patch", link=link)
+        req = self.to_request()
+        self.debug(method="patch", link=link, request=req)
         return self.with_kind(
-            self.if_object(
-                self.session().patch(
-                    link,
-                    self.to_request()
-                )
-            )
+            self.if_object(self.session().patch(link, req))
         )
 
     def delete(self, link) -> T.Optional[NestedDict]:
@@ -839,8 +858,13 @@ class Resource(object):
         Make DELETE request.
         """
 
-        debug(self.module, method="delete", link=link)
-        return self.if_object(self.session().delete(link))
+        req = {}
+        if getattr(self, "encode_func", False):
+            # normally, you don't need to pass a request body on deletes, but *some* APIs
+            # require it so you still pass it through the encoder function
+            req = self.encode_func(req)
+        self.debug(method="delete", link=link, request=req)
+        return self.if_object(self.session().delete(link, req))
 
     def diff(self, response: NestedDict) -> bool:
         """
@@ -853,13 +877,19 @@ class Resource(object):
         return not deep_equal(req, rsp)
 
     def dot_fields(self) -> T.List[str]:
+        req = self.to_request() or {}
+        dotfields: T.List[str] = []
+
         # these 3 are free-form dicts, we don't want to list all the possible children
-        exclusions: T.List[str] = [
-            "labels.*",
-            "annotations.*",
-            "tags.*",
-        ]
-        return flatten_nested_dict(self.to_request() or {}, separator=".", glob_excludes=exclusions)
+        exclusions = ["labels", "annotations", "tags"]
+        for i in exclusions:
+            if i in req.keys():
+                dotfields.extend(i)
+
+        fields = flatten_nested_dict(req, separator=".", glob_excludes=[f"{x}.*" for x in exclusions])
+        dotfields.extend(fields)
+
+        return dotfields
 
 
 def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
@@ -868,3 +898,44 @@ def debug(module: T.Optional[AnsibleModule], **kwargs) -> None:
     if module is not None:
         if module._verbosity >= 3:
             module.log(pprint.saferepr(kwargs))
+
+
+def empty(data: T.Any) -> bool:
+    """
+    Quick function to test if something is "empty".
+    """
+    if data is None:
+        return True
+    elif data == {}:
+        return True
+    elif data == []:
+        return True
+    elif data == "":
+        return True
+    else:
+        return False
+
+
+def remove_nones(data: T.Optional[NestedDict]) -> NestedDict:
+    """
+    Removes keys with None values from a dict. It is necessary to make
+    a distinction between this and empties because there are some APIs
+    that accept (or even require) empty values.
+    """
+
+    if isinstance(data, dict):
+        return {k: v for k, v in data.items() if v is not None}
+    else:
+        return {}
+
+
+def remove_empties(data: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
+    """
+    Removes keys with "empty" values from a dict. Basically the original
+    remove_nones_from_dict behavior.
+    """
+
+    if isinstance(data, dict):
+        return {k: v for k, v in data.items() if not empty(v)}
+    else:
+        return None
