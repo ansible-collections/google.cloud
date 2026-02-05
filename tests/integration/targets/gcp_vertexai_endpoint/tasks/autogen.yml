@@ -34,14 +34,31 @@
             auth_kind: "{{ gcp_cred_kind }}"
             service_account_file: "{{ gcp_cred_file }}"
 
-        - name: Connect peering range
-          ansible.builtin.command: >
-            gcloud services vpc-peerings connect
-            --quiet
-            --service=servicenetworking.googleapis.com
-            --ranges="{{ resource_name }}-peering"
-            --network="{{ _network.name }}"
-            --project="{{ gcp_project }}"
+        - name: Create temporary directory
+          ansible.builtin.tempfile:
+            state: directory
+          register: _tempdir
+
+        - name: Connect block
+          block:
+            - name: Connect peering range
+              environment:
+                CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
+                GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
+              ansible.builtin.shell: |
+                cd $CLOUDSDK_CONFIG
+                gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+                gcloud services vpc-peerings connect \
+                  --quiet \
+                  --service=servicenetworking.googleapis.com \
+                  --ranges="{{ resource_name }}-peering" \
+                  --network="{{ _network.name }}" \
+                  --project="{{ gcp_project }}"
+          always:
+            - name: Delete temporary directory
+              ansible.builtin.file:
+                path: "{{ _tempdir.path }}"
+                state: absent
 
         - name: Create Endpoint
           google.cloud.gcp_vertexai_endpoint:
