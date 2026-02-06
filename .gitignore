@@ -8,3 +8,4 @@ __pycache__
 *.tar.gz
 venv/
 changelogs/.plugin-cache.yaml
+*.DS_Store*

@@ -54,7 +54,7 @@ options:
     - The certificate in PEM format.
     - The certificate chain must be no greater than 5 certs long.
     - The chain must include at least one intermediate cert.
-    required: true
+    required: false
     type: str
   description:
     description:
@@ -71,10 +71,23 @@ options:
       which cannot be a dash.
     required: false
     type: str
+  managed:
+    description:
+    - The configuration and status of a managed SSL certificate.
+    required: false
+    type: dict
+  type:
+    description:
+    - Specifies the type of SSL certificate, either "SELF_MANAGED" or "MANAGED". If not specified,
+      the certificate is self-managed and the fields certificate and privateKey are used.
+    choices:
+    - MANAGED
+    - SELF_MANAGED
+    type: str
   private_key:
     description:
     - The write-only private key in PEM format.
-    required: true
+    required: false
     type: str
   project:
     description:
@@ -209,6 +222,17 @@ privateKey:
   - The write-only private key in PEM format.
   returned: success
   type: str
+managed:
+  description:
+  - The configuration and status of a managed SSL certificate.
+  returned: success
+  type: dict
+type:
+  description:
+  - Specifies the type of SSL certificate, either "SELF_MANAGED" or "MANAGED". If not specified,
+    the certificate is self-managed and the fields certificate and privateKey are used.
+  returned: success
+  type: str
 '''
 
 ################################################################################
@@ -230,10 +254,12 @@ def main():
     module = GcpModule(
         argument_spec=dict(
             state=dict(default='present', choices=['present', 'absent'], type='str'),
-            certificate=dict(required=True, type='str'),
+            certificate=dict(required=False, type='str'),
             description=dict(type='str'),
             name=dict(type='str'),
-            private_key=dict(required=True, type='str', no_log=True),
+            private_key=dict(required=False, type='str', no_log=True),
+            managed=dict(required=False, type='dict'),
+            type=dict(required=False, type='str'),
         )
     )
 
@@ -290,6 +316,8 @@ def resource_to_request(module):
         u'description': module.params.get('description'),
         u'name': module.params.get('name'),
         u'privateKey': module.params.get('private_key'),
+        u'managed': module.params.get('managed'),
+        u'type': module.params.get('type'),
     }
     return_vals = {}
     for k, v in request.items():
