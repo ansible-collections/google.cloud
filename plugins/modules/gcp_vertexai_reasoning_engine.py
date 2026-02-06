@@ -871,7 +871,7 @@ def main():
 
     # --------- BEGIN pre-read custom code ---------
     # for this module, we're hitting the list endpoint and filtering on display name
-    read_uri = f"{op_configs.base_url.uri}?filter=displayName={params.get("display_name")}"
+    read_uri = op_configs.base_url.uri + "?filter=displayName=" + params.get("display_name")
 
     # --------- END pre-read custom code ---------
 
@@ -978,7 +978,7 @@ def main():
                     params["name"] = existing_obj["name"].split("/")[-1]
 
                     # finally, need to build the updateMask for the fields in our module
-                    update_uri += f"?updateMask={','.join(resource.dot_fields())}"
+                    update_uri += "?updateMask=" + ",".join(resource.dot_fields())
 
                     # --------- END pre-update custom code ---------
                     is_async = update_async_uri != ""

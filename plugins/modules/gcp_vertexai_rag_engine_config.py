@@ -172,11 +172,11 @@ def encode(self, obj):
     and it mutates it before it is sent to the API.
     """
     # --------- BEGIN custom encoder code ---------
-    tier = f"{obj["ragManagedDbConfig"]}"
+    tier = obj.get("ragManagedDbConfig")
     if getattr(self, "_state", "present") == "absent":
         tier = "unprovisioned"
     return {
-        "name": f"projects/{self.module.params["project"]}/locations/{self.module.params["region"]}/ragEngineConfig",
+        "name": "projects/{project}/locations/{region}/ragEngineConfig".format(**self.module.params),
         "ragManagedDbConfig": {tier.lower(): {}},
     }
 
@@ -190,7 +190,7 @@ def decode(self, obj):
     """
     # --------- BEGIN custom decoder code ---------
     tier = next(iter(obj["ragManagedDbConfig"]))
-    return {"name": f"{obj["name"]}", "ragManagedDbConfig": {tier.lower(): {}}}
+    return {"name": obj.get("name"), "ragManagedDbConfig": {tier.lower(): {}}}
 
     # --------- END custom decoder code ---------
 
