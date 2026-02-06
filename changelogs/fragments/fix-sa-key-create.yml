@@ -1,0 +1,4 @@
+bugfixes:
+  - gcp_iam_service_account_key - properly raise an error with context when no
+    service account of the specified name exists, instead of failing with a
+    stacktrace.
