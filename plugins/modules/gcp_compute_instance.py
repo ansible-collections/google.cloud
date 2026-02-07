@@ -1222,8 +1222,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
-                fetch = fetch_resource(module, self_link(module), kind)
+                fetch = update(module, self_link(module), kind, fetch)
                 changed = True
         else:
             delete(module, self_link(module), kind)
@@ -1265,6 +1264,35 @@ def update_fields(module, request, response):
         machine_type_update(module, request, response)
     if response.get('shieldedInstanceConfig') != request.get('shieldedInstanceConfig'):
         shielded_instance_config_update(module, request, response)
+    if response.get('disks') != request.get('disks'):
+        extra_disks_update(module, request, response)
+
+
+def extra_disks_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    # fetch all non-boot (i.e. additional) disks to attach
+    # but discard local disks (if defined) because they can
+    # only be attached to instances at creation time anyway
+    req_disks = set()
+    for d in request.get('disks', []):
+        if not d.get('boot'):
+            if d.get('source'):
+                req_disks.add(d['source'])
+            else:
+                module.warn(
+                    'Non-persistent disks can only be attached at creation time, '
+                    'changed status might be incorrect.')
+    rsp_disks = set()
+    for d in response.get('disks', []):
+        if d.get('source') and not d.get('boot'):
+            rsp_disks.add(d['source'])
+    for d in req_disks.difference(rsp_disks):
+        auth.post(
+            ''.join([
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/zones/{zone}/instances/{name}/attachDisk"]).format(**module.params),
+            {u'source': d},
+        )
 
 
 def label_fingerprint_update(module, request, response):
@@ -1381,7 +1409,7 @@ def response_to_hash(module, response):
         u'cpuPlatform': response.get(u'cpuPlatform'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'deletionProtection': response.get(u'deletionProtection'),
-        u'disks': InstanceDisksArray(module.params.get('disks', []), module).to_request(),
+        u'disks': InstanceDisksArray(response.get('disks', []), module).from_response(),
         u'guestAccelerators': InstanceGuestacceleratorsArray(response.get(u'guestAccelerators', []), module).from_response(),
         u'hostname': response.get(u'hostname'),
         u'id': response.get(u'id'),

@@ -4,6 +4,86 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.11.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_cloudbuildv2_* - added gcp_cloudbuildv2_connection and gcp_cloudbuildv2_repository modules (https://github.com/ansible-collections/google.cloud/pull/729).
+
+Bugfixes
+--------
+
+- connection plugin - fix attribute error when using reset_connection (https://github.com/ansible-collections/google.cloud/issues/737).
+- connection plugin - fix ssh error in tasks with loops (https://github.com/ansible-collections/google.cloud/issues/738).
+
+v1.10.2
+=======
+
+Bugfixes
+--------
+
+- Revert removal of Ansible 2.16 support (https://github.com/ansible-collections/google.cloud/pull/734)
+
+v1.10.1
+=======
+
+Bugfixes
+--------
+
+- Fix runtime.yml to correctly note Ansible 2.17 minimum version (https://github.com/ansible-collections/google.cloud/pull/730)
+
+v1.10.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_alloydb_* - added gcp_alloydb_cluster, gcp_alloydb_instance, gcp_alloydb_backup, and gcp_alloydb_user modules (https://github.com/ansible-collections/google.cloud/pull/722)
+
+Bugfixes
+--------
+
+- gcp_secret_manager - return the secret value as type `str` rather than `bytes` (https://github.com/ansible-collections/google.cloud/pull/721)
+
+v1.9.0
+======
+
+Minor Changes
+-------------
+
+- iap - added scp_if_ssh option (https://github.com/ansible-collections/google.cloud/pull/716).
+
+v1.8.0
+======
+
+Minor Changes
+-------------
+
+- iap - enable use of Identity Aware Proxy ssh connections to compute instances (https://github.com/ansible-collections/google.cloud/pull/709).
+
+Bugfixes
+--------
+
+- gcp_compute_instance - add suppport for attaching disks to compute instances (https://github.com/ansible-collections/google.cloud/pull/711).
+- gcp_secret_manager - use service_account_contents instead of service_account_info (https://github.com/ansible-collections/google.cloud/pull/703).
+
+v1.7.0
+======
+
+Minor Changes
+-------------
+
+- gcp_parameter_manager - added module support for managing parameters and versions (https://github.com/ansible-collections/google.cloud/pull/684).
+- gcp_storage_bucket - added support for iam_configuration (https://github.com/ansible-collections/google.cloud/pull/693).
+- lookup - added lookup via gcp_parameter_manager (https://github.com/ansible-collections/google.cloud/pull/684).
+
+Bugfixes
+--------
+
+- gcp_bigquery_table - fixed nested schema definitions (https://github.com/ansible-collections/google.cloud/issues/637).
+
 v1.6.0
 ======
 

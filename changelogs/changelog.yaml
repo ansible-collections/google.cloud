@@ -46,6 +46,44 @@ releases:
     fragments:
     - gce-changelog.yaml
     release_date: '2023-03-04'
+  1.10.0:
+    changes:
+      bugfixes:
+      - gcp_secret_manager - return the secret value as type `str` rather than `bytes`
+        (https://github.com/ansible-collections/google.cloud/pull/721)
+      minor_changes:
+      - gcp_alloydb_* - added gcp_alloydb_cluster, gcp_alloydb_instance, gcp_alloydb_backup,
+        and gcp_alloydb_user modules (https://github.com/ansible-collections/google.cloud/pull/722)
+    fragments:
+    - 721-fix-secret-manager-lookup-return.yml
+    - 722-add-alloydb-modules.yml
+    release_date: '2025-10-31'
+  1.10.1:
+    changes:
+      bugfixes:
+      - Fix runtime.yml to correctly note Ansible 2.17 minimum version (https://github.com/ansible-collections/google.cloud/pull/730)
+    fragments:
+    - 730-ansible-2-17-required.yml
+    release_date: '2025-11-12'
+  1.10.2:
+    changes:
+      bugfixes:
+      - Revert removal of Ansible 2.16 support (https://github.com/ansible-collections/google.cloud/pull/734)
+    fragments:
+    - 730-ansible-2-16-re-enabled.yml
+    release_date: '2025-11-13'
+  1.11.0:
+    changes:
+      bugfixes:
+      - connection plugin - fix attribute error when using reset_connection (https://github.com/ansible-collections/google.cloud/issues/737).
+      - connection plugin - fix ssh error in tasks with loops (https://github.com/ansible-collections/google.cloud/issues/738).
+      minor_changes:
+      - gcp_cloudbuildv2_* - added gcp_cloudbuildv2_connection and gcp_cloudbuildv2_repository
+        modules (https://github.com/ansible-collections/google.cloud/pull/729).
+    fragments:
+    - 729-add-cloudbuild-v2.yml
+    - 739-iap-connection-fixes.yml
+    release_date: '2026-01-14'
   1.2.0:
     changes:
       bugfixes:
@@ -160,3 +198,39 @@ releases:
     - 690-clear-up-error-responses-from-gcp_secret_manager-lookup.yaml
     - 691-updated-documentation-for-gcp_serviceusage_service.yaml
     release_date: '2025-06-20'
+  1.7.0:
+    changes:
+      bugfixes:
+      - gcp_bigquery_table - fixed nested schema definitions (https://github.com/ansible-collections/google.cloud/issues/637).
+      minor_changes:
+      - gcp_parameter_manager - added module support for managing parameters and versions
+        (https://github.com/ansible-collections/google.cloud/pull/684).
+      - gcp_storage_bucket - added support for iam_configuration (https://github.com/ansible-collections/google.cloud/pull/693).
+      - lookup - added lookup via gcp_parameter_manager (https://github.com/ansible-collections/google.cloud/pull/684).
+    fragments:
+    - 684-add-support-for-parameter-manager-module-lookup.yaml
+    - 693-add-gcs-iam-configuration.yaml
+    - 694-fix-nested-bigquery-schema.yaml
+    release_date: '2025-07-29'
+  1.8.0:
+    changes:
+      bugfixes:
+      - gcp_compute_instance - add suppport for attaching disks to compute instances
+        (https://github.com/ansible-collections/google.cloud/pull/711).
+      - gcp_secret_manager - use service_account_contents instead of service_account_info
+        (https://github.com/ansible-collections/google.cloud/pull/703).
+      minor_changes:
+      - iap - enable use of Identity Aware Proxy ssh connections to compute instances
+        (https://github.com/ansible-collections/google.cloud/pull/709).
+    fragments:
+    - 703-fix-improper-names-for-service_account_contents.yml
+    - 709-iap-connection-plugin.yml
+    - 711-attach-disk-to-instance.yml
+    release_date: '2025-09-11'
+  1.9.0:
+    changes:
+      minor_changes:
+      - iap - added scp_if_ssh option (https://github.com/ansible-collections/google.cloud/pull/716).
+    fragments:
+    - 716-iap-scp-if-ssh-option.yml
+    release_date: '2025-10-03'
