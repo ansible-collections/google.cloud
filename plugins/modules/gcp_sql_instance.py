@@ -261,6 +261,12 @@ options:
               (e.g /projects/myProject/global/networks/default)
             required: false
             type: str
+          allocated_ip_range:
+            description:
+            - The name of the allocated IP range for the private IP Cloud SQL instance.
+              Must be the name of an existing allocated IP range in the VPC.
+            required: false
+            type: str
           authorized_networks:
             description:
             - The list of external networks that are allowed to connect to the instance
@@ -652,6 +658,11 @@ settings:
           - Whether the instance should be assigned an IP address or not.
           returned: success
           type: bool
+        allocatedIpRange:
+          description:
+          - The name of the allocated IP range for the instance's private IP.
+          returned: success
+          type: str
         authorizedNetworks:
           description:
           - The list of external networks that are allowed to connect to the instance
@@ -871,6 +882,7 @@ def main():
                         options=dict(
                             ipv4_enabled=dict(type='bool'),
                             private_network=dict(type='str'),
+                            allocated_ip_range=dict(type='str'),
                             authorized_networks=dict(
                                 type='list', elements='dict', options=dict(expiration_time=dict(type='str'), name=dict(type='str'), value=dict(type='str'))
                             ),
@@ -1263,6 +1275,7 @@ class InstanceIpconfiguration(object):
             {
                 u'ipv4Enabled': self.request.get('ipv4_enabled'),
                 u'privateNetwork': self.request.get('private_network'),
+                u'allocatedIpRange': self.request.get('allocated_ip_range'),
                 u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get('authorized_networks', []), self.module).to_request(),
                 u'requireSsl': self.request.get('require_ssl'),
             }
@@ -1273,6 +1286,7 @@ class InstanceIpconfiguration(object):
             {
                 u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
                 u'privateNetwork': self.request.get(u'privateNetwork'),
+                u'allocatedIpRange': self.request.get(u'allocatedIpRange'),
                 u'authorizedNetworks': InstanceAuthorizednetworksArray(self.request.get(u'authorizedNetworks', []), self.module).from_response(),
                 u'requireSsl': self.request.get(u'requireSsl'),
             }
