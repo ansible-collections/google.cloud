@@ -1,0 +1,2 @@
+minor_changes:
+  - gcp_sql_instance - add `allocated_ip_range` to `settings.ip_configuration` for private IP Cloud SQL instances (name of the allocated IP range in the VPC) (https://github.com/ansible-collections/google.cloud/pull/744).
