@@ -80,6 +80,13 @@ releases:
       minor_changes:
       - gcp_cloudbuildv2_* - added gcp_cloudbuildv2_connection and gcp_cloudbuildv2_repository
         modules (https://github.com/ansible-collections/google.cloud/pull/729).
+    fragments:
+    - 729-add-cloudbuild-v2.yml
+    - 739-iap-connection-fixes.yml
+    release_date: '2026-01-14'
+  1.12.0:
+    changes:
+      minor_changes:
       - gcp_sql_instance - add `allocated_ip_range` to `settings.ip_configuration`
         for private IP Cloud SQL instances (name of the allocated IP range in the
         VPC) (https://github.com/ansible-collections/google.cloud/pull/744).
@@ -92,11 +99,9 @@ releases:
         gcp_vertexai_metadata_store, gcp_vertexai_rag_engine_config, gcp_vertexai_reasoning_engine,
         gcp_vertexai_tensorboard) (https://github.com/ansible-collections/google.cloud/pull/743).
     fragments:
-    - 729-add-cloudbuild-v2.yml
-    - 739-iap-connection-fixes.yml
     - 743-add-gcp_vertexai-modules.yml
     - 744-gcp_sql_instance-add-allocated_ip_range.yml
-    release_date: '2026-01-14'
+    release_date: '2026-03-03'
   1.2.0:
     changes:
       bugfixes:
