@@ -261,7 +261,7 @@ def delete(module, link):
 
 
 def resource_to_request(module):
-    request = {u'description': module.params.get('description'), u'sourceRange': module.params.get('source_range'), u'action': module.params.get('action')}
+    request = {u'description': module.params.get('description'), u'sourceRange': module.params.get('source_range'), u'action': module.params.get('action'), u'priority': module.params.get('priority')}
     return_vals = {}
     for k, v in request.items():
         if v or v is False:
