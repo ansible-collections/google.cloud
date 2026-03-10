@@ -165,6 +165,7 @@ options:
                 - Reference to a disk type.
                 - Specifies the disk type to use to create the instance.
                 - If not specified, the default is pd-standard.
+                - To use this parameter specify zone parameter as well.
                 required: false
                 type: str
               source_image:
@@ -472,6 +473,11 @@ options:
             elements: str
             required: false
             type: list
+  zone:
+    description:
+    - A reference to the zone where the disk type resides
+    required: false
+    type: str
   project:
     description:
     - The Google Cloud Platform project to use.
