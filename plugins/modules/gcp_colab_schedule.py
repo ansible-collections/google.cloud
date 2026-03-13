@@ -201,8 +201,8 @@ EXAMPLES = r"""
         display_name: my-notebook-execution
         gcs_notebook_source:
           uri: gs://my-bucket/input/my-notebook.json
-        notebook_runtime_template_resource_name = projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
-        gcs_output_uri = gs://my-bucket/output/
+        notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+        gcs_output_uri: gs://my-bucket/output/
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -222,8 +222,8 @@ EXAMPLES = r"""
         display_name: my-notebook-execution
         gcs_notebook_source:
           uri: gs://my-bucket/input/my-notebook.json
-        notebook_runtime_template_resource_name = projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
-        gcs_output_uri = gs://my-bucket/output/
+        notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+        gcs_output_uri: gs://my-bucket/output/
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
