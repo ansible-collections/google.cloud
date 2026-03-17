@@ -215,8 +215,8 @@ EXAMPLES = r"""
           nbconvert_exporter: python
           pygments_lexer: ipython3
           version: 3.8.5
-        nbformat: 4
-        nbformat_minor: 4
+      nbformat: 4
+      nbformat_minor: 4
   google.cloud.gcp_colab_notebook_execution:
     state: present
     display_name: my-notebook-execution
@@ -236,11 +236,11 @@ EXAMPLES = r"""
     nb_config:
       cells:
         - cell_type: code
-      execution_count: null
-      metadata: {}
-      outputs: []
-      source:
-        - print('Hello, World!')
+          execution_count: null
+          metadata: {}
+          outputs: []
+          source:
+            - print('Hello, World!')
       metadata:
         kernelspec:
           display_name: Python 3
@@ -248,8 +248,8 @@ EXAMPLES = r"""
           name: python3
         language_info:
           codemirror_mode:
-          name: ipython
-          version: 3
+            name: ipython
+            version: 3
           file_extension: .py
           mimetype: text/x-python
           name: python
