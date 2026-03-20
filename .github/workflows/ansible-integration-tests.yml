@@ -4,12 +4,19 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
   GCP_PROJECT: ansible-gcp-ci
   GCP_FOLDER_ID: "542027184392"
 jobs:
   setup:
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     env:
       # only need to change this one stanza to use the same
@@ -26,7 +33,10 @@ jobs:
     # NOTE: GitHub does not allow secrets to be used
     # in PRs sent from forks. As such, this configuration is for
     # PRs that the maintainers would like to send to test.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
