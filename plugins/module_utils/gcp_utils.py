@@ -22,20 +22,11 @@ except ImportError:
     class RequestsResponse:
         pass
 
-HAS_GOOGLE_LIBRARIES_1 = False
-HAS_GOOGLE_LIBRARIES_2 = False
-HAS_GOOGLE_LIBRARIES_3 = False
-HAS_GOOGLE_LIBRARIES_4 = False
 try:
-    HAS_GOOGLE_LIBRARIES_1 = True
     import google.auth
-    HAS_GOOGLE_LIBRARIES_2 = True
     import google.auth.compute_engine
-    HAS_GOOGLE_LIBRARIES_1 = True
     from google.oauth2 import service_account, credentials as oauth2
-    HAS_GOOGLE_LIBRARIES_3 = True
     from google.auth.transport.requests import AuthorizedSession
-    HAS_GOOGLE_LIBRARIES_4 = True
     HAS_GOOGLE_LIBRARIES = True
 except ImportError:
     HAS_GOOGLE_LIBRARIES = False
@@ -226,19 +217,6 @@ class GcpSession(object):
     def _validate(self):
         if not HAS_REQUESTS:
             self.module.fail_json(msg="Please install the requests library")
-
-
-        if not HAS_GOOGLE_LIBRARIES_1:
-            self.module.fail_json(msg="Please install the google-auth library 1")
-
-        if not HAS_GOOGLE_LIBRARIES_2:
-            self.module.fail_json(msg="Please install the google-auth library 2")
-
-        if not HAS_GOOGLE_LIBRARIES_3:
-            self.module.fail_json(msg="Please install the google-auth library 3")
-
-        if not HAS_GOOGLE_LIBRARIES_4:
-            self.module.fail_json(msg="Please install the google-auth library 4")
             
         if not HAS_GOOGLE_LIBRARIES:
             self.module.fail_json(msg="Please install the google-auth library")
