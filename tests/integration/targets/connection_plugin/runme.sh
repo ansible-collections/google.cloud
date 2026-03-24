@@ -2,7 +2,9 @@
 
 set -eux
 
+# Debugging imports
 pip install google-auth google-auth-oauthlib
+ansible-galaxy collection install google.cloud
 
 # test infra
 ansible-galaxy collection install community.crypto
