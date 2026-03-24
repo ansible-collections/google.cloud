@@ -13,6 +13,10 @@ buckets, Cloud SQL instances, and more.
 
 ### Resources Supported
 
+* AlloyDB Backup (gcp_alloydb_cluster)
+* AlloyDB Cluster (gcp_alloydb_cluster)
+* AlloyDB Instance (gcp_alloydb_instance)
+* AlloyDB User (gcp_alloydb_user)
 * App Engine FirewallRule (gcp_appengine_firewall_rule, gcp_appengine_firewall_rule_info)
 * BigQuery Dataset (gcp_bigquery_dataset, gcp_bigquery_dataset_info)
 * BigQuery Table (gcp_bigquery_table, gcp_bigquery_table_info)
@@ -100,6 +104,18 @@ buckets, Cloud SQL instances, and more.
 * Cloud Storage DefaultObjectACL (gcp_storage_default_object_acl, gcp_storage_default_object_acl_info)
 * Cloud TPU Node (gcp_tpu_node, gcp_tpu_node_info)
 * Secret Manager (gcp_secret_manager)
+* Vertex AI Dataset (gcp_vertexai_dataset)
+* Vertex AI Deployment Resource Pool (gcp_vertexai_deployment_resource_pool)
+* Vertex AI Endpoint (gcp_vertexai_endpoint, gcp_vertexai_endpoint_with_model_garden_deployment)
+* Vertex AI Feature Group (gcp_vertexai_feature_group, gcp_vertexai_feature_group_feature)
+* Vertex AI Feature Online Store (gcp_vertexai_feature_online_store, gcp_vertexai_feature_online_store_featureview)
+* Vertex AI Feature Store (gcp_vertexai_featurestore, gcp_vertexai_featurestore_entitytype, gcp_vertexai_featurestore_entitytype_feature)
+* Vertex AI Index (gcp_vertexai_index)
+* Vertex AI Index Endpoint (gcp_vertexai_index_endpoint, gcp_vertexai_index_endpoint_deployed_index)
+* Vertex AI Metadata Store (gcp_vertexai_metadata_store)
+* Vertex AI RAG Engine Config (gcp_vertexai_rag_engine_config)
+* Vertex AI Reasoning Engine (gcp_vertexai_reasoning_engine)
+* Vertex AI Tensorboard (gcp_vertexai_tensorboard)
 
 ## Requirements
 

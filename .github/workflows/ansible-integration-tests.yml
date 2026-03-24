@@ -1,34 +1,57 @@
 ---
 name: Run integration tests for the cloud.google collection
 on:
-  pull_request: {}
   push:
-    branches: master
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
   GCP_PROJECT: ansible-gcp-ci
   GCP_FOLDER_ID: "542027184392"
 jobs:
+  setup:
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    env:
+      # only need to change this one stanza to use the same
+      # python version across all jobs in this workflow
+      PYTHON: "3.13"
+    outputs:
+      python: ${{ steps.set-python.outputs.version }}
+    steps:
+      - id: set-python
+        run: |
+          echo "version=$PYTHON" >> $GITHUB_OUTPUT
+
   integration:
     # NOTE: GitHub does not allow secrets to be used
     # in PRs sent from forks. As such, this configuration is for
     # PRs that the maintainers would like to send to test.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ansible_collections/google/cloud
+    needs: setup
     strategy:
       max-parallel: 1
       matrix:
-        # Our current version strategy is to support both supported versions of ansible-core
-        # and test against the minimum version of Python supported by both. If/when we change
+        # Our current version strategy is to support all active versions of ansible-core
+        # and test against the minimum version of Python supported by them. If/when we change
         # the integration tests to support parallelism we can revisit.
         ansible_version:
-          - stable-2.16
-          - stable-2.17
           - stable-2.18
           - stable-2.19
+          - stable-2.20
     steps:
       - name: check out code
         uses: actions/checkout@v4
@@ -37,7 +60,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # this is the minimum version required for Ansible 2.16
+          python-version: ${{ needs.setup.outputs.python }}
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Install ansible-base (${{ matrix.ansible_version }})
@@ -69,7 +92,10 @@ jobs:
         run: |
           ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
           ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_FOLDER_ID
+      - name: Install required collections
+        run: |
+          ansible-galaxy install -r requirements-test.yml
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -v --color --python 3.10 --venv-system-site-packages --requirements requirements.txt
+        run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }} --venv-system-site-packages --requirements requirements.txt
