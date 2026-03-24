@@ -2,7 +2,7 @@
 
 set -eux
 
-pip install google-auth
+pip install google-auth google-auth-oauthlib
 
 # test infra
 ansible-galaxy collection install community.crypto
