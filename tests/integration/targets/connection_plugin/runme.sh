@@ -2,9 +2,14 @@
 
 set -eux
 
-# Debugging imports
+# Debugging
+echo "PATH: ${PATH}"
+echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}"
+pwd
+which python
 pip install google-auth google-auth-oauthlib
 ansible-galaxy collection install google.cloud
+# End debugging
 
 # test infra
 ansible-galaxy collection install community.crypto
