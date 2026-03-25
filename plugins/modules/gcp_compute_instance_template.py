@@ -467,8 +467,14 @@ options:
             type: str
           items:
             description:
-            - An array of tags. Each tag must be 1-63 characters long, and comply
-              with RFC1035.
+            - Deprecated. Use tag_values instead.
+            elements: str
+            required: false
+            type: list
+          tag_values:
+            description:
+            - An array of tags. Each tag must be 1-63 characters long, and comply with
+              RFC1035.
             elements: str
             required: false
             type: list
@@ -970,7 +976,7 @@ properties:
             up-to-date fingerprint hash in order to update or change metadata.
           returned: success
           type: str
-        items:
+        tag_values:
           description:
           - An array of tags. Each tag must be 1-63 characters long, and comply with
             RFC1035.
@@ -993,6 +999,12 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 import json
 import re
 import time
+
+try:
+    from ansible.module_utils.datatag import deprecate_value
+except ImportError:
+    def deprecate_value(value, msg):
+        pass
 
 ################################################################################
 # Main
@@ -1072,7 +1084,13 @@ def main():
                         type='dict', options=dict(automatic_restart=dict(type='bool'), on_host_maintenance=dict(type='str'), preemptible=dict(type='bool'))
                     ),
                     service_accounts=dict(type='list', elements='dict', options=dict(email=dict(type='str'), scopes=dict(type='list', elements='str'))),
-                    tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
+                    tags=dict(
+                        type='dict', options=dict(
+                            fingerprint=dict(type='str'),
+                            tag_values=dict(type='list', elements='str'),
+                            items=dict(type='list', elements='str'),
+                        ),
+                    ),
                 ),
             ),
         )
@@ -1674,7 +1692,11 @@ class InstanceTemplateTags(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get('fingerprint'), u'items': self.request.get('items')})
+        return remove_nones_from_dict({
+            u'fingerprint': self.request.get('fingerprint'),
+            u'items': deprecate_value(self.request.get('items'), 'items is deprecated and will be removed in a future version'),
+            u'tag_values': self.request.get('items'),
+        })
 
     def from_response(self):
         return remove_nones_from_dict({u'fingerprint': self.request.get(u'fingerprint'), u'items': self.request.get(u'items')})

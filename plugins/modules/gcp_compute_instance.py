@@ -519,6 +519,12 @@ options:
         type: str
       items:
         description:
+        - Deprecated. Use tag_values instead.
+        elements: str
+        required: false
+        type: list
+      tag_values:
+        description:
         - An array of tags. Each tag must be 1-63 characters long, and comply with
           RFC1035.
         elements: str
@@ -1091,7 +1097,7 @@ tags:
         fingerprint hash in order to update or change metadata.
       returned: success
       type: str
-    items:
+    tag_values:
       description:
       - An array of tags. Each tag must be 1-63 characters long, and comply with RFC1035.
       returned: success
@@ -1118,6 +1124,12 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 import json
 import re
 import time
+
+try:
+    from ansible.module_utils.datatag import deprecate_value
+except ImportError:
+    def deprecate_value(value, msg):
+        pass
 
 ################################################################################
 # Main
@@ -1199,7 +1211,13 @@ def main():
             ),
             confidential_instance_config=dict(type='dict', options=dict(enable_confidential_compute=dict(type='bool'))),
             status=dict(type='str'),
-            tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
+            tags=dict(
+                type='dict', options=dict(
+                    fingerprint=dict(type='str'),
+                    tag_values=dict(type='list', elements='str'),
+                    items=dict(type='list', elements='str'),
+                ),
+            ),
             zone=dict(required=True, type='str'),
         )
     )
@@ -1951,7 +1969,11 @@ class InstanceTags(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get('fingerprint'), u'items': self.request.get('items')})
+        return remove_nones_from_dict({
+            u'fingerprint': self.request.get('fingerprint'),
+            u'items': deprecate_value(self.request.get('items'), 'items is deprecated and will be removed in a future version'),
+            u'tag_values': self.request.get('items'),
+        })
 
     def from_response(self):
         return remove_nones_from_dict({u'fingerprint': self.request.get(u'fingerprint'), u'items': self.request.get(u'items')})

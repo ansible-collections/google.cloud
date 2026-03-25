@@ -588,7 +588,7 @@ resources:
             up-to-date fingerprint hash in order to update or change metadata.
           returned: success
           type: str
-        items:
+        tag_values:
           description:
           - An array of tags. Each tag must be 1-63 characters long, and comply with
             RFC1035.
