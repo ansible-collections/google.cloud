@@ -11,7 +11,7 @@ which python
 # End debugging
 
 # test infra
-# ansible-galaxy collection install community.crypto
+ansible-galaxy collection install community.crypto
 ansible-playbook playbooks/setup.yml "$@"
 
 export ANSIBLE_INVENTORY=test.gcp_compute.yml
