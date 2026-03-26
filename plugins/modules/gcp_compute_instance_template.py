@@ -1276,6 +1276,8 @@ def raise_if_errors(response, err_path, module):
 def encode_request(request, module):
     if 'properties' in request and request['properties'] is not None and 'metadata' in request['properties'] and request['properties']['metadata'] is not None:
         request['properties']['metadata'] = metadata_encoder(request['properties']['metadata'])
+    if 'properties' in request and request['properties'] is not None and 'tags' in request['properties'] and request['properties']['tags'] is not None:
+        request['properties']['tags'] = tags_encoder(request['properties']['tags'])
     return request
 
 
@@ -1322,6 +1324,32 @@ def metadata_decoder(metadata):
         for item in metadata_items:
             items[item['key']] = item['value']
     return items
+
+
+def tags_encoder(tags):
+    tags_new = {}
+    if 'fingerprint' in tags:
+        tags_new['fingerprint'] = tags['fingerprint']
+    if 'tag_values' in tags:
+        tags_new['items'] = tags['tag_values']
+    elif 'items' in tags:
+        tags_new['items'] = tags['items']
+    return tags_new
+
+
+def tags_decoder(tags):
+    tags_new = {}
+    if 'fingerprint' in tags:
+        tags_new['fingerprint'] = tags['fingerprint']
+    items = tags.get('items')
+    tag_values = tags.get('tag_values')
+    if tag_values:
+        tags_new['tag_values'] = tag_values
+        tags_new['items'] = tag_values
+    elif items:
+        tags_new['tag_values'] = items
+        tags_new['items'] = deprecate_value(items, 'items is deprecated and will be removed in a future version')
+    return tags_new
 
 
 class InstanceTemplateProperties(object):
@@ -1692,10 +1720,15 @@ class InstanceTemplateTags(object):
             self.request = {}
 
     def to_request(self):
+        tag_values = self.request.get('tag_values')
+        if tag_values:
+            return remove_nones_from_dict({
+                u'fingerprint': self.request.get('fingerprint'),
+                u'items': tag_values,
+            })
         return remove_nones_from_dict({
             u'fingerprint': self.request.get('fingerprint'),
-            u'items': deprecate_value(self.request.get('items'), 'items is deprecated and will be removed in a future version'),
-            u'tag_values': self.request.get('items'),
+            u'items': self.request.get('items'),
         })
 
     def from_response(self):

@@ -31,6 +31,12 @@
         gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
         gcp_zone: us-central1-a
 
+    - name: Test tags
+      ansible.builtin.include_tasks: tags.yml
+      vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
+
   always:
     - name: Delete network
       google.cloud.gcp_compute_network:

@@ -679,6 +679,13 @@ def return_if_object(module, response):
     try:
         module.raise_for_status(response)
         result = response.json()
+        if result.items:
+            for instance in result.get('items', []):
+                tags = instance.get('tags')
+                if tags:
+                    items = tags.get('items')
+                    if items:
+                        tags['tag_values'] = items
     except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 
