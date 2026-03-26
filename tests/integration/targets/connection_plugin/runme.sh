@@ -7,12 +7,11 @@ echo "PATH: ${PATH}"
 echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}"
 pwd
 which python
-pip install google-auth google-auth-oauthlib
-ansible-galaxy collection install google.cloud
+# pip install google-auth google-auth-oauthlib
 # End debugging
 
 # test infra
-ansible-galaxy collection install community.crypto
+# ansible-galaxy collection install community.crypto
 ansible-playbook playbooks/setup.yml "$@"
 
 export ANSIBLE_INVENTORY=test.gcp_compute.yml
