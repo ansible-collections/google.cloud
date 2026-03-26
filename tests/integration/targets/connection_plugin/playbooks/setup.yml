@@ -10,6 +10,12 @@
     GCP_AUTH_KIND: "{{ gcp_cred_kind }}"
     GCP_PROJECT: "{{ gcp_project }}"
   tasks:
+    - name: SETUP | Create SSH key pair
+      community.crypto.openssh_keypair:
+        path: "{{ ansible_ssh_private_key_file }}"
+        type: ed25519
+      register: _keypair
+
     - name: SETUP | Create network
       google.cloud.gcp_compute_network:
         name: "{{ prefix }}"
@@ -42,7 +48,7 @@
         network_interfaces:
           - network: "{{ _network }}"
         metadata:
-          ssh-keys: "{{ ansible_ssh_user }}:abcdefg"
+          ssh-keys: "{{ ansible_ssh_user }}:{{ _keypair.public_key }}"
         labels: "{{ item.labels | default({}) }}"
         hostname: "{{ item.hostname | default(omit) }}"
         zone: "{{ gcp_zone }}"
