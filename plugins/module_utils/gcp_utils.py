@@ -9,6 +9,7 @@ import fnmatch
 import os
 import json
 import pprint
+import sys
 import time
 import typing as T
 
@@ -219,7 +220,7 @@ class GcpSession(object):
             self.module.fail_json(msg="Please install the requests library")
             
         if not HAS_GOOGLE_LIBRARIES:
-            self.module.fail_json(msg="Please install the google-auth library")
+            self.module.fail_json(msg=f"Please install the google-auth library: sys.path: {sys.path} ---- sys.modules: {sys.modules}")
 
         if self.module.params.get('service_account_email') is not None and self.module.params['auth_kind'] != 'machineaccount':
             self.module.fail_json(
