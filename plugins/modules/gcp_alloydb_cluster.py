@@ -1186,7 +1186,6 @@ def main():
             ),
             initial_user=dict(
                 type="dict",
-                required=True,
                 options=dict(
                     password=dict(
                         type="str",
@@ -1367,6 +1366,11 @@ def main():
             # for secondary clusters, the creation link changes slightly
             if cluster_type == "SECONDARY":
                 create_link = create_link.replace("clusters?clusterId", "clusters:createsecondary?cluster_id")
+            # for primary clusters, require an initial_user
+            if cluster_type == "PRIMARY":
+                initial_user = module.params.get("initial_user")
+                if not initial_user:
+                    module.fail_json(msg="An initial_user is required when cluster_type=PRIMARY")
             # --------- END custom pre-create code ---------
             try:
                 if is_async:
