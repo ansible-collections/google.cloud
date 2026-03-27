@@ -540,7 +540,7 @@ resources:
                 metadata.
               returned: success
               type: str
-            items:
+            tag_values:
               description:
               - An array of tags. Each tag must be 1-63 characters long, and comply
                 with RFC1035.

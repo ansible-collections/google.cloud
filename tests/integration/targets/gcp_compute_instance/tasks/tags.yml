@@ -1,0 +1,121 @@
+---
+- block:
+    - name: Create instance using tag_values
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-with-tags"
+        machine_type: n1-standard-1
+        state: present
+        disks:
+          - auto_delete: true
+            boot: true
+            initialize_params:
+              source_image: "{{ gcp_disk_image }}"
+              disk_type: pd-standard
+        network_interfaces:
+          - network: "{{ _network }}"
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        tags:
+          tag_values: ["hello", "world"]
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: _result1
+    
+    - name: Show _result1
+      ansible.builtin.debug:
+        var: _result1
+
+    - name: Verify instance info post-create
+      google.cloud.gcp_compute_instance_info:
+        filters:
+          - name = {{ _result1.name }}
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        scopes:
+          - https://www.googleapis.com/auth/compute
+      register: _info1
+    
+    - name: Show _info1
+      ansible.builtin.debug:
+        var: _info1
+
+    - name: Update instance using items
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-with-tags"
+        machine_type: n1-standard-1
+        state: present
+        disks:
+          - auto_delete: true
+            boot: true
+            initialize_params:
+              source_image: "{{ gcp_disk_image }}"
+              disk_type: pd-standard
+        network_interfaces:
+          - network: "{{ _network }}"
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        tags:
+          items: ["goodbye", "world"]
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: _result2
+    
+    - name: Show _result1
+      ansible.builtin.debug:
+        var: _result2
+
+    - name: Verify instance info post-update
+      google.cloud.gcp_compute_instance_info:
+        filters:
+          - name = {{ _result2.name }}
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        scopes:
+          - https://www.googleapis.com/auth/compute
+      register: _info2
+    
+    - name: Show _info2
+      ansible.builtin.debug:
+        var: _info2
+
+    - name: Run assertions
+      ansible.builtin.assert:
+        that:
+          - _result1.changed == true
+          - _info1.resources | length > 0
+          # tag_values should be set on create
+          - _info1.resources[0].tags.tag_values | length == 2
+          - "'hello' in _info1.resources[0].tags.tag_values"
+          - "'world' in _info1.resources[0].tags.tag_values"
+          # items should be set on create
+          - _info1.resources[0].tags['items'] | length == 2
+          - "'hello' in _info1.resources[0].tags['items']"
+          - "'world' in _info1.resources[0].tags['items']"
+          - _result2.changed == true
+          - _info2.resources | length > 0
+          # tag_values should be set on update
+          - "'tag_values' in _info2.resources[0]['tags']"
+          - _info2.resources[0].tags.tag_values | length == 2
+          - "'goodbye' in _info2.resources[0].tags.tag_values"
+          - "'world' in _info2.resources[0].tags.tag_values"
+          # items should be set on update
+          - "'items' in _info2.resources[0]['tags']"
+          - _info2.resources[0].tags['items'] | length == 2
+          - "'goodbye' in _info2.resources[0].tags['items']"
+          - "'world' in _info2.resources[0].tags['items']"
+
+  always:
+    # teardown
+    - name: Destroy instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-with-tags"
+        state: absent
+        machine_type: n1-standard-1
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
