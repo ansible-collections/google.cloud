@@ -7,7 +7,7 @@ echo "PATH: ${PATH}"
 echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}"
 pwd
 which python
-# pip install google-auth google-auth-oauthlib
+pip install google-auth google-auth-oauthlib
 # End debugging
 
 # test infra
