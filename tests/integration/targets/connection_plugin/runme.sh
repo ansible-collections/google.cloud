@@ -8,6 +8,10 @@ echo "LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}"
 pwd
 which python
 pip install google-auth google-auth-oauthlib
+ansg=$(which ansible-galaxy)
+ansp=$(which ansible-playbook)
+python $ansg collection install community.crypto
+python $ansp playbooks/setup.yml "$@"
 # End debugging
 
 # test infra
