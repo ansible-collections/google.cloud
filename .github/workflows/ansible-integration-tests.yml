@@ -10,6 +10,7 @@ on:
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
   GCP_PROJECT: ansible-gcp-ci
+  GCP_PROJECT_NUMBER: "935806715932"
   GCP_FOLDER_ID: "542027184392"
 jobs:
   setup:
@@ -73,6 +74,7 @@ jobs:
           echo "$CI_SERVICE_ACCOUNT_FILE_CONTENTS" > /tmp/service-account-key.json
           echo "[default]
           gcp_project: $GCP_PROJECT
+          gcp_project_number: $GCP_PROJECT_NUMBER
           gcp_cred_file: /tmp/service-account-key.json
           gcp_cred_kind: serviceaccount
           gcp_cred_email: $GCP_SERVICE_ACCOUNT

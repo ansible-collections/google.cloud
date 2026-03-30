@@ -44,9 +44,6 @@
             state: present
             location: us-central1
             cluster_type: SECONDARY
-            initial_user:
-              user: pgroot
-              password: Test123Test
             network_config:
               network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
             secondary_config:
