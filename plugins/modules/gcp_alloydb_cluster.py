@@ -230,7 +230,6 @@ options:
   initial_user:
     description:
       - Initial user to setup during cluster creation.
-    required: true
     suboptions:
       password:
         description:
