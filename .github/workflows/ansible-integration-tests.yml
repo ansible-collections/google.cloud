@@ -12,6 +12,7 @@ env:
   GCP_PROJECT: ansible-gcp-ci
   GCP_PROJECT_NUMBER: "935806715932"
   GCP_FOLDER_ID: "542027184392"
+  GCP_INTEGRATION_EMAIL: "hawk@google.com"
 jobs:
   setup:
     if: |
@@ -78,6 +79,7 @@ jobs:
           gcp_cred_file: /tmp/service-account-key.json
           gcp_cred_kind: serviceaccount
           gcp_cred_email: $GCP_SERVICE_ACCOUNT
+          gcp_integration_email: $GCP_INTEGRATION_EMAIL
           gcp_folder_id: $GCP_FOLDER_ID
           " > ./tests/integration/cloud-config-gcp.ini
       # cleanup test environment
