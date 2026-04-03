@@ -12,7 +12,7 @@ env:
   GCP_PROJECT: ansible-gcp-ci
   GCP_PROJECT_NUMBER: "935806715932"
   GCP_FOLDER_ID: "542027184392"
-  GCP_INTEGRATION_EMAIL: "hawk@google.com"
+  GCP_INTEGRATION_EMAIL: "ansibletestuser@gmail.com"
 jobs:
   setup:
     if: |
