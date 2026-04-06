@@ -25,6 +25,7 @@ buckets, Cloud SQL instances, and more.
 * Cloud Functions CloudFunction (gcp_cloudfunctions_cloud_function, gcp_cloudfunctions_cloud_function_info)
 * Cloud Scheduler Job (gcp_cloudscheduler_job, gcp_cloudscheduler_job_info)
 * Cloud Tasks Queue (gcp_cloudtasks_queue, gcp_cloudtasks_queue_info)
+* Vertex AI Notebook Executions (gcp_colab_notebook_execution)
 * Compute Engine Address (gcp_compute_address, gcp_compute_address_info)
 * Compute Engine Autoscaler (gcp_compute_autoscaler, gcp_compute_autoscaler_info)
 * Compute Engine BackendBucket (gcp_compute_backend_bucket, gcp_compute_backend_bucket_info)
@@ -113,8 +114,11 @@ buckets, Cloud SQL instances, and more.
 * Vertex AI Index (gcp_vertexai_index)
 * Vertex AI Index Endpoint (gcp_vertexai_index_endpoint, gcp_vertexai_index_endpoint_deployed_index)
 * Vertex AI Metadata Store (gcp_vertexai_metadata_store)
+* Vertex AI Notebook Executions (gcp_colab_notebook_execution)
 * Vertex AI RAG Engine Config (gcp_vertexai_rag_engine_config)
 * Vertex AI Reasoning Engine (gcp_vertexai_reasoning_engine)
+* Vertex AI Runtimes (gcp_colab_runtime, gcp_colab_runtime_template)
+* Vertex AI Schedules (gcp_colab_schedule)
 * Vertex AI Tensorboard (gcp_vertexai_tensorboard)
 
 ## Requirements
@@ -125,7 +129,7 @@ This collection is tested to work with Ansible 2.16+.
 
 ### Python version compatibility
 
-This collection is tested with to work Python 3.10+
+This collection is tested with to work Python 3.12+
 
 ## Installation
 
