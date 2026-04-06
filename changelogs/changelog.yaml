@@ -102,6 +102,18 @@ releases:
     - 743-add-gcp_vertexai-modules.yml
     - 744-gcp_sql_instance-add-allocated_ip_range.yml
     release_date: '2026-03-03'
+  1.13.0:
+    changes:
+      minor_changes:
+      - gcp_colab_* - added four new modules (gcp_colab_notebook_execution, gcp_colab_runtime,
+        gcp_colab_runtime_template, and gcp_colab_schedule) (https://github.com/ansible-collections/google.cloud/pull/747).
+      - gcp_compute_instance_* - renamed the `tags.items` field to `tags.tag_values`.
+        The old naming is still available but will be removed in a future release.
+        (https://github.com/ansible-collections/google.cloud/pull/750).
+    fragments:
+    - 747-add-colab-modules.yml
+    - 750-rename-compute-tags.yml
+    release_date: '2026-04-06'
   1.2.0:
     changes:
       bugfixes:

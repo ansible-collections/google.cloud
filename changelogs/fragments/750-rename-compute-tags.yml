@@ -1,3 +1,0 @@
-minor_changes:
-  - gcp_compute_instance_* - renamed the `tags.items` field to `tags.tag_values`. The old naming is still available but will be removed in a future release.
-    (https://github.com/ansible-collections/google.cloud/pull/750).

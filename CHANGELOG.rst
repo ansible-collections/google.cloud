@@ -4,6 +4,15 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.13.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_colab_* - added four new modules (gcp_colab_notebook_execution, gcp_colab_runtime, gcp_colab_runtime_template, and gcp_colab_schedule) (https://github.com/ansible-collections/google.cloud/pull/747).
+- gcp_compute_instance_* - renamed the `tags.items` field to `tags.tag_values`. The old naming is still available but will be removed in a future release. (https://github.com/ansible-collections/google.cloud/pull/750).
+
 v1.12.0
 =======
 
@@ -12,7 +21,6 @@ Minor Changes
 
 - gcp_sql_instance - add `allocated_ip_range` to `settings.ip_configuration` for private IP Cloud SQL instances (name of the allocated IP range in the VPC) (https://github.com/ansible-collections/google.cloud/pull/744).
 - gcp_vertexai_* - added 18 Vertex AI modules (gcp_vertexai_dataset, gcp_vertexai_deployment_resource_pool, gcp_vertexai_endpoint, gcp_vertexai_endpoint_with_model_garden_deployment, gcp_vertexai_feature_group, gcp_vertexai_feature_group_feature, gcp_vertexai_feature_online_store, gcp_vertexai_feature_online_store_featureview, gcp_vertexai_featurestore, gcp_vertexai_featurestore_entitytype, gcp_vertexai_featurestore_entitytype_feature, gcp_vertexai_index, gcp_vertexai_index_endpoint, gcp_vertexai_index_endpoint_deployed_index, gcp_vertexai_metadata_store, gcp_vertexai_rag_engine_config, gcp_vertexai_reasoning_engine, gcp_vertexai_tensorboard) (https://github.com/ansible-collections/google.cloud/pull/743).
-
 
 v1.11.0
 =======
