@@ -62,7 +62,7 @@
         service_account_file: "{{ gcp_cred_file | default(omit) }}"
       register: _result2
     
-    - name: Show _result1
+    - name: Show _result2
       ansible.builtin.debug:
         var: _result2
 

@@ -2024,7 +2024,11 @@ class InstanceTags(object):
         })
 
     def from_response(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get(u'fingerprint'), u'items': self.request.get(u'items')})
+        return remove_nones_from_dict({
+            u'fingerprint': self.request.get(u'fingerprint'),
+            u'items': self.request.get(u'items'),
+            u'tag_values': self.request.get(u'tag_values')
+        })
 
 
 if __name__ == '__main__':
