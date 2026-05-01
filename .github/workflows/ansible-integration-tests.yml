@@ -92,10 +92,10 @@ jobs:
           credentials_json: ${{ secrets.CI_SERVICE_ACCOUNT_FILE_CONTENTS }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
-      - name: Run cleanup
-        run: |
-          ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
-          ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_FOLDER_ID
+      #- name: Run cleanup
+      #  run: |
+      #    ./scripts/bootstrap-project.sh $GCP_PROJECT $GCP_SERVICE_ACCOUNT
+      #    ./scripts/cleanup-project.sh $GCP_PROJECT $GCP_FOLDER_ID
       - name: Install required collections
         run: |
           ansible-galaxy install -r requirements-test.yml
