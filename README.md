@@ -262,6 +262,10 @@ To learn how to run the tests locally, read
 
 ## Support
 
+As Red Hat Ansible Certified Content, this collection is entitled to support through the Ansible Automation Platform (AAP) using the
+**Create issue** button on the top right corner. If a support case cannot be opened with Red Hat and the collection has been obtained
+either from Galaxy or GitHub, there may community help available on the [Ansible Forum](https://forum.ansible.com/).
+
 There are several avenues of commuication available for google.cloud users:
 
 * Join the Ansible forum:
