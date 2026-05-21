@@ -12,6 +12,13 @@ from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as g
 
 ASYNC_RETRY_WAIT = 1.0
 
+# avoid stuttering
+Module = gcp_v1.GcpModule
+Session = gcp_v1.GcpSession
+
+# make it closer to what mmv1 calls it
+resource_ref: T.Callable = gcp_v1.replace_resource_dict
+
 # Define a type alias for a nested dictionary structure
 NestedDict = T.Dict[str, T.Union[T.Any, "NestedDict", T.List[T.Any]]]
 
@@ -103,7 +110,7 @@ def flatten_nested_dict(
     return items
 
 
-def debug(module: T.Optional[gcp_v1.GcpModule], **kwargs) -> None:
+def debug(module: T.Optional[Module], **kwargs) -> None:
     "Prints debugging output using module logging"
 
     if module is not None:
@@ -134,8 +141,10 @@ class ResourceOpConfigs(object):
     create: ResourceOpConfig
     update: ResourceOpConfig
     delete: ResourceOpConfig
+    base_url: str
 
-    def __init__(self, op_configs: T.Dict[str, ResourceOpConfig]):
+    def __init__(self, base_url: str, op_configs: T.Dict[str, ResourceOpConfig]):
+        self.base_url = base_url
         for k, v in op_configs.items():
             setattr(self, k, v)
 
@@ -145,13 +154,12 @@ class Resource(object):
     Convenience class to handle requests to the API
     """
 
-    module: T.Optional[gcp_v1.GcpModule] = None
+    module: T.Optional[Module] = None
     kind: T.Optional[str] = None
     product: T.Optional[str]
     request: NestedDict = {}
     response: NestedDict = {}
-    encode_func: T.Callable
-    decode_func: T.Callable
+    op_configs: ResourceOpConfigs
 
     def __init__(
         self,
@@ -165,16 +173,19 @@ class Resource(object):
         if kwargs.get("product") is not None:
             self.product = str(kwargs["product"])
         module: T.Any = kwargs.get("module")
-        if module is not None and isinstance(module, gcp_v1.GcpModule):
+        if module is not None and isinstance(module, Module):
             self.module = module
+        op_configs: T.Any = kwargs.get("op_configs")
+        if op_configs is not None and isinstance(op_configs, ResourceOpConfigs):
+            self.op_configs = op_configs
 
     def debug(self, **kwargs) -> None:
         debug(self.module, **kwargs)
 
-    def session(self) -> gcp_v1.GcpSession:
+    def session(self) -> Session:
         "Returns an authenticated GCP session"
 
-        return gcp_v1.GcpSession(self.module, self.product)
+        return Session(self.module, self.product)
 
     def raise_for_status(self, response: requests.Response):
         if self.module is not None:
@@ -240,8 +251,7 @@ class Resource(object):
         "This should be built from self.request"
 
         req = remove_empties(self._request())
-        if getattr(self, "encode_func", False):
-            req = self.encode_func(req)
+        req = self.encode(req or {})
 
         return req
 
@@ -262,8 +272,6 @@ class Resource(object):
         """
 
         self.response = response
-        if self.kind is not None:
-            self.response["kind"] = self.kind
         self.response.update(self._response())
 
         rsp: T.Optional[NestedDict] = remove_empties(self.response)
@@ -299,7 +307,7 @@ class Resource(object):
         self.fail_json("Failed to poll for async op completion")
 
     def async_op(
-        self, op_func: T.Callable, link: str, async_link: str, retries: int
+        self, op_func: T.Callable, link: str, async_uri: str, retries: int
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous operation and wait for the result"
 
@@ -310,44 +318,44 @@ class Resource(object):
             self.module.params.copy() if self.module is not None else {}
         )
         params.update({"op_id": op_id})
-        op_url: str = async_link.format(**params)
+        op_url: str = (self.op_configs.base_url + async_uri).format(**params)
 
-        return self.with_kind(self.wait_for_op(op_url, retries))
+        return self.wait_for_op(op_url, retries)
 
     def post_async(
-        self, link: str, async_link: str, retries: int
+        self, link: str, async_uri: str, retries: int
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous post"
 
         return self.async_op(
-            op_func=self.post, link=link, async_link=async_link, retries=retries
+            op_func=self.post, link=link, async_uri=async_uri, retries=retries
         )
 
     def put_async(
-        self, link: str, async_link: str, retries: int
+        self, link: str, async_uri: str, retries: int
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous put"
 
         return self.async_op(
-            op_func=self.put, link=link, async_link=async_link, retries=retries
+            op_func=self.put, link=link, async_uri=async_uri, retries=retries
         )
 
     def patch_async(
-        self, link: str, async_link: str, retries: int
+        self, link: str, async_uri: str, retries: int
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous patch"
 
         return self.async_op(
-            op_func=self.patch, link=link, async_link=async_link, retries=retries
+            op_func=self.patch, link=link, async_uri=async_uri, retries=retries
         )
 
     def delete_async(
-        self, link: str, async_link: str, retries: int
+        self, link: str, async_uri: str, retries: int
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous delete"
 
         return self.async_op(
-            op_func=self.delete, link=link, async_link=async_link, retries=retries
+            op_func=self.delete, link=link, async_uri=async_uri, retries=retries
         )
 
     def with_kind(self, response_obj: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
@@ -364,7 +372,7 @@ class Resource(object):
 
         req = self.to_request()
         self.debug(method="post", link=link, request=req)
-        return self.with_kind(self.if_object(self.session().post(link, req)))
+        return self.if_object(self.session().post(link, req))
 
     def put(self, link) -> T.Optional[NestedDict]:
         """
@@ -373,7 +381,7 @@ class Resource(object):
 
         req = self.to_request()
         self.debug(method="put", link=link, request=req)
-        return self.with_kind(self.if_object(self.session().put(link, req)))
+        return self.if_object(self.session().put(link, req))
 
     def patch(self, link) -> T.Optional[NestedDict]:
         """
@@ -382,18 +390,16 @@ class Resource(object):
 
         req = self.to_request()
         self.debug(method="patch", link=link, request=req)
-        return self.with_kind(self.if_object(self.session().patch(link, req)))
+        return self.if_object(self.session().patch(link, req))
 
     def delete(self, link) -> T.Optional[NestedDict]:
         """
         Make DELETE request.
         """
 
-        req = {}
-        if getattr(self, "encode_func", False):
-            # normally, you don't need to pass a request body on deletes, but *some* APIs
-            # require it so you still pass it through the encoder function
-            req = self.encode_func(req)
+        # normally, you don't need to pass a request body on deletes, but *some* APIs
+        # require it so you still pass it by customizing the encoder function
+        req = self.encode({})
         self.debug(method="delete", link=link, request=req)
         return self.if_object(self.session().delete(link, req))
 
@@ -412,11 +418,15 @@ class Resource(object):
         Returns a list of dot-separated strings with (almost) all fields in the current object
         """
 
-        req = self.to_request() or {}
+        req: NestedDict = self.to_request() or {}
         dotfields: T.List[str] = []
 
         # these 3 are free-form dicts, we don't want to list all the possible children
-        exclusions = ["labels", "annotations", "tags"]
+        exclusions: T.Tuple = (
+            "labels",
+            "annotations",
+            "tags",
+        )
         for i in exclusions:
             if i in req.keys():
                 dotfields.extend(i)
@@ -427,6 +437,19 @@ class Resource(object):
         dotfields.extend(fields)
 
         return dotfields
+
+    def build_link(self, url_params: T.Dict, op: str) -> str:
+        """
+        Builds a link for a given operation: read/create/update/delete etc
+        """
+
+        self.debug(action="build_link", op=op)
+        op_config: ResourceOpConfig = getattr(self.op_configs, op)
+        uri: str = op_config.uri
+        url: str = (self.op_configs.base_url + uri).format(**url_params)
+        self.debug(action="build_link", link=url)
+
+        return url
 
 
 def empty(data: T.Any) -> bool:
