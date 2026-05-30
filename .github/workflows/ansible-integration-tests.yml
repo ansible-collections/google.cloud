@@ -102,4 +102,5 @@ jobs:
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }} --venv-system-site-packages
+        # run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }} --venv --venv-system-site-packages
+        run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }}
