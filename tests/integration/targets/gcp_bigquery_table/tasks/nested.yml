@@ -1,0 +1,92 @@
+---
+- name: Run testcases
+  block:
+    - name: create dataset
+      google.cloud.gcp_bigquery_dataset:
+        name: "{{ dataset_name }}"
+        dataset_reference:
+          dataset_id: "{{ dataset_name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+        state: present
+      register: _dataset
+
+    - name: Create table with defined fields
+      google.cloud.gcp_bigquery_table:
+        name: "{{ resource_name }}-fields"
+        dataset: "{{ dataset_name }}"
+        state: present
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+        table_reference:
+          dataset_id: "{{ dataset_name }}"
+          project_id: "{{ gcp_project }}"
+          table_id: "{{ resource_name }}-fields"
+        schema:
+          fields:
+            - name: id
+              description: An Integer field
+              type: INTEGER
+            - name: name
+              description: A String field
+              type: STRING
+
+    - name: Create table with nested fields
+      google.cloud.gcp_bigquery_table:
+        name: "{{ resource_name }}-nested"
+        dataset: "{{ dataset_name }}"
+        state: present
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+        table_reference:
+          dataset_id: "{{ dataset_name }}"
+          project_id: "{{ gcp_project }}"
+          table_id: "{{ resource_name }}-nested"
+        schema:
+          fields:
+            - name: id
+              description: An Integer field
+              type: INTEGER
+            - name: def
+              description: A Record field
+              type: RECORD
+              fields:
+                - name: id
+                  description: A nested Integer field
+                  type: INTEGER
+                - name: subdef
+                  description: A nested Record field
+                  type: RECORD
+                  fields:
+                    - name: id
+                      description: A nested-nested Integer field
+                      type: INTEGER
+                    - name: desc
+                      description: A nested-nested String field
+                      type: STRING
+
+  always:
+    - name: Remove tables
+      google.cloud.gcp_bigquery_table:
+        name: "{{ resource_name }}-{{ item }}"
+        dataset: "{{ dataset_name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+        state: absent
+      loop:
+        - fields
+        - nested
+
+    - name: Remove dataset
+      google.cloud.gcp_bigquery_dataset:
+        name: "{{ dataset_name }}"
+        dataset_reference:
+          dataset_id: "{{ dataset_name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+        state: absent

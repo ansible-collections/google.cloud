@@ -298,8 +298,10 @@ quicOverride:
   type: str
 sslCertificates:
   description:
-  - A list of SslCertificate resources that are used to authenticate connections between
-    users and the load balancer. At least one SSL certificate must be specified.
+  - A list of SslCertificate objects (with selfLink and name e.g. as returned by
+    gcp_compute_target_https_proxy_info)  that are used to authenticate
+    connections between users and the load balancer. At least one SSL certificate
+    must be specified.
   returned: success
   type: list
 sslPolicy:

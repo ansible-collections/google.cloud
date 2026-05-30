@@ -1,0 +1,104 @@
+---
+- block:
+    - name: Create instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-attach-vm"
+        machine_type: n1-standard-1
+        state: present
+        disks:
+          - auto_delete: true
+            boot: true
+            initialize_params:
+              source_image: "{{ gcp_disk_image }}"
+              disk_type: pd-standard
+        network_interfaces:
+          - network: "{{ _network }}"
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: _result1
+
+    - name: Verify instance info post-create
+      google.cloud.gcp_compute_instance_info:
+        filters:
+          - name = {{ _result1.name }}
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        scopes:
+          - https://www.googleapis.com/auth/compute
+      register: _info1
+
+    - name: Create extra disk
+      google.cloud.gcp_compute_disk:
+        name: "{{ resource_name }}-extra"
+        state: present
+        zone: "{{ gcp_zone }}"
+        size_gb: 20
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: _disk
+
+    - name: Attach extra disk to instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-attach-vm"
+        machine_type: n1-standard-1
+        state: present
+        disks:
+          - auto_delete: true
+            boot: true
+            initialize_params:
+              source_image: "{{ gcp_disk_image }}"
+              disk_type: pd-standard
+          - source: "{{ _disk }}"
+        network_interfaces:
+          - network: "{{ _network }}"
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: _result2
+
+    - name: Verify instance info post-change
+      google.cloud.gcp_compute_instance_info:
+        filters:
+          - name = {{ _result2.name }}
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        scopes:
+          - https://www.googleapis.com/auth/compute
+      register: _info2
+
+    - name: Run assertions
+      ansible.builtin.assert:
+        that:
+          - _info1.resources | length > 0
+          - _info1.resources[0].disks | length == 1
+          - _info2.resources | length > 0
+          - _info2.resources[0].disks | length == 2
+
+  always:
+    # teardown
+    - name: Destroy instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ resource_name }}-attach-vm"
+        state: absent
+        machine_type: n1-standard-1
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+
+    - name: Destroy extra disk
+      google.cloud.gcp_compute_disk:
+        name: "{{ resource_name }}-extra"
+        state: absent
+        zone: "{{ gcp_zone }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"

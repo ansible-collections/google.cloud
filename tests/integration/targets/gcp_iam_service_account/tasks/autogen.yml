@@ -43,11 +43,13 @@
     scopes:
       - https://www.googleapis.com/auth/iam
   register: results
+- name: Process Results
+  set_fact:
+    result_resources: "{{ results['resources'] | map(attribute='name') | select('match', '.*service-' + resource_name.split('-')[-1] + '@' + gcp_project + '.iam.gserviceaccount.com.*') | list }}"
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*")
-        | list | length == 1
+        result_resources | length == 1
 # ----------------------------------------------------------------------------
 - name: Create a service account that already exists
   google.cloud.gcp_iam_service_account:
@@ -84,11 +86,14 @@
     scopes:
       - https://www.googleapis.com/auth/iam
   register: results
+- name: Process Results
+  set_fact:
+    result_resources: "{{ results['resources'] | map(attribute='name') | select('match', '.*service-' + resource_name.split('-')[-1] + '@' + gcp_project + '.iam.gserviceaccount.com.*') | list }}"
+
 - name: Verify that command succeeded
   ansible.builtin.assert:
     that:
-      - results['resources'] | map(attribute='name') | select("match", ".*service-{{ resource_name.split("-")[-1] }}@{{ gcp_project }}.iam.gserviceaccount.com.*")
-        | list | length == 0
+        result_resources | length == 0
 # ----------------------------------------------------------------------------
 - name: Delete a service account that does not exist
   google.cloud.gcp_iam_service_account:

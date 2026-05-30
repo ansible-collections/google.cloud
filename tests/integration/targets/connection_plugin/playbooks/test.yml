@@ -1,0 +1,37 @@
+---
+- name: Test IAP connection plugin
+  hosts: gcp_cluster_web:gcp_cluster_db
+  connection: google.cloud.iap
+  gather_facts: false
+  vars_files:
+    - ../vars.yml
+  tasks:
+    - name: TEST | Ping
+      ansible.builtin.ping:
+
+    - name: TEST | Copy
+      ansible.builtin.copy:
+        content: "Test file test"
+        dest: "/tmp/{{ prefix }}.txt"
+        mode: "0644"
+
+    - name: TEST | Slurp
+      ansible.builtin.slurp:
+        src: "/tmp/{{ prefix }}.txt"
+      register: _content
+
+    - name: TEST | Debug
+      ansible.builtin.debug:
+        msg: "{{ _content['content'] | b64decode }}"
+
+    - name: TEST | Reset connection
+      ansible.builtin.meta: reset_connection
+
+    - name: TEST | Loop operations
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: touch
+      loop:
+        - /tmp/file1
+        - /tmp/file2
+        - /tmp/file3

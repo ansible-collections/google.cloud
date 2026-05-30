@@ -1,3 +1,6 @@
 ---
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
+
+- name: Tests for IAM Configuration support
+  ansible.builtin.include_tasks: iam_configuration.yml

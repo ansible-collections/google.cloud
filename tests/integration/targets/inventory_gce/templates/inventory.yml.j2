@@ -1,0 +1,27 @@
+---
+plugin: google.cloud.gcp_compute
+
+zones:
+{{ gcp_zones | to_nice_yaml }}
+projects:
+- {{ gcp_project }}
+
+auth_kind: {{ gcp_cred_kind }}
+
+service_account_file: {{ gcp_cred_file }}
+
+scopes:
+- 'https://www.googleapis.com/auth/cloud-platform'
+- 'https://www.googleapis.com/auth/compute.readonly'
+
+keyed_groups:
+- prefix: gcp
+  key: labels
+
+name_suffix: .{{ prefix }}.com
+
+filters:
+{{ testcases[testcase]['filters'] | default(testcases['basic']['filters']) | default([]) | to_nice_yaml }}
+
+hostnames:
+{{ testcases[testcase]['hostnames'] | default(testcases['basic']['hostnames']) | default([]) | to_nice_yaml }}

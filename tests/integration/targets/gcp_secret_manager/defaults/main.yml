@@ -1,0 +1,3 @@
+---
+resource_name: "{{ resource_prefix }}"
+lookup_resource_name: "{{ resource_prefix }}_lookup"

@@ -1,3 +1,48 @@
 ---
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
+
+- name: Extra non-autogen tests
+  block:
+    - name: Create network
+      google.cloud.gcp_compute_network:
+        name: "{{ resource_prefix }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        auto_create_subnetworks: true
+        state: present
+      register: _network
+
+    - name: Test GVNIC test cases
+      ansible.builtin.include_tasks: gvnic.yml
+      loop: "{{ testcases | dict2items }}"
+      vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
+        testcases:
+          gvnic: GVNIC
+          virtio: VIRTIO_NET
+          default: default
+
+    - name: Test attach disks
+      ansible.builtin.include_tasks: attach-disks.yml
+      vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
+
+    - name: Test tags
+      ansible.builtin.include_tasks: tags.yml
+      vars:
+        gcp_disk_image: projects/centos-cloud/global/images/family/centos-stream-9
+        gcp_zone: us-central1-a
+
+  always:
+    - name: Delete network
+      google.cloud.gcp_compute_network:
+        name: "{{ resource_prefix }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        auto_create_subnetworks: true
+        state: absent

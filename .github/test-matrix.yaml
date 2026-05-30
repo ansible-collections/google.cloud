@@ -1,0 +1,26 @@
+# It's important that tests are performed against all stable-X.Y branches.
+# Testing against `devel` may fail as new tests are added.
+# An alternative to `devel` is the `milestone` branch.
+ansible:
+  - stable-2.18
+  - stable-2.19
+  - stable-2.20
+  - devel
+python:
+  - "3.11"
+  - "3.12"
+  - "3.13"
+  - "3.14"
+exclude:
+  # 2.18 supports Python 3.11-3.13
+  - ansible: stable-2.18
+    python: "3.14"
+  # 2.19 supports Python 3.11-3.13
+  - ansible: stable-2.19
+    python: "3.14"
+  # 2.20 supports Python 3.12-3.14
+  - ansible: stable-2.20
+    python: "3.11"
+  # devel currently excludes older Python versions
+  - ansible: devel
+    python: "3.11"

@@ -1,0 +1,16 @@
+---
+- name: TEST | print hosts
+  ansible.builtin.debug:
+    var: groups
+
+- name: TEST | assert instances exist
+  ansible.builtin.assert:
+    that:
+      - groups['all'] | length > 0
+
+- name: TEST | assert grouping works
+  ansible.builtin.assert:
+    that:
+      - groups['gcp_env_prod'] | length == 2
+      - groups['gcp_cluster_db'] | length == 1
+      - groups['gcp_cluster_web'] | length == 1

@@ -588,7 +588,7 @@ resources:
             up-to-date fingerprint hash in order to update or change metadata.
           returned: success
           type: str
-        items:
+        tag_values:
           description:
           - An array of tags. Each tag must be 1-63 characters long, and comply with
             RFC1035.
@@ -679,6 +679,13 @@ def return_if_object(module, response):
     try:
         module.raise_for_status(response)
         result = response.json()
+        if result.items:
+            for instance in result.get('items', []):
+                tags = instance.get('tags')
+                if tags:
+                    items = tags.get('items')
+                    if items:
+                        tags['tag_values'] = items
     except getattr(json.decoder, "JSONDecodeError", ValueError) as inst:
         module.fail_json(msg="Invalid JSON response with error: %s" % inst)
 

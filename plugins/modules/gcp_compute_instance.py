@@ -61,6 +61,13 @@ options:
     - Whether the resource should be protected against deletion.
     required: false
     type: bool
+  discard_local_ssd:
+    description:
+    - Discards the contents of any attached Local SSD disks when changing status
+      to TERMINATED.
+    default: True
+    required: false
+    type: bool
   disks:
     description:
     - An array of disks that are associated with the instances that are created from
@@ -388,6 +395,19 @@ options:
           field to "{{ name-of-resource }}"'
         required: false
         type: dict
+      nic_type:
+        description:
+        - Type of network interface card attached to instance.
+        - If unspecified it will use the default provided by GCP.
+        - As the next generation network interface which succeeds VirtIO, gVNIC
+          replaces VirtIO-Net as the only supported network interface in Compute
+          Engine for all new machine types (Generation 3 and onwards).
+        - Newer machine series and networking features require gVNIC instead of VirtIO.
+        required: false
+        type: str
+        choices:
+        - VIRTIO_NET
+        - GVNIC
   scheduling:
     description:
     - Sets the scheduling options for this instance.
@@ -498,6 +518,12 @@ options:
         required: false
         type: str
       items:
+        description:
+        - Deprecated. Use tag_values instead.
+        elements: str
+        required: false
+        type: list
+      tag_values:
         description:
         - An array of tags. Each tag must be 1-63 characters long, and comply with
           RFC1035.
@@ -1071,7 +1097,7 @@ tags:
         fingerprint hash in order to update or change metadata.
       returned: success
       type: str
-    items:
+    tag_values:
       description:
       - An array of tags. Each tag must be 1-63 characters long, and comply with RFC1035.
       returned: success
@@ -1099,6 +1125,12 @@ import json
 import re
 import time
 
+try:
+    from ansible.module_utils.datatag import deprecate_value
+except ImportError:
+    def deprecate_value(value, msg):
+        pass
+
 ################################################################################
 # Main
 ################################################################################
@@ -1112,6 +1144,7 @@ def main():
             state=dict(default='present', choices=['present', 'absent'], type='str'),
             can_ip_forward=dict(type='bool', aliases=['ip_forward']),
             deletion_protection=dict(type='bool'),
+            discard_local_ssd=dict(type='bool', required=False, default=True),
             disks=dict(
                 type='list',
                 elements='dict',
@@ -1166,6 +1199,7 @@ def main():
                     network=dict(type='dict'),
                     network_ip=dict(type='str'),
                     subnetwork=dict(type='dict'),
+                    nic_type=dict(type='str', choices=['VIRTIO_NET', 'GVNIC']),
                 ),
             ),
             scheduling=dict(
@@ -1177,7 +1211,13 @@ def main():
             ),
             confidential_instance_config=dict(type='dict', options=dict(enable_confidential_compute=dict(type='bool'))),
             status=dict(type='str'),
-            tags=dict(type='dict', options=dict(fingerprint=dict(type='str'), items=dict(type='list', elements='str'))),
+            tags=dict(
+                type='dict', options=dict(
+                    fingerprint=dict(type='str'),
+                    tag_values=dict(type='list', elements='str'),
+                    items=dict(type='list', elements='str'),
+                ),
+            ),
             zone=dict(required=True, type='str'),
         )
     )
@@ -1194,8 +1234,7 @@ def main():
     if fetch:
         if state == 'present':
             if is_different(module, fetch):
-                update(module, self_link(module), kind, fetch)
-                fetch = fetch_resource(module, self_link(module), kind)
+                fetch = update(module, self_link(module), kind, fetch)
                 changed = True
         else:
             delete(module, self_link(module), kind)
@@ -1237,6 +1276,37 @@ def update_fields(module, request, response):
         machine_type_update(module, request, response)
     if response.get('shieldedInstanceConfig') != request.get('shieldedInstanceConfig'):
         shielded_instance_config_update(module, request, response)
+    if response.get('disks') != request.get('disks'):
+        extra_disks_update(module, request, response)
+    if response.get('tags') != request.get('tags'):
+        tags_update(module, request, response)
+
+
+def extra_disks_update(module, request, response):
+    auth = GcpSession(module, 'compute')
+    # fetch all non-boot (i.e. additional) disks to attach
+    # but discard local disks (if defined) because they can
+    # only be attached to instances at creation time anyway
+    req_disks = set()
+    for d in request.get('disks', []):
+        if not d.get('boot'):
+            if d.get('source'):
+                req_disks.add(d['source'])
+            else:
+                module.warn(
+                    'Non-persistent disks can only be attached at creation time, '
+                    'changed status might be incorrect.')
+    rsp_disks = set()
+    for d in response.get('disks', []):
+        if d.get('source') and not d.get('boot'):
+            rsp_disks.add(d['source'])
+    for d in req_disks.difference(rsp_disks):
+        auth.post(
+            ''.join([
+                "https://compute.googleapis.com/compute/v1/",
+                "projects/{project}/zones/{zone}/instances/{name}/attachDisk"]).format(**module.params),
+            {u'source': d},
+        )
 
 
 def label_fingerprint_update(module, request, response):
@@ -1252,6 +1322,17 @@ def machine_type_update(module, request, response):
     auth.post(
         ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/instances/{name}/setMachineType"]).format(**module.params),
         {u'machineType': machine_type_selflink(module.params.get('machine_type'), module.params)},
+    )
+
+
+def tags_update(module, request, response):
+    tags = tags_encoder(request.get('tags', {}))
+    if response.get('tags') and response.get('tags').get('fingerprint'):
+        tags['fingerprint'] = response.get('tags').get('fingerprint')
+    auth = GcpSession(module, 'compute')
+    auth.post(
+        ''.join(["https://compute.googleapis.com/compute/v1/", "projects/{project}/zones/{zone}/instances/{name}/setTags"]).format(**module.params),
+        tags,
     )
 
 
@@ -1353,7 +1434,7 @@ def response_to_hash(module, response):
         u'cpuPlatform': response.get(u'cpuPlatform'),
         u'creationTimestamp': response.get(u'creationTimestamp'),
         u'deletionProtection': response.get(u'deletionProtection'),
-        u'disks': InstanceDisksArray(module.params.get('disks', []), module).to_request(),
+        u'disks': InstanceDisksArray(response.get('disks', []), module).from_response(),
         u'guestAccelerators': InstanceGuestacceleratorsArray(response.get(u'guestAccelerators', []), module).from_response(),
         u'hostname': response.get(u'hostname'),
         u'id': response.get(u'id'),
@@ -1434,12 +1515,16 @@ def raise_if_errors(response, err_path, module):
 def encode_request(request, module):
     if 'metadata' in request and request['metadata'] is not None:
         request['metadata'] = metadata_encoder(request['metadata'])
+    if 'tags' in request and request['tags'] is not None:
+        request['tags'] = tags_encoder(request['tags'])
     return request
 
 
 def decode_response(response, module):
     if 'metadata' in response and response['metadata'] is not None:
         response['metadata'] = metadata_decoder(response['metadata'])
+    if 'tags' in response and response['tags'] is not None:
+        response['tags'] = tags_decoder(response['tags'])
     return response
 
 
@@ -1477,6 +1562,32 @@ def metadata_decoder(metadata):
     return items
 
 
+def tags_encoder(tags):
+    tags_new = {}
+    if 'fingerprint' in tags:
+        tags_new['fingerprint'] = tags['fingerprint']
+    if 'tag_values' in tags:
+        tags_new['items'] = tags['tag_values']
+    elif 'items' in tags:
+        tags_new['items'] = tags['items']
+    return tags_new
+
+
+def tags_decoder(tags):
+    tags_new = {}
+    if 'fingerprint' in tags:
+        tags_new['fingerprint'] = tags['fingerprint']
+    items = tags.get('items')
+    tag_values = tags.get('tag_values')
+    if tag_values:
+        tags_new['tag_values'] = tag_values
+        tags_new['items'] = tag_values
+    elif items:
+        tags_new['tag_values'] = items
+        tags_new['items'] = deprecate_value(items, 'items is deprecated and will be removed in a future version')
+    return tags_new
+
+
 class InstancePower(object):
     def __init__(self, module, current_status):
         self.module = module
@@ -1506,7 +1617,9 @@ class InstancePower(object):
         return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/start".format(**self.module.params)
 
     def _stop_url(self):
-        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop".format(**self.module.params)
+        return "https://www.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{name}/stop?discardLocalSsd={discard_local_ssd}".format(
+            **self.module.params
+        )
 
 
 def deletion_protection_update(module, request, response):
@@ -1705,6 +1818,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'network': replace_resource_dict(item.get(u'network', {}), 'selfLink'),
                 u'networkIP': item.get('network_ip'),
                 u'subnetwork': replace_resource_dict(item.get(u'subnetwork', {}), 'selfLink'),
+                u'nicType': item.get('nic_type'),
             }
         )
 
@@ -1716,6 +1830,7 @@ class InstanceNetworkinterfacesArray(object):
                 u'network': item.get(u'network'),
                 u'networkIP': item.get(u'networkIP'),
                 u'subnetwork': item.get(u'subnetwork'),
+                u'nicType': item.get(u'nicType'),
             }
         )
 
@@ -1897,10 +2012,23 @@ class InstanceTags(object):
             self.request = {}
 
     def to_request(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get('fingerprint'), u'items': self.request.get('items')})
+        tag_values = self.request.get('tag_values')
+        if tag_values:
+            return remove_nones_from_dict({
+                u'fingerprint': self.request.get('fingerprint'),
+                u'items': tag_values,
+            })
+        return remove_nones_from_dict({
+            u'fingerprint': self.request.get('fingerprint'),
+            u'items': self.request.get('items'),
+        })
 
     def from_response(self):
-        return remove_nones_from_dict({u'fingerprint': self.request.get(u'fingerprint'), u'items': self.request.get(u'items')})
+        return remove_nones_from_dict({
+            u'fingerprint': self.request.get(u'fingerprint'),
+            u'items': self.request.get(u'items'),
+            u'tag_values': self.request.get(u'tag_values')
+        })
 
 
 if __name__ == '__main__':
