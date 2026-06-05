@@ -8,16 +8,27 @@ import time
 import typing as T
 
 import requests
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp_v1
+
+# avoid stuttering
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    GcpModule as Module,
+)
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    GcpSession as Session,
+)
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    navigate_hash,
+)
+
+# match what magic-modules calls it
+from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
+    replace_resource_dict as resource_ref,
+)
+
+assert resource_ref
 
 ASYNC_RETRY_WAIT = 1.0
 
-# avoid stuttering
-Module = gcp_v1.GcpModule
-Session = gcp_v1.GcpSession
-
-# make it closer to what mmv1 calls it
-resource_ref: T.Callable = gcp_v1.replace_resource_dict
 
 # Define a type alias for a nested dictionary structure
 NestedDict = T.Dict[str, T.Union[T.Any, "NestedDict", T.List[T.Any]]]
@@ -142,11 +153,31 @@ class ResourceOpConfigs(object):
     update: ResourceOpConfig
     delete: ResourceOpConfig
     base_url: str
+    base_uri: str
 
-    def __init__(self, base_url: str, op_configs: T.Dict[str, ResourceOpConfig]):
+    def __init__(
+        self, base_url: str, base_uri: str, configs: T.Dict[str, ResourceOpConfig]
+    ):
         self.base_url = base_url
-        for k, v in op_configs.items():
+        self.base_uri = base_uri
+        for k, v in configs.items():
             setattr(self, k, v)
+
+    def build_link_template(self, op: str) -> str:
+        link: str = ""
+
+        if op == "read":
+            link = self.base_url + self.read.uri
+        elif op == "create":
+            link = self.base_url + self.create.uri
+        elif op == "update":
+            link = self.base_url + self.update.uri
+        elif op == "delete":
+            link = self.base_url + self.delete.uri
+        else:
+            link = self.base_url + self.base_uri
+
+        return link
 
 
 class Resource(object):
@@ -160,6 +191,7 @@ class Resource(object):
     request: NestedDict = {}
     response: NestedDict = {}
     op_configs: ResourceOpConfigs
+    url_params: NestedDict = {}
 
     def __init__(
         self,
@@ -168,6 +200,7 @@ class Resource(object):
     ) -> None:
         if request is not None:
             self.request = request
+            self.url_params = request.copy()  # make a shallow copy to manipulate freely
         if kwargs.get("kind") is not None:
             self.kind = str(kwargs["kind"])
         if kwargs.get("product") is not None:
@@ -226,12 +259,12 @@ class Resource(object):
             self.fail_json(f"Invalid JSON response with error: {response.text}")
 
         # old-style responses
-        msg: T.Optional[str] = gcp_v1.navigate_hash(result, ["error", "errors"])
+        msg: T.Optional[str] = navigate_hash(result, ["error", "errors"])
         if msg is not None:
             self.fail_json(msg)
 
         # new-style responses
-        msg = gcp_v1.navigate_hash(result, ["error", "message"])
+        msg = navigate_hash(result, ["error", "message"])
         if msg is not None:
             self.fail_json(msg)
 
@@ -278,12 +311,13 @@ class Resource(object):
 
         return self.decode(rsp or {})
 
-    def get(self, link: str, allow_not_found: bool = True) -> T.Optional[dict]:
+    def get(self, link: str, allow_not_found: bool = True) -> T.Optional[NestedDict]:
         """
         Make GET request.
         """
 
         self.debug(method="get", link=link)
+
         return self.if_object(self.session().get(link), allow_not_found)
 
     def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
@@ -294,9 +328,9 @@ class Resource(object):
             op = self.session().get(op_url)
             op_obj = self.if_object(op, allow_not_found=False)
             if op_obj:
-                done: bool = bool(gcp_v1.navigate_hash(op_obj, ["done"], False))
+                done: bool = bool(navigate_hash(op_obj, ["done"], False))
                 if done:
-                    rsp: T.Any = gcp_v1.navigate_hash(op_obj, ["response"], {})
+                    rsp: T.Any = navigate_hash(op_obj, ["response"], {})
 
                     if rsp is not None:
                         return self.decode(rsp)
@@ -307,18 +341,19 @@ class Resource(object):
         self.fail_json("Failed to poll for async op completion")
 
     def async_op(
-        self, op_func: T.Callable, link: str, async_uri: str, retries: int
+        self,
+        op_func: T.Callable,
+        link: str,
+        async_uri: str,
+        retries: int,
     ) -> T.Optional[NestedDict]:
         "Perform an asynchronous operation and wait for the result"
 
         op_result: T.Optional[NestedDict] = op_func(link)
 
-        op_id: str = str(gcp_v1.navigate_hash(op_result, ["name"], ""))
-        params: NestedDict = (
-            self.module.params.copy() if self.module is not None else {}
-        )
-        params.update({"op_id": op_id})
-        op_url: str = (self.op_configs.base_url + async_uri).format(**params)
+        op_id: str = str(navigate_hash(op_result, ["name"], ""))
+        self.url_params.update({"op_id": op_id})
+        op_url: str = (self.op_configs.base_url + async_uri).format(**self.url_params)
 
         return self.wait_for_op(op_url, retries)
 
@@ -328,7 +363,10 @@ class Resource(object):
         "Perform an asynchronous post"
 
         return self.async_op(
-            op_func=self.post, link=link, async_uri=async_uri, retries=retries
+            op_func=self.post,
+            link=link,
+            async_uri=async_uri,
+            retries=retries,
         )
 
     def put_async(
@@ -337,7 +375,10 @@ class Resource(object):
         "Perform an asynchronous put"
 
         return self.async_op(
-            op_func=self.put, link=link, async_uri=async_uri, retries=retries
+            op_func=self.put,
+            link=link,
+            async_uri=async_uri,
+            retries=retries,
         )
 
     def patch_async(
@@ -346,7 +387,10 @@ class Resource(object):
         "Perform an asynchronous patch"
 
         return self.async_op(
-            op_func=self.patch, link=link, async_uri=async_uri, retries=retries
+            op_func=self.patch,
+            link=link,
+            async_uri=async_uri,
+            retries=retries,
         )
 
     def delete_async(
@@ -355,7 +399,10 @@ class Resource(object):
         "Perform an asynchronous delete"
 
         return self.async_op(
-            op_func=self.delete, link=link, async_uri=async_uri, retries=retries
+            op_func=self.delete,
+            link=link,
+            async_uri=async_uri,
+            retries=retries,
         )
 
     def with_kind(self, response_obj: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
@@ -429,7 +476,7 @@ class Resource(object):
         )
         for i in exclusions:
             if i in req.keys():
-                dotfields.extend(i)
+                dotfields.append(i)
 
         fields = flatten_nested_dict(
             req, separator=".", glob_excludes=[f"{x}.*" for x in exclusions]
@@ -438,15 +485,15 @@ class Resource(object):
 
         return dotfields
 
-    def build_link(self, url_params: T.Dict, op: str) -> str:
+    def build_link(self, op: str) -> str:
         """
         Builds a link for a given operation: read/create/update/delete etc
         """
 
         self.debug(action="build_link", op=op)
-        op_config: ResourceOpConfig = getattr(self.op_configs, op)
-        uri: str = op_config.uri
-        url: str = (self.op_configs.base_url + uri).format(**url_params)
+        tpl: str = self.op_configs.build_link_template(op)
+        self.debug(action="build_link", tpl=tpl)
+        url: str = tpl.format(**self.url_params)
         self.debug(action="build_link", link=url)
 
         return url
