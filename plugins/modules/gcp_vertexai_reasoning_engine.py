@@ -42,6 +42,79 @@ notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.reasoningEngines/)'
   - 'Develop and deploy agents on Vertex AI Agent Engine Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/quickstart)'
 options:
+  context_spec:
+    description:
+      - Configuration for how Agent Engine sub-resources should manage context.
+    suboptions:
+      memory_bank_config:
+        description:
+          - Specification for a Memory Bank, which manages memories for the Agent Engine.
+        suboptions:
+          disable_memory_revisions:
+            description:
+              - If true, no memory revisions will be created for any requests to the Memory Bank.
+            type: bool
+          generation_config:
+            description:
+              - Configuration for how to generate memories for the Memory Bank.
+            suboptions:
+              model:
+                description:
+                  - The model used to generate memories.
+                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+                required: true
+                type: str
+            type: dict
+          similarity_search_config:
+            description:
+              - Configuration for how to perform similarity search on memories.
+            suboptions:
+              embedding_model:
+                description:
+                  - The model used to generate embeddings to lookup similar memories.
+                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+                required: true
+                type: str
+            type: dict
+          ttl_config:
+            description:
+              - Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.
+            suboptions:
+              default_ttl:
+                description:
+                  - The default TTL duration of the memories in the Memory Bank.
+                type: str
+              granular_ttl_config:
+                description:
+                  - The granular TTL configuration of the memories in the Memory Bank.
+                suboptions:
+                  create_ttl:
+                    description:
+                      - The TTL duration for memories uploaded via CreateMemory.
+                    type: str
+                  generate_created_ttl:
+                    description:
+                      - The TTL duration for memories newly generated via GenerateMemories.
+                    type: str
+                  generate_updated_ttl:
+                    description:
+                      - The TTL duration for memories updated via GenerateMemories.
+                    type: str
+                type: dict
+              memory_revision_default_ttl:
+                description:
+                  - The default TTL duration of the memory revisions in the Memory Bank.
+                type: str
+            type: dict
+        type: dict
+    type: dict
+  deletion_policy:
+    choices:
+      - FORCE
+    description:
+      - The deletion policy for the reasoning engine.
+      - Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources.
+    type: str
   description:
     description:
       - The description of the ReasoningEngine.
@@ -55,6 +128,7 @@ options:
     description:
       - Customer-managed encryption key spec for a ReasoningEngine.
       - If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       kms_key_name:
         description:
@@ -68,6 +142,7 @@ options:
     description:
       - The region of the reasoning engine.
       - eg us-central1.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   spec:
     description:
@@ -202,6 +277,21 @@ options:
                 type: dict
             type: list
         type: dict
+      effective_identity:
+        description:
+          - The identity to use for the Reasoning Engine.
+        type: str
+      identity_type:
+        choices:
+          - SERVICE_ACCOUNT
+          - AGENT_IDENTITY
+        description:
+          - The identity type to use for the Reasoning Engine.
+          - If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
+          - 'Possible values: * `SERVICE_ACCOUNT`: Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.'
+          - '* `AGENT_IDENTITY`: Use Agent Identity.'
+          - The `service_account` field must not be set.
+        type: str
       package_spec:
         description:
           - User provided package spec of the ReasoningEngine.
@@ -236,6 +326,32 @@ options:
         description:
           - Specification for deploying from source code.
         suboptions:
+          developer_connect_source:
+            description:
+              - Specification for source code to be fetched from a Git repository managed through the Developer Connect service.
+            suboptions:
+              config:
+                description:
+                  - The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.
+                required: true
+                suboptions:
+                  dir:
+                    description:
+                      - Directory, relative to the source root, in which to run the build.
+                    required: true
+                    type: str
+                  git_repository_link:
+                    description:
+                      - The Developer Connect Git repository link, formatted as projects/*/locations/*/connections/*/gitRepositoryLink/*.
+                    required: true
+                    type: str
+                  revision:
+                    description:
+                      - The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
+                    required: true
+                    type: str
+                type: dict
+            type: dict
           inline_source:
             description:
               - Source code is provided directly in the request.
@@ -292,18 +408,6 @@ short_description: Creates a GCP VertexAI.ReasoningEngine resource
 """  # noqa: E501
 
 EXAMPLES = r"""
-- name: Create Basic Reasoning Engine
-  google.cloud.gcp_vertexai_reasoning_engine:
-    state: present
-    display_name: basic-reasoning-engine
-    description: A Basic Reasoning Engine
-    region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-
-################################################################################
-
 - name: Create Source Based Deployment Reasoning Engine
   google.cloud.gcp_vertexai_reasoning_engine:
     state: present
@@ -355,21 +459,119 @@ updateTime:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
+class ContextSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "memoryBankConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfig(self.request.get("memory_bank_config", {})).to_request()
+            ),  # remove empty values
+        }
 
-    return ("https://{region}-aiplatform.googleapis.com/v1/" + uri).format(**params)
+    def _response(self):
+        return {
+            "memoryBankConfig": ContextSpecMemoryBankConfig().from_response(self.response.get("memoryBankConfig", {})),
+        }
 
 
-class EncryptionSpec(gcp.Resource):
+class ContextSpecMemoryBankConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "disableMemoryRevisions": self.request.get("disable_memory_revisions"),
+            "generationConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigGenerationConfig(self.request.get("generation_config", {})).to_request()
+            ),  # remove empty values
+            "similaritySearchConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigSimilaritySearchConfig(
+                    self.request.get("similarity_search_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "ttlConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigTtlConfig(self.request.get("ttl_config", {})).to_request()
+            ),  # remove empty values
+        }
+
+    def _response(self):
+        return {
+            "disableMemoryRevisions": self.response.get("disableMemoryRevisions"),
+            "generationConfig": ContextSpecMemoryBankConfigGenerationConfig().from_response(
+                self.response.get("generationConfig", {})
+            ),
+            "similaritySearchConfig": ContextSpecMemoryBankConfigSimilaritySearchConfig().from_response(
+                self.response.get("similaritySearchConfig", {})
+            ),
+            "ttlConfig": ContextSpecMemoryBankConfigTtlConfig().from_response(self.response.get("ttlConfig", {})),
+        }
+
+
+class ContextSpecMemoryBankConfigGenerationConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "model": self.request.get("model"),
+        }
+
+    def _response(self):
+        return {
+            "model": self.response.get("model"),
+        }
+
+
+class ContextSpecMemoryBankConfigSimilaritySearchConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "embeddingModel": self.request.get("embedding_model"),
+        }
+
+    def _response(self):
+        return {
+            "embeddingModel": self.response.get("embeddingModel"),
+        }
+
+
+class ContextSpecMemoryBankConfigTtlConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "defaultTtl": self.request.get("default_ttl"),
+            "granularTtlConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
+                    self.request.get("granular_ttl_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "memoryRevisionDefaultTtl": self.request.get("memory_revision_default_ttl"),
+        }
+
+    def _response(self):
+        return {
+            "defaultTtl": self.response.get("defaultTtl"),
+            "granularTtlConfig": ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig().from_response(
+                self.response.get("granularTtlConfig", {})
+            ),
+            "memoryRevisionDefaultTtl": self.response.get("memoryRevisionDefaultTtl"),
+        }
+
+
+class ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "createTtl": self.request.get("create_ttl"),
+            "generateCreatedTtl": self.request.get("generate_created_ttl"),
+            "generateUpdatedTtl": self.request.get("generate_updated_ttl"),
+        }
+
+    def _response(self):
+        return {
+            "createTtl": self.response.get("createTtl"),
+            "generateCreatedTtl": self.response.get("generateCreatedTtl"),
+            "generateUpdatedTtl": self.response.get("generateUpdatedTtl"),
+        }
+
+
+class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
@@ -381,19 +583,20 @@ class EncryptionSpec(gcp.Resource):
         }
 
 
-class Spec(gcp.Resource):
+class Spec(gcp_v2.Resource):
     def _request(self):
         return {
             "agentFramework": self.request.get("agent_framework"),
             "classMethods": self.request.get("class_methods"),
-            "deploymentSpec": gcp.remove_empties(
+            "deploymentSpec": gcp_v2.remove_empties(
                 SpecDeploymentSpec(self.request.get("deployment_spec", {})).to_request()
             ),  # remove empty values
-            "packageSpec": gcp.remove_empties(
+            "identityType": self.request.get("identity_type"),
+            "packageSpec": gcp_v2.remove_empties(
                 SpecPackageSpec(self.request.get("package_spec", {})).to_request()
             ),  # remove empty values
             "serviceAccount": self.request.get("service_account"),
-            "sourceCodeSpec": gcp.remove_empties(
+            "sourceCodeSpec": gcp_v2.remove_empties(
                 SpecSourceCodeSpec(self.request.get("source_code_spec", {})).to_request()
             ),  # remove empty values
         }
@@ -403,20 +606,22 @@ class Spec(gcp.Resource):
             "agentFramework": self.response.get("agentFramework"),
             "classMethods": self.response.get("classMethods"),
             "deploymentSpec": SpecDeploymentSpec().from_response(self.response.get("deploymentSpec", {})),
+            "effectiveIdentity": self.response.get("effectiveIdentity"),
+            "identityType": self.response.get("identityType"),
             "packageSpec": SpecPackageSpec().from_response(self.response.get("packageSpec", {})),
             "serviceAccount": self.response.get("serviceAccount"),
             "sourceCodeSpec": SpecSourceCodeSpec().from_response(self.response.get("sourceCodeSpec", {})),
         }
 
 
-class SpecDeploymentSpec(gcp.Resource):
+class SpecDeploymentSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "containerConcurrency": self.request.get("container_concurrency"),
             "env": [SpecDeploymentSpecEnv(item).to_request() for item in (self.request.get("env") or [])],
             "maxInstances": self.request.get("max_instances"),
             "minInstances": self.request.get("min_instances"),
-            "pscInterfaceConfig": gcp.remove_empties(
+            "pscInterfaceConfig": gcp_v2.remove_empties(
                 SpecDeploymentSpecPscInterfaceConfig(self.request.get("psc_interface_config", {})).to_request()
             ),  # remove empty values
             "resourceLimits": self.request.get("resource_limits"),
@@ -441,7 +646,7 @@ class SpecDeploymentSpec(gcp.Resource):
         }
 
 
-class SpecDeploymentSpecEnv(gcp.Resource):
+class SpecDeploymentSpecEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -455,7 +660,7 @@ class SpecDeploymentSpecEnv(gcp.Resource):
         }
 
 
-class SpecDeploymentSpecPscInterfaceConfig(gcp.Resource):
+class SpecDeploymentSpecPscInterfaceConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "dnsPeeringConfigs": [
@@ -475,7 +680,7 @@ class SpecDeploymentSpecPscInterfaceConfig(gcp.Resource):
         }
 
 
-class SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig(gcp.Resource):
+class SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "domain": self.request.get("domain"),
@@ -491,11 +696,11 @@ class SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig(gcp.Resource):
         }
 
 
-class SpecDeploymentSpecSecretEnv(gcp.Resource):
+class SpecDeploymentSpecSecretEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
-            "secretRef": gcp.remove_empties(
+            "secretRef": gcp_v2.remove_empties(
                 SpecDeploymentSpecSecretEnvSecretRef(self.request.get("secret_ref", {})).to_request()
             ),  # remove empty values
         }
@@ -507,7 +712,7 @@ class SpecDeploymentSpecSecretEnv(gcp.Resource):
         }
 
 
-class SpecDeploymentSpecSecretEnvSecretRef(gcp.Resource):
+class SpecDeploymentSpecSecretEnvSecretRef(gcp_v2.Resource):
     def _request(self):
         return {
             "secret": self.request.get("secret"),
@@ -521,7 +726,7 @@ class SpecDeploymentSpecSecretEnvSecretRef(gcp.Resource):
         }
 
 
-class SpecPackageSpec(gcp.Resource):
+class SpecPackageSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "dependencyFilesGcsUri": self.request.get("dependency_files_gcs_uri"),
@@ -539,25 +744,61 @@ class SpecPackageSpec(gcp.Resource):
         }
 
 
-class SpecSourceCodeSpec(gcp.Resource):
+class SpecSourceCodeSpec(gcp_v2.Resource):
     def _request(self):
         return {
-            "inlineSource": gcp.remove_empties(
+            "developerConnectSource": gcp_v2.remove_empties(
+                SpecSourceCodeSpecDeveloperConnectSource(self.request.get("developer_connect_source", {})).to_request()
+            ),  # remove empty values
+            "inlineSource": gcp_v2.remove_empties(
                 SpecSourceCodeSpecInlineSource(self.request.get("inline_source", {})).to_request()
             ),  # remove empty values
-            "pythonSpec": gcp.remove_empties(
+            "pythonSpec": gcp_v2.remove_empties(
                 SpecSourceCodeSpecPythonSpec(self.request.get("python_spec", {})).to_request()
             ),  # remove empty values
         }
 
     def _response(self):
         return {
+            "developerConnectSource": SpecSourceCodeSpecDeveloperConnectSource().from_response(
+                self.response.get("developerConnectSource", {})
+            ),
             "inlineSource": SpecSourceCodeSpecInlineSource().from_response(self.response.get("inlineSource", {})),
             "pythonSpec": SpecSourceCodeSpecPythonSpec().from_response(self.response.get("pythonSpec", {})),
         }
 
 
-class SpecSourceCodeSpecInlineSource(gcp.Resource):
+class SpecSourceCodeSpecDeveloperConnectSource(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "config": gcp_v2.remove_empties(
+                SpecSourceCodeSpecDeveloperConnectSourceConfig(self.request.get("config", {})).to_request()
+            ),  # remove empty values
+        }
+
+    def _response(self):
+        return {
+            "config": SpecSourceCodeSpecDeveloperConnectSourceConfig().from_response(self.response.get("config", {})),
+        }
+
+
+class SpecSourceCodeSpecDeveloperConnectSourceConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "dir": self.request.get("dir"),
+            "gitRepositoryLink": self.request.get("git_repository_link"),
+            "revision": self.request.get("revision"),
+        }
+
+    def _response(self):
+        return {
+            "dir": self.response.get("dir"),
+            "gitRepositoryLink": self.response.get("gitRepositoryLink"),
+            "revision": self.response.get("revision"),
+        }
+
+
+class SpecSourceCodeSpecInlineSource(gcp_v2.Resource):
     def _request(self):
         return {
             "sourceArchive": self.request.get("source_archive"),
@@ -569,7 +810,7 @@ class SpecSourceCodeSpecInlineSource(gcp.Resource):
         }
 
 
-class SpecSourceCodeSpecPythonSpec(gcp.Resource):
+class SpecSourceCodeSpecPythonSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "entrypointModule": self.request.get("entrypoint_module"),
@@ -587,19 +828,23 @@ class SpecSourceCodeSpecPythonSpec(gcp.Resource):
         }
 
 
-class VertexAI(gcp.Resource):
+class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
+            "contextSpec": gcp_v2.remove_empties(
+                ContextSpec(self.request.get("context_spec", {})).to_request()
+            ),  # remove empty values
             "description": self.request.get("description"),
             "displayName": self.request.get("display_name"),
-            "encryptionSpec": gcp.remove_empties(
+            "encryptionSpec": gcp_v2.remove_empties(
                 EncryptionSpec(self.request.get("encryption_spec", {})).to_request()
             ),  # remove empty values
-            "spec": gcp.remove_empties(Spec(self.request.get("spec", {})).to_request()),  # remove empty values
+            "spec": gcp_v2.remove_empties(Spec(self.request.get("spec", {})).to_request()),  # remove empty values
         }
 
     def _response(self):
         return {
+            "contextSpec": ContextSpec().from_response(self.response.get("contextSpec", {})),
             "createTime": self.response.get("createTime"),
             "description": self.response.get("description"),
             "displayName": self.response.get("displayName"),
@@ -615,31 +860,77 @@ class VertexAI(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
                 default="present",
                 choices=["present", "absent"],
+            ),
+            context_spec=dict(
+                type="dict",
+                options=dict(
+                    memory_bank_config=dict(
+                        type="dict",
+                        options=dict(
+                            disable_memory_revisions=dict(
+                                type="bool",
+                            ),
+                            generation_config=dict(
+                                type="dict",
+                                options=dict(
+                                    model=dict(
+                                        type="str",
+                                        required=True,
+                                    )
+                                ),
+                            ),
+                            similarity_search_config=dict(
+                                type="dict",
+                                options=dict(
+                                    embedding_model=dict(
+                                        type="str",
+                                        required=True,
+                                    )
+                                ),
+                            ),
+                            ttl_config=dict(
+                                type="dict",
+                                options=dict(
+                                    default_ttl=dict(
+                                        type="str",
+                                    ),
+                                    granular_ttl_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            create_ttl=dict(
+                                                type="str",
+                                            ),
+                                            generate_created_ttl=dict(
+                                                type="str",
+                                            ),
+                                            generate_updated_ttl=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                    memory_revision_default_ttl=dict(
+                                        type="str",
+                                    ),
+                                ),
+                                mutually_exclusive=[["default_ttl", "granular_ttl_config"]],
+                                required_one_of=[["default_ttl", "granular_ttl_config"]],
+                            ),
+                        ),
+                    )
+                ),
+            ),
+            deletion_policy=dict(
+                type="str",
+                choices=["FORCE"],
             ),
             description=dict(
                 type="str",
@@ -753,6 +1044,13 @@ def main():
                             ),
                         ),
                     ),
+                    effective_identity=dict(
+                        type="str",
+                    ),
+                    identity_type=dict(
+                        type="str",
+                        choices=["SERVICE_ACCOUNT", "AGENT_IDENTITY"],
+                    ),
                     package_spec=dict(
                         type="dict",
                         options=dict(
@@ -776,6 +1074,29 @@ def main():
                     source_code_spec=dict(
                         type="dict",
                         options=dict(
+                            developer_connect_source=dict(
+                                type="dict",
+                                options=dict(
+                                    config=dict(
+                                        type="dict",
+                                        required=True,
+                                        options=dict(
+                                            dir=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            git_repository_link=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            revision=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                        ),
+                                    )
+                                ),
+                            ),
                             inline_source=dict(
                                 type="dict",
                                 options=dict(
@@ -813,17 +1134,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{region}/reasoningEngines",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{region}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{region}/reasoningEngines",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/reasoningEngines",
                     "async_uri": "{op_id}",
@@ -831,7 +1146,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/reasoningEngines/{name}",
                     "async_uri": "{op_id}",
@@ -839,7 +1154,7 @@ def main():
                     "timeout_minutes": 60,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/reasoningEngines/{name}",
                     "async_uri": "",
@@ -847,7 +1162,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/reasoningEngines/{name}",
                     "async_uri": "{op_id}",
@@ -855,35 +1170,40 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = VertexAI(params, module=module, product="VertexAI", kind="vertexai#reasoningEngine")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = VertexAI(
+        request, module=module, product="VertexAI", kind="vertexai#reasoningEngine", op_configs=op_configs
+    )
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
 
     # --------- BEGIN pre-read custom code ---------
-    # for this module, we're hitting the list endpoint and filtering on display name
-    read_uri = op_configs.base_url.uri + "?filter=displayName=" + params.get("display_name")
+    # for this module, we're hitting the list endpoint and filtering on display name and rebuild the link
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
 
     # --------- END pre-read custom code ---------
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.get(read_url, allow_not_found=True) or {}
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     # --------- BEGIN post-read custom code ---------
-    if not gcp.empty(existing_obj):
+    if not gcp_v2.empty(existing_obj):
         for rengine in existing_obj.get("reasoningEngines", []):
-            if rengine.get("displayName") == params.get("display_name"):
+            if rengine.get("displayName") == request.get("display_name"):
                 existing_obj = rengine
                 break
 
@@ -892,41 +1212,37 @@ def main():
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -936,32 +1252,35 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
                 # need to set to the required parameter "name" to the existing resource name
-                params["name"] = existing_obj["name"].split("/")[-1]
+                resource.url_params["name"] = existing_obj["name"].split("/")[-1]
 
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -969,37 +1288,37 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
                     # --------- BEGIN pre-update custom code ---------
                     # need to set to the required parameter "name" to the existing resource name
-                    params["name"] = existing_obj["name"].split("/")[-1]
+                    resource.url_params["name"] = existing_obj["name"].split("/")[-1]
 
                     # finally, need to build the updateMask for the fields in our module
-                    update_uri += "?updateMask=" + ",".join(resource.dot_fields())
+                    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
 
                     # --------- END pre-update custom code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -1009,6 +1328,7 @@ def main():
                 new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

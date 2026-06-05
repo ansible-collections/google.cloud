@@ -10,6 +10,10 @@
 # ----------------------------------------------------------------------------
 - name: Main test block
   block:
+    - name: Setup
+      ansible.builtin.debug:
+        msg: "Setup"
+
     - name: Create test network
       google.cloud.gcp_compute_network:
         name: "{{ resource_name }}"
@@ -34,87 +38,105 @@
             auth_kind: "{{ gcp_cred_kind }}"
             service_account_file: "{{ gcp_cred_file }}"
 
-        - name: Connect peering range
-          ansible.builtin.command: >
-            gcloud services vpc-peerings connect
-            --quiet
-            --service=servicenetworking.googleapis.com
-            --ranges="{{ resource_name }}-peering"
-            --network="{{ _network.name }}"
-            --project="{{ gcp_project }}"
+        - name: Create temporary directory
+          ansible.builtin.tempfile:
+            state: directory
+          register: _tempdir
 
-        - name: Create primary alloydb cluster
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-primary"
-            state: present
-            location: us-central1
-            cluster_type: PRIMARY
-            initial_user:
-              user: pgroot
-              password: Test123Test
-            network_config:
-              network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _primary
+        - name: Connect block
+          block:
+            - name: Connect peering range
+              environment:
+                CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
+                GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
+              ansible.builtin.shell: |
+                cd $CLOUDSDK_CONFIG
+                gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+                gcloud services vpc-peerings connect \
+                  --quiet \
+                  --service=servicenetworking.googleapis.com \
+                  --ranges="{{ resource_name }}-peering" \
+                  --network="{{ _network.name }}" \
+                  --project="{{ gcp_project }}"
+              register: _cmd
+              failed_when:
+                - "'finished successfully' not in _cmd.stderr"
+              changed_when: true
+          always:
+            - name: Delete temporary directory
+              ansible.builtin.file:
+                path: "{{ _tempdir.path }}"
+                state: absent
 
-        - name: Create an instance in primary cluster
-          google.cloud.gcp_alloydb_instance:
-            instance_id: "{{ resource_name }}"
-            state: present
-            instance_type: PRIMARY
-            cluster: "{{ _primary }}"
-            database_flags:
-              password.enforce_complexity: "on"
-              password.min_uppercase_letters: "1"
-              password.min_numerical_chars: "1"
-              password.min_pass_length: "10"
-              password.enforce_expiration: "on"
-              password.expiration_in_days: "1"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _instance
+        - name: AlloyDB block
+          block:
+            - name: Create primary alloydb cluster
+              google.cloud.gcp_alloydb_cluster:
+                cluster_id: "{{ resource_name }}-primary"
+                state: present
+                location: us-central1
+                cluster_type: PRIMARY
+                initial_user:
+                  user: pgroot
+                  password: "test-alloydb-{{ resource_name }}"
+                network_config:
+                  network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
+              register: _primary
 
-        - name: Run assertions
-          ansible.builtin.assert:
-            that:
-              - _primary.changed == true
-              - _instance.changed == true
+            - name: Create an instance in primary cluster
+              google.cloud.gcp_alloydb_instance:
+                instance_id: "{{ resource_name }}"
+                state: present
+                instance_type: PRIMARY
+                cluster: "{{ _primary }}"
+                database_flags:
+                  password.enforce_complexity: "on"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
+              register: _instance
 
-      always:
-        - name: Delete instance
-          google.cloud.gcp_alloydb_instance:
-            instance_id: "{{ resource_name }}"
-            state: absent
-            instance_type: PRIMARY
-            cluster:
-              name: "projects/{{ gcp_project }}/locations/us-central1/clusters/{{ resource_name }}-primary"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
+            - name: Run assertions
+              ansible.builtin.assert:
+                that:
+                  - _primary.changed == true
+                  - _instance.changed == true
 
-        - name: Delete primary cluster
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-primary"
-            state: absent
-            location: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
+          always:
+            - name: Delete instance
+              google.cloud.gcp_alloydb_instance:
+                instance_id: "{{ resource_name }}"
+                state: absent
+                instance_type: PRIMARY
+                cluster:
+                  name: "projects/{{ gcp_project }}/locations/us-central1/clusters/{{ resource_name }}-primary"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
 
-        - name: Delete peering range
-          google.cloud.gcp_compute_global_address:
-            name: "{{ resource_name }}-peering"
-            state: absent
-            address_type: INTERNAL
-            prefix_length: 16
-            purpose: VPC_PEERING
-            network: "{{ _network }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
+            - name: Delete primary cluster
+              google.cloud.gcp_alloydb_cluster:
+                cluster_id: "{{ resource_name }}-primary"
+                state: absent
+                location: us-central1
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
+
+            - name: Delete peering range
+              google.cloud.gcp_compute_global_address:
+                name: "{{ resource_name }}-peering"
+                state: absent
+                address_type: INTERNAL
+                prefix_length: 16
+                purpose: VPC_PEERING
+                network: "{{ _network }}"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
 
   always:
     - name: Destroy test network
@@ -124,3 +146,7 @@
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
+
+    - name: Teardown
+      ansible.builtin.debug:
+        msg: "Teardown"

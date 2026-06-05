@@ -47,21 +47,25 @@ options:
   data_persistent_disk_spec:
     description:
       - The configuration for the data disk of the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       disk_size_gb:
         description:
           - The disk size of the runtime in GB.
           - If specified, the diskType must also be specified.
           - The minimum size is 10GB and the maximum is 65536GB.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       disk_type:
         description:
           - The type of the persistent disk.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   description:
     description:
       - The description of the Runtime Template.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   display_name:
     description:
@@ -80,15 +84,18 @@ options:
   euc_config:
     description:
       - EUC configuration of the NotebookRuntimeTemplate.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       euc_disabled:
         description:
           - Disable end user credential access for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: bool
     type: dict
   idle_shutdown_config:
     description:
       - Notebook Idle Shutdown configuration for the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       idle_timeout:
         description:
@@ -99,6 +106,7 @@ options:
   labels:
     description:
       - Labels to identify and group the runtime template.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   location:
     description:
@@ -108,51 +116,62 @@ options:
   machine_spec:
     description:
       - '''The machine configuration of the runtime.''.'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       accelerator_count:
         description:
           - The number of accelerators used by the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: int
       accelerator_type:
         description:
           - The type of hardware accelerator used by the runtime.
           - If specified, acceleratorCount must also be specified.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       machine_type:
         description:
           - The Compute Engine machine type selected for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   name:
     description:
       - The resource name of the Runtime Template.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   network_spec:
     description:
       - The network configuration for the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       enable_internet_access:
         description:
           - Enable public internet access for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: bool
       network:
         description:
           - The name of the VPC that this runtime is in.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       subnetwork:
         description:
           - The name of the subnetwork that this runtime is in.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   network_tags:
     description:
       - Applies the given Compute Engine tags to the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     elements: str
     type: list
   shielded_vm_config:
     description:
       - Runtime Shielded VM spec.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       enable_secure_boot:
         description:
@@ -163,6 +182,17 @@ options:
     description:
       - The notebook software configuration of the notebook runtime.
     suboptions:
+      colab_image:
+        description:
+          - Colab Image Configuration.
+        suboptions:
+          release_name:
+            description:
+              - The release name of the NotebookRuntime Colab image, e.g.
+              - '"py310".'
+              - If not specified, detault to the latest release.
+            type: str
+        type: dict
       env:
         description:
           - Environment variables to be passed to the container.
@@ -249,21 +279,13 @@ state:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{location}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class DataPersistentDiskSpec(gcp.Resource):
+class DataPersistentDiskSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "diskSizeGb": self.request.get("disk_size_gb"),
@@ -277,7 +299,7 @@ class DataPersistentDiskSpec(gcp.Resource):
         }
 
 
-class EncryptionSpec(gcp.Resource):
+class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
@@ -289,7 +311,7 @@ class EncryptionSpec(gcp.Resource):
         }
 
 
-class EucConfig(gcp.Resource):
+class EucConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "eucDisabled": self.request.get("euc_disabled"),
@@ -301,7 +323,7 @@ class EucConfig(gcp.Resource):
         }
 
 
-class IdleShutdownConfig(gcp.Resource):
+class IdleShutdownConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "idleTimeout": self.request.get("idle_timeout"),
@@ -313,7 +335,7 @@ class IdleShutdownConfig(gcp.Resource):
         }
 
 
-class MachineSpec(gcp.Resource):
+class MachineSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "acceleratorCount": self.request.get("accelerator_count"),
@@ -329,7 +351,7 @@ class MachineSpec(gcp.Resource):
         }
 
 
-class NetworkSpec(gcp.Resource):
+class NetworkSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "enableInternetAccess": self.request.get("enable_internet_access"),
@@ -345,7 +367,7 @@ class NetworkSpec(gcp.Resource):
         }
 
 
-class ShieldedVmConfig(gcp.Resource):
+class ShieldedVmConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "enableSecureBoot": self.request.get("enable_secure_boot"),
@@ -357,17 +379,21 @@ class ShieldedVmConfig(gcp.Resource):
         }
 
 
-class SoftwareConfig(gcp.Resource):
+class SoftwareConfig(gcp_v2.Resource):
     def _request(self):
         return {
+            "colabImage": gcp_v2.remove_empties(
+                SoftwareConfigColabImage(self.request.get("colab_image", {})).to_request()
+            ),  # remove empty values
             "env": [SoftwareConfigEnv(item).to_request() for item in (self.request.get("env") or [])],
-            "postStartupScriptConfig": gcp.remove_empties(
+            "postStartupScriptConfig": gcp_v2.remove_empties(
                 SoftwareConfigPostStartupScriptConfig(self.request.get("post_startup_script_config", {})).to_request()
             ),  # remove empty values
         }
 
     def _response(self):
         return {
+            "colabImage": SoftwareConfigColabImage().from_response(self.response.get("colabImage", {})),
             "env": [SoftwareConfigEnv().from_response(item) for item in (self.response.get("env") or [])],
             "postStartupScriptConfig": SoftwareConfigPostStartupScriptConfig().from_response(
                 self.response.get("postStartupScriptConfig", {})
@@ -375,7 +401,19 @@ class SoftwareConfig(gcp.Resource):
         }
 
 
-class SoftwareConfigEnv(gcp.Resource):
+class SoftwareConfigColabImage(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "releaseName": self.request.get("release_name"),
+        }
+
+    def _response(self):
+        return {
+            "releaseName": self.response.get("releaseName"),
+        }
+
+
+class SoftwareConfigEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -389,7 +427,7 @@ class SoftwareConfigEnv(gcp.Resource):
         }
 
 
-class SoftwareConfigPostStartupScriptConfig(gcp.Resource):
+class SoftwareConfigPostStartupScriptConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "postStartupScript": self.request.get("post_startup_script"),
@@ -405,36 +443,36 @@ class SoftwareConfigPostStartupScriptConfig(gcp.Resource):
         }
 
 
-class Colab(gcp.Resource):
+class Colab(gcp_v2.Resource):
     def _request(self):
         return {
-            "dataPersistentDiskSpec": gcp.remove_empties(
+            "dataPersistentDiskSpec": gcp_v2.remove_empties(
                 DataPersistentDiskSpec(self.request.get("data_persistent_disk_spec", {})).to_request()
             ),  # remove empty values
             "description": self.request.get("description"),
             "displayName": self.request.get("display_name"),
-            "encryptionSpec": gcp.remove_empties(
+            "encryptionSpec": gcp_v2.remove_empties(
                 EncryptionSpec(self.request.get("encryption_spec", {})).to_request()
             ),  # remove empty values
-            "eucConfig": gcp.remove_empties(
+            "eucConfig": gcp_v2.remove_empties(
                 EucConfig(self.request.get("euc_config", {})).to_request()
             ),  # remove empty values
-            "idleShutdownConfig": gcp.remove_empties(
+            "idleShutdownConfig": gcp_v2.remove_empties(
                 IdleShutdownConfig(self.request.get("idle_shutdown_config", {})).to_request()
             ),  # remove empty values
             "labels": self.request.get("labels"),
-            "machineSpec": gcp.remove_empties(
+            "machineSpec": gcp_v2.remove_empties(
                 MachineSpec(self.request.get("machine_spec", {})).to_request()
             ),  # remove empty values
             "name": self.request.get("name"),
-            "networkSpec": gcp.remove_empties(
+            "networkSpec": gcp_v2.remove_empties(
                 NetworkSpec(self.request.get("network_spec", {})).to_request()
             ),  # remove empty values
             "networkTags": [str(item) for item in (self.request.get("network_tags") or [])],
-            "shieldedVmConfig": gcp.remove_empties(
+            "shieldedVmConfig": gcp_v2.remove_empties(
                 ShieldedVmConfig(self.request.get("shielded_vm_config", {})).to_request()
             ),  # remove empty values
-            "softwareConfig": gcp.remove_empties(
+            "softwareConfig": gcp_v2.remove_empties(
                 SoftwareConfig(self.request.get("software_config", {})).to_request()
             ),  # remove empty values
         }
@@ -446,6 +484,7 @@ class Colab(gcp.Resource):
             ),
             "description": self.response.get("description"),
             "displayName": self.response.get("displayName"),
+            "labels": self.response.get("labels"),
             "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "eucConfig": EucConfig().from_response(self.response.get("eucConfig", {})),
             "idleShutdownConfig": IdleShutdownConfig().from_response(self.response.get("idleShutdownConfig", {})),
@@ -456,6 +495,7 @@ class Colab(gcp.Resource):
             "networkTags": [str(item) for item in (self.response.get("networkTags") or [])],
             "shieldedVmConfig": ShieldedVmConfig().from_response(self.response.get("shieldedVmConfig", {})),
             "softwareConfig": SoftwareConfig().from_response(self.response.get("softwareConfig", {})),
+            "labels": self.response.get("labels"),
         }
 
 
@@ -464,26 +504,10 @@ class Colab(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             name=dict(
                 type="str",
@@ -587,6 +611,14 @@ def main():
             software_config=dict(
                 type="dict",
                 options=dict(
+                    colab_image=dict(
+                        type="dict",
+                        options=dict(
+                            release_name=dict(
+                                type="str",
+                            )
+                        ),
+                    ),
                     env=dict(
                         type="list",
                         elements="dict",
@@ -624,17 +656,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{location}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}/notebookRuntimeTemplates",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates?notebook_runtime_template_id={name}",
                     "async_uri": "{op_id}",
@@ -642,7 +668,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates/{name}",
                     "async_uri": "{op_id}",
@@ -650,7 +676,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates/{name}",
                     "async_uri": "",
@@ -658,72 +684,70 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates/{name}",
-                    "async_uri": "{op_id}",
-                    "verb": "PUT",
+                    "async_uri": "",
+                    "verb": "PATCH",
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = Colab(params, module=module, product="Colab", kind="colab#runtimeTemplate")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = Colab(request, module=module, product="Colab", kind="colab#runtimeTemplate", op_configs=op_configs)
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.decode_func(resource.get(read_url, allow_not_found=True) or {})
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                new_obj = resource.decode_func(new_obj)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -733,28 +757,30 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                new_obj = resource.decode_func(new_obj)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -762,30 +788,29 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    new_obj = resource.decode_func(new_obj)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -794,9 +819,8 @@ def main():
             else:
                 new_obj = existing_obj
 
-    new_obj = resource.from_response(resource.get(read_url, allow_not_found=True) or {})
     new_obj.update({"changed": changed})
-    gcp.debug(module, final_obj=new_obj, changed=changed)
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

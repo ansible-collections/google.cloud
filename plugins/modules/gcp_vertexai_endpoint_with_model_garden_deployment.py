@@ -60,6 +60,7 @@ options:
               - The default target value is 60 for both metrics.
               - If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set.
               - For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: dict
             suboptions:
               metric_name:
@@ -93,10 +94,12 @@ options:
                   - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types)  See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
                   - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
                   - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
+                  - This property is immutable, to change it, you must delete and recreate the resource.
                 type: str
               multihost_gpu_node_count:
                 description:
                   - The number of nodes per replica for multihost GPU deployments.
+                  - This property is immutable, to change it, you must delete and recreate the resource.
                 type: int
               reservation_affinity:
                 description:
@@ -125,6 +128,7 @@ options:
                   - The topology of the TPUs.
                   - Corresponds to the TPU topologies available from GKE.
                   - '(Example: tpu_topology: "2x2x1").'
+                  - This property is immutable, to change it, you must delete and recreate the resource.
                 type: str
             type: dict
           max_replica_count:
@@ -135,12 +139,14 @@ options:
               - If this value is not provided, will use min_replica_count as the default value.
               - The value of this field impacts the charge against Vertex CPU and GPU quotas.
               - Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: int
           min_replica_count:
             description:
               - The minimum number of machine replicas that will be always deployed on.
               - This value must be greater than or equal to 1.
               - If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             required: true
             type: int
           required_replica_count:
@@ -190,20 +196,24 @@ options:
       private_service_connect_config:
         description:
           - The configuration for Private Service Connect (PSC).
+          - This property is immutable, to change it, you must delete and recreate the resource.
         suboptions:
           enable_private_service_connect:
             description:
               - If true, expose the IndexEndpoint via private service connect.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             required: true
             type: bool
           project_allowlist:
             description:
               - A list of Projects from which the forwarding rule will target the service attachment.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: str
             type: list
           psc_automation_configs:
             description:
               - PSC config that is used to automatically create PSC endpoints in the user projects.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             suboptions:
               error_message:
                 description:
@@ -224,11 +234,13 @@ options:
                 description:
                   - The full name of the Google Compute Engine network.
                   - 'Format: projects/{project}/global/networks/{network}.'
+                  - This property is immutable, to change it, you must delete and recreate the resource.
                 required: true
                 type: str
               project_id:
                 description:
                   - Project id used to create forwarding rule.
+                  - This property is immutable, to change it, you must delete and recreate the resource.
                 required: true
                 type: str
               state:
@@ -258,6 +270,7 @@ options:
     description:
       - Resource ID segment making up resource `location`.
       - It identifies the resource within its parent collection as described in https://google.aip.dev/122.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   model_config:
@@ -287,6 +300,7 @@ options:
               - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
               - If a variable cannot be resolved, the reference in the input string is used unchanged.
               - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `args` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: str
             type: list
           command:
@@ -304,12 +318,14 @@ options:
               - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
               - If a variable cannot be resolved, the reference in the input string is used unchanged.
               - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `command` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: str
             type: list
           deployment_timeout:
             description:
               - Deployment timeout.
               - Limit for deployment timeout is 2 hours.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: str
           env:
             description:
@@ -319,6 +335,7 @@ options:
               - Later entries in this list can also reference earlier entries.
               - 'For example, the following example sets the variable `VAR_2` to have the value `foo bar`:  ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ```  If you switch the order of the variables in the example, then the expansion does not occur.'
               - This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: dict
             suboptions:
               name:
@@ -344,6 +361,7 @@ options:
               - If you do not specify this field, gRPC requests to the container will be disabled.
               - Vertex AI does not use ports other than the first one listed.
               - This field corresponds to the `ports` field of the Kubernetes Containers v1 core API.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: dict
             suboptions:
               container_port:
@@ -487,6 +505,7 @@ options:
               - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
               - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
               - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: str
           image_uri:
             description:
@@ -496,6 +515,7 @@ options:
               - The container image is ingested upon ModelService.UploadModel, stored internally, and this original path is afterwards not used.
               - To learn about the requirements for the Docker image itself, see [Custom container requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#).
               - You can use the URI to one of Vertex AI's [pre-built container images for prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             required: true
             type: str
           liveness_probe:
@@ -631,6 +651,7 @@ options:
               - Vertex AI also sends [liveness and health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port.
               - 'If you do not specify this field, it defaults to following value:  ```json [ { "containerPort": 8080 } ] ```  Vertex AI does not use ports other than the first one listed.'
               - This field corresponds to the `ports` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: dict
             suboptions:
               container_port:
@@ -648,10 +669,12 @@ options:
               - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
               - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
               - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: str
           shared_memory_size_mb:
             description:
               - The amount of the VM memory to reserve as the shared memory for the model in megabytes.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: str
           startup_probe:
             description:
@@ -895,8 +918,7 @@ state:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
 import copy
@@ -906,16 +928,10 @@ import re
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{region}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class DeployConfig(gcp.Resource):
+class DeployConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "dedicatedResources": gcp.remove_empties(
+            "dedicatedResources": gcp_v2.remove_empties(
                 DeployConfigDedicatedResources(self.request.get("dedicated_resources", {})).to_request()
             ),  # remove empty values
             "fastTryoutEnabled": self.request.get("fast_tryout_enabled"),
@@ -932,14 +948,14 @@ class DeployConfig(gcp.Resource):
         }
 
 
-class DeployConfigDedicatedResources(gcp.Resource):
+class DeployConfigDedicatedResources(gcp_v2.Resource):
     def _request(self):
         return {
             "autoscalingMetricSpecs": [
                 DeployConfigDedicatedResourcesAutoscalingMetricSpec(item).to_request()
                 for item in (self.request.get("autoscaling_metric_specs") or [])
             ],
-            "machineSpec": gcp.remove_empties(
+            "machineSpec": gcp_v2.remove_empties(
                 DeployConfigDedicatedResourcesMachineSpec(self.request.get("machine_spec", {})).to_request()
             ),  # remove empty values
             "maxReplicaCount": self.request.get("max_replica_count"),
@@ -964,7 +980,7 @@ class DeployConfigDedicatedResources(gcp.Resource):
         }
 
 
-class DeployConfigDedicatedResourcesAutoscalingMetricSpec(gcp.Resource):
+class DeployConfigDedicatedResourcesAutoscalingMetricSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "metricName": self.request.get("metric_name"),
@@ -978,14 +994,14 @@ class DeployConfigDedicatedResourcesAutoscalingMetricSpec(gcp.Resource):
         }
 
 
-class DeployConfigDedicatedResourcesMachineSpec(gcp.Resource):
+class DeployConfigDedicatedResourcesMachineSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "acceleratorCount": self.request.get("accelerator_count"),
             "acceleratorType": self.request.get("accelerator_type"),
             "machineType": self.request.get("machine_type"),
             "multihostGpuNodeCount": self.request.get("multihost_gpu_node_count"),
-            "reservationAffinity": gcp.remove_empties(
+            "reservationAffinity": gcp_v2.remove_empties(
                 DeployConfigDedicatedResourcesMachineSpecReservationAffinity(
                     self.request.get("reservation_affinity", {})
                 ).to_request()
@@ -1006,7 +1022,7 @@ class DeployConfigDedicatedResourcesMachineSpec(gcp.Resource):
         }
 
 
-class DeployConfigDedicatedResourcesMachineSpecReservationAffinity(gcp.Resource):
+class DeployConfigDedicatedResourcesMachineSpecReservationAffinity(gcp_v2.Resource):
     def _request(self):
         return {
             "key": self.request.get("key"),
@@ -1022,12 +1038,12 @@ class DeployConfigDedicatedResourcesMachineSpecReservationAffinity(gcp.Resource)
         }
 
 
-class EndpointConfig(gcp.Resource):
+class EndpointConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "dedicatedEndpointEnabled": self.request.get("dedicated_endpoint_enabled"),
             "endpointDisplayName": self.request.get("endpoint_display_name"),
-            "privateServiceConnectConfig": gcp.remove_empties(
+            "privateServiceConnectConfig": gcp_v2.remove_empties(
                 EndpointConfigPrivateServiceConnectConfig(
                     self.request.get("private_service_connect_config", {})
                 ).to_request()
@@ -1044,12 +1060,12 @@ class EndpointConfig(gcp.Resource):
         }
 
 
-class EndpointConfigPrivateServiceConnectConfig(gcp.Resource):
+class EndpointConfigPrivateServiceConnectConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "enablePrivateServiceConnect": self.request.get("enable_private_service_connect"),
             "projectAllowlist": self.request.get("project_allowlist"),
-            "pscAutomationConfigs": gcp.remove_empties(
+            "pscAutomationConfigs": gcp_v2.remove_empties(
                 EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(
                     self.request.get("psc_automation_configs", {})
                 ).to_request()
@@ -1067,7 +1083,7 @@ class EndpointConfigPrivateServiceConnectConfig(gcp.Resource):
         }
 
 
-class EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(gcp.Resource):
+class EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(gcp_v2.Resource):
     def _request(self):
         return {
             "network": self.request.get("network"),
@@ -1085,11 +1101,11 @@ class EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(gcp.Resource
         }
 
 
-class ModelConfig(gcp.Resource):
+class ModelConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "acceptEula": self.request.get("accept_eula"),
-            "containerSpec": gcp.remove_empties(
+            "containerSpec": gcp_v2.remove_empties(
                 ModelConfigContainerSpec(self.request.get("container_spec", {})).to_request()
             ),  # remove empty values
             "huggingFaceAccessToken": self.request.get("hugging_face_access_token"),
@@ -1107,7 +1123,7 @@ class ModelConfig(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpec(gcp.Resource):
+class ModelConfigContainerSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "args": self.request.get("args"),
@@ -1117,18 +1133,18 @@ class ModelConfigContainerSpec(gcp.Resource):
             "grpcPorts": [
                 ModelConfigContainerSpecGrpcPort(item).to_request() for item in (self.request.get("grpc_ports") or [])
             ],
-            "healthProbe": gcp.remove_empties(
+            "healthProbe": gcp_v2.remove_empties(
                 ModelConfigContainerSpecHealthProbe(self.request.get("health_probe", {})).to_request()
             ),  # remove empty values
             "healthRoute": self.request.get("health_route"),
             "imageUri": self.request.get("image_uri"),
-            "livenessProbe": gcp.remove_empties(
+            "livenessProbe": gcp_v2.remove_empties(
                 ModelConfigContainerSpecLivenessProbe(self.request.get("liveness_probe", {})).to_request()
             ),  # remove empty values
             "ports": [ModelConfigContainerSpecPort(item).to_request() for item in (self.request.get("ports") or [])],
             "predictRoute": self.request.get("predict_route"),
             "sharedMemorySizeMb": self.request.get("shared_memory_size_mb"),
-            "startupProbe": gcp.remove_empties(
+            "startupProbe": gcp_v2.remove_empties(
                 ModelConfigContainerSpecStartupProbe(self.request.get("startup_probe", {})).to_request()
             ),  # remove empty values
         }
@@ -1158,7 +1174,7 @@ class ModelConfigContainerSpec(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecEnv(gcp.Resource):
+class ModelConfigContainerSpecEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -1172,7 +1188,7 @@ class ModelConfigContainerSpecEnv(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecGrpcPort(gcp.Resource):
+class ModelConfigContainerSpecGrpcPort(gcp_v2.Resource):
     def _request(self):
         return {
             "containerPort": self.request.get("container_port"),
@@ -1184,23 +1200,23 @@ class ModelConfigContainerSpecGrpcPort(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbe(gcp.Resource):
+class ModelConfigContainerSpecHealthProbe(gcp_v2.Resource):
     def _request(self):
         return {
-            "exec": gcp.remove_empties(
+            "exec": gcp_v2.remove_empties(
                 ModelConfigContainerSpecHealthProbeExec(self.request.get("exec", {})).to_request()
             ),  # remove empty values
             "failureThreshold": self.request.get("failure_threshold"),
-            "grpc": gcp.remove_empties(
+            "grpc": gcp_v2.remove_empties(
                 ModelConfigContainerSpecHealthProbeGrpc(self.request.get("grpc", {})).to_request()
             ),  # remove empty values
-            "httpGet": gcp.remove_empties(
+            "httpGet": gcp_v2.remove_empties(
                 ModelConfigContainerSpecHealthProbeHttpGet(self.request.get("http_get", {})).to_request()
             ),  # remove empty values
             "initialDelaySeconds": self.request.get("initial_delay_seconds"),
             "periodSeconds": self.request.get("period_seconds"),
             "successThreshold": self.request.get("success_threshold"),
-            "tcpSocket": gcp.remove_empties(
+            "tcpSocket": gcp_v2.remove_empties(
                 ModelConfigContainerSpecHealthProbeTcpSocket(self.request.get("tcp_socket", {})).to_request()
             ),  # remove empty values
             "timeoutSeconds": self.request.get("timeout_seconds"),
@@ -1222,7 +1238,7 @@ class ModelConfigContainerSpecHealthProbe(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbeExec(gcp.Resource):
+class ModelConfigContainerSpecHealthProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
@@ -1234,7 +1250,7 @@ class ModelConfigContainerSpecHealthProbeExec(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbeGrpc(gcp.Resource):
+class ModelConfigContainerSpecHealthProbeGrpc(gcp_v2.Resource):
     def _request(self):
         return {
             "port": self.request.get("port"),
@@ -1248,7 +1264,7 @@ class ModelConfigContainerSpecHealthProbeGrpc(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbeHttpGet(gcp.Resource):
+class ModelConfigContainerSpecHealthProbeHttpGet(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1274,7 +1290,7 @@ class ModelConfigContainerSpecHealthProbeHttpGet(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbeHttpGetHttpHeader(gcp.Resource):
+class ModelConfigContainerSpecHealthProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -1288,7 +1304,7 @@ class ModelConfigContainerSpecHealthProbeHttpGetHttpHeader(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecHealthProbeTcpSocket(gcp.Resource):
+class ModelConfigContainerSpecHealthProbeTcpSocket(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1302,23 +1318,23 @@ class ModelConfigContainerSpecHealthProbeTcpSocket(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbe(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbe(gcp_v2.Resource):
     def _request(self):
         return {
-            "exec": gcp.remove_empties(
+            "exec": gcp_v2.remove_empties(
                 ModelConfigContainerSpecLivenessProbeExec(self.request.get("exec", {})).to_request()
             ),  # remove empty values
             "failureThreshold": self.request.get("failure_threshold"),
-            "grpc": gcp.remove_empties(
+            "grpc": gcp_v2.remove_empties(
                 ModelConfigContainerSpecLivenessProbeGrpc(self.request.get("grpc", {})).to_request()
             ),  # remove empty values
-            "httpGet": gcp.remove_empties(
+            "httpGet": gcp_v2.remove_empties(
                 ModelConfigContainerSpecLivenessProbeHttpGet(self.request.get("http_get", {})).to_request()
             ),  # remove empty values
             "initialDelaySeconds": self.request.get("initial_delay_seconds"),
             "periodSeconds": self.request.get("period_seconds"),
             "successThreshold": self.request.get("success_threshold"),
-            "tcpSocket": gcp.remove_empties(
+            "tcpSocket": gcp_v2.remove_empties(
                 ModelConfigContainerSpecLivenessProbeTcpSocket(self.request.get("tcp_socket", {})).to_request()
             ),  # remove empty values
             "timeoutSeconds": self.request.get("timeout_seconds"),
@@ -1340,7 +1356,7 @@ class ModelConfigContainerSpecLivenessProbe(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbeExec(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
@@ -1352,7 +1368,7 @@ class ModelConfigContainerSpecLivenessProbeExec(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbeGrpc(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbeGrpc(gcp_v2.Resource):
     def _request(self):
         return {
             "port": self.request.get("port"),
@@ -1366,7 +1382,7 @@ class ModelConfigContainerSpecLivenessProbeGrpc(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbeHttpGet(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbeHttpGet(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1392,7 +1408,7 @@ class ModelConfigContainerSpecLivenessProbeHttpGet(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbeHttpGetHttpHeader(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -1406,7 +1422,7 @@ class ModelConfigContainerSpecLivenessProbeHttpGetHttpHeader(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecLivenessProbeTcpSocket(gcp.Resource):
+class ModelConfigContainerSpecLivenessProbeTcpSocket(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1420,7 +1436,7 @@ class ModelConfigContainerSpecLivenessProbeTcpSocket(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecPort(gcp.Resource):
+class ModelConfigContainerSpecPort(gcp_v2.Resource):
     def _request(self):
         return {
             "containerPort": self.request.get("container_port"),
@@ -1432,23 +1448,23 @@ class ModelConfigContainerSpecPort(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbe(gcp.Resource):
+class ModelConfigContainerSpecStartupProbe(gcp_v2.Resource):
     def _request(self):
         return {
-            "exec": gcp.remove_empties(
+            "exec": gcp_v2.remove_empties(
                 ModelConfigContainerSpecStartupProbeExec(self.request.get("exec", {})).to_request()
             ),  # remove empty values
             "failureThreshold": self.request.get("failure_threshold"),
-            "grpc": gcp.remove_empties(
+            "grpc": gcp_v2.remove_empties(
                 ModelConfigContainerSpecStartupProbeGrpc(self.request.get("grpc", {})).to_request()
             ),  # remove empty values
-            "httpGet": gcp.remove_empties(
+            "httpGet": gcp_v2.remove_empties(
                 ModelConfigContainerSpecStartupProbeHttpGet(self.request.get("http_get", {})).to_request()
             ),  # remove empty values
             "initialDelaySeconds": self.request.get("initial_delay_seconds"),
             "periodSeconds": self.request.get("period_seconds"),
             "successThreshold": self.request.get("success_threshold"),
-            "tcpSocket": gcp.remove_empties(
+            "tcpSocket": gcp_v2.remove_empties(
                 ModelConfigContainerSpecStartupProbeTcpSocket(self.request.get("tcp_socket", {})).to_request()
             ),  # remove empty values
             "timeoutSeconds": self.request.get("timeout_seconds"),
@@ -1470,7 +1486,7 @@ class ModelConfigContainerSpecStartupProbe(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbeExec(gcp.Resource):
+class ModelConfigContainerSpecStartupProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
@@ -1482,7 +1498,7 @@ class ModelConfigContainerSpecStartupProbeExec(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbeGrpc(gcp.Resource):
+class ModelConfigContainerSpecStartupProbeGrpc(gcp_v2.Resource):
     def _request(self):
         return {
             "port": self.request.get("port"),
@@ -1496,7 +1512,7 @@ class ModelConfigContainerSpecStartupProbeGrpc(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbeHttpGet(gcp.Resource):
+class ModelConfigContainerSpecStartupProbeHttpGet(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1522,7 +1538,7 @@ class ModelConfigContainerSpecStartupProbeHttpGet(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbeHttpGetHttpHeader(gcp.Resource):
+class ModelConfigContainerSpecStartupProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
@@ -1536,7 +1552,7 @@ class ModelConfigContainerSpecStartupProbeHttpGetHttpHeader(gcp.Resource):
         }
 
 
-class ModelConfigContainerSpecStartupProbeTcpSocket(gcp.Resource):
+class ModelConfigContainerSpecStartupProbeTcpSocket(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
@@ -1550,17 +1566,17 @@ class ModelConfigContainerSpecStartupProbeTcpSocket(gcp.Resource):
         }
 
 
-class VertexAI(gcp.Resource):
+class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
-            "deployConfig": gcp.remove_empties(
+            "deployConfig": gcp_v2.remove_empties(
                 DeployConfig(self.request.get("deploy_config", {})).to_request()
             ),  # remove empty values
-            "endpointConfig": gcp.remove_empties(
+            "endpointConfig": gcp_v2.remove_empties(
                 EndpointConfig(self.request.get("endpoint_config", {})).to_request()
             ),  # remove empty values
             "huggingFaceModelId": self.request.get("hugging_face_model_id"),
-            "modelConfig": gcp.remove_empties(
+            "modelConfig": gcp_v2.remove_empties(
                 ModelConfig(self.request.get("model_config", {})).to_request()
             ),  # remove empty values
             "publisherModelName": self.request.get("publisher_model_name"),
@@ -1583,26 +1599,10 @@ class VertexAI(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -2089,17 +2089,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{location}:deploy",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{region}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}:deploy",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}:deploy",
                     "async_uri": "{op_id}",
@@ -2107,7 +2101,7 @@ def main():
                     "timeout_minutes": 180,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/endpoints/{endpoint}",
                     "async_uri": "",
@@ -2115,7 +2109,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/endpoints/{endpoint}",
                     "async_uri": "",
@@ -2123,7 +2117,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/endpoints/{endpoint}",
                     "async_uri": "",
@@ -2131,33 +2125,42 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = VertexAI(params, module=module, product="VertexAI", kind="vertexai#endpointWithModelGardenDeployment")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = VertexAI(
+        request,
+        module=module,
+        product="VertexAI",
+        kind="vertexai#endpointWithModelGardenDeployment",
+        op_configs=op_configs,
+    )
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
 
     # --------- BEGIN pre-read custom code ---------
-    # region and location are the same
-    params["region"] = params["location"]
+    # region and location are the same, but region is used in the URL
+    resource.url_params["region"] = request.get("location")
 
-    # need to strip the last part of the read_uri to hit the list endpoint with a filter
-    read_uri = "/".join(read_uri.split("/")[:-1])
-
-    display_name = params["display_name"]
-    endpoint_display_name = params.get("endpoint_config", {}).get("endpoint_display_name") or display_name
-    model_display_name = params.get("model_config", {}).get("model_display_name") or display_name
+    display_name: str = request.get("display_name")
+    endpoint_display_name: str = display_name
+    if request.get("endpoint_config", {}).get("endpoint_display_name"):
+        endpoint_display_name = request.get("endpoint_config")["endpoint_display_name"]
+    model_display_name: str = display_name
+    if request.get("model_config", {}).get("model_display_name"):
+        model_display_name = request.get("model_config")["model_display_name"]
 
     # filter by the endpoint display name
-    read_uri += f"?filter=displayName={endpoint_display_name}"
+    read_link = resource.build_link("list") + "?filter=displayName=" + endpoint_display_name
 
     def publisher_model_to_deployed_model(region, path: str) -> str:
         pattern = r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@/]+)(?:@(?P<version>.+))?$"
@@ -2175,20 +2178,17 @@ def main():
 
     # --------- END pre-read custom code ---------
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.get(read_url, allow_not_found=True) or {}
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     # --------- BEGIN post-read custom code ---------
-    outgoing = resource.to_request()
-
     # if there are existing endpoints, the call would have returned a list
-    if not gcp.empty(existing_obj):
+    if not gcp_v2.empty(existing_obj):
         for endpoint in existing_obj.get("endpoints", []):
-            if (
-                endpoint.get("displayName") == endpoint_display_name
-            ):  # filtering should take care of this, but just in case
+            if endpoint.get("displayName") == endpoint_display_name:
                 existing_obj = endpoint
                 existing_obj["endpointDisplayName"] = endpoint.pop("displayName")
                 existing_obj["endpoint"] = endpoint.get("name")
@@ -2208,91 +2208,86 @@ def main():
 
         if existing_obj["deployedModel"]:
             # finally, update the params to build the url
-            params["endpoint"] = existing_obj["name"]
+            resource.url_params["endpoint"] = existing_obj["name"]
 
-            gcp.debug(
+            gcp_v2.debug(
                 module,
-                publisher_model_name=params.get("publisher_model_name"),
-                hugging_face_model_id=params.get("hugging_face_model_id"),
+                publisher_model_name=request.get("publisher_model_name"),
+                hugging_face_model_id=request.get("hugging_face_model_id"),
             )
-            model_to_deploy = params.get("publisher_model_name")  # read publisher model name first
+            model_to_deploy = request.get("publisher_model_name")  # read publisher model name first
             if model_to_deploy is None:  # if not provided, use the hugging face model id
-                model_to_deploy = params.get("hugging_face_model_id")
+                model_to_deploy = request.get("hugging_face_model_id")
                 hfParts = model_to_deploy.split("/")
                 model_to_deploy = (
                     f"publishers/hf-{hfParts[0]}/models/{hfParts[1]}@001"  # put HF model into publisher model format
                 )
 
             model_to_deploy = publisher_model_to_deployed_model(
-                params["region"], model_to_deploy
+                request.get("region"), model_to_deploy
             )  # convert the model id to the deployed model id
             existing_model = existing_obj["deployedModel"].get("model", "")
             # requested model's final name is a substring of the actual deployed model
-            gcp.debug(module, model_to_deploy=model_to_deploy, existing_model=existing_model)
+            gcp_v2.debug(module, model_to_deploy=model_to_deploy, existing_model=existing_model)
             if model_to_deploy in existing_model:  # our outgoing model is a substring the existing model
                 custom_diff = False  # deploy model is the same, mark as such
             else:
                 custom_diff = True  # deploy model changed, mark as such
         else:
             pass
-            # module.fail_json(msg="The endpoint exists but the deployed model does not, delete the endpoint and try again")
 
     # --------- END post-read custom code ---------
 
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
                 # --------- BEGIN pre-create custom code ---------
-                if not params.get("endpoint_config"):
-                    params["endpoint_config"] = {}
-                if not params["endpoint_config"].get("endpoint_display_name"):
-                    params["endpoint_config"]["endpoint_display_name"] = params["display_name"]
+                if not request.get("endpoint_config"):
+                    resource.request["endpoint_config"] = {}
+                if not request.get("endpoint_config", {}).get("endpoint_display_name"):
+                    resource.request["endpoint_config"]["endpoint_display_name"] = request.get("display_name")
 
-                if not params.get("model_config"):
-                    params["model_config"] = {}
-                if not params["model_config"].get("model_display_name"):
-                    params["model_config"]["model_display_name"] = params["display_name"]
+                if not request.get("model_config"):
+                    resource.request["model_config"] = {}
+                if not request.get("model_config", {}).get("model_display_name"):
+                    resource.request["model_config"]["model_display_name"] = request.get("display_name")
 
                 # --------- END pre-create custom code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                gcp.debug(module, new=new_obj, action="create", post=False)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
                 # --------- BEGIN post-create custom code ---------
                 new_obj["name"] = new_obj.pop("endpoint")
 
                 # --------- END post-create custom code ---------
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -2302,22 +2297,19 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
-                params = copy.deepcopy(module.params)
-                params["region"] = params["location"]
-                params["endpoint"] = existing_obj["name"]
+                resource.url_params["endpoint"] = existing_obj["name"]
 
                 # First, undeploy the model (if any)
                 deployed_model_id = existing_obj.get("deployedModelId")
-                # module.exit_json(msg="Deployed model ID: " + deployed_model_id)
                 if deployed_model_id:
-                    undeploy_url = build_link(params, f"{op_configs.delete.uri}:undeployModel")
+                    undeploy_url = resource.build_link("delete") + ":undeployModel"
                     undeploy_body = {"deployedModelId": deployed_model_id}
-                    gcp.debug(module, undeploy_url=undeploy_url, undeploy_body=undeploy_body)
+                    gcp_v2.debug(module, undeploy_url=undeploy_url, undeploy_body=undeploy_body)
                     # perform an async post to undeploy
                     undeploy_response = resource.session().post(undeploy_url, undeploy_body)
                     try:
@@ -2325,28 +2317,32 @@ def main():
                         undeploy_async_result = undeploy_response.json()
                     except getattr(json.decoder, "JSONDecodeError", ValueError):
                         module.fail_json(msg=f"Invalid JSON response with error: {undeploy_response.text}")
-                    params["op_id"] = undeploy_async_result.get("name")
-                    async_undeploy_op_link = build_link(params, "{op_id}")
-                    gcp.debug(module, params=params, async_undeploy_op_link=async_undeploy_op_link)
+                    resource.url_params["op_id"] = undeploy_async_result.get("name")
+                    async_undeploy_op_link = (resource.build_link("async") + "{op_id}").format(**resource.url_params)
+                    gcp_v2.debug(module, url_params=resource.url_params, async_undeploy_op_link=async_undeploy_op_link)
                     resource.wait_for_op(async_undeploy_op_link, retries=op_configs.delete.timeout)
+
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -2354,33 +2350,33 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
                     # --------- BEGIN pre-update custom code ---------
                     module.fail_json(msg="Updating an endpoint with model garden deployment is not supported")
 
                     # --------- END pre-update custom code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -2390,6 +2386,7 @@ def main():
                 new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

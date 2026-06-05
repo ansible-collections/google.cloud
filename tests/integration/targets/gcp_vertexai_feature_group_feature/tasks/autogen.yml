@@ -10,6 +10,10 @@
 # ----------------------------------------------------------------------------
 - name: Main test block
   block:
+    - name: Setup
+      ansible.builtin.debug:
+        msg: "Setup"
+
     - name: Create test network
       google.cloud.gcp_compute_network:
         name: "{{ resource_name }}"
@@ -58,7 +62,7 @@
         - name: Create feature group
           google.cloud.gcp_vertexai_feature_group:
             state: present
-            name: "{{ resource_name | regex_replace('-', '_') }}"
+            name: "{{ resource_name | regex_replace('-', '_') }}_fgf"
             description: "My feature group"
             region: us-central1
             big_query:
@@ -72,7 +76,7 @@
           google.cloud.gcp_vertexai_feature_group_feature:
             state: present
             name: feature_a
-            feature_group: "{{ resource_name | regex_replace('-', '_') }}"
+            feature_group: "{{ resource_name | regex_replace('-', '_') }}_fgf"
             description: "A simple feature"
             region: us-central1
             project: "{{ gcp_project }}"
@@ -83,7 +87,7 @@
           google.cloud.gcp_vertexai_feature_group_feature:
             state: absent
             name: feature_a
-            feature_group: "{{ resource_name | regex_replace('-', '_') }}"
+            feature_group: "{{ resource_name | regex_replace('-', '_') }}_fgf"
             description: "A simple feature"
             region: us-central1
             project: "{{ gcp_project }}"
@@ -94,7 +98,7 @@
         - name: Delete feature group
           google.cloud.gcp_vertexai_feature_group:
             state: absent
-            name: "{{ resource_name | regex_replace('-', '_') }}"
+            name: "{{ resource_name | regex_replace('-', '_') }}_fgf"
             description: "My feature group"
             region: us-central1
             big_query:
@@ -131,3 +135,7 @@
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
+
+    - name: Teardown
+      ansible.builtin.debug:
+        msg: "Teardown"
