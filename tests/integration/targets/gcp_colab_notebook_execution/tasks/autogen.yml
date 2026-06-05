@@ -171,31 +171,21 @@
             state: directory
           register: _tempdir
 
-        - name: Empty bucket block
+        - name: Destroy bucket block
           block:
-            - name: Empty bucket
+            - name: Destroy bucket
               environment:
                 CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
                 GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
               ansible.builtin.shell: |
                 cd $CLOUDSDK_CONFIG
                 gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-                gcloud storage rm --recursive gs://{{ resource_name }}-nb/output/
-              ignore_errors: true
+                gcloud storage rm --recursive gs://{{ resource_name }}-nb/
           always:
             - name: Delete temporary directory
               ansible.builtin.file:
                 path: "{{ _tempdir.path }}"
                 state: absent
-
-        - name: Destroy storage bucket
-          google.cloud.gcp_storage_bucket:
-            name: "{{ resource_name }}-nb"
-            state: absent
-            location: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
 
   always:
     - name: Destroy test network

@@ -251,8 +251,7 @@ state:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
 import copy
@@ -260,16 +259,10 @@ import copy
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{location}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class CreateNotebookExecutionJobRequest(gcp.Resource):
+class CreateNotebookExecutionJobRequest(gcp_v2.Resource):
     def _request(self):
         return {
-            "notebookExecutionJob": gcp.remove_empties(
+            "notebookExecutionJob": gcp_v2.remove_empties(
                 CreateNotebookExecutionJobRequestNotebookExecutionJob(
                     self.request.get("notebook_execution_job", {})
                 ).to_request()
@@ -284,10 +277,10 @@ class CreateNotebookExecutionJobRequest(gcp.Resource):
         }
 
 
-class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp.Resource):
+class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp_v2.Resource):
     def _request(self):
         return {
-            "dataformRepositorySource": gcp.remove_empties(
+            "dataformRepositorySource": gcp_v2.remove_empties(
                 CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource(
                     self.request.get("dataform_repository_source", {})
                 ).to_request()
@@ -295,7 +288,7 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp.Resource):
             "displayName": self.request.get("display_name"),
             "executionTimeout": self.request.get("execution_timeout"),
             "executionUser": self.request.get("execution_user"),
-            "gcsNotebookSource": gcp.remove_empties(
+            "gcsNotebookSource": gcp_v2.remove_empties(
                 CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(
                     self.request.get("gcs_notebook_source", {})
                 ).to_request()
@@ -322,7 +315,7 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp.Resource):
         }
 
 
-class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource(gcp.Resource):
+class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource(gcp_v2.Resource):
     def _request(self):
         return {
             "commitSha": self.request.get("commit_sha"),
@@ -336,7 +329,7 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySou
         }
 
 
-class CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(gcp.Resource):
+class CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "generation": self.request.get("generation"),
@@ -350,11 +343,11 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(gcp
         }
 
 
-class Colab(gcp.Resource):
+class Colab(gcp_v2.Resource):
     def _request(self):
         return {
             "allowQueueing": self.request.get("allow_queueing"),
-            "createNotebookExecutionJobRequest": gcp.remove_empties(
+            "createNotebookExecutionJobRequest": gcp_v2.remove_empties(
                 CreateNotebookExecutionJobRequest(
                     self.request.get("create_notebook_execution_job_request", {})
                 ).to_request()
@@ -382,59 +375,53 @@ class Colab(gcp.Resource):
             "startTime": self.response.get("startTime"),
         }
 
+    def encode(self, request):
+        "Custom encoder function, mutates the request object before it is sent to the API."
+
+        # --------- BEGIN custom encoder code ---------
+        # I am using "change" state to cheat and indicate the desired state is being changed
+        if self._state in ["absent", "change"]:
+            return {}
+        # createNotebookExecutionJobRequest does not exist in update requests
+        r = copy.deepcopy(request)
+        if self._state == "update":
+            r.pop("createNotebookExecutionJobRequest")
+        else:
+            # for create requests, we need to set the parent, idk why it is done this way
+            r["createNotebookExecutionJobRequest"]["parent"] = (
+                "projects/" + self.module.params.get("project") + "/locations/" + self.module.params.get("location")
+            )
+
+        return r
+
+        # --------- END custom encoder code ---------
+
+    def decode(self, response):
+        "Custom decoder function, mutates the response object before it is returned to the module caller."
+
+        # --------- BEGIN custom decoder code ---------
+        # flatten the schedules list to a single object
+        r = copy.deepcopy(response)
+        if not gcp_v2.empty(response):
+            schedules = r.pop("schedules", [])
+            for schedule in schedules:
+                if schedule.get("displayName") == self.module.params.get("display_name"):
+                    r.update(schedule)
+                    break
+        return r
+
+        # --------- END custom decoder code ---------
+
 
 ################################################################################
 # Main
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    # --------- BEGIN custom encoder code ---------
-    # I am using "change" state to cheat and indicate the desired state is being changed
-    if self._state in ["absent", "change"]:
-        return {}
-    # createNotebookExecutionJobRequest does not exist in update requests
-    r = copy.deepcopy(obj)
-    if self._state == "update":
-        r.pop("createNotebookExecutionJobRequest")
-    else:
-        # for create requests, we need to set the parent, idk why it is done this way
-        r["createNotebookExecutionJobRequest"]["parent"] = (
-            "projects/" + self.module.params.get("project") + "/locations/" + self.module.params.get("location")
-        )
-
-    return r
-
-    # --------- END custom encoder code ---------
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    # --------- BEGIN custom decoder code ---------
-    # flatten the schedules list to a single object
-    r = copy.deepcopy(obj)
-    if not gcp.empty(obj):
-        schedules = r.pop("schedules", [])
-        for schedule in schedules:
-            if schedule.get("displayName") == self.module.params.get("display_name"):
-                r.update(schedule)
-                break
-    return r
-
-    # --------- END custom decoder code ---------
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -547,17 +534,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{location}/schedules",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{location}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}/schedules",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/schedules",
                     "async_uri": "",
@@ -565,7 +546,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/schedules/{name}",
                     "async_uri": "{op_id}",
@@ -573,7 +554,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/schedules/{name}",
                     "async_uri": "",
@@ -581,27 +562,29 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
-                    "uri": "projects/{project}/locations/{location}/schedules/{name}",
+                    "uri": "projects/{project}/locations/{location}/schedules/{name}?updateMask={update_mask}",
                     "async_uri": "",
                     "verb": "PATCH",
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = Colab(params, module=module, product="Colab", kind="colab#schedule")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = Colab(request, module=module, product="Colab", kind="colab#schedule", op_configs=op_configs)
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
 
     # --------- BEGIN pre-read custom code ---------
     def change_state(state_link, resource, verb):
@@ -611,19 +594,20 @@ def main():
         state_func = getattr(resource, "post")
         return state_func(state_link + f":{verb}")
 
-    # for this module, we're hitting the list endpoint and filtering on display name
-    read_uri = op_configs.base_url.uri + "?filter=displayName=" + params.get("display_name")
+    # for this module, we're hitting the list endpoint and filtering on display name and rebuild the link
+    read_link = resource.build_link("list") + "?filter=displayName=" + module.params.get("display_name")
 
     # --------- END pre-read custom code ---------
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.decode_func(resource.get(read_url, allow_not_found=True) or {})
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     # --------- BEGIN post-read custom code ---------
-    if not gcp.empty(existing_obj):
-        if existing_obj.get("state") != params.get("desired_state"):
+    if not gcp_v2.empty(existing_obj):
+        if existing_obj.get("state") != module.params.get("desired_state"):
             custom_diff = True  # force update code path
 
     # --------- END post-read custom code ---------
@@ -631,51 +615,49 @@ def main():
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                new_obj = resource.decode_func(new_obj)
-                gcp.debug(module, new=new_obj, action="create", post=False)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
                 # --------- BEGIN post-create custom code ---------
                 # pause schedule if desired_state is PAUSED
-                if params.get("desired_state") == "PAUSED":
-                    params["name"] = new_obj["name"].split("/")[-1]
-                    gcp.debug(module, msg="Changing schedule state to PAUSED")
-                    state_link = build_link(params, op_configs.update.uri)
-                    new_obj = change_state(state_link, resource, "pause")
+                if module.params.get("desired_state") == "PAUSED":
+                    resource.url_params["name"] = new_obj["name"].split("/")[-1]
+                    gcp_v2.debug(module, msg="Changing schedule state to PAUSED")
+                    self_link = resource.build_link("read")
+                    change_state(self_link, resource, "pause")
+                    # pausing/resuming returns empty body, so we have to re-read the object
+                    new_obj = resource.get(self_link)
+                    new_obj = resource.from_response(new_obj)
 
                 # --------- END post-create custom code ---------
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -685,31 +667,34 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
-                params["name"] = existing_obj["name"].split("/")[-1]
+                resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                new_obj = resource.decode_func(new_obj)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -717,56 +702,57 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
                     # --------- BEGIN pre-update custom code ---------
                     resource._state = "update"
-                    params["name"] = existing_obj["name"].split("/")[-1]
-                    update_mask = [
-                        "cron",
-                        "startTime",
-                        "endTime",
-                        "maxRunCount",
-                        "maxConcurrentRunCount",
-                        "maxConcurrentActiveRunCount",
-                        "allowQueueing",
-                    ]
-                    update_uri += "?updateMask=" + ",".join(update_mask)
+                    resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+                    resource.url_params["update_mask"] = ",".join(
+                        [
+                            "cron",
+                            "startTime",
+                            "endTime",
+                            "maxRunCount",
+                            "maxConcurrentRunCount",
+                            "maxConcurrentActiveRunCount",
+                            "allowQueueing",
+                        ]
+                    )
 
                     # --------- END pre-update custom code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    new_obj = resource.decode_func(new_obj)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
                     # --------- BEGIN post-update custom code ---------
-                    if params.get("desired_state") != existing_obj.get("state"):
-                        gcp.debug(module, msg="Changing schedule state to {params.get('desired_state')}")
-                        state_link = build_link(params, op_configs.update.uri)
-                        new_obj = change_state(
-                            state_link, resource, "pause" if params.get("desired_state") == "PAUSED" else "resume"
+                    if module.params.get("desired_state") != existing_obj.get("state"):
+                        self_link = resource.build_link("read")
+                        change_state(
+                            self_link, resource, "pause" if module.params.get("desired_state") == "PAUSED" else "resume"
                         )
-                        new_obj = resource.decode_func(new_obj)
+                        # pausing/resuming returns empty body, so we have to re-read the object
+                        new_obj = resource.get(self_link)
+                        new_obj = resource.from_response(new_obj)
                         changed = True
 
                     # --------- END post-update custom code ---------
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -775,9 +761,8 @@ def main():
             else:
                 new_obj = existing_obj
 
-    new_obj = resource.from_response(resource.get(read_url, allow_not_found=True) or {})
     new_obj.update({"changed": changed})
-    gcp.debug(module, final_obj=new_obj, changed=changed)
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

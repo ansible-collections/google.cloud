@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2025 Google
+# Copyright (C) 2017-2026 Google
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
@@ -51,10 +51,7 @@ options:
       - '''Specifies whether an instance needs to spin up.'
       - Once the instance is active, the activation policy can be updated to the `NEVER` to stop the instance.
       - Likewise, the activation policy can be updated to `ALWAYS` to start the instance.
-      - >-
-        There are restrictions around when an instance can/cannot be activated (for example, a read pool instance should be stopped before stopping
-
-        primary etc.).
+      - There are restrictions around when an instance can/cannot be activated (for example, a read pool instance should be stopped before stopping primary etc.).
       - Please refer to the API documentation for more details.
       - 'Possible values are: `ACTIVATION_POLICY_UNSPECIFIED`, `ALWAYS`, `NEVER`.''.'
     type: str
@@ -62,6 +59,7 @@ options:
     description:
       - Annotations to allow client tools to store small amount of arbitrary data.
       - This is distinct from labels.
+      - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
     type: dict
   availability_type:
     choices:
@@ -107,7 +105,28 @@ options:
       - This field is a reference to a Cluster resource in GCP.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a Cluster task and then set this field to `{{ name-of-resource }}`.'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
+    type: dict
+  connection_pool_config:
+    description:
+      - Configuration for Managed Connection Pool.
+    suboptions:
+      enabled:
+        description:
+          - Whether to enabled Managed Connection Pool.
+        required: true
+        type: bool
+      flags:
+        description:
+          - Flags for configuring managed connection pooling when it is enabled.
+          - These flags will only be set if `connection_pool_config.enabled` is true.
+          - Please see https://cloud.google.com/alloydb/docs/configure-managed-connection-pooling#configuration-options for a comprehensive list of flags that can be set.
+        type: dict
+      pooler_count:
+        description:
+          - The number of running poolers per instance.
+        type: int
     type: dict
   database_flags:
     description:
@@ -124,16 +143,14 @@ options:
     type: str
   gce_zone:
     description:
-      - >-
-        The Compute Engine zone that the instance should serve from, per https://cloud.google.com/compute/docs/regions-zones This can ONLY be
-
-        specified for ZONAL instances.
+      - The Compute Engine zone that the instance should serve from, per https://cloud.google.com/compute/docs/regions-zones This can ONLY be specified for ZONAL instances.
       - If present for a REGIONAL instance, an error will be thrown.
       - If this is absent for a ZONAL instance, instance is created in a random zone with available capacity.
     type: str
   instance_id:
     description:
       - The ID of the alloydb instance.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   instance_type:
@@ -144,11 +161,13 @@ options:
     description:
       - The type of the instance.
       - If the instance type is SECONDARY, point to the cluster_type of the associated secondary cluster instead of mentioning SECONDARY.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   labels:
     description:
       - User-defined labels for the alloydb instance.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   machine_config:
     description:
@@ -170,6 +189,14 @@ options:
     description:
       - Instance level network configuration.
     suboptions:
+      allocated_ip_range_override:
+        description:
+          - 'Name of the allocated IP range for the private IP AlloyDB instance, for example: "google-managed-services-default".'
+          - If set, the instance IPs will be created from this allocated range and will override the IP range used by the parent cluster.
+          - The range name must comply with RFC 1035.
+          - Specifically, the name must be 1-63 characters long and match the regular expression [a-z]([-a-z0-9]*[a-z0-9])?.
+          - This property is immutable, to change it, you must delete and recreate the resource.
+        type: str
       authorized_external_networks:
         description:
           - A list of external networks authorized to access this instance.
@@ -298,10 +325,7 @@ options:
       service_attachment_link:
         description:
           - The service attachment created when Private Service Connect (PSC) is enabled for the instance.
-          - >-
-            The name of the resource will be in the format of
-
-            `projects/<alloydb-tenant-project-number>/regions/<region-name>/serviceAttachments/<service-attachment-name>`.
+          - The name of the resource will be in the format of `projects/<alloydb-tenant-project-number>/regions/<region-name>/serviceAttachments/<service-attachment-name>`.
         type: str
     type: dict
   query_insights_config:
@@ -356,7 +380,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP Alloydb.Instance resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create a basic primary alloydb instance
@@ -370,7 +394,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -410,10 +434,7 @@ publicIpAddress:
   type: str
 reconciling:
   description:
-    - >-
-      Set to true if the current state of Instance does not match the user's intended state, and the service is actively updating the resource to
-
-      reconcile them.
+    - Set to true if the current state of Instance does not match the user's intended state, and the service is actively updating the resource to reconcile them.
     - This can happen due to user-triggered updates or system actions like failover or maintenance.
   returned: success
   type: bool
@@ -432,31 +453,22 @@ updateTime:
     - Time the Instance was updated in UTC.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-
-# BEGIN Custom imports
-# None
-# END Custom imports
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 
-def build_link(module, uri):
-    params = module.params.copy()
-    params["cluster"] = gcp.replace_resource_dict(module.params["cluster"], "name")
-
-    return "https://alloydb.googleapis.com/v1/" + uri.format(**params)
-
-
-class ClientConnectionConfig(gcp.Resource):
+class ClientConnectionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "requireConnectors": self.request.get("require_connectors"),
-            "sslConfig": ClientConnectionConfigSslConfig(self.request.get("ssl_config", {})).to_request(),
+            "sslConfig": gcp_v2.remove_empties(
+                ClientConnectionConfigSslConfig(self.request.get("ssl_config", {})).to_request()
+            ),  # remove empty values
         }
 
     def _response(self):
@@ -466,7 +478,7 @@ class ClientConnectionConfig(gcp.Resource):
         }
 
 
-class ClientConnectionConfigSslConfig(gcp.Resource):
+class ClientConnectionConfigSslConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "sslMode": self.request.get("ssl_mode"),
@@ -478,7 +490,22 @@ class ClientConnectionConfigSslConfig(gcp.Resource):
         }
 
 
-class MachineConfig(gcp.Resource):
+class ConnectionPoolConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "enabled": self.request.get("enabled"),
+            "flags": self.request.get("flags"),
+        }
+
+    def _response(self):
+        return {
+            "enabled": self.response.get("enabled"),
+            "flags": self.response.get("flags"),
+            "poolerCount": self.response.get("poolerCount"),
+        }
+
+
+class MachineConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "cpuCount": self.request.get("cpu_count"),
@@ -492,9 +519,10 @@ class MachineConfig(gcp.Resource):
         }
 
 
-class NetworkConfig(gcp.Resource):
+class NetworkConfig(gcp_v2.Resource):
     def _request(self):
         return {
+            "allocatedIpRangeOverride": self.request.get("allocated_ip_range_override"),
             "authorizedExternalNetworks": [
                 NetworkConfigAuthorizedExternalNetwork(item).to_request()
                 for item in (self.request.get("authorized_external_networks") or [])
@@ -505,6 +533,7 @@ class NetworkConfig(gcp.Resource):
 
     def _response(self):
         return {
+            "allocatedIpRangeOverride": self.response.get("allocatedIpRangeOverride"),
             "authorizedExternalNetworks": [
                 NetworkConfigAuthorizedExternalNetwork().from_response(item)
                 for item in (self.response.get("authorizedExternalNetworks") or [])
@@ -514,7 +543,7 @@ class NetworkConfig(gcp.Resource):
         }
 
 
-class NetworkConfigAuthorizedExternalNetwork(gcp.Resource):
+class NetworkConfigAuthorizedExternalNetwork(gcp_v2.Resource):
     def _request(self):
         return {
             "cidrRange": self.request.get("cidr_range"),
@@ -526,7 +555,7 @@ class NetworkConfigAuthorizedExternalNetwork(gcp.Resource):
         }
 
 
-class ObservabilityConfig(gcp.Resource):
+class ObservabilityConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "assistiveExperiencesEnabled": self.request.get("assistive_experiences_enabled"),
@@ -554,7 +583,7 @@ class ObservabilityConfig(gcp.Resource):
         }
 
 
-class PscInstanceConfig(gcp.Resource):
+class PscInstanceConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "allowedConsumerProjects": self.request.get("allowed_consumer_projects"),
@@ -584,7 +613,7 @@ class PscInstanceConfig(gcp.Resource):
         }
 
 
-class PscInstanceConfigPscAutoConnection(gcp.Resource):
+class PscInstanceConfigPscAutoConnection(gcp_v2.Resource):
     def _request(self):
         return {
             "consumerNetwork": self.request.get("consumer_network"),
@@ -601,7 +630,7 @@ class PscInstanceConfigPscAutoConnection(gcp.Resource):
         }
 
 
-class PscInstanceConfigPscInterfaceConfig(gcp.Resource):
+class PscInstanceConfigPscInterfaceConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "networkAttachmentResource": self.request.get("network_attachment_resource"),
@@ -613,7 +642,7 @@ class PscInstanceConfigPscInterfaceConfig(gcp.Resource):
         }
 
 
-class QueryInsightsConfig(gcp.Resource):
+class QueryInsightsConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "queryPlansPerMinute": self.request.get("query_plans_per_minute"),
@@ -631,7 +660,7 @@ class QueryInsightsConfig(gcp.Resource):
         }
 
 
-class ReadPoolConfig(gcp.Resource):
+class ReadPoolConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "nodeCount": self.request.get("node_count"),
@@ -643,26 +672,41 @@ class ReadPoolConfig(gcp.Resource):
         }
 
 
-class Alloydb(gcp.Resource):
+class Alloydb(gcp_v2.Resource):
     def _request(self):
         return {
             "activationPolicy": self.request.get("activation_policy"),
             "annotations": self.request.get("annotations"),
             "availabilityType": self.request.get("availability_type"),
-            "clientConnectionConfig": ClientConnectionConfig(
-                self.request.get("client_connection_config", {})
-            ).to_request(),
+            "clientConnectionConfig": gcp_v2.remove_empties(
+                ClientConnectionConfig(self.request.get("client_connection_config", {})).to_request()
+            ),  # remove empty values
+            "connectionPoolConfig": gcp_v2.remove_empties(
+                ConnectionPoolConfig(self.request.get("connection_pool_config", {})).to_request()
+            ),  # remove empty values
             "databaseFlags": self.request.get("database_flags"),
             "displayName": self.request.get("display_name"),
             "gceZone": self.request.get("gce_zone"),
             "instanceType": self.request.get("instance_type"),
             "labels": self.request.get("labels"),
-            "machineConfig": MachineConfig(self.request.get("machine_config", {})).to_request(),
-            "networkConfig": NetworkConfig(self.request.get("network_config", {})).to_request(),
-            "observabilityConfig": ObservabilityConfig(self.request.get("observability_config", {})).to_request(),
-            "pscInstanceConfig": PscInstanceConfig(self.request.get("psc_instance_config", {})).to_request(),
-            "queryInsightsConfig": QueryInsightsConfig(self.request.get("query_insights_config", {})).to_request(),
-            "readPoolConfig": ReadPoolConfig(self.request.get("read_pool_config", {})).to_request(),
+            "machineConfig": gcp_v2.remove_empties(
+                MachineConfig(self.request.get("machine_config", {})).to_request()
+            ),  # remove empty values
+            "networkConfig": gcp_v2.remove_empties(
+                NetworkConfig(self.request.get("network_config", {})).to_request()
+            ),  # remove empty values
+            "observabilityConfig": gcp_v2.remove_empties(
+                ObservabilityConfig(self.request.get("observability_config", {})).to_request()
+            ),  # remove empty values
+            "pscInstanceConfig": gcp_v2.remove_empties(
+                PscInstanceConfig(self.request.get("psc_instance_config", {})).to_request()
+            ),  # remove empty values
+            "queryInsightsConfig": gcp_v2.remove_empties(
+                QueryInsightsConfig(self.request.get("query_insights_config", {})).to_request()
+            ),  # remove empty values
+            "readPoolConfig": gcp_v2.remove_empties(
+                ReadPoolConfig(self.request.get("read_pool_config", {})).to_request()
+            ),  # remove empty values
         }
 
     def _response(self):
@@ -673,9 +717,12 @@ class Alloydb(gcp.Resource):
             "clientConnectionConfig": ClientConnectionConfig().from_response(
                 self.response.get("clientConnectionConfig", {})
             ),
+            "connectionPoolConfig": ConnectionPoolConfig().from_response(self.response.get("connectionPoolConfig", {})),
             "createTime": self.response.get("createTime"),
             "databaseFlags": self.response.get("databaseFlags"),
             "displayName": self.response.get("displayName"),
+            "annotations": self.response.get("annotations"),
+            "labels": self.response.get("labels"),
             "gceZone": self.response.get("gceZone"),
             "instanceType": self.response.get("instanceType"),
             "ipAddress": self.response.get("ipAddress"),
@@ -690,6 +737,7 @@ class Alloydb(gcp.Resource):
             "queryInsightsConfig": QueryInsightsConfig().from_response(self.response.get("queryInsightsConfig", {})),
             "readPoolConfig": ReadPoolConfig().from_response(self.response.get("readPoolConfig", {})),
             "reconciling": self.response.get("reconciling"),
+            "labels": self.response.get("labels"),
             "uid": self.response.get("uid"),
             "updateTime": self.response.get("updateTime"),
         }
@@ -703,7 +751,7 @@ class Alloydb(gcp.Resource):
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -742,6 +790,21 @@ def main():
                 type="dict",
                 required=True,
             ),
+            connection_pool_config=dict(
+                type="dict",
+                options=dict(
+                    enabled=dict(
+                        type="bool",
+                        required=True,
+                    ),
+                    flags=dict(
+                        type="dict",
+                    ),
+                    pooler_count=dict(
+                        type="int",
+                    ),
+                ),
+            ),
             database_flags=dict(
                 type="dict",
             ),
@@ -777,9 +840,13 @@ def main():
             network_config=dict(
                 type="dict",
                 options=dict(
+                    allocated_ip_range_override=dict(
+                        type="str",
+                    ),
                     authorized_external_networks=dict(
                         type="list",
                         elements="dict",
+                        no_log=False,
                         options=dict(
                             cidr_range=dict(
                                 type="str",
@@ -905,10 +972,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://alloydb.googleapis.com/v1/",
+        base_uri="{cluster}/instances?instanceId={instance_id}",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "{cluster}/instances?instanceId={instance_id}",
                     "async_uri": "{op_id}",
@@ -916,7 +984,7 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "{cluster}/instances/{instance_id}",
                     "async_uri": "{op_id}",
@@ -924,10 +992,10 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{"uri": "{cluster}/instances/{instance_id}", "async_uri": "", "verb": "GET", "timeout_minutes": 0}
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "{cluster}/instances/{instance_id}",
                     "async_uri": "{op_id}",
@@ -935,76 +1003,136 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones_from_dict(module.params)
-    resource = Alloydb(params, module=module, product="Alloydb", kind="alloydb#instance")
-    existing_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
+    request = gcp_v2.remove_nones(module.params)
+    resource = Alloydb(request, module=module, product="Alloydb", kind="alloydb#instance", op_configs=op_configs)
 
-    if existing_obj is None:
+    resource._state = state  # store the state in the resource object
+
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    resource.url_params["cluster"] = gcp_v2.resource_ref(module.params["cluster"], "name")
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
+        module,
+        request=gcp_v2.remove_empties(resource.to_request()),
+        existing=existing_obj,
+        post=True,
+        is_different=is_different,
+    )
+
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            is_async = op_configs.create.async_uri != ""
-            create_link = build_link(module, op_configs.create.uri)
-            create_retries = op_configs.create.timeout
-            create_func = getattr(resource, op_configs.create.verb)
-            async_create_func = getattr(resource, op_configs.create.verb + "_async")
-            async_create_link = build_link(module, "") + op_configs.create.async_uri
-            # --------- BEGIN custom pre-create code ---------
-            # 'templates/terraform/pre_create/alloydb_instance.go.tmpl'
-            # --------- END custom pre-create code ---------
+            gcp_v2.debug(module, action="create")
             try:
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                changed = True
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
             pass  # nothing to do
     else:
         if state == "absent":
-            is_async = op_configs.delete.async_uri != ""
-            delete_link = build_link(module, op_configs.delete.uri)
-            delete_retries = op_configs.delete.timeout
-            delete_func = getattr(resource, op_configs.delete.verb)
-            async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-            async_delete_link = build_link(module, "") + op_configs.delete.async_uri
-            # --------- BEGIN custom pre-delete code ---------
-            # 'templates/terraform/pre_delete/alloydb_instance.go.tmpl'
-            # --------- END custom pre-delete code ---------
+            gcp_v2.debug(module, action="delete")
             try:
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                changed = True
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
-            if resource.diff(existing_obj):
-                is_async = op_configs.update.async_uri != ""
-                update_link = build_link(module, op_configs.update.uri)
-                update_retries = op_configs.update.timeout
-                update_func = getattr(resource, op_configs.update.verb)
-                async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                async_update_link = build_link(module, "") + op_configs.update.async_uri
-                # --------- BEGIN custom pre-update code ---------
-                # --------- END custom pre-update code ---------
+            if is_different:
+                gcp_v2.debug(module, action="update")
                 try:
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
-                changed = resource.diff(new_obj)
 
-    new_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
-    new_obj = resource.from_response(new_obj or {})
+                changed = True
+            else:
+                new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 
