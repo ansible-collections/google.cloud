@@ -7,7 +7,15 @@ import pprint
 import time
 import typing as T
 
-import requests
+try:
+    from requests import Response as RequestsResponse
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
+
+    class RequestsResponse:
+        pass
+
 
 # avoid stuttering
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
@@ -220,7 +228,7 @@ class Resource(object):
 
         return Session(self.module, self.product)
 
-    def raise_for_status(self, response: requests.Response):
+    def raise_for_status(self, response: RequestsResponse):
         if self.module is not None:
             self.module.raise_for_status(response)
         else:
@@ -233,7 +241,7 @@ class Resource(object):
             raise ValueError("Cannot fail_json over None module")
 
     def if_object(
-        self, response: T.Optional[requests.Response], allow_not_found: bool = False
+        self, response: T.Optional[RequestsResponse], allow_not_found: bool = False
     ) -> T.Optional[NestedDict]:
         """
         Convenience function to analyze the requests.Response object and decide
