@@ -214,11 +214,6 @@ class EncryptionSpec(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class PrivateServiceConnectConfig(gcp_v2.Resource):
     def _request(self):
@@ -231,28 +226,12 @@ class PrivateServiceConnectConfig(gcp_v2.Resource):
             ],
         }
 
-    def _response(self):
-        return {
-            "enablePrivateServiceConnect": self.response.get("enablePrivateServiceConnect"),
-            "projectAllowlist": self.response.get("projectAllowlist"),
-            "pscAutomationConfigs": [
-                PrivateServiceConnectConfigPscAutomationConfig().from_response(item)
-                for item in (self.response.get("pscAutomationConfigs") or [])
-            ],
-        }
-
 
 class PrivateServiceConnectConfigPscAutomationConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "network": self.request.get("network"),
             "projectId": self.request.get("project_id"),
-        }
-
-    def _response(self):
-        return {
-            "network": self.response.get("network"),
-            "projectId": self.response.get("projectId"),
         }
 
 
@@ -275,20 +254,9 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
             "name": self.response.get("name"),
-            "network": self.response.get("network"),
-            "privateServiceConnectConfig": PrivateServiceConnectConfig().from_response(
-                self.response.get("privateServiceConnectConfig", {})
-            ),
             "publicEndpointDomainName": self.response.get("publicEndpointDomainName"),
-            "publicEndpointEnabled": self.response.get("publicEndpointEnabled"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -365,7 +333,7 @@ def main():
                 type="str",
             ),
         ),
-        mutually_exclusive=[["network", "private_service_connect_config"]],
+        mutually_exclusive=[("network", "private_service_connect_config")],
     )
 
     if not module.params["scopes"]:

@@ -256,32 +256,11 @@ class MonitoringConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "categoricalThresholdConfig": MonitoringConfigCategoricalThresholdConfig().from_response(
-                self.response.get("categoricalThresholdConfig", {})
-            ),
-            "importFeaturesAnalysis": MonitoringConfigImportFeaturesAnalysis().from_response(
-                self.response.get("importFeaturesAnalysis", {})
-            ),
-            "numericalThresholdConfig": MonitoringConfigNumericalThresholdConfig().from_response(
-                self.response.get("numericalThresholdConfig", {})
-            ),
-            "snapshotAnalysis": MonitoringConfigSnapshotAnalysis().from_response(
-                self.response.get("snapshotAnalysis", {})
-            ),
-        }
-
 
 class MonitoringConfigCategoricalThresholdConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "value": self.request.get("value"),
-        }
-
-    def _response(self):
-        return {
-            "value": self.response.get("value"),
         }
 
 
@@ -292,22 +271,11 @@ class MonitoringConfigImportFeaturesAnalysis(gcp_v2.Resource):
             "state": self.request.get("state"),
         }
 
-    def _response(self):
-        return {
-            "anomalyDetectionBaseline": self.response.get("anomalyDetectionBaseline"),
-            "state": self.response.get("state"),
-        }
-
 
 class MonitoringConfigNumericalThresholdConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "value": self.request.get("value"),
-        }
-
-    def _response(self):
-        return {
-            "value": self.response.get("value"),
         }
 
 
@@ -318,14 +286,6 @@ class MonitoringConfigSnapshotAnalysis(gcp_v2.Resource):
             "monitoringInterval": self.request.get("monitoring_interval"),
             "monitoringIntervalDays": self.request.get("monitoring_interval_days"),
             "stalenessDays": self.request.get("staleness_days"),
-        }
-
-    def _response(self):
-        return {
-            "disabled": self.response.get("disabled"),
-            "monitoringInterval": self.response.get("monitoringInterval"),
-            "monitoringIntervalDays": self.response.get("monitoringIntervalDays"),
-            "stalenessDays": self.response.get("stalenessDays"),
         }
 
 
@@ -343,13 +303,7 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "description": self.response.get("description"),
-            "labels": self.response.get("labels"),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
-            "monitoringConfig": MonitoringConfig().from_response(self.response.get("monitoringConfig", {})),
-            "offlineStorageTtlDays": self.response.get("offlineStorageTtlDays"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 

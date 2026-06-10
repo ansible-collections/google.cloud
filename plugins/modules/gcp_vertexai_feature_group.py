@@ -158,22 +158,11 @@ class BigQuery(gcp_v2.Resource):
             "entityIdColumns": self.request.get("entity_id_columns"),
         }
 
-    def _response(self):
-        return {
-            "bigQuerySource": BigQueryBigQuerySource().from_response(self.response.get("bigQuerySource", {})),
-            "entityIdColumns": self.response.get("entityIdColumns"),
-        }
-
 
 class BigQueryBigQuerySource(gcp_v2.Resource):
     def _request(self):
         return {
             "inputUri": self.request.get("input_uri"),
-        }
-
-    def _response(self):
-        return {
-            "inputUri": self.response.get("inputUri"),
         }
 
 
@@ -190,14 +179,8 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "bigQuery": BigQuery().from_response(self.response.get("bigQuery", {})),
             "createTime": self.response.get("createTime"),
-            "description": self.response.get("description"),
-            "labels": self.response.get("labels"),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
-            "name": self.response.get("name"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 

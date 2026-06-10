@@ -147,12 +147,8 @@ class Cloudbuildv2(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
             "createTime": self.response.get("createTime"),
-            "annotations": self.response.get("annotations"),
             "etag": self.response.get("etag"),
-            "name": self.response.get("name"),
-            "remoteUri": self.response.get("remoteUri"),
             "updateTime": self.response.get("updateTime"),
         }
 

@@ -205,11 +205,6 @@ class EncryptionSpec(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class OnlineServingConfig(gcp_v2.Resource):
     def _request(self):
@@ -220,24 +215,12 @@ class OnlineServingConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "fixedNodeCount": self.response.get("fixedNodeCount"),
-            "scaling": OnlineServingConfigScaling().from_response(self.response.get("scaling", {})),
-        }
-
 
 class OnlineServingConfigScaling(gcp_v2.Resource):
     def _request(self):
         return {
             "maxNodeCount": self.request.get("max_node_count"),
             "minNodeCount": self.request.get("min_node_count"),
-        }
-
-    def _response(self):
-        return {
-            "maxNodeCount": self.response.get("maxNodeCount"),
-            "minNodeCount": self.response.get("minNodeCount"),
         }
 
 
@@ -257,13 +240,7 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
-            "onlineServingConfig": OnlineServingConfig().from_response(self.response.get("onlineServingConfig", {})),
-            "onlineStorageTtlDays": self.response.get("onlineStorageTtlDays"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -324,8 +301,6 @@ def main():
                         ),
                     ),
                 ),
-                mutually_exclusive=[["fixed_node_count", "scaling"]],
-                required_one_of=[["fixed_node_count", "scaling"]],
             ),
             online_storage_ttl_days=dict(
                 type="int",

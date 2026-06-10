@@ -193,29 +193,12 @@ class DedicatedResources(gcp_v2.Resource):
             "minReplicaCount": self.request.get("min_replica_count"),
         }
 
-    def _response(self):
-        return {
-            "autoscalingMetricSpecs": [
-                DedicatedResourcesAutoscalingMetricSpec().from_response(item)
-                for item in (self.response.get("autoscalingMetricSpecs") or [])
-            ],
-            "machineSpec": DedicatedResourcesMachineSpec().from_response(self.response.get("machineSpec", {})),
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-        }
-
 
 class DedicatedResourcesAutoscalingMetricSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "metricName": self.request.get("metric_name"),
             "target": self.request.get("target"),
-        }
-
-    def _response(self):
-        return {
-            "metricName": self.response.get("metricName"),
-            "target": self.response.get("target"),
         }
 
 
@@ -225,13 +208,6 @@ class DedicatedResourcesMachineSpec(gcp_v2.Resource):
             "acceleratorCount": self.request.get("accelerator_count"),
             "acceleratorType": self.request.get("accelerator_type"),
             "machineType": self.request.get("machine_type"),
-        }
-
-    def _response(self):
-        return {
-            "acceleratorCount": self.response.get("acceleratorCount"),
-            "acceleratorType": self.response.get("acceleratorType"),
-            "machineType": self.response.get("machineType"),
         }
 
 
@@ -247,8 +223,6 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "dedicatedResources": DedicatedResources().from_response(self.response.get("dedicatedResources", {})),
-            "name": self.response.get("name"),
         }
 
     def encode(self, request):

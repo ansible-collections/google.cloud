@@ -259,16 +259,6 @@ options:
         description:
           - The initial password for the user.
         type: str
-      password_wo:
-        description:
-          - The initial password for the user.
-        type: str
-      password_wo_version:
-        description:
-          - Triggers update of `password_wo` write-only.
-          - Increment this value when an update to `password_wo` is needed.
-          - For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments).
-        type: str
       user:
         description:
           - The database username.
@@ -721,36 +711,11 @@ class AutomatedBackupPolicy(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "backupWindow": self.response.get("backupWindow"),
-            "enabled": self.response.get("enabled"),
-            "encryptionConfig": AutomatedBackupPolicyEncryptionConfig().from_response(
-                self.response.get("encryptionConfig", {})
-            ),
-            "labels": self.response.get("labels"),
-            "location": self.response.get("location"),
-            "quantityBasedRetention": AutomatedBackupPolicyQuantityBasedRetention().from_response(
-                self.response.get("quantityBasedRetention", {})
-            ),
-            "timeBasedRetention": AutomatedBackupPolicyTimeBasedRetention().from_response(
-                self.response.get("timeBasedRetention", {})
-            ),
-            "weeklySchedule": AutomatedBackupPolicyWeeklySchedule().from_response(
-                self.response.get("weeklySchedule", {})
-            ),
-        }
-
 
 class AutomatedBackupPolicyEncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -760,21 +725,11 @@ class AutomatedBackupPolicyQuantityBasedRetention(gcp_v2.Resource):
             "count": self.request.get("count"),
         }
 
-    def _response(self):
-        return {
-            "count": self.response.get("count"),
-        }
-
 
 class AutomatedBackupPolicyTimeBasedRetention(gcp_v2.Resource):
     def _request(self):
         return {
             "retentionPeriod": self.request.get("retention_period"),
-        }
-
-    def _response(self):
-        return {
-            "retentionPeriod": self.response.get("retentionPeriod"),
         }
 
 
@@ -788,15 +743,6 @@ class AutomatedBackupPolicyWeeklySchedule(gcp_v2.Resource):
             ],
         }
 
-    def _response(self):
-        return {
-            "daysOfWeek": self.response.get("daysOfWeek"),
-            "startTimes": [
-                AutomatedBackupPolicyWeeklyScheduleStartTime().from_response(item)
-                for item in (self.response.get("startTimes") or [])
-            ],
-        }
-
 
 class AutomatedBackupPolicyWeeklyScheduleStartTime(gcp_v2.Resource):
     def _request(self):
@@ -807,14 +753,6 @@ class AutomatedBackupPolicyWeeklyScheduleStartTime(gcp_v2.Resource):
             "seconds": self.request.get("seconds"),
         }
 
-    def _response(self):
-        return {
-            "hours": self.response.get("hours"),
-            "minutes": self.response.get("minutes"),
-            "nanos": self.response.get("nanos"),
-            "seconds": self.response.get("seconds"),
-        }
-
 
 class BackupSource(gcp_v2.Resource):
     def _request(self):
@@ -822,21 +760,11 @@ class BackupSource(gcp_v2.Resource):
             "backupName": self.request.get("backup_name"),
         }
 
-    def _response(self):
-        return {
-            "backupName": self.response.get("backupName"),
-        }
-
 
 class BackupdrBackupSource(gcp_v2.Resource):
     def _request(self):
         return {
             "backup": self.request.get("backup"),
-        }
-
-    def _response(self):
-        return {
-            "backup": self.response.get("backup"),
         }
 
 
@@ -850,25 +778,11 @@ class ContinuousBackupConfig(gcp_v2.Resource):
             "recoveryWindowDays": self.request.get("recovery_window_days"),
         }
 
-    def _response(self):
-        return {
-            "enabled": self.response.get("enabled"),
-            "encryptionConfig": ContinuousBackupConfigEncryptionConfig().from_response(
-                self.response.get("encryptionConfig", {})
-            ),
-            "recoveryWindowDays": self.response.get("recoveryWindowDays"),
-        }
-
 
 class ContinuousBackupConfigEncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -898,21 +812,11 @@ class DataplexConfig(gcp_v2.Resource):
             "enabled": self.request.get("enabled"),
         }
 
-    def _response(self):
-        return {
-            "enabled": self.response.get("enabled"),
-        }
-
 
 class EncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -928,17 +832,7 @@ class InitialUser(gcp_v2.Resource):
     def _request(self):
         return {
             "password": self.request.get("password"),
-            "password": self.request.get("password_wo"),
-            "passwordWoVersion": self.request.get("password_wo_version"),
             "user": self.request.get("user"),
-        }
-
-    def _response(self):
-        return {
-            "password": self.response.get("password"),
-            "password": self.response.get("password"),
-            "passwordWoVersion": self.response.get("passwordWoVersion"),
-            "user": self.response.get("user"),
         }
 
 
@@ -948,14 +842,6 @@ class MaintenanceUpdatePolicy(gcp_v2.Resource):
             "maintenanceWindows": [
                 MaintenanceUpdatePolicyMaintenanceWindow(item).to_request()
                 for item in (self.request.get("maintenance_windows") or [])
-            ],
-        }
-
-    def _response(self):
-        return {
-            "maintenanceWindows": [
-                MaintenanceUpdatePolicyMaintenanceWindow().from_response(item)
-                for item in (self.response.get("maintenanceWindows") or [])
             ],
         }
 
@@ -969,14 +855,6 @@ class MaintenanceUpdatePolicyMaintenanceWindow(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "day": self.response.get("day"),
-            "startTime": MaintenanceUpdatePolicyMaintenanceWindowStartTime().from_response(
-                self.response.get("startTime", {})
-            ),
-        }
-
 
 class MaintenanceUpdatePolicyMaintenanceWindowStartTime(gcp_v2.Resource):
     def _request(self):
@@ -985,14 +863,6 @@ class MaintenanceUpdatePolicyMaintenanceWindowStartTime(gcp_v2.Resource):
             "minutes": self.request.get("minutes"),
             "nanos": self.request.get("nanos"),
             "seconds": self.request.get("seconds"),
-        }
-
-    def _response(self):
-        return {
-            "hours": self.response.get("hours"),
-            "minutes": self.response.get("minutes"),
-            "nanos": self.response.get("nanos"),
-            "seconds": self.response.get("seconds"),
         }
 
 
@@ -1004,25 +874,12 @@ class MigrationSource(gcp_v2.Resource):
             "sourceType": self.request.get("source_type"),
         }
 
-    def _response(self):
-        return {
-            "hostPort": self.response.get("hostPort"),
-            "referenceId": self.response.get("referenceId"),
-            "sourceType": self.response.get("sourceType"),
-        }
-
 
 class NetworkConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "allocatedIpRange": self.request.get("allocated_ip_range"),
             "network": self.request.get("network"),
-        }
-
-    def _response(self):
-        return {
-            "allocatedIpRange": self.response.get("allocatedIpRange"),
-            "network": self.response.get("network"),
         }
 
 
@@ -1034,7 +891,6 @@ class PscConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "pscEnabled": self.response.get("pscEnabled"),
             "serviceOwnedProjectNumber": self.response.get("serviceOwnedProjectNumber"),
         }
 
@@ -1045,21 +901,11 @@ class RestoreBackupSource(gcp_v2.Resource):
             "backupName": self.request.get("backup_name"),
         }
 
-    def _response(self):
-        return {
-            "backupName": self.response.get("backupName"),
-        }
-
 
 class RestoreBackupdrBackupSource(gcp_v2.Resource):
     def _request(self):
         return {
             "backup": self.request.get("backup"),
-        }
-
-    def _response(self):
-        return {
-            "backup": self.response.get("backup"),
         }
 
 
@@ -1070,12 +916,6 @@ class RestoreBackupdrPitrSource(gcp_v2.Resource):
             "pointInTime": self.request.get("point_in_time"),
         }
 
-    def _response(self):
-        return {
-            "dataSource": self.response.get("dataSource"),
-            "pointInTime": self.response.get("pointInTime"),
-        }
-
 
 class RestoreContinuousBackupSource(gcp_v2.Resource):
     def _request(self):
@@ -1084,22 +924,11 @@ class RestoreContinuousBackupSource(gcp_v2.Resource):
             "pointInTime": self.request.get("point_in_time"),
         }
 
-    def _response(self):
-        return {
-            "cluster": self.response.get("cluster"),
-            "pointInTime": self.response.get("pointInTime"),
-        }
-
 
 class SecondaryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "primaryClusterName": self.request.get("primary_cluster_name"),
-        }
-
-    def _response(self):
-        return {
-            "primaryClusterName": self.response.get("primaryClusterName"),
         }
 
 
@@ -1110,14 +939,6 @@ class TrialMetadata(gcp_v2.Resource):
             "graceEndTime": self.request.get("grace_end_time"),
             "startTime": self.request.get("start_time"),
             "upgradeTime": self.request.get("upgrade_time"),
-        }
-
-    def _response(self):
-        return {
-            "endTime": self.response.get("endTime"),
-            "graceEndTime": self.response.get("graceEndTime"),
-            "startTime": self.response.get("startTime"),
-            "upgradeTime": self.response.get("upgradeTime"),
         }
 
 
@@ -1174,48 +995,13 @@ class Alloydb(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "automatedBackupPolicy": AutomatedBackupPolicy().from_response(
-                self.response.get("automatedBackupPolicy", {})
-            ),
             "backupSource": BackupSource().from_response(self.response.get("backupSource", {})),
             "backupdrBackupSource": BackupdrBackupSource().from_response(self.response.get("backupdrBackupSource", {})),
-            "clusterType": self.response.get("clusterType"),
-            "continuousBackupConfig": ContinuousBackupConfig().from_response(
-                self.response.get("continuousBackupConfig", {})
-            ),
             "continuousBackupInfo": ContinuousBackupInfo().from_response(self.response.get("continuousBackupInfo", {})),
-            "databaseVersion": self.response.get("databaseVersion"),
-            "dataplexConfig": DataplexConfig().from_response(self.response.get("dataplexConfig", {})),
-            "displayName": self.response.get("displayName"),
-            "annotations": self.response.get("annotations"),
-            "labels": self.response.get("labels"),
-            "encryptionConfig": EncryptionConfig().from_response(self.response.get("encryptionConfig", {})),
             "encryptionInfo": EncryptionInfo().from_response(self.response.get("encryptionInfo", {})),
-            "etag": self.response.get("etag"),
-            "initialUser": InitialUser().from_response(self.response.get("initialUser", {})),
-            "labels": self.response.get("labels"),
-            "maintenanceUpdatePolicy": MaintenanceUpdatePolicy().from_response(
-                self.response.get("maintenanceUpdatePolicy", {})
-            ),
             "migrationSource": MigrationSource().from_response(self.response.get("migrationSource", {})),
             "name": self.response.get("name"),
-            "networkConfig": NetworkConfig().from_response(self.response.get("networkConfig", {})),
-            "pscConfig": PscConfig().from_response(self.response.get("pscConfig", {})),
             "reconciling": self.response.get("reconciling"),
-            "restoreBackupSource": RestoreBackupSource().from_response(self.response.get("restoreBackupSource", {})),
-            "restoreBackupdrBackupSource": RestoreBackupdrBackupSource().from_response(
-                self.response.get("restoreBackupdrBackupSource", {})
-            ),
-            "restoreBackupdrPitrSource": RestoreBackupdrPitrSource().from_response(
-                self.response.get("restoreBackupdrPitrSource", {})
-            ),
-            "restoreContinuousBackupSource": RestoreContinuousBackupSource().from_response(
-                self.response.get("restoreContinuousBackupSource", {})
-            ),
-            "secondaryConfig": SecondaryConfig().from_response(self.response.get("secondaryConfig", {})),
-            "subscriptionType": self.response.get("subscriptionType"),
-            "labels": self.response.get("labels"),
             "trialMetadata": TrialMetadata().from_response(self.response.get("trialMetadata", {})),
             "uid": self.response.get("uid"),
         }
@@ -1308,7 +1094,7 @@ def main():
                         ),
                     ),
                 ),
-                mutually_exclusive=[["quantity_based_retention", "time_based_retention"]],
+                mutually_exclusive=[("quantity_based_retention", "time_based_retention")],
             ),
             cluster_id=dict(
                 type="str",
@@ -1382,20 +1168,11 @@ def main():
                         type="str",
                         no_log=True,
                     ),
-                    password_wo=dict(
-                        type="str",
-                        no_log=False,
-                    ),
-                    password_wo_version=dict(
-                        type="str",
-                        no_log=False,
-                    ),
                     user=dict(
                         type="str",
                     ),
                 ),
-                mutually_exclusive=[["password", "password_wo"]],
-                required_together=[["password_wo", "password_wo_version"]],
+                required_one_of=[("password", "user")],
             ),
             labels=dict(
                 type="dict",
@@ -1449,8 +1226,6 @@ def main():
                         type="str",
                     ),
                 ),
-                mutually_exclusive=[["network", "psc_enabled"]],
-                required_one_of=[["network", "psc_enabled"]],
             ),
             psc_config=dict(
                 type="dict",
@@ -1526,12 +1301,12 @@ def main():
             ),
         ),
         mutually_exclusive=[
-            [
+            (
                 "restore_backup_source",
                 "restore_backupdr_backup_source",
                 "restore_backupdr_pitr_source",
                 "restore_continuous_backup_source",
-            ]
+            )
         ],
     )
 

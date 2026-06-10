@@ -292,22 +292,11 @@ class DataPersistentDiskSpec(gcp_v2.Resource):
             "diskType": self.request.get("disk_type"),
         }
 
-    def _response(self):
-        return {
-            "diskSizeGb": self.response.get("diskSizeGb"),
-            "diskType": self.response.get("diskType"),
-        }
-
 
 class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -317,21 +306,11 @@ class EucConfig(gcp_v2.Resource):
             "eucDisabled": self.request.get("euc_disabled"),
         }
 
-    def _response(self):
-        return {
-            "eucDisabled": self.response.get("eucDisabled"),
-        }
-
 
 class IdleShutdownConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "idleTimeout": self.request.get("idle_timeout"),
-        }
-
-    def _response(self):
-        return {
-            "idleTimeout": self.response.get("idleTimeout"),
         }
 
 
@@ -343,13 +322,6 @@ class MachineSpec(gcp_v2.Resource):
             "machineType": self.request.get("machine_type"),
         }
 
-    def _response(self):
-        return {
-            "acceleratorCount": self.response.get("acceleratorCount"),
-            "acceleratorType": self.response.get("acceleratorType"),
-            "machineType": self.response.get("machineType"),
-        }
-
 
 class NetworkSpec(gcp_v2.Resource):
     def _request(self):
@@ -359,23 +331,11 @@ class NetworkSpec(gcp_v2.Resource):
             "subnetwork": self.request.get("subnetwork"),
         }
 
-    def _response(self):
-        return {
-            "enableInternetAccess": self.response.get("enableInternetAccess"),
-            "network": self.response.get("network"),
-            "subnetwork": self.response.get("subnetwork"),
-        }
-
 
 class ShieldedVmConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "enableSecureBoot": self.request.get("enable_secure_boot"),
-        }
-
-    def _response(self):
-        return {
-            "enableSecureBoot": self.response.get("enableSecureBoot"),
         }
 
 
@@ -391,25 +351,11 @@ class SoftwareConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "colabImage": SoftwareConfigColabImage().from_response(self.response.get("colabImage", {})),
-            "env": [SoftwareConfigEnv().from_response(item) for item in (self.response.get("env") or [])],
-            "postStartupScriptConfig": SoftwareConfigPostStartupScriptConfig().from_response(
-                self.response.get("postStartupScriptConfig", {})
-            ),
-        }
-
 
 class SoftwareConfigColabImage(gcp_v2.Resource):
     def _request(self):
         return {
             "releaseName": self.request.get("release_name"),
-        }
-
-    def _response(self):
-        return {
-            "releaseName": self.response.get("releaseName"),
         }
 
 
@@ -420,12 +366,6 @@ class SoftwareConfigEnv(gcp_v2.Resource):
             "value": self.request.get("value"),
         }
 
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
-        }
-
 
 class SoftwareConfigPostStartupScriptConfig(gcp_v2.Resource):
     def _request(self):
@@ -433,13 +373,6 @@ class SoftwareConfigPostStartupScriptConfig(gcp_v2.Resource):
             "postStartupScript": self.request.get("post_startup_script"),
             "postStartupScriptBehavior": self.request.get("post_startup_script_behavior"),
             "postStartupScriptUrl": self.request.get("post_startup_script_url"),
-        }
-
-    def _response(self):
-        return {
-            "postStartupScript": self.response.get("postStartupScript"),
-            "postStartupScriptBehavior": self.response.get("postStartupScriptBehavior"),
-            "postStartupScriptUrl": self.response.get("postStartupScriptUrl"),
         }
 
 
@@ -478,25 +411,7 @@ class Colab(gcp_v2.Resource):
         }
 
     def _response(self):
-        return {
-            "dataPersistentDiskSpec": DataPersistentDiskSpec().from_response(
-                self.response.get("dataPersistentDiskSpec", {})
-            ),
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
-            "eucConfig": EucConfig().from_response(self.response.get("eucConfig", {})),
-            "idleShutdownConfig": IdleShutdownConfig().from_response(self.response.get("idleShutdownConfig", {})),
-            "labels": self.response.get("labels"),
-            "machineSpec": MachineSpec().from_response(self.response.get("machineSpec", {})),
-            "name": self.response.get("name"),
-            "networkSpec": NetworkSpec().from_response(self.response.get("networkSpec", {})),
-            "networkTags": [str(item) for item in (self.response.get("networkTags") or [])],
-            "shieldedVmConfig": ShieldedVmConfig().from_response(self.response.get("shieldedVmConfig", {})),
-            "softwareConfig": SoftwareConfig().from_response(self.response.get("softwareConfig", {})),
-            "labels": self.response.get("labels"),
-        }
+        return {}
 
 
 ################################################################################

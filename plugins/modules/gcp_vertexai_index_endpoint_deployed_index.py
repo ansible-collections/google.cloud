@@ -321,12 +321,6 @@ class AutomaticResources(gcp_v2.Resource):
             "minReplicaCount": self.request.get("min_replica_count"),
         }
 
-    def _response(self):
-        return {
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-        }
-
 
 class DedicatedResources(gcp_v2.Resource):
     def _request(self):
@@ -338,23 +332,11 @@ class DedicatedResources(gcp_v2.Resource):
             "minReplicaCount": self.request.get("min_replica_count"),
         }
 
-    def _response(self):
-        return {
-            "machineSpec": DedicatedResourcesMachineSpec().from_response(self.response.get("machineSpec", {})),
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-        }
-
 
 class DedicatedResourcesMachineSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "machineType": self.request.get("machine_type"),
-        }
-
-    def _response(self):
-        return {
-            "machineType": self.response.get("machineType"),
         }
 
 
@@ -366,23 +348,12 @@ class DeployedIndexAuthConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "authProvider": DeployedIndexAuthConfigAuthProvider().from_response(self.response.get("authProvider", {})),
-        }
-
 
 class DeployedIndexAuthConfigAuthProvider(gcp_v2.Resource):
     def _request(self):
         return {
             "allowedIssuers": self.request.get("allowed_issuers"),
             "audiences": self.request.get("audiences"),
-        }
-
-    def _response(self):
-        return {
-            "allowedIssuers": self.response.get("allowedIssuers"),
-            "audiences": self.response.get("audiences"),
         }
 
 
@@ -429,21 +400,10 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "automaticResources": AutomaticResources().from_response(self.response.get("automaticResources", {})),
             "createTime": self.response.get("createTime"),
-            "dedicatedResources": DedicatedResources().from_response(self.response.get("dedicatedResources", {})),
-            "deployedIndexAuthConfig": DeployedIndexAuthConfig().from_response(
-                self.response.get("deployedIndexAuthConfig", {})
-            ),
-            "deployedIndexId": self.response.get("deployedIndexId"),
-            "deploymentGroup": self.response.get("deploymentGroup"),
-            "displayName": self.response.get("displayName"),
-            "enableAccessLogging": self.response.get("enableAccessLogging"),
-            "index": self.response.get("index"),
             "indexSyncTime": self.response.get("indexSyncTime"),
             "name": self.response.get("name"),
             "privateEndpoints": PrivateEndpoints().from_response(self.response.get("privateEndpoints", {})),
-            "reservedIpRanges": [str(item) for item in (self.response.get("reservedIpRanges") or [])],
         }
 
     def encode(self, request):

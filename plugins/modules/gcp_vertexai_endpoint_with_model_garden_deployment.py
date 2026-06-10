@@ -921,7 +921,6 @@ state:
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-import copy
 import json
 import re
 
@@ -936,15 +935,6 @@ class DeployConfig(gcp_v2.Resource):
             ),  # remove empty values
             "fastTryoutEnabled": self.request.get("fast_tryout_enabled"),
             "systemLabels": self.request.get("system_labels"),
-        }
-
-    def _response(self):
-        return {
-            "dedicatedResources": DeployConfigDedicatedResources().from_response(
-                self.response.get("dedicatedResources", {})
-            ),
-            "fastTryoutEnabled": self.response.get("fastTryoutEnabled"),
-            "systemLabels": self.response.get("systemLabels"),
         }
 
 
@@ -964,33 +954,12 @@ class DeployConfigDedicatedResources(gcp_v2.Resource):
             "spot": self.request.get("spot"),
         }
 
-    def _response(self):
-        return {
-            "autoscalingMetricSpecs": [
-                DeployConfigDedicatedResourcesAutoscalingMetricSpec().from_response(item)
-                for item in (self.response.get("autoscalingMetricSpecs") or [])
-            ],
-            "machineSpec": DeployConfigDedicatedResourcesMachineSpec().from_response(
-                self.response.get("machineSpec", {})
-            ),
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-            "requiredReplicaCount": self.response.get("requiredReplicaCount"),
-            "spot": self.response.get("spot"),
-        }
-
 
 class DeployConfigDedicatedResourcesAutoscalingMetricSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "metricName": self.request.get("metric_name"),
             "target": self.request.get("target"),
-        }
-
-    def _response(self):
-        return {
-            "metricName": self.response.get("metricName"),
-            "target": self.response.get("target"),
         }
 
 
@@ -1009,18 +978,6 @@ class DeployConfigDedicatedResourcesMachineSpec(gcp_v2.Resource):
             "tpuTopology": self.request.get("tpu_topology"),
         }
 
-    def _response(self):
-        return {
-            "acceleratorCount": self.response.get("acceleratorCount"),
-            "acceleratorType": self.response.get("acceleratorType"),
-            "machineType": self.response.get("machineType"),
-            "multihostGpuNodeCount": self.response.get("multihostGpuNodeCount"),
-            "reservationAffinity": DeployConfigDedicatedResourcesMachineSpecReservationAffinity().from_response(
-                self.response.get("reservationAffinity", {})
-            ),
-            "tpuTopology": self.response.get("tpuTopology"),
-        }
-
 
 class DeployConfigDedicatedResourcesMachineSpecReservationAffinity(gcp_v2.Resource):
     def _request(self):
@@ -1028,13 +985,6 @@ class DeployConfigDedicatedResourcesMachineSpecReservationAffinity(gcp_v2.Resour
             "key": self.request.get("key"),
             "reservationAffinityType": self.request.get("reservation_affinity_type"),
             "values": self.request.get("values"),
-        }
-
-    def _response(self):
-        return {
-            "key": self.response.get("key"),
-            "reservationAffinityType": self.response.get("reservationAffinityType"),
-            "values": self.response.get("values"),
         }
 
 
@@ -1048,15 +998,6 @@ class EndpointConfig(gcp_v2.Resource):
                     self.request.get("private_service_connect_config", {})
                 ).to_request()
             ),  # remove empty values
-        }
-
-    def _response(self):
-        return {
-            "dedicatedEndpointEnabled": self.response.get("dedicatedEndpointEnabled"),
-            "endpointDisplayName": self.response.get("endpointDisplayName"),
-            "privateServiceConnectConfig": EndpointConfigPrivateServiceConnectConfig().from_response(
-                self.response.get("privateServiceConnectConfig", {})
-            ),
         }
 
 
@@ -1074,11 +1015,6 @@ class EndpointConfigPrivateServiceConnectConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "enablePrivateServiceConnect": self.response.get("enablePrivateServiceConnect"),
-            "projectAllowlist": self.response.get("projectAllowlist"),
-            "pscAutomationConfigs": EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs().from_response(
-                self.response.get("pscAutomationConfigs", {})
-            ),
             "serviceAttachment": self.response.get("serviceAttachment"),
         }
 
@@ -1095,8 +1031,6 @@ class EndpointConfigPrivateServiceConnectConfigPscAutomationConfigs(gcp_v2.Resou
             "errorMessage": self.response.get("errorMessage"),
             "forwardingRule": self.response.get("forwardingRule"),
             "ipAddress": self.response.get("ipAddress"),
-            "network": self.response.get("network"),
-            "projectId": self.response.get("projectId"),
             "state": self.response.get("state"),
         }
 
@@ -1111,15 +1045,6 @@ class ModelConfig(gcp_v2.Resource):
             "huggingFaceAccessToken": self.request.get("hugging_face_access_token"),
             "huggingFaceCacheEnabled": self.request.get("hugging_face_cache_enabled"),
             "modelDisplayName": self.request.get("model_display_name"),
-        }
-
-    def _response(self):
-        return {
-            "acceptEula": self.response.get("acceptEula"),
-            "containerSpec": ModelConfigContainerSpec().from_response(self.response.get("containerSpec", {})),
-            "huggingFaceAccessToken": self.response.get("huggingFaceAccessToken"),
-            "huggingFaceCacheEnabled": self.response.get("huggingFaceCacheEnabled"),
-            "modelDisplayName": self.response.get("modelDisplayName"),
         }
 
 
@@ -1149,30 +1074,6 @@ class ModelConfigContainerSpec(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "args": self.response.get("args"),
-            "command": self.response.get("command"),
-            "deploymentTimeout": self.response.get("deploymentTimeout"),
-            "env": [ModelConfigContainerSpecEnv().from_response(item) for item in (self.response.get("env") or [])],
-            "grpcPorts": [
-                ModelConfigContainerSpecGrpcPort().from_response(item)
-                for item in (self.response.get("grpcPorts") or [])
-            ],
-            "healthProbe": ModelConfigContainerSpecHealthProbe().from_response(self.response.get("healthProbe", {})),
-            "healthRoute": self.response.get("healthRoute"),
-            "imageUri": self.response.get("imageUri"),
-            "livenessProbe": ModelConfigContainerSpecLivenessProbe().from_response(
-                self.response.get("livenessProbe", {})
-            ),
-            "ports": [
-                ModelConfigContainerSpecPort().from_response(item) for item in (self.response.get("ports") or [])
-            ],
-            "predictRoute": self.response.get("predictRoute"),
-            "sharedMemorySizeMb": self.response.get("sharedMemorySizeMb"),
-            "startupProbe": ModelConfigContainerSpecStartupProbe().from_response(self.response.get("startupProbe", {})),
-        }
-
 
 class ModelConfigContainerSpecEnv(gcp_v2.Resource):
     def _request(self):
@@ -1181,22 +1082,11 @@ class ModelConfigContainerSpecEnv(gcp_v2.Resource):
             "value": self.request.get("value"),
         }
 
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
-        }
-
 
 class ModelConfigContainerSpecGrpcPort(gcp_v2.Resource):
     def _request(self):
         return {
             "containerPort": self.request.get("container_port"),
-        }
-
-    def _response(self):
-        return {
-            "containerPort": self.response.get("containerPort"),
         }
 
 
@@ -1222,31 +1112,11 @@ class ModelConfigContainerSpecHealthProbe(gcp_v2.Resource):
             "timeoutSeconds": self.request.get("timeout_seconds"),
         }
 
-    def _response(self):
-        return {
-            "exec": ModelConfigContainerSpecHealthProbeExec().from_response(self.response.get("exec", {})),
-            "failureThreshold": self.response.get("failureThreshold"),
-            "grpc": ModelConfigContainerSpecHealthProbeGrpc().from_response(self.response.get("grpc", {})),
-            "httpGet": ModelConfigContainerSpecHealthProbeHttpGet().from_response(self.response.get("httpGet", {})),
-            "initialDelaySeconds": self.response.get("initialDelaySeconds"),
-            "periodSeconds": self.response.get("periodSeconds"),
-            "successThreshold": self.response.get("successThreshold"),
-            "tcpSocket": ModelConfigContainerSpecHealthProbeTcpSocket().from_response(
-                self.response.get("tcpSocket", {})
-            ),
-            "timeoutSeconds": self.response.get("timeoutSeconds"),
-        }
-
 
 class ModelConfigContainerSpecHealthProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
-        }
-
-    def _response(self):
-        return {
-            "command": self.response.get("command"),
         }
 
 
@@ -1255,12 +1125,6 @@ class ModelConfigContainerSpecHealthProbeGrpc(gcp_v2.Resource):
         return {
             "port": self.request.get("port"),
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "port": self.response.get("port"),
-            "service": self.response.get("service"),
         }
 
 
@@ -1277,18 +1141,6 @@ class ModelConfigContainerSpecHealthProbeHttpGet(gcp_v2.Resource):
             "scheme": self.request.get("scheme"),
         }
 
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "httpHeaders": [
-                ModelConfigContainerSpecHealthProbeHttpGetHttpHeader().from_response(item)
-                for item in (self.response.get("httpHeaders") or [])
-            ],
-            "path": self.response.get("path"),
-            "port": self.response.get("port"),
-            "scheme": self.response.get("scheme"),
-        }
-
 
 class ModelConfigContainerSpecHealthProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
@@ -1297,24 +1149,12 @@ class ModelConfigContainerSpecHealthProbeHttpGetHttpHeader(gcp_v2.Resource):
             "value": self.request.get("value"),
         }
 
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
-        }
-
 
 class ModelConfigContainerSpecHealthProbeTcpSocket(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
             "port": self.request.get("port"),
-        }
-
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "port": self.response.get("port"),
         }
 
 
@@ -1340,31 +1180,11 @@ class ModelConfigContainerSpecLivenessProbe(gcp_v2.Resource):
             "timeoutSeconds": self.request.get("timeout_seconds"),
         }
 
-    def _response(self):
-        return {
-            "exec": ModelConfigContainerSpecLivenessProbeExec().from_response(self.response.get("exec", {})),
-            "failureThreshold": self.response.get("failureThreshold"),
-            "grpc": ModelConfigContainerSpecLivenessProbeGrpc().from_response(self.response.get("grpc", {})),
-            "httpGet": ModelConfigContainerSpecLivenessProbeHttpGet().from_response(self.response.get("httpGet", {})),
-            "initialDelaySeconds": self.response.get("initialDelaySeconds"),
-            "periodSeconds": self.response.get("periodSeconds"),
-            "successThreshold": self.response.get("successThreshold"),
-            "tcpSocket": ModelConfigContainerSpecLivenessProbeTcpSocket().from_response(
-                self.response.get("tcpSocket", {})
-            ),
-            "timeoutSeconds": self.response.get("timeoutSeconds"),
-        }
-
 
 class ModelConfigContainerSpecLivenessProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
-        }
-
-    def _response(self):
-        return {
-            "command": self.response.get("command"),
         }
 
 
@@ -1373,12 +1193,6 @@ class ModelConfigContainerSpecLivenessProbeGrpc(gcp_v2.Resource):
         return {
             "port": self.request.get("port"),
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "port": self.response.get("port"),
-            "service": self.response.get("service"),
         }
 
 
@@ -1395,30 +1209,12 @@ class ModelConfigContainerSpecLivenessProbeHttpGet(gcp_v2.Resource):
             "scheme": self.request.get("scheme"),
         }
 
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "httpHeaders": [
-                ModelConfigContainerSpecLivenessProbeHttpGetHttpHeader().from_response(item)
-                for item in (self.response.get("httpHeaders") or [])
-            ],
-            "path": self.response.get("path"),
-            "port": self.response.get("port"),
-            "scheme": self.response.get("scheme"),
-        }
-
 
 class ModelConfigContainerSpecLivenessProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
             "value": self.request.get("value"),
-        }
-
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
         }
 
 
@@ -1429,22 +1225,11 @@ class ModelConfigContainerSpecLivenessProbeTcpSocket(gcp_v2.Resource):
             "port": self.request.get("port"),
         }
 
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "port": self.response.get("port"),
-        }
-
 
 class ModelConfigContainerSpecPort(gcp_v2.Resource):
     def _request(self):
         return {
             "containerPort": self.request.get("container_port"),
-        }
-
-    def _response(self):
-        return {
-            "containerPort": self.response.get("containerPort"),
         }
 
 
@@ -1470,31 +1255,11 @@ class ModelConfigContainerSpecStartupProbe(gcp_v2.Resource):
             "timeoutSeconds": self.request.get("timeout_seconds"),
         }
 
-    def _response(self):
-        return {
-            "exec": ModelConfigContainerSpecStartupProbeExec().from_response(self.response.get("exec", {})),
-            "failureThreshold": self.response.get("failureThreshold"),
-            "grpc": ModelConfigContainerSpecStartupProbeGrpc().from_response(self.response.get("grpc", {})),
-            "httpGet": ModelConfigContainerSpecStartupProbeHttpGet().from_response(self.response.get("httpGet", {})),
-            "initialDelaySeconds": self.response.get("initialDelaySeconds"),
-            "periodSeconds": self.response.get("periodSeconds"),
-            "successThreshold": self.response.get("successThreshold"),
-            "tcpSocket": ModelConfigContainerSpecStartupProbeTcpSocket().from_response(
-                self.response.get("tcpSocket", {})
-            ),
-            "timeoutSeconds": self.response.get("timeoutSeconds"),
-        }
-
 
 class ModelConfigContainerSpecStartupProbeExec(gcp_v2.Resource):
     def _request(self):
         return {
             "command": self.request.get("command"),
-        }
-
-    def _response(self):
-        return {
-            "command": self.response.get("command"),
         }
 
 
@@ -1503,12 +1268,6 @@ class ModelConfigContainerSpecStartupProbeGrpc(gcp_v2.Resource):
         return {
             "port": self.request.get("port"),
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "port": self.response.get("port"),
-            "service": self.response.get("service"),
         }
 
 
@@ -1525,18 +1284,6 @@ class ModelConfigContainerSpecStartupProbeHttpGet(gcp_v2.Resource):
             "scheme": self.request.get("scheme"),
         }
 
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "httpHeaders": [
-                ModelConfigContainerSpecStartupProbeHttpGetHttpHeader().from_response(item)
-                for item in (self.response.get("httpHeaders") or [])
-            ],
-            "path": self.response.get("path"),
-            "port": self.response.get("port"),
-            "scheme": self.response.get("scheme"),
-        }
-
 
 class ModelConfigContainerSpecStartupProbeHttpGetHttpHeader(gcp_v2.Resource):
     def _request(self):
@@ -1545,24 +1292,12 @@ class ModelConfigContainerSpecStartupProbeHttpGetHttpHeader(gcp_v2.Resource):
             "value": self.request.get("value"),
         }
 
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
-        }
-
 
 class ModelConfigContainerSpecStartupProbeTcpSocket(gcp_v2.Resource):
     def _request(self):
         return {
             "host": self.request.get("host"),
             "port": self.request.get("port"),
-        }
-
-    def _response(self):
-        return {
-            "host": self.response.get("host"),
-            "port": self.response.get("port"),
         }
 
 
@@ -1584,13 +1319,9 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "deployConfig": DeployConfig().from_response(self.response.get("deployConfig", {})),
             "deployedModelDisplayName": self.response.get("deployedModelDisplayName"),
             "deployedModelId": self.response.get("deployedModelId"),
-            "endpointConfig": EndpointConfig().from_response(self.response.get("endpointConfig", {})),
-            "huggingFaceModelId": self.response.get("huggingFaceModelId"),
-            "modelConfig": ModelConfig().from_response(self.response.get("modelConfig", {})),
-            "publisherModelName": self.response.get("publisherModelName"),
+            "endpoint": self.response.get("endpoint"),
         }
 
 
@@ -2079,9 +1810,7 @@ def main():
             publisher_model_name=dict(
                 type="str",
             ),
-        ),
-        mutually_exclusive=[["hugging_face_model_id", "publisher_model_name"]],
-        required_one_of=[["hugging_face_model_id", "publisher_model_name"]],
+        )
     )
 
     if not module.params["scopes"]:

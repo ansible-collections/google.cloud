@@ -577,11 +577,6 @@ class EncryptionSpec(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class PredictRequestResponseLoggingConfig(gcp_v2.Resource):
     def _request(self):
@@ -595,25 +590,11 @@ class PredictRequestResponseLoggingConfig(gcp_v2.Resource):
             "samplingRate": self.request.get("sampling_rate"),
         }
 
-    def _response(self):
-        return {
-            "bigqueryDestination": PredictRequestResponseLoggingConfigBigqueryDestination().from_response(
-                self.response.get("bigqueryDestination", {})
-            ),
-            "enabled": self.response.get("enabled"),
-            "samplingRate": self.response.get("samplingRate"),
-        }
-
 
 class PredictRequestResponseLoggingConfigBigqueryDestination(gcp_v2.Resource):
     def _request(self):
         return {
             "outputUri": self.request.get("output_uri"),
-        }
-
-    def _response(self):
-        return {
-            "outputUri": self.response.get("outputUri"),
         }
 
 
@@ -626,17 +607,6 @@ class PrivateServiceConnectConfig(gcp_v2.Resource):
             "pscAutomationConfigs": [
                 PrivateServiceConnectConfigPscAutomationConfig(item).to_request()
                 for item in (self.request.get("psc_automation_configs") or [])
-            ],
-        }
-
-    def _response(self):
-        return {
-            "enablePrivateServiceConnect": self.response.get("enablePrivateServiceConnect"),
-            "enableSecurePrivateServiceConnect": self.response.get("enableSecurePrivateServiceConnect"),
-            "projectAllowlist": self.response.get("projectAllowlist"),
-            "pscAutomationConfigs": [
-                PrivateServiceConnectConfigPscAutomationConfig().from_response(item)
-                for item in (self.response.get("pscAutomationConfigs") or [])
             ],
         }
 
@@ -653,8 +623,6 @@ class PrivateServiceConnectConfigPscAutomationConfig(gcp_v2.Resource):
             "errorMessage": self.response.get("errorMessage"),
             "forwardingRule": self.response.get("forwardingRule"),
             "ipAddress": self.response.get("ipAddress"),
-            "network": self.response.get("network"),
-            "projectId": self.response.get("projectId"),
             "state": self.response.get("state"),
         }
 
@@ -685,26 +653,11 @@ class VertexAI(gcp_v2.Resource):
         return {
             "createTime": self.response.get("createTime"),
             "dedicatedEndpointDns": self.response.get("dedicatedEndpointDns"),
-            "dedicatedEndpointEnabled": self.response.get("dedicatedEndpointEnabled"),
             "deployedModels": [
                 DeployedModels().from_response(item) for item in (self.response.get("deployedModels") or [])
             ],
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
             "modelDeploymentMonitoringJob": self.response.get("modelDeploymentMonitoringJob"),
-            "network": self.response.get("network"),
-            "predictRequestResponseLoggingConfig": PredictRequestResponseLoggingConfig().from_response(
-                self.response.get("predictRequestResponseLoggingConfig", {})
-            ),
-            "privateServiceConnectConfig": PrivateServiceConnectConfig().from_response(
-                self.response.get("privateServiceConnectConfig", {})
-            ),
-            "labels": self.response.get("labels"),
-            "trafficSplit": self.response.get("trafficSplit"),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -828,9 +781,9 @@ def main():
             ),
         ),
         mutually_exclusive=[
-            ["dedicated_endpoint_enabled", "network", "private_service_connect_config"],
-            ["dedicated_endpoint_enabled", "private_service_connect_config"],
-            ["network", "private_service_connect_config"],
+            ("dedicated_endpoint_enabled", "network", "private_service_connect_config"),
+            ("dedicated_endpoint_enabled", "private_service_connect_config"),
+            ("network", "private_service_connect_config"),
         ],
     )
 

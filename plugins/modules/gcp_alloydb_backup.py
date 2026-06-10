@@ -265,11 +265,6 @@ class EncryptionConfig(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class EncryptionInfo(gcp_v2.Resource):
     def _response(self):
@@ -303,26 +298,16 @@ class Alloydb(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "clusterName": self.response.get("clusterName"),
             "clusterUid": self.response.get("clusterUid"),
             "createTime": self.response.get("createTime"),
             "deleteTime": self.response.get("deleteTime"),
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "annotations": self.response.get("annotations"),
-            "labels": self.response.get("labels"),
-            "encryptionConfig": EncryptionConfig().from_response(self.response.get("encryptionConfig", {})),
             "encryptionInfo": EncryptionInfo().from_response(self.response.get("encryptionInfo", {})),
             "etag": self.response.get("etag"),
             "expiryQuantity": ExpiryQuantity().from_response(self.response.get("expiryQuantity", {})),
             "expiryTime": self.response.get("expiryTime"),
-            "labels": self.response.get("labels"),
             "name": self.response.get("name"),
             "reconciling": self.response.get("reconciling"),
             "sizeBytes": self.response.get("sizeBytes"),
-            "labels": self.response.get("labels"),
-            "type": self.response.get("type"),
             "uid": self.response.get("uid"),
             "updateTime": self.response.get("updateTime"),
         }

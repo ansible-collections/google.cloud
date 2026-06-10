@@ -333,15 +333,6 @@ class CustomEnvironmentSpec(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "machineSpec": CustomEnvironmentSpecMachineSpec().from_response(self.response.get("machineSpec", {})),
-            "networkSpec": CustomEnvironmentSpecNetworkSpec().from_response(self.response.get("networkSpec", {})),
-            "persistentDiskSpec": CustomEnvironmentSpecPersistentDiskSpec().from_response(
-                self.response.get("persistentDiskSpec", {})
-            ),
-        }
-
 
 class CustomEnvironmentSpecMachineSpec(gcp_v2.Resource):
     def _request(self):
@@ -349,13 +340,6 @@ class CustomEnvironmentSpecMachineSpec(gcp_v2.Resource):
             "acceleratorCount": self.request.get("accelerator_count"),
             "acceleratorType": self.request.get("accelerator_type"),
             "machineType": self.request.get("machine_type"),
-        }
-
-    def _response(self):
-        return {
-            "acceleratorCount": self.response.get("acceleratorCount"),
-            "acceleratorType": self.response.get("acceleratorType"),
-            "machineType": self.response.get("machineType"),
         }
 
 
@@ -367,25 +351,12 @@ class CustomEnvironmentSpecNetworkSpec(gcp_v2.Resource):
             "subnetwork": self.request.get("subnetwork"),
         }
 
-    def _response(self):
-        return {
-            "enableInternetAccess": self.response.get("enableInternetAccess"),
-            "network": self.response.get("network"),
-            "subnetwork": self.response.get("subnetwork"),
-        }
-
 
 class CustomEnvironmentSpecPersistentDiskSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "diskSizeGb": self.request.get("disk_size_gb"),
             "diskType": self.request.get("disk_type"),
-        }
-
-    def _response(self):
-        return {
-            "diskSizeGb": self.response.get("diskSizeGb"),
-            "diskType": self.response.get("diskType"),
         }
 
 
@@ -396,22 +367,11 @@ class DataformRepositorySource(gcp_v2.Resource):
             "dataformRepositoryResourceName": self.request.get("dataform_repository_resource_name"),
         }
 
-    def _response(self):
-        return {
-            "commitSha": self.response.get("commitSha"),
-            "dataformRepositoryResourceName": self.response.get("dataformRepositoryResourceName"),
-        }
-
 
 class DirectNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "content": self.request.get("content"),
-        }
-
-    def _response(self):
-        return {
-            "content": self.response.get("content"),
         }
 
 
@@ -420,12 +380,6 @@ class GcsNotebookSource(gcp_v2.Resource):
         return {
             "generation": self.request.get("generation"),
             "uri": self.request.get("uri"),
-        }
-
-    def _response(self):
-        return {
-            "generation": self.response.get("generation"),
-            "uri": self.response.get("uri"),
         }
 
 
@@ -453,22 +407,7 @@ class Colab(gcp_v2.Resource):
         }
 
     def _response(self):
-        return {
-            "customEnvironmentSpec": CustomEnvironmentSpec().from_response(
-                self.response.get("customEnvironmentSpec", {})
-            ),
-            "dataformRepositorySource": DataformRepositorySource().from_response(
-                self.response.get("dataformRepositorySource", {})
-            ),
-            "directNotebookSource": DirectNotebookSource().from_response(self.response.get("directNotebookSource", {})),
-            "displayName": self.response.get("displayName"),
-            "executionTimeout": self.response.get("executionTimeout"),
-            "executionUser": self.response.get("executionUser"),
-            "gcsNotebookSource": GcsNotebookSource().from_response(self.response.get("gcsNotebookSource", {})),
-            "gcsOutputUri": self.response.get("gcsOutputUri"),
-            "notebookRuntimeTemplateResourceName": self.response.get("notebookRuntimeTemplateResourceName"),
-            "serviceAccount": self.response.get("serviceAccount"),
-        }
+        return {}
 
 
 ################################################################################
@@ -590,17 +529,7 @@ def main():
             service_account=dict(
                 type="str",
             ),
-        ),
-        mutually_exclusive=[
-            ["custom_environment_spec", "notebook_runtime_template_resource_name"],
-            ["dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"],
-            ["execution_user", "service_account"],
-        ],
-        required_one_of=[
-            ["custom_environment_spec", "notebook_runtime_template_resource_name"],
-            ["dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"],
-            ["execution_user", "service_account"],
-        ],
+        )
     )
 
     if not module.params["scopes"]:
