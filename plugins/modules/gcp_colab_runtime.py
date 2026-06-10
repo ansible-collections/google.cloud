@@ -191,11 +191,6 @@ class NotebookRuntimeTemplateRef(gcp_v2.Resource):
             "notebookRuntimeTemplate": self.request.get("notebook_runtime_template"),
         }
 
-    def _response(self):
-        return {
-            "notebookRuntimeTemplate": self.response.get("notebookRuntimeTemplate"),
-        }
-
 
 class Colab(gcp_v2.Resource):
     def _request(self):
@@ -210,15 +205,9 @@ class Colab(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
             "expirationTime": self.response.get("expirationTime"),
             "isUpgradable": self.response.get("isUpgradable"),
-            "notebookRuntimeTemplateRef": NotebookRuntimeTemplateRef().from_response(
-                self.response.get("notebookRuntimeTemplateRef", {})
-            ),
             "notebookRuntimeType": self.response.get("notebookRuntimeType"),
-            "runtimeUser": self.response.get("runtimeUser"),
         }
 
     def encode(self, request):

@@ -187,11 +187,6 @@ class EncryptionSpec(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class VertexAI(gcp_v2.Resource):
     def _request(self):
@@ -207,13 +202,7 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "displayName": self.response.get("displayName"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
-            "labels": self.response.get("labels"),
-            "metadataSchemaUri": self.response.get("metadataSchemaUri"),
             "name": self.response.get("name"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 

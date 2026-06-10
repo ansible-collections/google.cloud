@@ -239,13 +239,6 @@ class Bigtable(gcp_v2.Resource):
             "zone": self.request.get("zone"),
         }
 
-    def _response(self):
-        return {
-            "autoScaling": BigtableAutoScaling().from_response(self.response.get("autoScaling", {})),
-            "enableDirectBigtableAccess": self.response.get("enableDirectBigtableAccess"),
-            "zone": self.response.get("zone"),
-        }
-
 
 class BigtableAutoScaling(gcp_v2.Resource):
     def _request(self):
@@ -253,13 +246,6 @@ class BigtableAutoScaling(gcp_v2.Resource):
             "cpuUtilizationTarget": self.request.get("cpu_utilization_target"),
             "maxNodeCount": self.request.get("max_node_count"),
             "minNodeCount": self.request.get("min_node_count"),
-        }
-
-    def _response(self):
-        return {
-            "cpuUtilizationTarget": self.response.get("cpuUtilizationTarget"),
-            "maxNodeCount": self.response.get("maxNodeCount"),
-            "minNodeCount": self.response.get("minNodeCount"),
         }
 
 
@@ -275,9 +261,6 @@ class DedicatedServingEndpoint(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "privateServiceConnectConfig": DedicatedServingEndpointPrivateServiceConnectConfig().from_response(
-                self.response.get("privateServiceConnectConfig", {})
-            ),
             "publicEndpointDomainName": self.response.get("publicEndpointDomainName"),
             "serviceAttachment": self.response.get("serviceAttachment"),
         }
@@ -290,12 +273,6 @@ class DedicatedServingEndpointPrivateServiceConnectConfig(gcp_v2.Resource):
             "projectAllowlist": self.request.get("project_allowlist"),
         }
 
-    def _response(self):
-        return {
-            "enablePrivateServiceConnect": self.response.get("enablePrivateServiceConnect"),
-            "projectAllowlist": self.response.get("projectAllowlist"),
-        }
-
 
 class EmbeddingManagement(gcp_v2.Resource):
     def _request(self):
@@ -303,21 +280,11 @@ class EmbeddingManagement(gcp_v2.Resource):
             "enabled": self.request.get("enabled"),
         }
 
-    def _response(self):
-        return {
-            "enabled": self.response.get("enabled"),
-        }
-
 
 class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -352,18 +319,8 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "bigtable": Bigtable().from_response(self.response.get("bigtable", {})),
             "createTime": self.response.get("createTime"),
-            "dedicatedServingEndpoint": DedicatedServingEndpoint().from_response(
-                self.response.get("dedicatedServingEndpoint", {})
-            ),
-            "labels": self.response.get("labels"),
-            "embeddingManagement": EmbeddingManagement().from_response(self.response.get("embeddingManagement", {})),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
-            "optimized": Optimized().from_response(self.response.get("optimized", {})),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -471,8 +428,7 @@ def main():
                 type="str",
             ),
         ),
-        mutually_exclusive=[["bigtable", "optimized"], ["embedding_management", "optimized"]],
-        required_one_of=[["bigtable", "optimized"]],
+        mutually_exclusive=[("embedding_management", "optimized")],
     )
 
     if not module.params["scopes"]:

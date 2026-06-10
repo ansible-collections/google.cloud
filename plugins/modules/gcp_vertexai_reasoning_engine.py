@@ -473,11 +473,6 @@ class ContextSpec(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "memoryBankConfig": ContextSpecMemoryBankConfig().from_response(self.response.get("memoryBankConfig", {})),
-        }
-
 
 class ContextSpecMemoryBankConfig(gcp_v2.Resource):
     def _request(self):
@@ -496,18 +491,6 @@ class ContextSpecMemoryBankConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "disableMemoryRevisions": self.response.get("disableMemoryRevisions"),
-            "generationConfig": ContextSpecMemoryBankConfigGenerationConfig().from_response(
-                self.response.get("generationConfig", {})
-            ),
-            "similaritySearchConfig": ContextSpecMemoryBankConfigSimilaritySearchConfig().from_response(
-                self.response.get("similaritySearchConfig", {})
-            ),
-            "ttlConfig": ContextSpecMemoryBankConfigTtlConfig().from_response(self.response.get("ttlConfig", {})),
-        }
-
 
 class ContextSpecMemoryBankConfigGenerationConfig(gcp_v2.Resource):
     def _request(self):
@@ -515,21 +498,11 @@ class ContextSpecMemoryBankConfigGenerationConfig(gcp_v2.Resource):
             "model": self.request.get("model"),
         }
 
-    def _response(self):
-        return {
-            "model": self.response.get("model"),
-        }
-
 
 class ContextSpecMemoryBankConfigSimilaritySearchConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "embeddingModel": self.request.get("embedding_model"),
-        }
-
-    def _response(self):
-        return {
-            "embeddingModel": self.response.get("embeddingModel"),
         }
 
 
@@ -545,15 +518,6 @@ class ContextSpecMemoryBankConfigTtlConfig(gcp_v2.Resource):
             "memoryRevisionDefaultTtl": self.request.get("memory_revision_default_ttl"),
         }
 
-    def _response(self):
-        return {
-            "defaultTtl": self.response.get("defaultTtl"),
-            "granularTtlConfig": ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig().from_response(
-                self.response.get("granularTtlConfig", {})
-            ),
-            "memoryRevisionDefaultTtl": self.response.get("memoryRevisionDefaultTtl"),
-        }
-
 
 class ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(gcp_v2.Resource):
     def _request(self):
@@ -563,23 +527,11 @@ class ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(gcp_v2.Resource):
             "generateUpdatedTtl": self.request.get("generate_updated_ttl"),
         }
 
-    def _response(self):
-        return {
-            "createTtl": self.response.get("createTtl"),
-            "generateCreatedTtl": self.response.get("generateCreatedTtl"),
-            "generateUpdatedTtl": self.response.get("generateUpdatedTtl"),
-        }
-
 
 class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
-        }
-
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
         }
 
 
@@ -603,14 +555,7 @@ class Spec(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "agentFramework": self.response.get("agentFramework"),
-            "classMethods": self.response.get("classMethods"),
-            "deploymentSpec": SpecDeploymentSpec().from_response(self.response.get("deploymentSpec", {})),
             "effectiveIdentity": self.response.get("effectiveIdentity"),
-            "identityType": self.response.get("identityType"),
-            "packageSpec": SpecPackageSpec().from_response(self.response.get("packageSpec", {})),
-            "serviceAccount": self.response.get("serviceAccount"),
-            "sourceCodeSpec": SpecSourceCodeSpec().from_response(self.response.get("sourceCodeSpec", {})),
         }
 
 
@@ -630,33 +575,12 @@ class SpecDeploymentSpec(gcp_v2.Resource):
             ],
         }
 
-    def _response(self):
-        return {
-            "containerConcurrency": self.response.get("containerConcurrency"),
-            "env": [SpecDeploymentSpecEnv().from_response(item) for item in (self.response.get("env") or [])],
-            "maxInstances": self.response.get("maxInstances"),
-            "minInstances": self.response.get("minInstances"),
-            "pscInterfaceConfig": SpecDeploymentSpecPscInterfaceConfig().from_response(
-                self.response.get("pscInterfaceConfig", {})
-            ),
-            "resourceLimits": self.response.get("resourceLimits"),
-            "secretEnv": [
-                SpecDeploymentSpecSecretEnv().from_response(item) for item in (self.response.get("secretEnv") or [])
-            ],
-        }
-
 
 class SpecDeploymentSpecEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
             "value": self.request.get("value"),
-        }
-
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "value": self.response.get("value"),
         }
 
 
@@ -670,15 +594,6 @@ class SpecDeploymentSpecPscInterfaceConfig(gcp_v2.Resource):
             "networkAttachment": self.request.get("network_attachment"),
         }
 
-    def _response(self):
-        return {
-            "dnsPeeringConfigs": [
-                SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig().from_response(item)
-                for item in (self.response.get("dnsPeeringConfigs") or [])
-            ],
-            "networkAttachment": self.response.get("networkAttachment"),
-        }
-
 
 class SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig(gcp_v2.Resource):
     def _request(self):
@@ -686,13 +601,6 @@ class SpecDeploymentSpecPscInterfaceConfigDnsPeeringConfig(gcp_v2.Resource):
             "domain": self.request.get("domain"),
             "targetNetwork": self.request.get("target_network"),
             "targetProject": self.request.get("target_project"),
-        }
-
-    def _response(self):
-        return {
-            "domain": self.response.get("domain"),
-            "targetNetwork": self.response.get("targetNetwork"),
-            "targetProject": self.response.get("targetProject"),
         }
 
 
@@ -705,24 +613,12 @@ class SpecDeploymentSpecSecretEnv(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "name": self.response.get("name"),
-            "secretRef": SpecDeploymentSpecSecretEnvSecretRef().from_response(self.response.get("secretRef", {})),
-        }
-
 
 class SpecDeploymentSpecSecretEnvSecretRef(gcp_v2.Resource):
     def _request(self):
         return {
             "secret": self.request.get("secret"),
             "version": self.request.get("version"),
-        }
-
-    def _response(self):
-        return {
-            "secret": self.response.get("secret"),
-            "version": self.response.get("version"),
         }
 
 
@@ -733,14 +629,6 @@ class SpecPackageSpec(gcp_v2.Resource):
             "pickleObjectGcsUri": self.request.get("pickle_object_gcs_uri"),
             "pythonVersion": self.request.get("python_version"),
             "requirementsGcsUri": self.request.get("requirements_gcs_uri"),
-        }
-
-    def _response(self):
-        return {
-            "dependencyFilesGcsUri": self.response.get("dependencyFilesGcsUri"),
-            "pickleObjectGcsUri": self.response.get("pickleObjectGcsUri"),
-            "pythonVersion": self.response.get("pythonVersion"),
-            "requirementsGcsUri": self.response.get("requirementsGcsUri"),
         }
 
 
@@ -758,15 +646,6 @@ class SpecSourceCodeSpec(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "developerConnectSource": SpecSourceCodeSpecDeveloperConnectSource().from_response(
-                self.response.get("developerConnectSource", {})
-            ),
-            "inlineSource": SpecSourceCodeSpecInlineSource().from_response(self.response.get("inlineSource", {})),
-            "pythonSpec": SpecSourceCodeSpecPythonSpec().from_response(self.response.get("pythonSpec", {})),
-        }
-
 
 class SpecSourceCodeSpecDeveloperConnectSource(gcp_v2.Resource):
     def _request(self):
@@ -774,11 +653,6 @@ class SpecSourceCodeSpecDeveloperConnectSource(gcp_v2.Resource):
             "config": gcp_v2.remove_empties(
                 SpecSourceCodeSpecDeveloperConnectSourceConfig(self.request.get("config", {})).to_request()
             ),  # remove empty values
-        }
-
-    def _response(self):
-        return {
-            "config": SpecSourceCodeSpecDeveloperConnectSourceConfig().from_response(self.response.get("config", {})),
         }
 
 
@@ -790,23 +664,11 @@ class SpecSourceCodeSpecDeveloperConnectSourceConfig(gcp_v2.Resource):
             "revision": self.request.get("revision"),
         }
 
-    def _response(self):
-        return {
-            "dir": self.response.get("dir"),
-            "gitRepositoryLink": self.response.get("gitRepositoryLink"),
-            "revision": self.response.get("revision"),
-        }
-
 
 class SpecSourceCodeSpecInlineSource(gcp_v2.Resource):
     def _request(self):
         return {
             "sourceArchive": self.request.get("source_archive"),
-        }
-
-    def _response(self):
-        return {
-            "sourceArchive": self.response.get("sourceArchive"),
         }
 
 
@@ -817,14 +679,6 @@ class SpecSourceCodeSpecPythonSpec(gcp_v2.Resource):
             "entrypointObject": self.request.get("entrypoint_object"),
             "requirementsFile": self.request.get("requirements_file"),
             "version": self.request.get("version"),
-        }
-
-    def _response(self):
-        return {
-            "entrypointModule": self.response.get("entrypointModule"),
-            "entrypointObject": self.response.get("entrypointObject"),
-            "requirementsFile": self.response.get("requirementsFile"),
-            "version": self.response.get("version"),
         }
 
 
@@ -844,13 +698,8 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "contextSpec": ContextSpec().from_response(self.response.get("contextSpec", {})),
             "createTime": self.response.get("createTime"),
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "name": self.response.get("name"),
-            "spec": Spec().from_response(self.response.get("spec", {})),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -921,8 +770,6 @@ def main():
                                         type="str",
                                     ),
                                 ),
-                                mutually_exclusive=[["default_ttl", "granular_ttl_config"]],
-                                required_one_of=[["default_ttl", "granular_ttl_config"]],
                             ),
                         ),
                     )

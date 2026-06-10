@@ -147,12 +147,7 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "createTime": self.response.get("createTime"),
-            "description": self.response.get("description"),
-            "labels": self.response.get("labels"),
-            "labels": self.response.get("labels"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
-            "versionColumnName": self.response.get("versionColumnName"),
         }
 
     def decode(self, response):

@@ -269,13 +269,6 @@ class CreateNotebookExecutionJobRequest(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "notebookExecutionJob": CreateNotebookExecutionJobRequestNotebookExecutionJob().from_response(
-                self.response.get("notebookExecutionJob", {})
-            ),
-        }
-
 
 class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp_v2.Resource):
     def _request(self):
@@ -298,22 +291,6 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp_v2.Resource):
             "serviceAccount": self.request.get("service_account"),
         }
 
-    def _response(self):
-        return {
-            "dataformRepositorySource": CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource().from_response(
-                self.response.get("dataformRepositorySource", {})
-            ),
-            "displayName": self.response.get("displayName"),
-            "executionTimeout": self.response.get("executionTimeout"),
-            "executionUser": self.response.get("executionUser"),
-            "gcsNotebookSource": CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource().from_response(
-                self.response.get("gcsNotebookSource", {})
-            ),
-            "gcsOutputUri": self.response.get("gcsOutputUri"),
-            "notebookRuntimeTemplateResourceName": self.response.get("notebookRuntimeTemplateResourceName"),
-            "serviceAccount": self.response.get("serviceAccount"),
-        }
-
 
 class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource(gcp_v2.Resource):
     def _request(self):
@@ -322,24 +299,12 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySou
             "dataformRepositoryResourceName": self.request.get("dataform_repository_resource_name"),
         }
 
-    def _response(self):
-        return {
-            "commitSha": self.response.get("commitSha"),
-            "dataformRepositoryResourceName": self.response.get("dataformRepositoryResourceName"),
-        }
-
 
 class CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "generation": self.request.get("generation"),
             "uri": self.request.get("uri"),
-        }
-
-    def _response(self):
-        return {
-            "generation": self.response.get("generation"),
-            "uri": self.response.get("uri"),
         }
 
 
@@ -362,17 +327,7 @@ class Colab(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "allowQueueing": self.response.get("allowQueueing"),
-            "createNotebookExecutionJobRequest": CreateNotebookExecutionJobRequest().from_response(
-                self.response.get("createNotebookExecutionJobRequest", {})
-            ),
-            "cron": self.response.get("cron"),
-            "displayName": self.response.get("displayName"),
-            "endTime": self.response.get("endTime"),
-            "maxConcurrentRunCount": self.response.get("maxConcurrentRunCount"),
-            "maxRunCount": self.response.get("maxRunCount"),
             "name": self.response.get("name"),
-            "startTime": self.response.get("startTime"),
         }
 
     def encode(self, request):
@@ -485,14 +440,6 @@ def main():
                                 type="str",
                             ),
                         ),
-                        mutually_exclusive=[
-                            ["dataform_repository_source", "gcs_notebook_source"],
-                            ["execution_user", "service_account"],
-                        ],
-                        required_one_of=[
-                            ["dataform_repository_source", "gcs_notebook_source"],
-                            ["execution_user", "service_account"],
-                        ],
                     )
                 ),
             ),

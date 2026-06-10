@@ -61,16 +61,6 @@ options:
     description:
       - Password for this database user.
     type: str
-  password_wo:
-    description:
-      - Password for this database user.
-    type: str
-  password_wo_version:
-    description:
-      - Triggers update of `password_wo` write-only.
-      - Increment this value when an update to `password_wo` is needed.
-      - For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments).
-    type: str
   state:
     choices:
       - present
@@ -142,19 +132,12 @@ class Alloydb(gcp_v2.Resource):
         return {
             "databaseRoles": [str(item) for item in (self.request.get("database_roles") or [])],
             "password": self.request.get("password"),
-            "password": self.request.get("password_wo"),
-            "passwordWoVersion": self.request.get("password_wo_version"),
             "userType": self.request.get("user_type"),
         }
 
     def _response(self):
         return {
-            "databaseRoles": [str(item) for item in (self.response.get("databaseRoles") or [])],
             "name": self.response.get("name"),
-            "password": self.response.get("password"),
-            "password": self.response.get("password"),
-            "passwordWoVersion": self.response.get("passwordWoVersion"),
-            "userType": self.response.get("userType"),
         }
 
 
@@ -185,14 +168,6 @@ def main():
                 type="str",
                 no_log=True,
             ),
-            password_wo=dict(
-                type="str",
-                no_log=False,
-            ),
-            password_wo_version=dict(
-                type="str",
-                no_log=False,
-            ),
             user_id=dict(
                 type="str",
                 required=True,
@@ -202,9 +177,7 @@ def main():
                 required=True,
                 choices=["ALLOYDB_BUILT_IN", "ALLOYDB_IAM_USER"],
             ),
-        ),
-        mutually_exclusive=[["password", "password_wo"]],
-        required_together=[["password_wo", "password_wo_version"]],
+        )
     )
 
     if not module.params["scopes"]:

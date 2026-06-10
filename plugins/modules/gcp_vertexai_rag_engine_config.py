@@ -150,7 +150,6 @@ class VertexAI(gcp_v2.Resource):
     def _response(self):
         return {
             "name": self.response.get("name"),
-            "ragManagedDbConfig": self.response.get("ragManagedDbConfig"),
         }
 
     def encode(self, request):

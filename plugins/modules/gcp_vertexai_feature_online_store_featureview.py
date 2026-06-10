@@ -247,12 +247,6 @@ class BigQuerySource(gcp_v2.Resource):
             "uri": self.request.get("uri"),
         }
 
-    def _response(self):
-        return {
-            "entityIdColumns": self.response.get("entityIdColumns"),
-            "uri": self.response.get("uri"),
-        }
-
 
 class FeatureRegistrySource(gcp_v2.Resource):
     def _request(self):
@@ -264,15 +258,6 @@ class FeatureRegistrySource(gcp_v2.Resource):
             "projectNumber": self.request.get("project_number"),
         }
 
-    def _response(self):
-        return {
-            "featureGroups": [
-                FeatureRegistrySourceFeatureGroup().from_response(item)
-                for item in (self.response.get("featureGroups") or [])
-            ],
-            "projectNumber": self.response.get("projectNumber"),
-        }
-
 
 class FeatureRegistrySourceFeatureGroup(gcp_v2.Resource):
     def _request(self):
@@ -281,24 +266,12 @@ class FeatureRegistrySourceFeatureGroup(gcp_v2.Resource):
             "featureIds": self.request.get("feature_ids"),
         }
 
-    def _response(self):
-        return {
-            "featureGroupId": self.response.get("featureGroupId"),
-            "featureIds": self.response.get("featureIds"),
-        }
-
 
 class SyncConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "continuous": self.request.get("continuous"),
             "cron": self.request.get("cron"),
-        }
-
-    def _response(self):
-        return {
-            "continuous": self.response.get("continuous"),
-            "cron": self.response.get("cron"),
         }
 
 
@@ -318,19 +291,6 @@ class VectorSearchConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "bruteForceConfig": VectorSearchConfigBruteForceConfig().from_response(
-                self.response.get("bruteForceConfig", {})
-            ),
-            "crowdingColumn": self.response.get("crowdingColumn"),
-            "distanceMeasureType": self.response.get("distanceMeasureType"),
-            "embeddingColumn": self.response.get("embeddingColumn"),
-            "embeddingDimension": self.response.get("embeddingDimension"),
-            "filterColumns": self.response.get("filterColumns"),
-            "treeAhConfig": VectorSearchConfigTreeAhConfig().from_response(self.response.get("treeAhConfig", {})),
-        }
-
 
 class VectorSearchConfigBruteForceConfig(gcp_v2.Resource):
     def _request(self):
@@ -344,11 +304,6 @@ class VectorSearchConfigTreeAhConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "leafNodeEmbeddingCount": self.request.get("leaf_node_embedding_count"),
-        }
-
-    def _response(self):
-        return {
-            "leafNodeEmbeddingCount": self.response.get("leafNodeEmbeddingCount"),
         }
 
 
@@ -372,17 +327,8 @@ class VertexAI(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "bigQuerySource": BigQuerySource().from_response(self.response.get("bigQuerySource", {})),
             "createTime": self.response.get("createTime"),
-            "labels": self.response.get("labels"),
-            "featureRegistrySource": FeatureRegistrySource().from_response(
-                self.response.get("featureRegistrySource", {})
-            ),
-            "labels": self.response.get("labels"),
-            "syncConfig": SyncConfig().from_response(self.response.get("syncConfig", {})),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
-            "vectorSearchConfig": VectorSearchConfig().from_response(self.response.get("vectorSearchConfig", {})),
         }
 
 
@@ -463,7 +409,7 @@ def main():
                         type="str",
                     ),
                 ),
-                mutually_exclusive=[["continuous", "cron"]],
+                mutually_exclusive=[("continuous", "cron")],
             ),
             vector_search_config=dict(
                 type="dict",
@@ -498,15 +444,9 @@ def main():
                         ),
                     ),
                 ),
-                mutually_exclusive=[["brute_force_config", "tree_ah_config"]],
-                required_one_of=[["brute_force_config", "tree_ah_config"]],
             ),
         ),
-        mutually_exclusive=[
-            ["big_query_source", "feature_registry_source"],
-            ["feature_registry_source", "vector_search_config"],
-        ],
-        required_one_of=[["big_query_source", "feature_registry_source"]],
+        mutually_exclusive=[("feature_registry_source", "vector_search_config")],
     )
 
     if not module.params["scopes"]:

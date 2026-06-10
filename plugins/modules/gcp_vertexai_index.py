@@ -325,11 +325,6 @@ class EncryptionSpec(gcp_v2.Resource):
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
-
 
 class IndexStats(gcp_v2.Resource):
     def _response(self):
@@ -349,13 +344,6 @@ class Metadata(gcp_v2.Resource):
             "isCompleteOverwrite": self.request.get("is_complete_overwrite"),
         }
 
-    def _response(self):
-        return {
-            "config": MetadataConfig().from_response(self.response.get("config", {})),
-            "contentsDeltaUri": self.response.get("contentsDeltaUri"),
-            "isCompleteOverwrite": self.response.get("isCompleteOverwrite"),
-        }
-
 
 class MetadataConfig(gcp_v2.Resource):
     def _request(self):
@@ -370,16 +358,6 @@ class MetadataConfig(gcp_v2.Resource):
             "shardSize": self.request.get("shard_size"),
         }
 
-    def _response(self):
-        return {
-            "algorithmConfig": MetadataConfigAlgorithmConfig().from_response(self.response.get("algorithmConfig", {})),
-            "approximateNeighborsCount": self.response.get("approximateNeighborsCount"),
-            "dimensions": self.response.get("dimensions"),
-            "distanceMeasureType": self.response.get("distanceMeasureType"),
-            "featureNormType": self.response.get("featureNormType"),
-            "shardSize": self.response.get("shardSize"),
-        }
-
 
 class MetadataConfigAlgorithmConfig(gcp_v2.Resource):
     def _request(self):
@@ -390,16 +368,6 @@ class MetadataConfigAlgorithmConfig(gcp_v2.Resource):
             "treeAhConfig": gcp_v2.remove_empties(
                 MetadataConfigAlgorithmConfigTreeAhConfig(self.request.get("tree_ah_config", {})).to_request()
             ),  # remove empty values
-        }
-
-    def _response(self):
-        return {
-            "bruteForceConfig": MetadataConfigAlgorithmConfigBruteForceConfig().from_response(
-                self.response.get("bruteForceConfig", {})
-            ),
-            "treeAhConfig": MetadataConfigAlgorithmConfigTreeAhConfig().from_response(
-                self.response.get("treeAhConfig", {})
-            ),
         }
 
 
@@ -416,12 +384,6 @@ class MetadataConfigAlgorithmConfigTreeAhConfig(gcp_v2.Resource):
         return {
             "leafNodeEmbeddingCount": self.request.get("leaf_node_embedding_count"),
             "leafNodesToSearchPercent": self.request.get("leaf_nodes_to_search_percent"),
-        }
-
-    def _response(self):
-        return {
-            "leafNodeEmbeddingCount": self.response.get("leafNodeEmbeddingCount"),
-            "leafNodesToSearchPercent": self.response.get("leafNodesToSearchPercent"),
         }
 
 
@@ -446,18 +408,10 @@ class VertexAI(gcp_v2.Resource):
             "deployedIndexes": [
                 DeployedIndexes().from_response(item) for item in (self.response.get("deployedIndexes") or [])
             ],
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "labels": self.response.get("labels"),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
             "indexStats": IndexStats().from_response(self.response.get("indexStats", {})),
-            "indexUpdateMethod": self.response.get("indexUpdateMethod"),
-            "labels": self.response.get("labels"),
-            "metadata": Metadata().from_response(self.response.get("metadata", {})),
             "metadataSchemaUri": self.response.get("metadataSchemaUri"),
             "name": self.response.get("name"),
-            "labels": self.response.get("labels"),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -529,8 +483,6 @@ def main():
                                         ),
                                     ),
                                 ),
-                                mutually_exclusive=[["brute_force_config", "tree_ah_config"]],
-                                required_one_of=[["brute_force_config", "tree_ah_config"]],
                             ),
                             approximate_neighbors_count=dict(
                                 type="int",

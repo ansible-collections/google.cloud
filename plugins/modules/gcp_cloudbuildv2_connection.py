@@ -489,18 +489,6 @@ class BitbucketCloudConfig(gcp_v2.Resource):
             "workspace": self.request.get("workspace"),
         }
 
-    def _response(self):
-        return {
-            "authorizerCredential": BitbucketCloudConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "readAuthorizerCredential": BitbucketCloudConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
-            "workspace": self.response.get("workspace"),
-        }
-
 
 class BitbucketCloudConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
@@ -510,7 +498,6 @@ class BitbucketCloudConfigAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -523,7 +510,6 @@ class BitbucketCloudConfigReadAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -553,19 +539,7 @@ class BitbucketDataCenterConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "authorizerCredential": BitbucketDataCenterConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "hostUri": self.response.get("hostUri"),
-            "readAuthorizerCredential": BitbucketDataCenterConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
             "serverVersion": self.response.get("serverVersion"),
-            "serviceDirectoryConfig": BitbucketDataCenterConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
         }
 
 
@@ -577,7 +551,6 @@ class BitbucketDataCenterConfigAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -590,7 +563,6 @@ class BitbucketDataCenterConfigReadAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -599,11 +571,6 @@ class BitbucketDataCenterConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
         }
 
 
@@ -616,14 +583,6 @@ class GithubConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "appInstallationId": self.response.get("appInstallationId"),
-            "authorizerCredential": GithubConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-        }
-
 
 class GithubConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
@@ -633,7 +592,6 @@ class GithubConfigAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "oauthTokenSecretVersion": self.response.get("oauthTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -655,30 +613,11 @@ class GithubEnterpriseConfig(gcp_v2.Resource):
             "webhookSecretSecretVersion": self.request.get("webhook_secret_secret_version"),
         }
 
-    def _response(self):
-        return {
-            "appId": self.response.get("appId"),
-            "appInstallationId": self.response.get("appInstallationId"),
-            "appSlug": self.response.get("appSlug"),
-            "hostUri": self.response.get("hostUri"),
-            "privateKeySecretVersion": self.response.get("privateKeySecretVersion"),
-            "serviceDirectoryConfig": GithubEnterpriseConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
-        }
-
 
 class GithubEnterpriseConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
         }
 
 
@@ -701,19 +640,7 @@ class GitlabConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "authorizerCredential": GitlabConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "hostUri": self.response.get("hostUri"),
-            "readAuthorizerCredential": GitlabConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
             "serverVersion": self.response.get("serverVersion"),
-            "serviceDirectoryConfig": GitlabConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
         }
 
 
@@ -725,7 +652,6 @@ class GitlabConfigAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -738,7 +664,6 @@ class GitlabConfigReadAuthorizerCredential(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
@@ -747,11 +672,6 @@ class GitlabConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
-        }
-
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
         }
 
 
@@ -788,20 +708,8 @@ class Cloudbuildv2(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "bitbucketCloudConfig": BitbucketCloudConfig().from_response(self.response.get("bitbucketCloudConfig", {})),
-            "bitbucketDataCenterConfig": BitbucketDataCenterConfig().from_response(
-                self.response.get("bitbucketDataCenterConfig", {})
-            ),
             "createTime": self.response.get("createTime"),
-            "disabled": self.response.get("disabled"),
-            "annotations": self.response.get("annotations"),
             "etag": self.response.get("etag"),
-            "githubConfig": GithubConfig().from_response(self.response.get("githubConfig", {})),
-            "githubEnterpriseConfig": GithubEnterpriseConfig().from_response(
-                self.response.get("githubEnterpriseConfig", {})
-            ),
-            "gitlabConfig": GitlabConfig().from_response(self.response.get("gitlabConfig", {})),
             "installationState": InstallationState().from_response(self.response.get("installationState", {})),
             "reconciling": self.response.get("reconciling"),
             "updateTime": self.response.get("updateTime"),
@@ -1088,13 +996,13 @@ def main():
             ),
         ),
         mutually_exclusive=[
-            [
+            (
                 "bitbucket_cloud_config",
                 "bitbucket_data_center_config",
                 "github_config",
                 "github_enterprise_config",
                 "gitlab_config",
-            ]
+            )
         ],
     )
 

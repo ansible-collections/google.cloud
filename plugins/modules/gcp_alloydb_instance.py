@@ -471,22 +471,11 @@ class ClientConnectionConfig(gcp_v2.Resource):
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "requireConnectors": self.response.get("requireConnectors"),
-            "sslConfig": ClientConnectionConfigSslConfig().from_response(self.response.get("sslConfig", {})),
-        }
-
 
 class ClientConnectionConfigSslConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "sslMode": self.request.get("ssl_mode"),
-        }
-
-    def _response(self):
-        return {
-            "sslMode": self.response.get("sslMode"),
         }
 
 
@@ -499,8 +488,6 @@ class ConnectionPoolConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "enabled": self.response.get("enabled"),
-            "flags": self.response.get("flags"),
             "poolerCount": self.response.get("poolerCount"),
         }
 
@@ -510,12 +497,6 @@ class MachineConfig(gcp_v2.Resource):
         return {
             "cpuCount": self.request.get("cpu_count"),
             "machineType": self.request.get("machine_type"),
-        }
-
-    def _response(self):
-        return {
-            "cpuCount": self.response.get("cpuCount"),
-            "machineType": self.response.get("machineType"),
         }
 
 
@@ -531,27 +512,11 @@ class NetworkConfig(gcp_v2.Resource):
             "enablePublicIp": self.request.get("enable_public_ip"),
         }
 
-    def _response(self):
-        return {
-            "allocatedIpRangeOverride": self.response.get("allocatedIpRangeOverride"),
-            "authorizedExternalNetworks": [
-                NetworkConfigAuthorizedExternalNetwork().from_response(item)
-                for item in (self.response.get("authorizedExternalNetworks") or [])
-            ],
-            "enableOutboundPublicIp": self.response.get("enableOutboundPublicIp"),
-            "enablePublicIp": self.response.get("enablePublicIp"),
-        }
-
 
 class NetworkConfigAuthorizedExternalNetwork(gcp_v2.Resource):
     def _request(self):
         return {
             "cidrRange": self.request.get("cidr_range"),
-        }
-
-    def _response(self):
-        return {
-            "cidrRange": self.response.get("cidrRange"),
         }
 
 
@@ -567,19 +532,6 @@ class ObservabilityConfig(gcp_v2.Resource):
             "trackActiveQueries": self.request.get("track_active_queries"),
             "trackWaitEventTypes": self.request.get("track_wait_event_types"),
             "trackWaitEvents": self.request.get("track_wait_events"),
-        }
-
-    def _response(self):
-        return {
-            "assistiveExperiencesEnabled": self.response.get("assistiveExperiencesEnabled"),
-            "enabled": self.response.get("enabled"),
-            "maxQueryStringLength": self.response.get("maxQueryStringLength"),
-            "preserveComments": self.response.get("preserveComments"),
-            "queryPlansPerMinute": self.response.get("queryPlansPerMinute"),
-            "recordApplicationTags": self.response.get("recordApplicationTags"),
-            "trackActiveQueries": self.response.get("trackActiveQueries"),
-            "trackWaitEventTypes": self.response.get("trackWaitEventTypes"),
-            "trackWaitEvents": self.response.get("trackWaitEvents"),
         }
 
 
@@ -599,16 +551,7 @@ class PscInstanceConfig(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "allowedConsumerProjects": self.response.get("allowedConsumerProjects"),
-            "pscAutoConnections": [
-                PscInstanceConfigPscAutoConnection().from_response(item)
-                for item in (self.response.get("pscAutoConnections") or [])
-            ],
             "pscDnsName": self.response.get("pscDnsName"),
-            "pscInterfaceConfigs": [
-                PscInstanceConfigPscInterfaceConfig().from_response(item)
-                for item in (self.response.get("pscInterfaceConfigs") or [])
-            ],
             "serviceAttachmentLink": self.response.get("serviceAttachmentLink"),
         }
 
@@ -622,9 +565,7 @@ class PscInstanceConfigPscAutoConnection(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "consumerNetwork": self.response.get("consumerNetwork"),
             "consumerNetworkStatus": self.response.get("consumerNetworkStatus"),
-            "consumerProject": self.response.get("consumerProject"),
             "ipAddress": self.response.get("ipAddress"),
             "status": self.response.get("status"),
         }
@@ -634,11 +575,6 @@ class PscInstanceConfigPscInterfaceConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "networkAttachmentResource": self.request.get("network_attachment_resource"),
-        }
-
-    def _response(self):
-        return {
-            "networkAttachmentResource": self.response.get("networkAttachmentResource"),
         }
 
 
@@ -651,24 +587,11 @@ class QueryInsightsConfig(gcp_v2.Resource):
             "recordClientAddress": self.request.get("record_client_address"),
         }
 
-    def _response(self):
-        return {
-            "queryPlansPerMinute": self.response.get("queryPlansPerMinute"),
-            "queryStringLength": self.response.get("queryStringLength"),
-            "recordApplicationTags": self.response.get("recordApplicationTags"),
-            "recordClientAddress": self.response.get("recordClientAddress"),
-        }
-
 
 class ReadPoolConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "nodeCount": self.request.get("node_count"),
-        }
-
-    def _response(self):
-        return {
-            "nodeCount": self.response.get("nodeCount"),
         }
 
 
@@ -711,33 +634,12 @@ class Alloydb(gcp_v2.Resource):
 
     def _response(self):
         return {
-            "activationPolicy": self.response.get("activationPolicy"),
-            "annotations": self.response.get("annotations"),
-            "availabilityType": self.response.get("availabilityType"),
-            "clientConnectionConfig": ClientConnectionConfig().from_response(
-                self.response.get("clientConnectionConfig", {})
-            ),
-            "connectionPoolConfig": ConnectionPoolConfig().from_response(self.response.get("connectionPoolConfig", {})),
             "createTime": self.response.get("createTime"),
-            "databaseFlags": self.response.get("databaseFlags"),
-            "displayName": self.response.get("displayName"),
-            "annotations": self.response.get("annotations"),
-            "labels": self.response.get("labels"),
-            "gceZone": self.response.get("gceZone"),
-            "instanceType": self.response.get("instanceType"),
             "ipAddress": self.response.get("ipAddress"),
-            "labels": self.response.get("labels"),
-            "machineConfig": MachineConfig().from_response(self.response.get("machineConfig", {})),
             "name": self.response.get("name"),
-            "networkConfig": NetworkConfig().from_response(self.response.get("networkConfig", {})),
-            "observabilityConfig": ObservabilityConfig().from_response(self.response.get("observabilityConfig", {})),
             "outboundPublicIpAddresses": [str(item) for item in (self.response.get("outboundPublicIpAddresses") or [])],
-            "pscInstanceConfig": PscInstanceConfig().from_response(self.response.get("pscInstanceConfig", {})),
             "publicIpAddress": self.response.get("publicIpAddress"),
-            "queryInsightsConfig": QueryInsightsConfig().from_response(self.response.get("queryInsightsConfig", {})),
-            "readPoolConfig": ReadPoolConfig().from_response(self.response.get("readPoolConfig", {})),
             "reconciling": self.response.get("reconciling"),
-            "labels": self.response.get("labels"),
             "uid": self.response.get("uid"),
             "updateTime": self.response.get("updateTime"),
         }
@@ -860,7 +762,7 @@ def main():
                         type="bool",
                     ),
                 ),
-                required_together=[["authorized_external_networks", "enable_public_ip"]],
+                required_together=[("authorized_external_networks", "enable_public_ip")],
             ),
             observability_config=dict(
                 type="dict",
