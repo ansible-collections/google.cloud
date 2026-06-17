@@ -9,6 +9,7 @@ import typing as T
 
 try:
     from requests import Response as RequestsResponse
+
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
@@ -24,16 +25,16 @@ from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
     GcpSession as Session,
 )
-from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
-    navigate_hash,
-)
 
 # match what magic-modules calls it
 from ansible_collections.google.cloud.plugins.module_utils.gcp_utils import (
-    replace_resource_dict as resource_ref,
+    navigate_hash,
+    replace_resource_dict,
 )
 
-assert resource_ref
+# Alias just like magic-modules does it
+resource_ref: T.Callable = replace_resource_dict
+
 
 ASYNC_RETRY_WAIT = 1.0
 
