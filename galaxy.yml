@@ -64,3 +64,4 @@ issues: https://github.com/ansible-collections/google.cloud/issues
 
 build_ignore:
   - venv
+  - .ansible-lint
