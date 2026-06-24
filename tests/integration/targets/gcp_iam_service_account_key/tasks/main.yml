@@ -1,0 +1,3 @@
+---
+- name: Service Account Keys tests
+  ansible.builtin.include_tasks: service-account-keys.yml
