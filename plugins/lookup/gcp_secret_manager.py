@@ -12,7 +12,7 @@ DOCUMENTATION = '''
     - retrieve secret keys in Secret Manager for use in playbooks
     - see https://cloud.google.com/iam/docs/service-account-creds for details on creating
       credentials for Google Cloud and the format of such credentials
-    - once a secret value is retreived, it is returned decoded.  It is up to the developer
+    - once a secret value is retrieved, it is returned decoded.  It is up to the developer
       to maintain secrecy of this value once returned.
     - if location option is defined, then it deals with the regional secrets of the
       location
@@ -93,7 +93,7 @@ DOCUMENTATION = '''
             default: 'strict'
         scopes:
             description:
-            - Authenticaiton scopes for Google Secret Manager
+            - Authentication scopes for Google Secret Manager
             type: list
             elements: str
             default: ["https://www.googleapis.com/auth/cloud-platform"]
