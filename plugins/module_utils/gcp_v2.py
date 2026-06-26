@@ -333,6 +333,47 @@ class Resource(object):
 
         return self.if_object(self.session().get(link), allow_not_found)
 
+    def list(self, link: str, key: str, filters: T.Optional[T.List[str]] = None) -> T.List[NestedDict]:
+        """
+        Lists resources from a GCP API list endpoint, handling pagination automatically.
+        I chose not to use GcpSession.list() method because the callback signature makes
+        it hard to adjust to a class method.
+
+        Args:
+            link:    The full URL of the list endpoint to call.
+            key:     The JSON response key whose value contains the list of resources
+                     (e.g. "clusters", "instances").
+            filters: Optional list of filter expressions to narrow results. Each entry
+                     is a filter string following AIP-160 syntax. Multiple entries are
+                     joined with AND - this is the only logical operator applied
+                     automatically; for OR or NOT, include them explicitly within a
+                     single filter entry. String and enum values must be double-quoted
+                     (e.g. 'some_key = "STRING_VALUE"'). See https://google.aip.dev/160.
+
+        Returns:
+            A flat list of resource dicts across all pages.
+        """
+        self.debug(method="list", link=link, filters=filters)
+        params: T.Dict[str, T.Any] = {}
+        if filters:
+            params["filter"] = " AND ".join(filters)
+
+        items: T.List[NestedDict] = []
+        next_page_token: T.Optional[str] = ""  # non-None to enter the loop
+
+        while next_page_token is not None:
+            self.debug(next_page_token=next_page_token, link=link, params=params)
+            response: T.Optional[RequestsResponse] = self.session().full_get(link, params=params or None)
+            result: T.Optional[NestedDict] = self.if_object(response, allow_not_found=True)
+            if result is None:
+                break
+            items.extend(result.get(key) or [])
+            next_page_token = result.get("nextPageToken")
+            if next_page_token:
+                params["pageToken"] = next_page_token
+
+        return items
+
     def wait_for_op(self, op_url: str, retries: int) -> T.Optional[NestedDict]:
         "Retry the given number of times for an async operation to succeed"
 
