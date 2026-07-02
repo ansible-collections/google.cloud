@@ -313,45 +313,28 @@ state:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{location}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class CustomEnvironmentSpec(gcp.Resource):
+class CustomEnvironmentSpec(gcp_v2.Resource):
     def _request(self):
         return {
-            "machineSpec": gcp.remove_empties(
+            "machineSpec": gcp_v2.remove_empties(
                 CustomEnvironmentSpecMachineSpec(self.request.get("machine_spec", {})).to_request()
             ),  # remove empty values
-            "networkSpec": gcp.remove_empties(
+            "networkSpec": gcp_v2.remove_empties(
                 CustomEnvironmentSpecNetworkSpec(self.request.get("network_spec", {})).to_request()
             ),  # remove empty values
-            "persistentDiskSpec": gcp.remove_empties(
+            "persistentDiskSpec": gcp_v2.remove_empties(
                 CustomEnvironmentSpecPersistentDiskSpec(self.request.get("persistent_disk_spec", {})).to_request()
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "machineSpec": CustomEnvironmentSpecMachineSpec().from_response(self.response.get("machineSpec", {})),
-            "networkSpec": CustomEnvironmentSpecNetworkSpec().from_response(self.response.get("networkSpec", {})),
-            "persistentDiskSpec": CustomEnvironmentSpecPersistentDiskSpec().from_response(
-                self.response.get("persistentDiskSpec", {})
-            ),
-        }
 
-
-class CustomEnvironmentSpecMachineSpec(gcp.Resource):
+class CustomEnvironmentSpecMachineSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "acceleratorCount": self.request.get("accelerator_count"),
@@ -359,15 +342,8 @@ class CustomEnvironmentSpecMachineSpec(gcp.Resource):
             "machineType": self.request.get("machine_type"),
         }
 
-    def _response(self):
-        return {
-            "acceleratorCount": self.response.get("acceleratorCount"),
-            "acceleratorType": self.response.get("acceleratorType"),
-            "machineType": self.response.get("machineType"),
-        }
 
-
-class CustomEnvironmentSpecNetworkSpec(gcp.Resource):
+class CustomEnvironmentSpecNetworkSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "enableInternetAccess": self.request.get("enable_internet_access"),
@@ -375,84 +351,54 @@ class CustomEnvironmentSpecNetworkSpec(gcp.Resource):
             "subnetwork": self.request.get("subnetwork"),
         }
 
-    def _response(self):
-        return {
-            "enableInternetAccess": self.response.get("enableInternetAccess"),
-            "network": self.response.get("network"),
-            "subnetwork": self.response.get("subnetwork"),
-        }
 
-
-class CustomEnvironmentSpecPersistentDiskSpec(gcp.Resource):
+class CustomEnvironmentSpecPersistentDiskSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "diskSizeGb": self.request.get("disk_size_gb"),
             "diskType": self.request.get("disk_type"),
         }
 
-    def _response(self):
-        return {
-            "diskSizeGb": self.response.get("diskSizeGb"),
-            "diskType": self.response.get("diskType"),
-        }
 
-
-class DataformRepositorySource(gcp.Resource):
+class DataformRepositorySource(gcp_v2.Resource):
     def _request(self):
         return {
             "commitSha": self.request.get("commit_sha"),
             "dataformRepositoryResourceName": self.request.get("dataform_repository_resource_name"),
         }
 
-    def _response(self):
-        return {
-            "commitSha": self.response.get("commitSha"),
-            "dataformRepositoryResourceName": self.response.get("dataformRepositoryResourceName"),
-        }
 
-
-class DirectNotebookSource(gcp.Resource):
+class DirectNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "content": self.request.get("content"),
         }
 
-    def _response(self):
-        return {
-            "content": self.response.get("content"),
-        }
 
-
-class GcsNotebookSource(gcp.Resource):
+class GcsNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "generation": self.request.get("generation"),
             "uri": self.request.get("uri"),
         }
 
-    def _response(self):
-        return {
-            "generation": self.response.get("generation"),
-            "uri": self.response.get("uri"),
-        }
 
-
-class Colab(gcp.Resource):
+class Colab(gcp_v2.Resource):
     def _request(self):
         return {
-            "customEnvironmentSpec": gcp.remove_empties(
+            "customEnvironmentSpec": gcp_v2.remove_empties(
                 CustomEnvironmentSpec(self.request.get("custom_environment_spec", {})).to_request()
             ),  # remove empty values
-            "dataformRepositorySource": gcp.remove_empties(
+            "dataformRepositorySource": gcp_v2.remove_empties(
                 DataformRepositorySource(self.request.get("dataform_repository_source", {})).to_request()
             ),  # remove empty values
-            "directNotebookSource": gcp.remove_empties(
+            "directNotebookSource": gcp_v2.remove_empties(
                 DirectNotebookSource(self.request.get("direct_notebook_source", {})).to_request()
             ),  # remove empty values
             "displayName": self.request.get("display_name"),
             "executionTimeout": self.request.get("execution_timeout"),
             "executionUser": self.request.get("execution_user"),
-            "gcsNotebookSource": gcp.remove_empties(
+            "gcsNotebookSource": gcp_v2.remove_empties(
                 GcsNotebookSource(self.request.get("gcs_notebook_source", {})).to_request()
             ),  # remove empty values
             "gcsOutputUri": self.request.get("gcs_output_uri"),
@@ -461,22 +407,7 @@ class Colab(gcp.Resource):
         }
 
     def _response(self):
-        return {
-            "customEnvironmentSpec": CustomEnvironmentSpec().from_response(
-                self.response.get("customEnvironmentSpec", {})
-            ),
-            "dataformRepositorySource": DataformRepositorySource().from_response(
-                self.response.get("dataformRepositorySource", {})
-            ),
-            "directNotebookSource": DirectNotebookSource().from_response(self.response.get("directNotebookSource", {})),
-            "displayName": self.response.get("displayName"),
-            "executionTimeout": self.response.get("executionTimeout"),
-            "executionUser": self.response.get("executionUser"),
-            "gcsNotebookSource": GcsNotebookSource().from_response(self.response.get("gcsNotebookSource", {})),
-            "gcsOutputUri": self.response.get("gcsOutputUri"),
-            "notebookRuntimeTemplateResourceName": self.response.get("notebookRuntimeTemplateResourceName"),
-            "serviceAccount": self.response.get("serviceAccount"),
-        }
+        return {}
 
 
 ################################################################################
@@ -484,26 +415,10 @@ class Colab(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -614,17 +529,7 @@ def main():
             service_account=dict(
                 type="str",
             ),
-        ),
-        mutually_exclusive=[
-            ["custom_environment_spec", "notebook_runtime_template_resource_name"],
-            ["dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"],
-            ["execution_user", "service_account"],
-        ],
-        required_one_of=[
-            ["custom_environment_spec", "notebook_runtime_template_resource_name"],
-            ["dataform_repository_source", "direct_notebook_source", "gcs_notebook_source"],
-            ["execution_user", "service_account"],
-        ],
+        )
     )
 
     if not module.params["scopes"]:
@@ -632,17 +537,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{location}/notebookExecutionJobs",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{location}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}/notebookExecutionJobs",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookExecutionJobs?notebook_execution_job_id={notebook_execution_job_id}",
                     "async_uri": "{op_id}",
@@ -650,7 +549,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}",
                     "async_uri": "{op_id}",
@@ -658,7 +557,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}",
                     "async_uri": "",
@@ -666,7 +565,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}",
                     "async_uri": "{op_id}",
@@ -674,36 +573,39 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = Colab(params, module=module, product="Colab", kind="colab#notebookExecution")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = Colab(request, module=module, product="Colab", kind="colab#notebookExecution", op_configs=op_configs)
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
 
     # --------- BEGIN pre-read custom code ---------
     # for this module, we're hitting the list endpoint and filtering on display name
-    read_uri = op_configs.base_url.uri + "?filter=displayName=" + params.get("display_name")
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
 
     # --------- END pre-read custom code ---------
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.decode_func(resource.get(read_url, allow_not_found=True) or {})
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     # --------- BEGIN post-read custom code ---------
     # if there are existing notebook executions, the call would have returned a list
-    if not gcp.empty(existing_obj):
+    if not gcp_v2.empty(existing_obj):
         for nb in existing_obj.get("notebookExecutionJobs", []):
-            if nb.get("displayName") == params.get("display_name"):
+            if nb.get("displayName") == request.get("display_name"):
                 existing_obj = nb
                 break
 
@@ -712,47 +614,42 @@ def main():
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
                 # --------- BEGIN pre-create custom code ---------
                 # if not provided, blank the notebook execution job id
-                params["notebook_execution_job_id"] = params.get("notebook_execution_job_id", "")
+                resource.url_params["notebook_execution_job_id"] = request.get("notebook_execution_job_id", "")
 
                 # --------- END pre-create custom code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                new_obj = resource.decode_func(new_obj)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -762,32 +659,35 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
                 # need to set required parameter "notebook_execution_job_id" from existing resource name
-                params["notebook_execution_job_id"] = existing_obj["name"].split("/")[-1]
+                resource.url_params["notebook_execution_job_id"] = existing_obj["name"].split("/")[-1]
+
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                new_obj = resource.decode_func(new_obj)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -795,8 +695,7 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN custom update code ---------
                     raise Exception("Updating a notebook execution is not supported")
@@ -808,9 +707,8 @@ def main():
             else:
                 new_obj = existing_obj
 
-    new_obj = resource.from_response(resource.get(read_url, allow_not_found=True) or {})
     new_obj.update({"changed": changed})
-    gcp.debug(module, final_obj=new_obj, changed=changed)
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

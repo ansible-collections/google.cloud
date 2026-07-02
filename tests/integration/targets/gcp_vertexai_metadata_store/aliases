@@ -10,5 +10,6 @@
 # ----------------------------------------------------------------------------
 
 cloud/gcp
+cloud/gcp/v2
 cloud/gcp/vertex_ai
 unsupported

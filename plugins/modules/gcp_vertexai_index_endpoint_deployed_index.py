@@ -78,6 +78,7 @@ options:
       machine_spec:
         description:
           - The minimum number of replicas this DeployedModel will be always deployed on.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         required: true
         suboptions:
           machine_type:
@@ -86,6 +87,7 @@ options:
               - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types)  See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
               - For [DeployedModel](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints#DeployedModel) this field is optional, and the default value is n1-standard-2.
               - For [BatchPredictionJob](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.batchPredictionJobs#BatchPredictionJob) or as part of [WorkerPoolSpec](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/CustomJobSpec#WorkerPoolSpec) this field is required.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             type: str
         type: dict
       max_replica_count:
@@ -103,6 +105,7 @@ options:
   deployed_index_auth_config:
     description:
       - If set, the authentication is enabled for the private endpoint.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       auth_provider:
         description:
@@ -112,6 +115,7 @@ options:
             description:
               - A list of allowed JWT issuers.
               - 'Each entry must be a valid Google service account, in the following format: service-account-name@project-id.iam.gserviceaccount.com.'
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: str
             type: list
           audiences:
@@ -119,6 +123,7 @@ options:
               - The list of JWT audiences.
               - that are allowed to access.
               - A JWT containing any of these audiences will be accepted.
+              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: str
             type: list
         type: dict
@@ -128,6 +133,7 @@ options:
       - The user specified ID of the DeployedIndex.
       - The ID can be up to 128 characters long and must start with a letter and only contain letters, numbers, and underscores.
       - The ID must be unique within the project it is created in.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   deployment_group:
@@ -140,20 +146,24 @@ options:
       - 'Also, one deployment_group (except ''default'') can only be used with the same reserved_ip_ranges which means if the deployment_group has been used with reserved_ip_ranges: [a, b, c], using it with [a, b] or [d, e] is disallowed.'
       - '[See the official documentation here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints#DeployedIndex.FIELDS.deployment_group).'
       - 'Note: we only support up to 5 deployment groups (not including ''default'').'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   display_name:
     description:
       - The display name of the Index.
       - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   enable_access_logging:
     default: false
     description:
       - If true, private endpoint's access logs are sent to Cloud Logging.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: bool
   index:
     description:
       - The name of the Index this is the deployment of.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   index_endpoint:
@@ -163,12 +173,14 @@ options:
       - This field is a reference to a IndexEndpoint resource in GCP.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a IndexEndpoint task and then set this field to `{{ name-of-resource }}`.'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: dict
   region:
     description:
       - The region of the index.
       - eg us-central1.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   reserved_ip_ranges:
@@ -178,6 +190,7 @@ options:
       - Otherwise, the index might be deployed to any ip ranges under the provided VPC network.
       - 'The value should be the name of the address (https://cloud.google.com/compute/docs/reference/rest/v1/addresses) Example: [''vertex-ai-ip-range''].'
       - For more information about subnets and network IP ranges, please see https://cloud.google.com/vpc/docs/subnets#manually_created_subnet_ip_ranges.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     elements: str
     type: list
   state:
@@ -211,55 +224,6 @@ EXAMPLES = r"""
           - 123-myapp
         allowed_issuers:
           - mysa@myproject.iam.gserviceaccount.com
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-
-################################################################################
-
-- name: Create index endpoint deployed index with dedicated resources
-  google.cloud.gcp_vertexai_index_endpoint_deployed_index:
-    state: present
-    display_name: "{{ resource_name }}"
-    deployed_index_id: "{{ resource_name | regex_replace('-', '_') }}"
-    region: us-central1
-    index: "{{ _myidx.name }}"
-    index_endpoint: "{{ _myidxep.name }}"
-    enable_access_logging: false
-    deployed_index_auth_config:
-      auth_provider:
-        audiences:
-          - 123-myapp
-        allowed_issuers:
-          - mysa@myproject.iam.gserviceaccount.com
-    dedicated_resources:
-      min_replica_count: 1
-      max_replica_count: 3
-      machine_spec:
-        machine_type: e2-standard-2
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-
-################################################################################
-
-- name: Create index endpoint deployed index with automatic resources
-  google.cloud.gcp_vertexai_index_endpoint_deployed_index:
-    state: present
-    display_name: "{{ resource_name }}"
-    deployed_index_id: "{{ resource_name | regex_replace('-', '_') }}"
-    region: us-central1
-    index: "{{ _myidx.name }}"
-    index_endpoint: "{{ _myidxep.name }}"
-    enable_access_logging: false
-    deployed_index_auth_config:
-      auth_provider:
-        audiences:
-          - 123-myapp
-        allowed_issuers:
-          - mysa@myproject.iam.gserviceaccount.com
-    automatic_resources:
-      max_replica_count: 3
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
@@ -342,8 +306,7 @@ state:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
 import copy
@@ -351,86 +314,50 @@ import copy
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-    params["index_endpoint"] = gcp.replace_resource_dict(module_params["index_endpoint"], "name")
-
-    return ("https://{region}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class AutomaticResources(gcp.Resource):
+class AutomaticResources(gcp_v2.Resource):
     def _request(self):
         return {
             "maxReplicaCount": self.request.get("max_replica_count"),
             "minReplicaCount": self.request.get("min_replica_count"),
         }
 
-    def _response(self):
-        return {
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-        }
 
-
-class DedicatedResources(gcp.Resource):
+class DedicatedResources(gcp_v2.Resource):
     def _request(self):
         return {
-            "machineSpec": gcp.remove_empties(
+            "machineSpec": gcp_v2.remove_empties(
                 DedicatedResourcesMachineSpec(self.request.get("machine_spec", {})).to_request()
             ),  # remove empty values
             "maxReplicaCount": self.request.get("max_replica_count"),
             "minReplicaCount": self.request.get("min_replica_count"),
         }
 
-    def _response(self):
-        return {
-            "machineSpec": DedicatedResourcesMachineSpec().from_response(self.response.get("machineSpec", {})),
-            "maxReplicaCount": self.response.get("maxReplicaCount"),
-            "minReplicaCount": self.response.get("minReplicaCount"),
-        }
 
-
-class DedicatedResourcesMachineSpec(gcp.Resource):
+class DedicatedResourcesMachineSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "machineType": self.request.get("machine_type"),
         }
 
-    def _response(self):
-        return {
-            "machineType": self.response.get("machineType"),
-        }
 
-
-class DeployedIndexAuthConfig(gcp.Resource):
+class DeployedIndexAuthConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "authProvider": gcp.remove_empties(
+            "authProvider": gcp_v2.remove_empties(
                 DeployedIndexAuthConfigAuthProvider(self.request.get("auth_provider", {})).to_request()
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "authProvider": DeployedIndexAuthConfigAuthProvider().from_response(self.response.get("authProvider", {})),
-        }
 
-
-class DeployedIndexAuthConfigAuthProvider(gcp.Resource):
+class DeployedIndexAuthConfigAuthProvider(gcp_v2.Resource):
     def _request(self):
         return {
             "allowedIssuers": self.request.get("allowed_issuers"),
             "audiences": self.request.get("audiences"),
         }
 
-    def _response(self):
-        return {
-            "allowedIssuers": self.response.get("allowedIssuers"),
-            "audiences": self.response.get("audiences"),
-        }
 
-
-class PrivateEndpoints(gcp.Resource):
+class PrivateEndpoints(gcp_v2.Resource):
     def _response(self):
         return {
             "matchGrpcAddress": self.response.get("matchGrpcAddress"),
@@ -442,7 +369,7 @@ class PrivateEndpoints(gcp.Resource):
         }
 
 
-class PrivateEndpointsPscAutomatedEndpoint(gcp.Resource):
+class PrivateEndpointsPscAutomatedEndpoint(gcp_v2.Resource):
     def _response(self):
         return {
             "matchAddress": self.response.get("matchAddress"),
@@ -451,16 +378,16 @@ class PrivateEndpointsPscAutomatedEndpoint(gcp.Resource):
         }
 
 
-class VertexAI(gcp.Resource):
+class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
-            "automaticResources": gcp.remove_empties(
+            "automaticResources": gcp_v2.remove_empties(
                 AutomaticResources(self.request.get("automatic_resources", {})).to_request()
             ),  # remove empty values
-            "dedicatedResources": gcp.remove_empties(
+            "dedicatedResources": gcp_v2.remove_empties(
                 DedicatedResources(self.request.get("dedicated_resources", {})).to_request()
             ),  # remove empty values
-            "deployedIndexAuthConfig": gcp.remove_empties(
+            "deployedIndexAuthConfig": gcp_v2.remove_empties(
                 DeployedIndexAuthConfig(self.request.get("deployed_index_auth_config", {})).to_request()
             ),  # remove empty values
             "deployedIndexId": self.request.get("deployed_index_id"),
@@ -473,22 +400,56 @@ class VertexAI(gcp.Resource):
 
     def _response(self):
         return {
-            "automaticResources": AutomaticResources().from_response(self.response.get("automaticResources", {})),
             "createTime": self.response.get("createTime"),
-            "dedicatedResources": DedicatedResources().from_response(self.response.get("dedicatedResources", {})),
-            "deployedIndexAuthConfig": DeployedIndexAuthConfig().from_response(
-                self.response.get("deployedIndexAuthConfig", {})
-            ),
-            "deployedIndexId": self.response.get("deployedIndexId"),
-            "deploymentGroup": self.response.get("deploymentGroup"),
-            "displayName": self.response.get("displayName"),
-            "enableAccessLogging": self.response.get("enableAccessLogging"),
-            "index": self.response.get("index"),
             "indexSyncTime": self.response.get("indexSyncTime"),
             "name": self.response.get("name"),
             "privateEndpoints": PrivateEndpoints().from_response(self.response.get("privateEndpoints", {})),
-            "reservedIpRanges": [str(item) for item in (self.response.get("reservedIpRanges") or [])],
         }
+
+    def encode(self, request):
+        "Custom encoder function, mutates the request object before it is sent to the API."
+
+        # --------- BEGIN custom encoder code ---------
+        r = {}
+        action = getattr(self, "_action", "read")
+        self.debug(func="encoder", action=action, request=request)
+        if action == "read":  # for read, we just return the original object
+            return request
+        elif action == "create":  # encode for create
+            # deployIndex requires the deployedIndex in a nested object
+            # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/deployIndex#request-body
+            t = copy.deepcopy(request)
+            t["id"] = t.pop("deployedIndexId")
+            r = {"deployedIndex": t}
+        elif action == "update":  # encode for update
+            # mutateDeployedIndex requires the deployedIndex definition at top-level
+            # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/mutateDeployedIndex#request-body
+            r = copy.deepcopy(request)
+            r["id"] = r.pop("deployedIndexId")
+        else:  # encode for delete
+            # normally, deletes are empty but undeployIndex requires a single parameter, the deployedIndexId
+            # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/undeployIndex#request-body
+            r = {"deployedIndexId": self._request().get("deployedIndexId")}
+
+        return r
+
+        # --------- END custom encoder code ---------
+
+    def decode(self, response):
+        "Custom decoder function, mutates the response object before it is returned to the module caller."
+
+        # --------- BEGIN custom decoder code ---------
+        r = copy.deepcopy(response)
+        deployed_index = r.pop("deployedIndex", None)
+        if deployed_index is not None:
+            r["deployedIndexId"] = deployed_index.pop("id", None)
+        elif r.get("id") is not None:
+            r["deployedIndexId"] = r.pop("id")
+        else:
+            pass
+        return r
+
+        # --------- END custom decoder code ---------
 
 
 ################################################################################
@@ -496,61 +457,10 @@ class VertexAI(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    # --------- BEGIN custom encoder code ---------
-    r = {}
-    action = getattr(self, "_action", "read")
-    self.debug(func="encoder", action=action, obj=obj)
-    if action == "read":  # for read, we just return the original object
-        r = copy.deepcopy(obj)
-    elif action == "create":  # encode for create
-        # deployIndex requires the deployedIndex in a nested object
-        # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/deployIndex#request-body
-        t = copy.deepcopy(obj)
-        t["id"] = t.pop("deployedIndexId")
-        r = {"deployedIndex": t}
-    elif action == "update":  # encode for update
-        # mutateDeployedIndex requires the deployedIndex definition at top-level
-        # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/mutateDeployedIndex#request-body
-        r = copy.deepcopy(obj)
-        r["id"] = r.pop("deployedIndexId")
-    else:  # encode for delete
-        # normally, deletes are empty but undeployIndex requires a single parameter, the deployedIndexId
-        # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/undeployIndex#request-body
-        r = {"deployedIndexId": self._request().get("deployedIndexId")}
-
-    return r
-
-    # --------- END custom encoder code ---------
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    # --------- BEGIN custom decoder code ---------
-    r = copy.deepcopy(obj)
-    deployed_index = r.pop("deployedIndex", None)
-    if deployed_index is not None:
-        r["deployedIndexId"] = deployed_index.pop("id", None)
-    elif r.get("id") is not None:
-        r["deployedIndexId"] = r.pop("id")
-    else:
-        pass
-    return r
-
-    # --------- END custom decoder code ---------
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -648,15 +558,14 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{"uri": "{index_endpoint}", "async_uri": "", "verb": "GET", "timeout_minutes": 0}
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{region}-aiplatform.googleapis.com/v1/",
+        base_uri="{index_endpoint}",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{"uri": "{index_endpoint}:deployIndex", "async_uri": "{op_id}", "verb": "POST", "timeout_minutes": 45}
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "{index_endpoint}:undeployIndex",
                     "async_uri": "{op_id}",
@@ -664,10 +573,10 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{"uri": "{index_endpoint}", "async_uri": "", "verb": "GET", "timeout_minutes": 0}
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "{index_endpoint}:mutateDeployedIndex",
                     "async_uri": "{op_id}",
@@ -675,85 +584,88 @@ def main():
                     "timeout_minutes": 45,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = VertexAI(params, module=module, product="VertexAI", kind="vertexai#indexEndpointDeployedIndex")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = VertexAI(
+        request, module=module, product="VertexAI", kind="vertexai#indexEndpointDeployedIndex", op_configs=op_configs
+    )
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    resource.url_params["index_endpoint"] = gcp_v2.resource_ref(module.params["index_endpoint"], "name")
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
 
     # --------- BEGIN pre-read custom code ---------
     resource._action = "read"
 
     # --------- END pre-read custom code ---------
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.get(read_url, allow_not_found=True) or {}
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     # --------- BEGIN post-read custom code ---------
     # We need an existing index endpoint to work with
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         module.fail_json(msg="The referenced index endpoint was not found")
     else:
         for didx in existing_obj.get("deployedIndexes", []):
-            if didx.get("id") == params.get("deployed_index_id"):
+            if didx.get("id") == request.get("deployed_index_id"):
                 existing_obj = didx
                 break
         else:  # deployedIndexes was empty or no match found
             existing_obj = {}
+
     # --------- END post-read custom code ---------
 
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
                 # --------- BEGIN pre-create custom code ---------
                 resource._action = "create"
 
                 # --------- END pre-create custom code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -763,31 +675,34 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
                 resource._action = "delete"
 
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -795,33 +710,33 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
                     # --------- BEGIN pre-update custom code ---------
                     resource._action = "update"
 
                     # --------- END pre-update custom code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -831,6 +746,7 @@ def main():
                 new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

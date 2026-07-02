@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2025 Google
+# Copyright (C) 2017-2026 Google
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
@@ -48,15 +48,18 @@ options:
       - This is distinct from labels.
       - 'https://google.aip.dev/128 An object containing a list of "key": value pairs.'
       - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+      - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
     type: dict
   backup_id:
     description:
       - The ID of the alloydb backup.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   cluster_name:
     description:
       - The full resource name of the backup source cluster (e.g., projects/{project}/locations/{location}/clusters/{clusterId}).
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   description:
@@ -74,10 +77,8 @@ options:
       kms_key_name:
         description:
           - The fully-qualified resource name of the KMS key.
-          - >-
-            Each Cloud KMS key is regionalized and has the following format:
-
-            projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
+          - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   labels:
@@ -85,10 +86,12 @@ options:
       - User-defined labels for the alloydb backup.
       - 'An object containing a list of "key": value pairs.'
       - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   location:
     description:
       - The location where the alloydb backup should reside.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   state:
@@ -113,7 +116,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP Alloydb.Backup resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create an on-demand backup for a cluster
@@ -123,7 +126,7 @@ EXAMPLES = r"""
     cluster_name: projects/my-project/locations/us-central1/clusters/my-cluster
     type: ON_DEMAND
     location: us-central1
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -244,37 +247,26 @@ updateTime:
     - 'Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".'
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
 # END Custom imports
 
 
-def build_link(module, uri):
-    params = module.params.copy()
-
-    return "https://alloydb.googleapis.com/v1/" + uri.format(**params)
-
-
-class EncryptionConfig(gcp.Resource):
+class EncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
 
-
-class EncryptionInfo(gcp.Resource):
+class EncryptionInfo(gcp_v2.Resource):
     def _response(self):
         return {
             "encryptionType": self.response.get("encryptionType"),
@@ -282,7 +274,7 @@ class EncryptionInfo(gcp.Resource):
         }
 
 
-class ExpiryQuantity(gcp.Resource):
+class ExpiryQuantity(gcp_v2.Resource):
     def _response(self):
         return {
             "retentionCount": self.response.get("retentionCount"),
@@ -290,37 +282,32 @@ class ExpiryQuantity(gcp.Resource):
         }
 
 
-class Alloydb(gcp.Resource):
+class Alloydb(gcp_v2.Resource):
     def _request(self):
         return {
             "annotations": self.request.get("annotations"),
             "clusterName": self.request.get("cluster_name"),
             "description": self.request.get("description"),
             "displayName": self.request.get("display_name"),
-            "encryptionConfig": EncryptionConfig(self.request.get("encryption_config", {})).to_request(),
+            "encryptionConfig": gcp_v2.remove_empties(
+                EncryptionConfig(self.request.get("encryption_config", {})).to_request()
+            ),  # remove empty values
             "labels": self.request.get("labels"),
             "type": self.request.get("type"),
         }
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "clusterName": self.response.get("clusterName"),
             "clusterUid": self.response.get("clusterUid"),
             "createTime": self.response.get("createTime"),
             "deleteTime": self.response.get("deleteTime"),
-            "description": self.response.get("description"),
-            "displayName": self.response.get("displayName"),
-            "encryptionConfig": EncryptionConfig().from_response(self.response.get("encryptionConfig", {})),
             "encryptionInfo": EncryptionInfo().from_response(self.response.get("encryptionInfo", {})),
             "etag": self.response.get("etag"),
             "expiryQuantity": ExpiryQuantity().from_response(self.response.get("expiryQuantity", {})),
             "expiryTime": self.response.get("expiryTime"),
-            "labels": self.response.get("labels"),
             "name": self.response.get("name"),
             "reconciling": self.response.get("reconciling"),
             "sizeBytes": self.response.get("sizeBytes"),
-            "type": self.response.get("type"),
             "uid": self.response.get("uid"),
             "updateTime": self.response.get("updateTime"),
         }
@@ -334,7 +321,7 @@ class Alloydb(gcp.Resource):
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -363,6 +350,7 @@ def main():
                 options=dict(
                     kms_key_name=dict(
                         type="str",
+                        no_log=False,
                     )
                 ),
             ),
@@ -385,10 +373,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://alloydb.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}/backups",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/backups?backupId={backup_id}",
                     "async_uri": "{op_id}",
@@ -396,7 +385,7 @@ def main():
                     "timeout_minutes": 10,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/backups/{backup_id}",
                     "async_uri": "{op_id}",
@@ -404,7 +393,7 @@ def main():
                     "timeout_minutes": 10,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/backups/{backup_id}",
                     "async_uri": "",
@@ -412,7 +401,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/backups/{backup_id}",
                     "async_uri": "{op_id}",
@@ -420,74 +409,135 @@ def main():
                     "timeout_minutes": 10,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones_from_dict(module.params)
-    resource = Alloydb(params, module=module, product="Alloydb", kind="alloydb#backup")
-    existing_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
+    request = gcp_v2.remove_nones(module.params)
+    resource = Alloydb(request, module=module, product="Alloydb", kind="alloydb#backup", op_configs=op_configs)
 
-    if existing_obj is None:
+    resource._state = state  # store the state in the resource object
+
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
+        module,
+        request=gcp_v2.remove_empties(resource.to_request()),
+        existing=existing_obj,
+        post=True,
+        is_different=is_different,
+    )
+
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            is_async = op_configs.create.async_uri != ""
-            create_link = build_link(module, op_configs.create.uri)
-            create_retries = op_configs.create.timeout
-            create_func = getattr(resource, op_configs.create.verb)
-            async_create_func = getattr(resource, op_configs.create.verb + "_async")
-            async_create_link = build_link(module, "") + op_configs.create.async_uri
-            # --------- BEGIN custom pre-create code ---------
-            # --------- END custom pre-create code ---------
+            gcp_v2.debug(module, action="create")
             try:
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                changed = True
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
             pass  # nothing to do
     else:
         if state == "absent":
-            is_async = op_configs.delete.async_uri != ""
-            delete_link = build_link(module, op_configs.delete.uri)
-            delete_retries = op_configs.delete.timeout
-            delete_func = getattr(resource, op_configs.delete.verb)
-            async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-            async_delete_link = build_link(module, "") + op_configs.delete.async_uri
-            # --------- BEGIN custom pre-delete code ---------
-            # --------- END custom pre-delete code ---------
+            gcp_v2.debug(module, action="delete")
             try:
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                changed = True
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
-            if resource.diff(existing_obj):
-                is_async = op_configs.update.async_uri != ""
-                update_link = build_link(module, op_configs.update.uri)
-                update_retries = op_configs.update.timeout
-                update_func = getattr(resource, op_configs.update.verb)
-                async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                async_update_link = build_link(module, "") + op_configs.update.async_uri
-                # --------- BEGIN custom pre-update code ---------
-                # --------- END custom pre-update code ---------
+            if is_different:
+                gcp_v2.debug(module, action="update")
                 try:
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
-                changed = resource.diff(new_obj)
 
-    new_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
-    new_obj = resource.from_response(new_obj or {})
+                changed = True
+            else:
+                new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

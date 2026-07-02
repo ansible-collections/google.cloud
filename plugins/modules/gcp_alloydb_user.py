@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2025 Google
+# Copyright (C) 2017-2026 Google
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
@@ -49,6 +49,7 @@ options:
       - This field is a reference to a Cluster resource in GCP.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a Cluster task and then set this field to `{{ name-of-resource }}`.'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: dict
   database_roles:
@@ -71,6 +72,7 @@ options:
   user_id:
     description:
       - The database role name of the user.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   user_type:
@@ -79,6 +81,7 @@ options:
       - ALLOYDB_IAM_USER
     description:
       - The type of this user.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
 requirements:
@@ -86,7 +89,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP Alloydb.User resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create user for cluster
@@ -99,7 +102,7 @@ EXAMPLES = r"""
       - alloydbsuperuser
     cluster:
       name: projects/my-project/locations/us-central1/clusters/my-cluster
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -115,27 +118,16 @@ state:
   description: The current state of the resource.
   returned: always
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-
-# BEGIN Custom imports
-# noop
-# END Custom imports
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 
-def build_link(module, uri):
-    params = module.params.copy()
-    params["cluster"] = gcp.replace_resource_dict(module.params["cluster"], "name")
-
-    return "https://alloydb.googleapis.com/v1/" + uri.format(**params)
-
-
-class Alloydb(gcp.Resource):
+class Alloydb(gcp_v2.Resource):
     def _request(self):
         return {
             "databaseRoles": [str(item) for item in (self.request.get("database_roles") or [])],
@@ -145,10 +137,7 @@ class Alloydb(gcp.Resource):
 
     def _response(self):
         return {
-            "databaseRoles": [str(item) for item in (self.response.get("databaseRoles") or [])],
             "name": self.response.get("name"),
-            "password": self.response.get("password"),
-            "userType": self.response.get("userType"),
         }
 
 
@@ -160,7 +149,7 @@ class Alloydb(gcp.Resource):
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -196,89 +185,152 @@ def main():
 
     state = module.params["state"]
     changed = False
-
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://alloydb.googleapis.com/v1/",
+        base_uri="{cluster}/users",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{"uri": "{cluster}/users?userId={user_id}", "async_uri": "", "verb": "POST", "timeout_minutes": 20}
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{"uri": "{cluster}/users/{user_id}", "async_uri": "", "verb": "DELETE", "timeout_minutes": 20}
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{"uri": "{cluster}/users/{user_id}", "async_uri": "", "verb": "GET", "timeout_minutes": 0}
             ),
-            "update": gcp.ResourceOpConfig(
-                **{"uri": "{cluster}/users?userId={user_id}", "async_uri": "", "verb": "POST", "timeout_minutes": 20}
+            "update": gcp_v2.ResourceOpConfig(
+                **{"uri": "{cluster}/users/{user_id}", "async_uri": "", "verb": "PATCH", "timeout_minutes": 20}
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones_from_dict(module.params)
-    resource = Alloydb(params, module=module, product="Alloydb", kind="alloydb#user")
-    existing_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
+    request = gcp_v2.remove_nones(module.params)
+    resource = Alloydb(request, module=module, product="Alloydb", kind="alloydb#user", op_configs=op_configs)
 
-    if existing_obj is None:
+    resource._state = state  # store the state in the resource object
+
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    resource.url_params["cluster"] = gcp_v2.resource_ref(module.params["cluster"], "name")
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
+        module,
+        request=gcp_v2.remove_empties(resource.to_request()),
+        existing=existing_obj,
+        post=True,
+        is_different=is_different,
+    )
+
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            is_async = op_configs.create.async_uri != ""
-            create_link = build_link(module, op_configs.create.uri)
-            create_retries = op_configs.create.timeout
-            create_func = getattr(resource, op_configs.create.verb)
-            async_create_func = getattr(resource, op_configs.create.verb + "_async")
-            async_create_link = build_link(module, "") + op_configs.create.async_uri
-            # --------- BEGIN custom pre-create code ---------
-            # --------- END custom pre-create code ---------
+            gcp_v2.debug(module, action="create")
             try:
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                changed = True
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
             pass  # nothing to do
     else:
         if state == "absent":
-            is_async = op_configs.delete.async_uri != ""
-            delete_link = build_link(module, op_configs.delete.uri)
-            delete_retries = op_configs.delete.timeout
-            delete_func = getattr(resource, op_configs.delete.verb)
-            async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-            async_delete_link = build_link(module, "") + op_configs.delete.async_uri
-            # --------- BEGIN custom pre-delete code ---------
-            # --------- END custom pre-delete code ---------
+            gcp_v2.debug(module, action="delete")
             try:
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                changed = True
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
-            if resource.diff(existing_obj):
-                is_async = op_configs.update.async_uri != ""
-                update_link = build_link(module, op_configs.update.uri)
-                update_retries = op_configs.update.timeout
-                update_func = getattr(resource, op_configs.update.verb)
-                async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                async_update_link = build_link(module, "") + op_configs.update.async_uri
-                # --------- BEGIN custom pre-update code ---------
-                # --------- END custom pre-update code ---------
+            if is_different:
+                gcp_v2.debug(module, action="update")
                 try:
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
-                changed = resource.diff(new_obj)
 
-    new_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
-    new_obj = resource.from_response(new_obj or {})
+                changed = True
+            else:
+                new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

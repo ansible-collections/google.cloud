@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2025 Google
+# Copyright (C) 2017-2026 Google
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
@@ -48,6 +48,7 @@ options:
       - This is distinct from labels.
       - 'https://google.aip.dev/128 An object containing a list of "key": value pairs.'
       - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+      - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
     type: dict
   automated_backup_policy:
     description:
@@ -75,10 +76,7 @@ options:
           kms_key_name:
             description:
               - The fully-qualified resource name of the KMS key.
-              - >-
-                Each Cloud KMS key is regionalized and has the following format:
-
-                projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
+              - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
             type: str
         type: dict
       labels:
@@ -157,6 +155,7 @@ options:
   cluster_id:
     description:
       - The ID of the alloydb cluster.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   cluster_type:
@@ -187,10 +186,7 @@ options:
           kms_key_name:
             description:
               - The fully-qualified resource name of the KMS key.
-              - >-
-                Each Cloud KMS key is regionalized and has the following format:
-
-                projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
+              - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
             type: str
         type: dict
       recovery_window_days:
@@ -206,6 +202,34 @@ options:
       - This is an optional field and it's populated at the Cluster creation time.
       - 'Note: Changing this field to a higer version results in upgrading the AlloyDB cluster which is an irreversible change.'
     type: str
+  dataplex_config:
+    description:
+      - Configuration for Dataplex integration.
+      - This is an optional field.
+      - If not set, Dataplex integration will be enabled by default.
+    suboptions:
+      enabled:
+        description:
+          - Indicates whether Dataplex integration is enabled for the cluster.
+        required: true
+        type: bool
+    type: dict
+  deletion_policy:
+    default: DEFAULT
+    description:
+      - Policy to determine if the cluster should be deleted forcefully.
+      - Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
+      - Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned.
+      - This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
+      - 'Possible values: DEFAULT, FORCE.'
+    type: str
+  deletion_protection:
+    default: true
+    description:
+      - Whether Terraform will be prevented from destroying the cluster.
+      - When the field is set to true or unset in Terraform state, a `terraform apply` or `terraform destroy` that would delete the cluster will fail.
+      - When the field is set to false, deleting the cluster is allowed.
+    type: bool
   display_name:
     description:
       - User-settable and human-readable display name for the Cluster.
@@ -217,10 +241,8 @@ options:
       kms_key_name:
         description:
           - The fully-qualified resource name of the KMS key.
-          - >-
-            Each Cloud KMS key is regionalized and has the following format:
-
-            projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].
+          - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   etag:
@@ -230,11 +252,12 @@ options:
   initial_user:
     description:
       - Initial user to setup during cluster creation.
+      - If unset for new Clusters, a postgres role with null password is created.
+      - You will need to create additional users or set the password in order to log in.
     suboptions:
       password:
         description:
           - The initial password for the user.
-        required: true
         type: str
       user:
         description:
@@ -244,10 +267,12 @@ options:
   labels:
     description:
       - User-defined labels for the alloydb cluster.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   location:
     description:
       - The location where the alloydb cluster should reside.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   maintenance_update_policy:
@@ -331,37 +356,73 @@ options:
         type: bool
       service_owned_project_number:
         description:
-          - >-
-            The project number that needs to be allowlisted on the network attachment to enable outbound connectivity, if the network attachment is
-
-            configured to ACCEPT_MANUAL connections.
+          - The project number that needs to be allowlisted on the network attachment to enable outbound connectivity, if the network attachment is configured to ACCEPT_MANUAL connections.
           - In case the network attachment is configured to ACCEPT_AUTOMATIC, this project number does not need to be allowlisted explicitly.
         type: int
     type: dict
   restore_backup_source:
     description:
       - The source when restoring from a backup.
-      - Conflicts with 'restore_continuous_backup_source', both can't be set together.
+      - Conflicts with 'restore_continuous_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       backup_name:
         description:
           - The name of the backup that this cluster is restored from.
+          - This property is immutable, to change it, you must delete and recreate the resource.
+        required: true
+        type: str
+    type: dict
+  restore_backupdr_backup_source:
+    description:
+      - The source when restoring from a backup.
+      - Conflicts with 'restore_continuous_backup_source',  'restore_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
+      - This property is immutable, to change it, you must delete and recreate the resource.
+    suboptions:
+      backup:
+        description:
+          - The name of the BackupDR backup that this cluster is restored from.
+          - It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]/backups/[BACKUP_ID]".
+          - This property is immutable, to change it, you must delete and recreate the resource.
+        required: true
+        type: str
+    type: dict
+  restore_backupdr_pitr_source:
+    description:
+      - The BackupDR source used for point in time recovery.
+      - Conflicts with 'restore_backupdr_backup_source', 'restore_continuous_backup_source' and 'restore_backupdr_backup_source', they can't be set togeter.
+      - This property is immutable, to change it, you must delete and recreate the resource.
+    suboptions:
+      data_source:
+        description:
+          - The name of the BackupDR data source that this cluster is restore from.
+          - It must be of the format "projects/[PROJECT]/locations/[LOCATION]/backupVaults/[VAULT_ID]/dataSources/[DATASOURCE_ID]".
+          - This property is immutable, to change it, you must delete and recreate the resource.
+        required: true
+        type: str
+      point_in_time:
+        description:
+          - The point in time that this cluster is restored to, in RFC 3339 format.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         required: true
         type: str
     type: dict
   restore_continuous_backup_source:
     description:
       - The source when restoring via point in time recovery (PITR).
-      - Conflicts with 'restore_backup_source', both can't be set together.
+      - Conflicts with 'restore_backup_source', 'restore_backupdr_backup_source' and 'restore_backupdr_pitr_source', they can't be set together.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       cluster:
         description:
           - The name of the source cluster that this cluster is restored from.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         required: true
         type: str
       point_in_time:
         description:
           - The point in time that this cluster is restored to, in RFC 3339 format.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         required: true
         type: str
     type: dict
@@ -376,6 +437,12 @@ options:
         required: true
         type: str
     type: dict
+  skip_await_major_version_upgrade:
+    default: true
+    description:
+      - Set to true to skip awaiting on the major version upgrade of the cluster.
+      - 'Possible values: true, false Default value: "true".'
+    type: bool
   state:
     choices:
       - present
@@ -396,7 +463,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP Alloydb.Cluster resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create basic alloydb cluster
@@ -421,6 +488,9 @@ EXAMPLES = r"""
     state: present
     location: us-central1
     cluster_type: PRIMARY
+    initial_user:
+      user: pgroot
+      password: Test123Test
     network_config:
       network: "projects/{{ gcp_project }}/global/networks/default"
     project: "{{ gcp_project }}"
@@ -441,7 +511,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 backupSource:
@@ -453,6 +523,17 @@ backupSource:
       type: str
   description:
     - Cluster created from backup.
+  returned: success
+  type: dict
+backupdrBackupSource:
+  contains:
+    backup:
+      description:
+        - The name of the BackupDR backup resource.
+      returned: when set
+      type: str
+  description:
+    - Cluster created from a BackupDR backup.
   returned: success
   type: dict
 changed:
@@ -554,10 +635,7 @@ reconciling:
   description:
     - Output only.
     - Reconciling (https://google.aip.dev/128#reconciliation).
-    - >-
-      Set to true if the current state of Cluster does not match the user's intended state, and the service is actively updating the resource to
-
-      reconcile them.
+    - Set to true if the current state of Cluster does not match the user's intended state, and the service is actively updating the resource to reconcile them.
     - This can happen due to user-triggered updates or system actions like failover or maintenance.
   returned: success
   type: bool
@@ -598,101 +676,64 @@ uid:
     - The system-generated UID of the resource.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
 # END Custom imports
 
 
-def build_link(module, uri):
-    params = module.params.copy()
-
-    return "https://alloydb.googleapis.com/v1/" + uri.format(**params)
-
-
-class AutomatedBackupPolicy(gcp.Resource):
+class AutomatedBackupPolicy(gcp_v2.Resource):
     def _request(self):
         return {
             "backupWindow": self.request.get("backup_window"),
             "enabled": self.request.get("enabled"),
-            "encryptionConfig": AutomatedBackupPolicyEncryptionConfig(
-                self.request.get("encryption_config", {})
-            ).to_request(),
+            "encryptionConfig": gcp_v2.remove_empties(
+                AutomatedBackupPolicyEncryptionConfig(self.request.get("encryption_config", {})).to_request()
+            ),  # remove empty values
             "labels": self.request.get("labels"),
             "location": self.request.get("location"),
-            "quantityBasedRetention": AutomatedBackupPolicyQuantityBasedRetention(
-                self.request.get("quantity_based_retention", {})
-            ).to_request(),
-            "timeBasedRetention": AutomatedBackupPolicyTimeBasedRetention(
-                self.request.get("time_based_retention", {})
-            ).to_request(),
-            "weeklySchedule": AutomatedBackupPolicyWeeklySchedule(self.request.get("weekly_schedule", {})).to_request(),
-        }
-
-    def _response(self):
-        return {
-            "backupWindow": self.response.get("backupWindow"),
-            "enabled": self.response.get("enabled"),
-            "encryptionConfig": AutomatedBackupPolicyEncryptionConfig().from_response(
-                self.response.get("encryptionConfig", {})
-            ),
-            "labels": self.response.get("labels"),
-            "location": self.response.get("location"),
-            "quantityBasedRetention": AutomatedBackupPolicyQuantityBasedRetention().from_response(
-                self.response.get("quantityBasedRetention", {})
-            ),
-            "timeBasedRetention": AutomatedBackupPolicyTimeBasedRetention().from_response(
-                self.response.get("timeBasedRetention", {})
-            ),
-            "weeklySchedule": AutomatedBackupPolicyWeeklySchedule().from_response(
-                self.response.get("weeklySchedule", {})
-            ),
+            "quantityBasedRetention": gcp_v2.remove_empties(
+                AutomatedBackupPolicyQuantityBasedRetention(
+                    self.request.get("quantity_based_retention", {})
+                ).to_request()
+            ),  # remove empty values
+            "timeBasedRetention": gcp_v2.remove_empties(
+                AutomatedBackupPolicyTimeBasedRetention(self.request.get("time_based_retention", {})).to_request()
+            ),  # remove empty values
+            "weeklySchedule": gcp_v2.remove_empties(
+                AutomatedBackupPolicyWeeklySchedule(self.request.get("weekly_schedule", {})).to_request()
+            ),  # remove empty values
         }
 
 
-class AutomatedBackupPolicyEncryptionConfig(gcp.Resource):
+class AutomatedBackupPolicyEncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
 
-
-class AutomatedBackupPolicyQuantityBasedRetention(gcp.Resource):
+class AutomatedBackupPolicyQuantityBasedRetention(gcp_v2.Resource):
     def _request(self):
         return {
             "count": self.request.get("count"),
         }
 
-    def _response(self):
-        return {
-            "count": self.response.get("count"),
-        }
 
-
-class AutomatedBackupPolicyTimeBasedRetention(gcp.Resource):
+class AutomatedBackupPolicyTimeBasedRetention(gcp_v2.Resource):
     def _request(self):
         return {
             "retentionPeriod": self.request.get("retention_period"),
         }
 
-    def _response(self):
-        return {
-            "retentionPeriod": self.response.get("retentionPeriod"),
-        }
 
-
-class AutomatedBackupPolicyWeeklySchedule(gcp.Resource):
+class AutomatedBackupPolicyWeeklySchedule(gcp_v2.Resource):
     def _request(self):
         return {
             "daysOfWeek": self.request.get("days_of_week"),
@@ -702,17 +743,8 @@ class AutomatedBackupPolicyWeeklySchedule(gcp.Resource):
             ],
         }
 
-    def _response(self):
-        return {
-            "daysOfWeek": self.response.get("daysOfWeek"),
-            "startTimes": [
-                AutomatedBackupPolicyWeeklyScheduleStartTime().from_response(item)
-                for item in (self.response.get("startTimes") or [])
-            ],
-        }
 
-
-class AutomatedBackupPolicyWeeklyScheduleStartTime(gcp.Resource):
+class AutomatedBackupPolicyWeeklyScheduleStartTime(gcp_v2.Resource):
     def _request(self):
         return {
             "hours": self.request.get("hours"),
@@ -721,60 +753,40 @@ class AutomatedBackupPolicyWeeklyScheduleStartTime(gcp.Resource):
             "seconds": self.request.get("seconds"),
         }
 
-    def _response(self):
-        return {
-            "hours": self.response.get("hours"),
-            "minutes": self.response.get("minutes"),
-            "nanos": self.response.get("nanos"),
-            "seconds": self.response.get("seconds"),
-        }
 
-
-class BackupSource(gcp.Resource):
+class BackupSource(gcp_v2.Resource):
     def _request(self):
         return {
             "backupName": self.request.get("backup_name"),
         }
 
-    def _response(self):
+
+class BackupdrBackupSource(gcp_v2.Resource):
+    def _request(self):
         return {
-            "backupName": self.response.get("backupName"),
+            "backup": self.request.get("backup"),
         }
 
 
-class ContinuousBackupConfig(gcp.Resource):
+class ContinuousBackupConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "enabled": self.request.get("enabled"),
-            "encryptionConfig": ContinuousBackupConfigEncryptionConfig(
-                self.request.get("encryption_config", {})
-            ).to_request(),
+            "encryptionConfig": gcp_v2.remove_empties(
+                ContinuousBackupConfigEncryptionConfig(self.request.get("encryption_config", {})).to_request()
+            ),  # remove empty values
             "recoveryWindowDays": self.request.get("recovery_window_days"),
         }
 
-    def _response(self):
-        return {
-            "enabled": self.response.get("enabled"),
-            "encryptionConfig": ContinuousBackupConfigEncryptionConfig().from_response(
-                self.response.get("encryptionConfig", {})
-            ),
-            "recoveryWindowDays": self.response.get("recoveryWindowDays"),
-        }
 
-
-class ContinuousBackupConfigEncryptionConfig(gcp.Resource):
+class ContinuousBackupConfigEncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
 
-
-class ContinuousBackupInfo(gcp.Resource):
+class ContinuousBackupInfo(gcp_v2.Resource):
     def _response(self):
         return {
             "earliestRestorableTime": self.response.get("earliestRestorableTime"),
@@ -786,7 +798,7 @@ class ContinuousBackupInfo(gcp.Resource):
         }
 
 
-class ContinuousBackupInfoEncryptionInfo(gcp.Resource):
+class ContinuousBackupInfoEncryptionInfo(gcp_v2.Resource):
     def _response(self):
         return {
             "encryptionType": self.response.get("encryptionType"),
@@ -794,19 +806,21 @@ class ContinuousBackupInfoEncryptionInfo(gcp.Resource):
         }
 
 
-class EncryptionConfig(gcp.Resource):
+class DataplexConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "enabled": self.request.get("enabled"),
+        }
+
+
+class EncryptionConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
 
-
-class EncryptionInfo(gcp.Resource):
+class EncryptionInfo(gcp_v2.Resource):
     def _response(self):
         return {
             "encryptionType": self.response.get("encryptionType"),
@@ -814,21 +828,15 @@ class EncryptionInfo(gcp.Resource):
         }
 
 
-class InitialUser(gcp.Resource):
+class InitialUser(gcp_v2.Resource):
     def _request(self):
         return {
             "password": self.request.get("password"),
             "user": self.request.get("user"),
         }
 
-    def _response(self):
-        return {
-            "password": self.response.get("password"),
-            "user": self.response.get("user"),
-        }
 
-
-class MaintenanceUpdatePolicy(gcp.Resource):
+class MaintenanceUpdatePolicy(gcp_v2.Resource):
     def _request(self):
         return {
             "maintenanceWindows": [
@@ -837,34 +845,18 @@ class MaintenanceUpdatePolicy(gcp.Resource):
             ],
         }
 
-    def _response(self):
-        return {
-            "maintenanceWindows": [
-                MaintenanceUpdatePolicyMaintenanceWindow().from_response(item)
-                for item in (self.response.get("maintenanceWindows") or [])
-            ],
-        }
 
-
-class MaintenanceUpdatePolicyMaintenanceWindow(gcp.Resource):
+class MaintenanceUpdatePolicyMaintenanceWindow(gcp_v2.Resource):
     def _request(self):
         return {
             "day": self.request.get("day"),
-            "startTime": MaintenanceUpdatePolicyMaintenanceWindowStartTime(
-                self.request.get("start_time", {})
-            ).to_request(),
-        }
-
-    def _response(self):
-        return {
-            "day": self.response.get("day"),
-            "startTime": MaintenanceUpdatePolicyMaintenanceWindowStartTime().from_response(
-                self.response.get("startTime", {})
-            ),
+            "startTime": gcp_v2.remove_empties(
+                MaintenanceUpdatePolicyMaintenanceWindowStartTime(self.request.get("start_time", {})).to_request()
+            ),  # remove empty values
         }
 
 
-class MaintenanceUpdatePolicyMaintenanceWindowStartTime(gcp.Resource):
+class MaintenanceUpdatePolicyMaintenanceWindowStartTime(gcp_v2.Resource):
     def _request(self):
         return {
             "hours": self.request.get("hours"),
@@ -873,16 +865,8 @@ class MaintenanceUpdatePolicyMaintenanceWindowStartTime(gcp.Resource):
             "seconds": self.request.get("seconds"),
         }
 
-    def _response(self):
-        return {
-            "hours": self.response.get("hours"),
-            "minutes": self.response.get("minutes"),
-            "nanos": self.response.get("nanos"),
-            "seconds": self.response.get("seconds"),
-        }
 
-
-class MigrationSource(gcp.Resource):
+class MigrationSource(gcp_v2.Resource):
     def _request(self):
         return {
             "hostPort": self.request.get("host_port"),
@@ -890,29 +874,16 @@ class MigrationSource(gcp.Resource):
             "sourceType": self.request.get("source_type"),
         }
 
-    def _response(self):
-        return {
-            "hostPort": self.response.get("hostPort"),
-            "referenceId": self.response.get("referenceId"),
-            "sourceType": self.response.get("sourceType"),
-        }
 
-
-class NetworkConfig(gcp.Resource):
+class NetworkConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "allocatedIpRange": self.request.get("allocated_ip_range"),
             "network": self.request.get("network"),
         }
 
-    def _response(self):
-        return {
-            "allocatedIpRange": self.response.get("allocatedIpRange"),
-            "network": self.response.get("network"),
-        }
 
-
-class PscConfig(gcp.Resource):
+class PscConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "pscEnabled": self.request.get("psc_enabled"),
@@ -920,50 +891,48 @@ class PscConfig(gcp.Resource):
 
     def _response(self):
         return {
-            "pscEnabled": self.response.get("pscEnabled"),
             "serviceOwnedProjectNumber": self.response.get("serviceOwnedProjectNumber"),
         }
 
 
-class RestoreBackupSource(gcp.Resource):
+class RestoreBackupSource(gcp_v2.Resource):
     def _request(self):
         return {
             "backupName": self.request.get("backup_name"),
         }
 
-    def _response(self):
+
+class RestoreBackupdrBackupSource(gcp_v2.Resource):
+    def _request(self):
         return {
-            "backupName": self.response.get("backupName"),
+            "backup": self.request.get("backup"),
         }
 
 
-class RestoreContinuousBackupSource(gcp.Resource):
+class RestoreBackupdrPitrSource(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "dataSource": self.request.get("data_source"),
+            "pointInTime": self.request.get("point_in_time"),
+        }
+
+
+class RestoreContinuousBackupSource(gcp_v2.Resource):
     def _request(self):
         return {
             "cluster": self.request.get("cluster"),
             "pointInTime": self.request.get("point_in_time"),
         }
 
-    def _response(self):
-        return {
-            "cluster": self.response.get("cluster"),
-            "pointInTime": self.response.get("pointInTime"),
-        }
 
-
-class SecondaryConfig(gcp.Resource):
+class SecondaryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "primaryClusterName": self.request.get("primary_cluster_name"),
         }
 
-    def _response(self):
-        return {
-            "primaryClusterName": self.response.get("primaryClusterName"),
-        }
 
-
-class TrialMetadata(gcp.Resource):
+class TrialMetadata(gcp_v2.Resource):
     def _request(self):
         return {
             "endTime": self.request.get("end_time"),
@@ -972,78 +941,67 @@ class TrialMetadata(gcp.Resource):
             "upgradeTime": self.request.get("upgrade_time"),
         }
 
-    def _response(self):
-        return {
-            "endTime": self.response.get("endTime"),
-            "graceEndTime": self.response.get("graceEndTime"),
-            "startTime": self.response.get("startTime"),
-            "upgradeTime": self.response.get("upgradeTime"),
-        }
 
-
-class Alloydb(gcp.Resource):
+class Alloydb(gcp_v2.Resource):
     def _request(self):
         return {
             "annotations": self.request.get("annotations"),
-            "automatedBackupPolicy": AutomatedBackupPolicy(
-                self.request.get("automated_backup_policy", {})
-            ).to_request(),
+            "automatedBackupPolicy": gcp_v2.remove_empties(
+                AutomatedBackupPolicy(self.request.get("automated_backup_policy", {})).to_request()
+            ),  # remove empty values
             "clusterType": self.request.get("cluster_type"),
-            "continuousBackupConfig": ContinuousBackupConfig(
-                self.request.get("continuous_backup_config", {})
-            ).to_request(),
+            "continuousBackupConfig": gcp_v2.remove_empties(
+                ContinuousBackupConfig(self.request.get("continuous_backup_config", {})).to_request()
+            ),  # remove empty values
             "databaseVersion": self.request.get("database_version"),
+            "dataplexConfig": gcp_v2.remove_empties(
+                DataplexConfig(self.request.get("dataplex_config", {})).to_request()
+            ),  # remove empty values
             "displayName": self.request.get("display_name"),
-            "encryptionConfig": EncryptionConfig(self.request.get("encryption_config", {})).to_request(),
+            "encryptionConfig": gcp_v2.remove_empties(
+                EncryptionConfig(self.request.get("encryption_config", {})).to_request()
+            ),  # remove empty values
             "etag": self.request.get("etag"),
-            "initialUser": InitialUser(self.request.get("initial_user", {})).to_request(),
+            "initialUser": gcp_v2.remove_empties(
+                InitialUser(self.request.get("initial_user", {})).to_request()
+            ),  # remove empty values
             "labels": self.request.get("labels"),
-            "maintenanceUpdatePolicy": MaintenanceUpdatePolicy(
-                self.request.get("maintenance_update_policy", {})
-            ).to_request(),
-            "networkConfig": NetworkConfig(self.request.get("network_config", {})).to_request(),
-            "pscConfig": PscConfig(self.request.get("psc_config", {})).to_request(),
-            "restoreBackupSource": RestoreBackupSource(self.request.get("restore_backup_source", {})).to_request(),
-            "restoreContinuousBackupSource": RestoreContinuousBackupSource(
-                self.request.get("restore_continuous_backup_source", {})
-            ).to_request(),
-            "secondaryConfig": SecondaryConfig(self.request.get("secondary_config", {})).to_request(),
+            "maintenanceUpdatePolicy": gcp_v2.remove_empties(
+                MaintenanceUpdatePolicy(self.request.get("maintenance_update_policy", {})).to_request()
+            ),  # remove empty values
+            "networkConfig": gcp_v2.remove_empties(
+                NetworkConfig(self.request.get("network_config", {})).to_request()
+            ),  # remove empty values
+            "pscConfig": gcp_v2.remove_empties(
+                PscConfig(self.request.get("psc_config", {})).to_request()
+            ),  # remove empty values
+            "restoreBackupSource": gcp_v2.remove_empties(
+                RestoreBackupSource(self.request.get("restore_backup_source", {})).to_request()
+            ),  # remove empty values
+            "restoreBackupdrBackupSource": gcp_v2.remove_empties(
+                RestoreBackupdrBackupSource(self.request.get("restore_backupdr_backup_source", {})).to_request()
+            ),  # remove empty values
+            "restoreBackupdrPitrSource": gcp_v2.remove_empties(
+                RestoreBackupdrPitrSource(self.request.get("restore_backupdr_pitr_source", {})).to_request()
+            ),  # remove empty values
+            "restoreContinuousBackupSource": gcp_v2.remove_empties(
+                RestoreContinuousBackupSource(self.request.get("restore_continuous_backup_source", {})).to_request()
+            ),  # remove empty values
+            "secondaryConfig": gcp_v2.remove_empties(
+                SecondaryConfig(self.request.get("secondary_config", {})).to_request()
+            ),  # remove empty values
             "subscriptionType": self.request.get("subscription_type"),
         }
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "automatedBackupPolicy": AutomatedBackupPolicy().from_response(
-                self.response.get("automatedBackupPolicy", {})
-            ),
             "backupSource": BackupSource().from_response(self.response.get("backupSource", {})),
-            "clusterType": self.response.get("clusterType"),
-            "continuousBackupConfig": ContinuousBackupConfig().from_response(
-                self.response.get("continuousBackupConfig", {})
-            ),
+            "backupdrBackupSource": BackupdrBackupSource().from_response(self.response.get("backupdrBackupSource", {})),
             "continuousBackupInfo": ContinuousBackupInfo().from_response(self.response.get("continuousBackupInfo", {})),
-            "databaseVersion": self.response.get("databaseVersion"),
-            "displayName": self.response.get("displayName"),
-            "encryptionConfig": EncryptionConfig().from_response(self.response.get("encryptionConfig", {})),
             "encryptionInfo": EncryptionInfo().from_response(self.response.get("encryptionInfo", {})),
-            "etag": self.response.get("etag"),
-            "initialUser": InitialUser().from_response(self.response.get("initialUser", {})),
-            "labels": self.response.get("labels"),
-            "maintenanceUpdatePolicy": MaintenanceUpdatePolicy().from_response(
-                self.response.get("maintenanceUpdatePolicy", {})
-            ),
             "migrationSource": MigrationSource().from_response(self.response.get("migrationSource", {})),
             "name": self.response.get("name"),
-            "networkConfig": NetworkConfig().from_response(self.response.get("networkConfig", {})),
-            "pscConfig": PscConfig().from_response(self.response.get("pscConfig", {})),
             "reconciling": self.response.get("reconciling"),
-            "restoreBackupSource": RestoreBackupSource().from_response(self.response.get("restoreBackupSource", {})),
-            "restoreContinuousBackupSource": RestoreContinuousBackupSource().from_response(
-                self.response.get("restoreContinuousBackupSource", {})
-            ),
-            "secondaryConfig": SecondaryConfig().from_response(self.response.get("secondaryConfig", {})),
-            "subscriptionType": self.response.get("subscriptionType"),
             "trialMetadata": TrialMetadata().from_response(self.response.get("trialMetadata", {})),
             "uid": self.response.get("uid"),
         }
@@ -1057,7 +1015,7 @@ class Alloydb(gcp.Resource):
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             state=dict(
                 type="str",
@@ -1081,6 +1039,7 @@ def main():
                         options=dict(
                             kms_key_name=dict(
                                 type="str",
+                                no_log=False,
                             )
                         ),
                     ),
@@ -1135,7 +1094,7 @@ def main():
                         ),
                     ),
                 ),
-                mutually_exclusive=[["quantity_based_retention", "time_based_retention"]],
+                mutually_exclusive=[("quantity_based_retention", "time_based_retention")],
             ),
             cluster_id=dict(
                 type="str",
@@ -1158,6 +1117,7 @@ def main():
                         options=dict(
                             kms_key_name=dict(
                                 type="str",
+                                no_log=False,
                             )
                         ),
                     ),
@@ -1169,6 +1129,23 @@ def main():
             database_version=dict(
                 type="str",
             ),
+            dataplex_config=dict(
+                type="dict",
+                options=dict(
+                    enabled=dict(
+                        type="bool",
+                        required=True,
+                    )
+                ),
+            ),
+            deletion_policy=dict(
+                type="str",
+                default="DEFAULT",
+            ),
+            deletion_protection=dict(
+                type="bool",
+                default=True,
+            ),
             display_name=dict(
                 type="str",
             ),
@@ -1177,6 +1154,7 @@ def main():
                 options=dict(
                     kms_key_name=dict(
                         type="str",
+                        no_log=False,
                     )
                 ),
             ),
@@ -1188,13 +1166,13 @@ def main():
                 options=dict(
                     password=dict(
                         type="str",
-                        required=True,
                         no_log=True,
                     ),
                     user=dict(
                         type="str",
                     ),
                 ),
+                required_one_of=[("password", "user")],
             ),
             labels=dict(
                 type="dict",
@@ -1269,6 +1247,28 @@ def main():
                     )
                 ),
             ),
+            restore_backupdr_backup_source=dict(
+                type="dict",
+                options=dict(
+                    backup=dict(
+                        type="str",
+                        required=True,
+                    )
+                ),
+            ),
+            restore_backupdr_pitr_source=dict(
+                type="dict",
+                options=dict(
+                    data_source=dict(
+                        type="str",
+                        required=True,
+                    ),
+                    point_in_time=dict(
+                        type="str",
+                        required=True,
+                    ),
+                ),
+            ),
             restore_continuous_backup_source=dict(
                 type="dict",
                 options=dict(
@@ -1291,12 +1291,23 @@ def main():
                     )
                 ),
             ),
+            skip_await_major_version_upgrade=dict(
+                type="bool",
+                default=True,
+            ),
             subscription_type=dict(
                 type="str",
                 choices=["TRIAL", "STANDARD"],
             ),
         ),
-        mutually_exclusive=[["restore_backup_source", "restore_continuous_backup_source"]],
+        mutually_exclusive=[
+            (
+                "restore_backup_source",
+                "restore_backupdr_backup_source",
+                "restore_backupdr_pitr_source",
+                "restore_continuous_backup_source",
+            )
+        ],
     )
 
     if not module.params["scopes"]:
@@ -1304,10 +1315,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://alloydb.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{location}/clusters",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/clusters?clusterId={cluster_id}",
                     "async_uri": "{op_id}",
@@ -1315,7 +1327,7 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/clusters/{cluster_id}",
                     "async_uri": "{op_id}",
@@ -1323,7 +1335,7 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/clusters/{cluster_id}",
                     "async_uri": "",
@@ -1331,7 +1343,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/clusters/{cluster_id}",
                     "async_uri": "{op_id}",
@@ -1339,110 +1351,178 @@ def main():
                     "timeout_minutes": 120,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones_from_dict(module.params)
-    resource = Alloydb(params, module=module, product="Alloydb", kind="alloydb#cluster")
-    existing_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
+    request = gcp_v2.remove_nones(module.params)
+    resource = Alloydb(request, module=module, product="Alloydb", kind="alloydb#cluster", op_configs=op_configs)
 
-    if existing_obj is None:
-        if state == "present":
-            is_async = op_configs.create.async_uri != ""
-            create_link = build_link(module, op_configs.create.uri)
-            create_retries = op_configs.create.timeout
-            create_func = getattr(resource, op_configs.create.verb)
-            async_create_func = getattr(resource, op_configs.create.verb + "_async")
-            async_create_link = build_link(module, "") + op_configs.create.async_uri
-            # --------- BEGIN custom pre-create code ---------
-            secondary_config = module.params.get("secondary_config")
-            cluster_type = module.params.get("cluster_type")
-            if (cluster_type == "SECONDARY" and secondary_config is None) or (
-                cluster_type == "PRIMARY" and secondary_config is not None
-            ):
-                module.fail_json(msg="A secondary_config is ONLY needed when cluster_type=SECONDARY")
+    resource._state = state  # store the state in the resource object
 
-            # for secondary clusters, the creation link changes slightly
-            if cluster_type == "SECONDARY":
-                create_link = create_link.replace("clusters?clusterId", "clusters:createsecondary?cluster_id")
-            # for primary clusters, require an initial_user
-            if cluster_type == "PRIMARY":
-                initial_user = module.params.get("initial_user")
-                if not initial_user:
-                    module.fail_json(msg="An initial_user is required when cluster_type=PRIMARY")
-            # --------- END custom pre-create code ---------
-            try:
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
-                else:
-                    new_obj = create_func(create_link)
-                changed = True
-            except Exception as e:
-                module.fail_json(msg=str(e))
-        else:
-            pass  # nothing to do
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    if custom_diff is not None:
+        is_different = custom_diff
     else:
-        if state == "absent":
-            is_async = op_configs.delete.async_uri != ""
-            delete_link = build_link(module, op_configs.delete.uri)
-            delete_retries = op_configs.delete.timeout
-            delete_func = getattr(resource, op_configs.delete.verb)
-            async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-            async_delete_link = build_link(module, "") + op_configs.delete.async_uri
-            # --------- BEGIN custom pre-delete code ---------
-            # noop
-            # --------- END custom pre-delete code ---------
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
+        module,
+        request=gcp_v2.remove_empties(resource.to_request()),
+        existing=existing_obj,
+        post=True,
+        is_different=is_different,
+    )
+
+    if gcp_v2.empty(existing_obj):
+        if state == "present":
+            gcp_v2.debug(module, action="create")
             try:
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
-                else:
-                    new_obj = delete_func(delete_link)
-                changed = True
-            except Exception as e:
-                module.fail_json(msg=str(e))
-        else:
-            if resource.diff(existing_obj):
-                is_async = op_configs.update.async_uri != ""
-                update_link = build_link(module, op_configs.update.uri)
-                update_retries = op_configs.update.timeout
-                update_func = getattr(resource, op_configs.update.verb)
-                async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                async_update_link = build_link(module, "") + op_configs.update.async_uri
-                # --------- BEGIN custom pre-update code ---------
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                # --------- BEGIN pre-create custom code ---------
                 secondary_config = module.params.get("secondary_config")
                 cluster_type = module.params.get("cluster_type")
-                db_version = module.params.get("database_version")
-
-                # validate you're not sending secondary config when cluster is primary and vice versa
                 if (cluster_type == "SECONDARY" and secondary_config is None) or (
                     cluster_type == "PRIMARY" and secondary_config is not None
                 ):
                     module.fail_json(msg="A secondary_config is ONLY needed when cluster_type=SECONDARY")
 
-                # handle cluster promotions primary<->secondary
-                if cluster_type != existing_obj.get("clusterType"):
-                    module.fail_json(msg="Cluster promotion not supported yet")
+                # for secondary clusters, the creation link changes slightly
+                if cluster_type == "SECONDARY":
+                    create_link = resource.build_link("create")
+                    create_link = create_link.replace("clusters?clusterId", "clusters:createsecondary?cluster_id")
 
-                # handle database engine migration
-                if db_version is not None and db_version != existing_obj.get("databaseVersion"):
-                    module.fail_json(msg="Database migration not supported yet")
+                # for primary clusters, require an initial_user
+                if cluster_type == "PRIMARY":
+                    initial_user = module.params.get("initial_user")
+                    if not initial_user:
+                        module.fail_json(msg="An initial_user is required when cluster_type=PRIMARY")
 
-                # finally, need to build the updateMask for the fields in our module
-                update_link += "?updateMask=" + ",".join(resource.dot_fields())
-                # --------- END custom pre-update code ---------
+                # --------- END pre-create custom code ---------
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
+                else:
+                    new_obj = create_func(create_link)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
+            except Exception as e:
+                module.fail_json(msg=str(e))
+
+            changed = True
+        else:
+            pass  # nothing to do
+    else:
+        if state == "absent":
+            gcp_v2.debug(module, action="delete")
+            try:
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
+                else:
+                    new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
+            except Exception as e:
+                module.fail_json(msg=str(e))
+
+            changed = True
+        else:
+            if is_different:
+                gcp_v2.debug(module, action="update")
                 try:
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    # --------- BEGIN pre-update custom code ---------
+                    secondary_config = module.params.get("secondary_config")
+                    cluster_type = module.params.get("cluster_type")
+                    db_version = module.params.get("database_version")
+
+                    # validate you're not sending secondary config when cluster is primary and vice versa
+                    if (cluster_type == "SECONDARY" and secondary_config is None) or (
+                        cluster_type == "PRIMARY" and secondary_config is not None
+                    ):
+                        module.fail_json(msg="A secondary_config is ONLY needed when cluster_type=SECONDARY")
+
+                    # handle cluster promotions primary<->secondary
+                    if cluster_type != existing_obj.get("clusterType"):
+                        module.fail_json(msg="Cluster promotion not supported yet")
+
+                    # handle database engine migration
+                    if db_version is not None and db_version != existing_obj.get("databaseVersion"):
+                        module.fail_json(msg="Database migration not supported yet")
+
+                    # finally, need to build the updateMask for the fields in our module
+                    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
+
+                    # --------- END pre-update custom code ---------
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
-                changed = resource.diff(new_obj)
 
-    new_obj = resource.get(build_link(module, op_configs.read.uri), allow_not_found=True)
-    new_obj = resource.from_response(new_obj or {})
+                changed = True
+            else:
+                new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

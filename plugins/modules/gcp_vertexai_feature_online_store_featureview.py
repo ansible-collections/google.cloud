@@ -62,6 +62,7 @@ options:
   feature_online_store:
     description:
       - The name of the FeatureOnlineStore to use for the featureview.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   feature_registry_source:
@@ -94,17 +95,20 @@ options:
   labels:
     description:
       - A set of key/value label pairs to assign to this FeatureView.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   name:
     description:
       - Name of the FeatureView.
       - This value may be up to 60 characters, and valid characters are [a-z0-9_].
       - The first character cannot be a number.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   region:
     description:
       - The region for the resource.
       - It should be the same as the featureonlinestore region.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   state:
@@ -134,6 +138,7 @@ options:
     description:
       - Configuration for vector search.
       - It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       brute_force_config:
         description:
@@ -229,35 +234,21 @@ updateTime:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{region}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class BigQuerySource(gcp.Resource):
+class BigQuerySource(gcp_v2.Resource):
     def _request(self):
         return {
             "entityIdColumns": self.request.get("entity_id_columns"),
             "uri": self.request.get("uri"),
         }
 
-    def _response(self):
-        return {
-            "entityIdColumns": self.response.get("entityIdColumns"),
-            "uri": self.response.get("uri"),
-        }
 
-
-class FeatureRegistrySource(gcp.Resource):
+class FeatureRegistrySource(gcp_v2.Resource):
     def _request(self):
         return {
             "featureGroups": [
@@ -267,48 +258,27 @@ class FeatureRegistrySource(gcp.Resource):
             "projectNumber": self.request.get("project_number"),
         }
 
-    def _response(self):
-        return {
-            "featureGroups": [
-                FeatureRegistrySourceFeatureGroup().from_response(item)
-                for item in (self.response.get("featureGroups") or [])
-            ],
-            "projectNumber": self.response.get("projectNumber"),
-        }
 
-
-class FeatureRegistrySourceFeatureGroup(gcp.Resource):
+class FeatureRegistrySourceFeatureGroup(gcp_v2.Resource):
     def _request(self):
         return {
             "featureGroupId": self.request.get("feature_group_id"),
             "featureIds": self.request.get("feature_ids"),
         }
 
-    def _response(self):
-        return {
-            "featureGroupId": self.response.get("featureGroupId"),
-            "featureIds": self.response.get("featureIds"),
-        }
 
-
-class SyncConfig(gcp.Resource):
+class SyncConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "continuous": self.request.get("continuous"),
             "cron": self.request.get("cron"),
         }
 
-    def _response(self):
-        return {
-            "continuous": self.response.get("continuous"),
-            "cron": self.response.get("cron"),
-        }
 
-
-class VectorSearchConfig(gcp.Resource):
+class VectorSearchConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "bruteForceConfig": gcp.remove_nones(
+            "bruteForceConfig": gcp_v2.remove_nones(
                 VectorSearchConfigBruteForceConfig(self.request.get("brute_force_config", {})).to_request()
             ),  # allow empty values
             "crowdingColumn": self.request.get("crowding_column"),
@@ -316,26 +286,13 @@ class VectorSearchConfig(gcp.Resource):
             "embeddingColumn": self.request.get("embedding_column"),
             "embeddingDimension": self.request.get("embedding_dimension"),
             "filterColumns": self.request.get("filter_columns"),
-            "treeAhConfig": gcp.remove_empties(
+            "treeAhConfig": gcp_v2.remove_empties(
                 VectorSearchConfigTreeAhConfig(self.request.get("tree_ah_config", {})).to_request()
             ),  # remove empty values
         }
 
-    def _response(self):
-        return {
-            "bruteForceConfig": VectorSearchConfigBruteForceConfig().from_response(
-                self.response.get("bruteForceConfig", {})
-            ),
-            "crowdingColumn": self.response.get("crowdingColumn"),
-            "distanceMeasureType": self.response.get("distanceMeasureType"),
-            "embeddingColumn": self.response.get("embeddingColumn"),
-            "embeddingDimension": self.response.get("embeddingDimension"),
-            "filterColumns": self.response.get("filterColumns"),
-            "treeAhConfig": VectorSearchConfigTreeAhConfig().from_response(self.response.get("treeAhConfig", {})),
-        }
 
-
-class VectorSearchConfigBruteForceConfig(gcp.Resource):
+class VectorSearchConfigBruteForceConfig(gcp_v2.Resource):
     def _request(self):
         return self.request.get("brute_force_config", dict())
 
@@ -343,47 +300,35 @@ class VectorSearchConfigBruteForceConfig(gcp.Resource):
         return self.response.get("brute_force_config", dict())
 
 
-class VectorSearchConfigTreeAhConfig(gcp.Resource):
+class VectorSearchConfigTreeAhConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "leafNodeEmbeddingCount": self.request.get("leaf_node_embedding_count"),
         }
 
-    def _response(self):
-        return {
-            "leafNodeEmbeddingCount": self.response.get("leafNodeEmbeddingCount"),
-        }
 
-
-class VertexAI(gcp.Resource):
+class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
-            "bigQuerySource": gcp.remove_empties(
+            "bigQuerySource": gcp_v2.remove_empties(
                 BigQuerySource(self.request.get("big_query_source", {})).to_request()
             ),  # remove empty values
-            "featureRegistrySource": gcp.remove_empties(
+            "featureRegistrySource": gcp_v2.remove_empties(
                 FeatureRegistrySource(self.request.get("feature_registry_source", {})).to_request()
             ),  # remove empty values
             "labels": self.request.get("labels"),
-            "syncConfig": gcp.remove_empties(
+            "syncConfig": gcp_v2.remove_empties(
                 SyncConfig(self.request.get("sync_config", {})).to_request()
             ),  # remove empty values
-            "vectorSearchConfig": gcp.remove_empties(
+            "vectorSearchConfig": gcp_v2.remove_empties(
                 VectorSearchConfig(self.request.get("vector_search_config", {})).to_request()
             ),  # remove empty values
         }
 
     def _response(self):
         return {
-            "bigQuerySource": BigQuerySource().from_response(self.response.get("bigQuerySource", {})),
             "createTime": self.response.get("createTime"),
-            "featureRegistrySource": FeatureRegistrySource().from_response(
-                self.response.get("featureRegistrySource", {})
-            ),
-            "labels": self.response.get("labels"),
-            "syncConfig": SyncConfig().from_response(self.response.get("syncConfig", {})),
             "updateTime": self.response.get("updateTime"),
-            "vectorSearchConfig": VectorSearchConfig().from_response(self.response.get("vectorSearchConfig", {})),
         }
 
 
@@ -392,26 +337,10 @@ class VertexAI(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             name=dict(
                 type="str",
@@ -480,7 +409,7 @@ def main():
                         type="str",
                     ),
                 ),
-                mutually_exclusive=[["continuous", "cron"]],
+                mutually_exclusive=[("continuous", "cron")],
             ),
             vector_search_config=dict(
                 type="dict",
@@ -515,15 +444,9 @@ def main():
                         ),
                     ),
                 ),
-                mutually_exclusive=[["brute_force_config", "tree_ah_config"]],
-                required_one_of=[["brute_force_config", "tree_ah_config"]],
             ),
         ),
-        mutually_exclusive=[
-            ["big_query_source", "feature_registry_source"],
-            ["feature_registry_source", "vector_search_config"],
-        ],
-        required_one_of=[["big_query_source", "feature_registry_source"]],
+        mutually_exclusive=[("feature_registry_source", "vector_search_config")],
     )
 
     if not module.params["scopes"]:
@@ -531,17 +454,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{region}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews?featureViewId={name}",
                     "async_uri": "{op_id}",
@@ -549,7 +466,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews/{name}",
                     "async_uri": "{op_id}",
@@ -557,7 +474,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews/{name}",
                     "async_uri": "",
@@ -565,7 +482,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{feature_online_store}/featureViews/{name}",
                     "async_uri": "",
@@ -573,63 +490,64 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = VertexAI(params, module=module, product="VertexAI", kind="vertexai#featureOnlineStoreFeatureview")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = VertexAI(
+        request, module=module, product="VertexAI", kind="vertexai#featureOnlineStoreFeatureview", op_configs=op_configs
+    )
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.get(read_url, allow_not_found=True) or {}
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -639,27 +557,30 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -667,29 +588,29 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -699,6 +620,7 @@ def main():
                 new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

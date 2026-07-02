@@ -10,6 +10,10 @@
 # ----------------------------------------------------------------------------
 - name: Main test block
   block:
+    - name: Setup
+      ansible.builtin.debug:
+        msg: "Setup"
+
     - name: Create test network
       google.cloud.gcp_compute_network:
         name: "{{ resource_name }}"
@@ -60,7 +64,7 @@
               - _primary.clusterType == "PRIMARY"
               - _secondary.changed == true
               - _secondary.clusterType == "SECONDARY"
-              - _secondary.secondaryConfig.primaryClusterName == _primary.name
+              - _secondary.secondaryConfig.primaryClusterName.split('/')[-1] == _primary.name.split('/')[-1]
 
       always:
         - name: Delete secondary cluster
@@ -89,3 +93,7 @@
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
+
+    - name: Teardown
+      ansible.builtin.debug:
+        msg: "Teardown"

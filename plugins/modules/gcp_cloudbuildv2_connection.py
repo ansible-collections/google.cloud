@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017-2025 Google
+# Copyright (C) 2017-2026 Google
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 # ----------------------------------------------------------------------------
 #
@@ -45,6 +45,7 @@ options:
   annotations:
     description:
       - Allows clients to store small amounts of arbitrary data.
+      - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
     type: dict
   bitbucket_cloud_config:
     description:
@@ -325,6 +326,7 @@ options:
   location:
     description:
       - The location for the resource.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   name:
@@ -346,7 +348,7 @@ requirements:
   - requests >= 2.18.4
   - google-auth >= 2.25.1
 short_description: Creates a GCP Cloudbuildv2.Connection resource
-"""
+"""  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create github enterprise connection
@@ -397,7 +399,7 @@ EXAMPLES = r"""
     project: "{{ gcp_project }}"
     auth_kind: "{{ gcp_cred_kind }}"
     service_account_file: "{{ gcp_cred_file }}"
-"""
+"""  # noqa: E501
 
 RETURN = r"""
 changed:
@@ -412,10 +414,7 @@ createTime:
   type: str
 etag:
   description:
-    - >-
-      This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the
-
-      client has an up-to-date value before proceeding.
+    - This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
   returned: success
   type: str
 installationState:
@@ -461,52 +460,37 @@ updateTime:
     - Server assigned timestamp for when the connection was updated.
   returned: success
   type: str
-"""
+"""  # noqa: E501
 
 ################################################################################
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import copy
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
+import copy
+
 # END Custom imports
 
 
-def build_link(module, uri):
-    params = module.params.copy()
-
-    return "https://cloudbuild.googleapis.com/v2/" + uri.format(**params)
-
-
-class BitbucketCloudConfig(gcp.Resource):
+class BitbucketCloudConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "authorizerCredential": BitbucketCloudConfigAuthorizerCredential(
-                self.request.get("authorizer_credential", {})
-            ).to_request(),
-            "readAuthorizerCredential": BitbucketCloudConfigReadAuthorizerCredential(
-                self.request.get("read_authorizer_credential", {})
-            ).to_request(),
+            "authorizerCredential": gcp_v2.remove_empties(
+                BitbucketCloudConfigAuthorizerCredential(self.request.get("authorizer_credential", {})).to_request()
+            ),  # remove empty values
+            "readAuthorizerCredential": gcp_v2.remove_empties(
+                BitbucketCloudConfigReadAuthorizerCredential(
+                    self.request.get("read_authorizer_credential", {})
+                ).to_request()
+            ),  # remove empty values
             "webhookSecretSecretVersion": self.request.get("webhook_secret_secret_version"),
             "workspace": self.request.get("workspace"),
         }
 
-    def _response(self):
-        return {
-            "authorizerCredential": BitbucketCloudConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "readAuthorizerCredential": BitbucketCloudConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
-            "workspace": self.response.get("workspace"),
-        }
 
-
-class BitbucketCloudConfigAuthorizerCredential(gcp.Resource):
+class BitbucketCloudConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -514,12 +498,11 @@ class BitbucketCloudConfigAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class BitbucketCloudConfigReadAuthorizerCredential(gcp.Resource):
+class BitbucketCloudConfigReadAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -527,47 +510,40 @@ class BitbucketCloudConfigReadAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class BitbucketDataCenterConfig(gcp.Resource):
+class BitbucketDataCenterConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "authorizerCredential": BitbucketDataCenterConfigAuthorizerCredential(
-                self.request.get("authorizer_credential", {})
-            ).to_request(),
+            "authorizerCredential": gcp_v2.remove_empties(
+                BitbucketDataCenterConfigAuthorizerCredential(
+                    self.request.get("authorizer_credential", {})
+                ).to_request()
+            ),  # remove empty values
             "hostUri": self.request.get("host_uri"),
-            "readAuthorizerCredential": BitbucketDataCenterConfigReadAuthorizerCredential(
-                self.request.get("read_authorizer_credential", {})
-            ).to_request(),
-            "serviceDirectoryConfig": BitbucketDataCenterConfigServiceDirectoryConfig(
-                self.request.get("service_directory_config", {})
-            ).to_request(),
+            "readAuthorizerCredential": gcp_v2.remove_empties(
+                BitbucketDataCenterConfigReadAuthorizerCredential(
+                    self.request.get("read_authorizer_credential", {})
+                ).to_request()
+            ),  # remove empty values
+            "serviceDirectoryConfig": gcp_v2.remove_empties(
+                BitbucketDataCenterConfigServiceDirectoryConfig(
+                    self.request.get("service_directory_config", {})
+                ).to_request()
+            ),  # remove empty values
             "sslCa": self.request.get("ssl_ca"),
             "webhookSecretSecretVersion": self.request.get("webhook_secret_secret_version"),
         }
 
     def _response(self):
         return {
-            "authorizerCredential": BitbucketDataCenterConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "hostUri": self.response.get("hostUri"),
-            "readAuthorizerCredential": BitbucketDataCenterConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
             "serverVersion": self.response.get("serverVersion"),
-            "serviceDirectoryConfig": BitbucketDataCenterConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
         }
 
 
-class BitbucketDataCenterConfigAuthorizerCredential(gcp.Resource):
+class BitbucketDataCenterConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -575,12 +551,11 @@ class BitbucketDataCenterConfigAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class BitbucketDataCenterConfigReadAuthorizerCredential(gcp.Resource):
+class BitbucketDataCenterConfigReadAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -588,42 +563,28 @@ class BitbucketDataCenterConfigReadAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class BitbucketDataCenterConfigServiceDirectoryConfig(gcp.Resource):
+class BitbucketDataCenterConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
         }
 
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
-        }
 
-
-class GithubConfig(gcp.Resource):
+class GithubConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "appInstallationId": self.request.get("app_installation_id"),
-            "authorizerCredential": GithubConfigAuthorizerCredential(
-                self.request.get("authorizer_credential", {})
-            ).to_request(),
-        }
-
-    def _response(self):
-        return {
-            "appInstallationId": self.response.get("appInstallationId"),
-            "authorizerCredential": GithubConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
+            "authorizerCredential": gcp_v2.remove_empties(
+                GithubConfigAuthorizerCredential(self.request.get("authorizer_credential", {})).to_request()
+            ),  # remove empty values
         }
 
 
-class GithubConfigAuthorizerCredential(gcp.Resource):
+class GithubConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "oauthTokenSecretVersion": self.request.get("oauth_token_secret_version"),
@@ -631,12 +592,11 @@ class GithubConfigAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "oauthTokenSecretVersion": self.response.get("oauthTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class GithubEnterpriseConfig(gcp.Resource):
+class GithubEnterpriseConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "appId": self.request.get("app_id"),
@@ -644,76 +604,47 @@ class GithubEnterpriseConfig(gcp.Resource):
             "appSlug": self.request.get("app_slug"),
             "hostUri": self.request.get("host_uri"),
             "privateKeySecretVersion": self.request.get("private_key_secret_version"),
-            "serviceDirectoryConfig": GithubEnterpriseConfigServiceDirectoryConfig(
-                self.request.get("service_directory_config", {})
-            ).to_request(),
+            "serviceDirectoryConfig": gcp_v2.remove_empties(
+                GithubEnterpriseConfigServiceDirectoryConfig(
+                    self.request.get("service_directory_config", {})
+                ).to_request()
+            ),  # remove empty values
             "sslCa": self.request.get("ssl_ca"),
             "webhookSecretSecretVersion": self.request.get("webhook_secret_secret_version"),
         }
 
-    def _response(self):
-        return {
-            "appId": self.response.get("appId"),
-            "appInstallationId": self.response.get("appInstallationId"),
-            "appSlug": self.response.get("appSlug"),
-            "hostUri": self.response.get("hostUri"),
-            "privateKeySecretVersion": self.response.get("privateKeySecretVersion"),
-            "serviceDirectoryConfig": GithubEnterpriseConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
-        }
 
-
-class GithubEnterpriseConfigServiceDirectoryConfig(gcp.Resource):
+class GithubEnterpriseConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
         }
 
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
-        }
 
-
-class GitlabConfig(gcp.Resource):
+class GitlabConfig(gcp_v2.Resource):
     def _request(self):
         return {
-            "authorizerCredential": GitlabConfigAuthorizerCredential(
-                self.request.get("authorizer_credential", {})
-            ).to_request(),
+            "authorizerCredential": gcp_v2.remove_empties(
+                GitlabConfigAuthorizerCredential(self.request.get("authorizer_credential", {})).to_request()
+            ),  # remove empty values
             "hostUri": self.request.get("host_uri"),
-            "readAuthorizerCredential": GitlabConfigReadAuthorizerCredential(
-                self.request.get("read_authorizer_credential", {})
-            ).to_request(),
-            "serviceDirectoryConfig": GitlabConfigServiceDirectoryConfig(
-                self.request.get("service_directory_config", {})
-            ).to_request(),
+            "readAuthorizerCredential": gcp_v2.remove_empties(
+                GitlabConfigReadAuthorizerCredential(self.request.get("read_authorizer_credential", {})).to_request()
+            ),  # remove empty values
+            "serviceDirectoryConfig": gcp_v2.remove_empties(
+                GitlabConfigServiceDirectoryConfig(self.request.get("service_directory_config", {})).to_request()
+            ),  # remove empty values
             "sslCa": self.request.get("ssl_ca"),
             "webhookSecretSecretVersion": self.request.get("webhook_secret_secret_version"),
         }
 
     def _response(self):
         return {
-            "authorizerCredential": GitlabConfigAuthorizerCredential().from_response(
-                self.response.get("authorizerCredential", {})
-            ),
-            "hostUri": self.response.get("hostUri"),
-            "readAuthorizerCredential": GitlabConfigReadAuthorizerCredential().from_response(
-                self.response.get("readAuthorizerCredential", {})
-            ),
             "serverVersion": self.response.get("serverVersion"),
-            "serviceDirectoryConfig": GitlabConfigServiceDirectoryConfig().from_response(
-                self.response.get("serviceDirectoryConfig", {})
-            ),
-            "sslCa": self.response.get("sslCa"),
-            "webhookSecretSecretVersion": self.response.get("webhookSecretSecretVersion"),
         }
 
 
-class GitlabConfigAuthorizerCredential(gcp.Resource):
+class GitlabConfigAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -721,12 +652,11 @@ class GitlabConfigAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class GitlabConfigReadAuthorizerCredential(gcp.Resource):
+class GitlabConfigReadAuthorizerCredential(gcp_v2.Resource):
     def _request(self):
         return {
             "userTokenSecretVersion": self.request.get("user_token_secret_version"),
@@ -734,24 +664,18 @@ class GitlabConfigReadAuthorizerCredential(gcp.Resource):
 
     def _response(self):
         return {
-            "userTokenSecretVersion": self.response.get("userTokenSecretVersion"),
             "username": self.response.get("username"),
         }
 
 
-class GitlabConfigServiceDirectoryConfig(gcp.Resource):
+class GitlabConfigServiceDirectoryConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "service": self.request.get("service"),
         }
 
-    def _response(self):
-        return {
-            "service": self.response.get("service"),
-        }
 
-
-class InstallationState(gcp.Resource):
+class InstallationState(gcp_v2.Resource):
     def _response(self):
         return {
             "actionUri": self.response.get("actionUri"),
@@ -760,41 +684,65 @@ class InstallationState(gcp.Resource):
         }
 
 
-class Cloudbuildv2(gcp.Resource):
+class Cloudbuildv2(gcp_v2.Resource):
     def _request(self):
         return {
             "annotations": self.request.get("annotations"),
-            "bitbucketCloudConfig": BitbucketCloudConfig(self.request.get("bitbucket_cloud_config", {})).to_request(),
-            "bitbucketDataCenterConfig": BitbucketDataCenterConfig(
-                self.request.get("bitbucket_data_center_config", {})
-            ).to_request(),
+            "bitbucketCloudConfig": gcp_v2.remove_empties(
+                BitbucketCloudConfig(self.request.get("bitbucket_cloud_config", {})).to_request()
+            ),  # remove empty values
+            "bitbucketDataCenterConfig": gcp_v2.remove_empties(
+                BitbucketDataCenterConfig(self.request.get("bitbucket_data_center_config", {})).to_request()
+            ),  # remove empty values
             "disabled": self.request.get("disabled"),
-            "githubConfig": GithubConfig(self.request.get("github_config", {})).to_request(),
-            "githubEnterpriseConfig": GithubEnterpriseConfig(
-                self.request.get("github_enterprise_config", {})
-            ).to_request(),
-            "gitlabConfig": GitlabConfig(self.request.get("gitlab_config", {})).to_request(),
+            "githubConfig": gcp_v2.remove_empties(
+                GithubConfig(self.request.get("github_config", {})).to_request()
+            ),  # remove empty values
+            "githubEnterpriseConfig": gcp_v2.remove_empties(
+                GithubEnterpriseConfig(self.request.get("github_enterprise_config", {})).to_request()
+            ),  # remove empty values
+            "gitlabConfig": gcp_v2.remove_empties(
+                GitlabConfig(self.request.get("gitlab_config", {})).to_request()
+            ),  # remove empty values
         }
 
     def _response(self):
         return {
-            "annotations": self.response.get("annotations"),
-            "bitbucketCloudConfig": BitbucketCloudConfig().from_response(self.response.get("bitbucketCloudConfig", {})),
-            "bitbucketDataCenterConfig": BitbucketDataCenterConfig().from_response(
-                self.response.get("bitbucketDataCenterConfig", {})
-            ),
             "createTime": self.response.get("createTime"),
-            "disabled": self.response.get("disabled"),
             "etag": self.response.get("etag"),
-            "githubConfig": GithubConfig().from_response(self.response.get("githubConfig", {})),
-            "githubEnterpriseConfig": GithubEnterpriseConfig().from_response(
-                self.response.get("githubEnterpriseConfig", {})
-            ),
-            "gitlabConfig": GitlabConfig().from_response(self.response.get("gitlabConfig", {})),
             "installationState": InstallationState().from_response(self.response.get("installationState", {})),
             "reconciling": self.response.get("reconciling"),
             "updateTime": self.response.get("updateTime"),
         }
+
+    def decode(self, response):
+        "Custom decoder function, mutates the response object before it is returned to the module caller."
+
+        # --------- BEGIN custom decoder code ---------
+        # when creating, response is empty (except for "kind" maybe)
+        if len(response) <= 1:
+            return response
+
+        r = copy.deepcopy(response)
+
+        # disabled key doesn't seem to appear consistently for gitlab,
+        # set to the default if missing
+        r["disabled"] = response.get("disabled", False)
+
+        # the github app id returned from the API shows as a string,
+        # and the input is an int, when running comparison they will be
+        # incorrectly show as diff
+        if r.get("githubConfig") is not None:
+            r["githubConfig"]["appInstallationId"] = int(response["githubConfig"]["appInstallationId"])
+        # same for GHE
+        if r.get("githubEnterpriseConfig") is not None:
+            r["githubEnterpriseConfig"]["appInstallationId"] = int(
+                response["githubEnterpriseConfig"]["appInstallationId"]
+            )
+
+        return r
+
+        # --------- END custom decoder code ---------
 
 
 ################################################################################
@@ -802,54 +750,10 @@ class Cloudbuildv2(gcp.Resource):
 ################################################################################
 
 
-def encode(obj):
-    """
-    The encoder is a function which take the `obj` map after it has been
-    assembled in either "Create" or "Update" and mutate it before it is sent to
-    the server
-    """
-
-    if obj is None:
-        return None
-    r = copy.deepcopy(obj)
-    # --------- BEGIN custom encoder code ---------
-    # --------- END custom encoder code ---------
-
-    return r
-
-
-def decode(obj):
-    """
-    The decoder is a function which takes the `obj` map after the read succeeds
-    and mutates it before it is returned to the module caller
-    """
-
-    if obj is None:
-        return None
-    r = copy.deepcopy(obj)
-    # --------- BEGIN custom decoder code ---------
-    # disabled key doesn't seem to appear consistently for gitlab,
-    # set to the default if missing
-    if "disabled" not in r.keys():
-        r["disabled"] = False
-
-    # the github app id returned from the API shows as a string,
-    # and the input is an int, when running comparison they will be
-    # incorrectly show as diff
-    if r.get("githubConfig") is not None:
-        r["githubConfig"]["appInstallationId"] = int(obj["githubConfig"]["appInstallationId"])
-    # same for GHE
-    if r.get("githubEnterpriseConfig") is not None:
-        r["githubEnterpriseConfig"]["appInstallationId"] = int(obj["githubEnterpriseConfig"]["appInstallationId"])
-    # --------- END custom decoder code ---------
-
-    return r
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             name=dict(
                 type="str",
@@ -1092,13 +996,13 @@ def main():
             ),
         ),
         mutually_exclusive=[
-            [
+            (
                 "bitbucket_cloud_config",
                 "bitbucket_data_center_config",
                 "github_config",
                 "github_enterprise_config",
                 "gitlab_config",
-            ]
+            )
         ],
     )
 
@@ -1107,10 +1011,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://cloudbuild.googleapis.com/v2/",
+        base_uri="projects/{project}/locations/{location}/connections",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/connections?connectionId={name}",
                     "async_uri": "{op_id}",
@@ -1118,7 +1023,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/connections/{name}",
                     "async_uri": "{op_id}",
@@ -1126,7 +1031,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/connections/{name}",
                     "async_uri": "",
@@ -1134,7 +1039,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/connections/{name}",
                     "async_uri": "{op_id}",
@@ -1142,96 +1047,137 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones_from_dict(module.params)
-    resource = Cloudbuildv2(params, module=module, product="Cloudbuildv2", kind="cloudbuildv2#connection")
-    existing_obj = decode(resource.get(build_link(module, op_configs.read.uri), allow_not_found=True))
+    request = gcp_v2.remove_nones(module.params)
+    resource = Cloudbuildv2(
+        request, module=module, product="Cloudbuildv2", kind="cloudbuildv2#connection", op_configs=op_configs
+    )
 
-    if existing_obj is None:
+    resource._state = state  # store the state in the resource object
+
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
+
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
+        module,
+        request=gcp_v2.remove_empties(resource.to_request()),
+        existing=existing_obj,
+        post=True,
+        is_different=is_different,
+    )
+
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            is_async = op_configs.create.async_uri != ""
-            create_link = build_link(module, op_configs.create.uri)
-            create_retries = op_configs.create.timeout
-            create_func = getattr(resource, op_configs.create.verb)
-            async_create_func = getattr(resource, op_configs.create.verb + "_async")
-            async_create_link = build_link(module, "") + op_configs.create.async_uri
-            # --------- BEGIN custom pre-create code ---------
-            # --------- END custom pre-create code ---------
-            gcp.debug(
-                module,
-                msg="Creating resource",
-                create_link=create_link,
-                async_create_link=async_create_link,
-                is_async=is_async,
-            )
+            gcp_v2.debug(module, action="create")
             try:
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                changed = True
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
             pass  # nothing to do
     else:
         if state == "absent":
-            is_async = op_configs.delete.async_uri != ""
-            delete_link = build_link(module, op_configs.delete.uri)
-            delete_retries = op_configs.delete.timeout
-            delete_func = getattr(resource, op_configs.delete.verb)
-            async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-            async_delete_link = build_link(module, "") + op_configs.delete.async_uri
-            # --------- BEGIN custom pre-delete code ---------
-            # --------- END custom pre-delete code ---------
-            gcp.debug(
-                module,
-                msg="Destroying resource",
-                delete_link=delete_link,
-                async_delete_link=async_delete_link,
-                is_async=is_async,
-            )
+            gcp_v2.debug(module, action="delete")
             try:
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
-                changed = True
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
+
+            changed = True
         else:
-            gcp.debug(module, existing=existing_obj, request=resource.to_request())
-            if resource.diff(existing_obj):
-                is_async = op_configs.update.async_uri != ""
-                update_link = build_link(module, op_configs.update.uri)
-                update_retries = op_configs.update.timeout
-                update_func = getattr(resource, op_configs.update.verb)
-                async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                async_update_link = build_link(module, "") + op_configs.update.async_uri
-                # --------- BEGIN custom pre-update code ---------
-                # --------- END custom pre-update code ---------
-                gcp.debug(
-                    module,
-                    msg="Updating resource",
-                    update_link=update_link,
-                    async_update_link=async_update_link,
-                    is_async=is_async,
-                )
+            if is_different:
+                gcp_v2.debug(module, action="update")
                 try:
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
-                changed = True
 
-    new_obj = decode(resource.get(build_link(module, op_configs.read.uri), allow_not_found=True))
-    new_obj = resource.from_response(new_obj or {})
+                changed = True
+            else:
+                new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 

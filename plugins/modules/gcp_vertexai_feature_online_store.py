@@ -122,6 +122,7 @@ options:
       enabled:
         description:
           - Enable embedding management.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: bool
     type: dict
   encryption_spec:
@@ -144,12 +145,14 @@ options:
   labels:
     description:
       - The labels with user-defined metadata to organize your feature online stores.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
     type: dict
   name:
     description:
       - The resource name of the Feature Online Store.
       - This value may be up to 60 characters, and valid characters are [a-z0-9_].
       - The first character cannot be a number.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   optimized:
@@ -160,6 +163,7 @@ options:
     description:
       - The region of feature online store.
       - eg us-central1.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   state:
     choices:
@@ -202,11 +206,6 @@ createTime:
     - The timestamp of when the feature online store was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
-etag:
-  description:
-    - Used to perform consistent read-modify-write updates.
-  returned: success
-  type: str
 state:
   description:
     - The state of the Feature Online Store.
@@ -224,39 +223,24 @@ updateTime:
 # Imports
 ################################################################################
 
-from ansible_collections.google.cloud.plugins.module_utils import gcp_utils as gcp
-import types
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
 # BEGIN Custom imports
-
 # END Custom imports
 
 
-def build_link(module_params, uri):
-    params = module_params.copy()
-
-    return ("https://{region}-aiplatform.googleapis.com/v1/" + uri).format(**params)
-
-
-class Bigtable(gcp.Resource):
+class Bigtable(gcp_v2.Resource):
     def _request(self):
         return {
-            "autoScaling": gcp.remove_empties(
+            "autoScaling": gcp_v2.remove_empties(
                 BigtableAutoScaling(self.request.get("auto_scaling", {})).to_request()
             ),  # remove empty values
             "enableDirectBigtableAccess": self.request.get("enable_direct_bigtable_access"),
             "zone": self.request.get("zone"),
         }
 
-    def _response(self):
-        return {
-            "autoScaling": BigtableAutoScaling().from_response(self.response.get("autoScaling", {})),
-            "enableDirectBigtableAccess": self.response.get("enableDirectBigtableAccess"),
-            "zone": self.response.get("zone"),
-        }
 
-
-class BigtableAutoScaling(gcp.Resource):
+class BigtableAutoScaling(gcp_v2.Resource):
     def _request(self):
         return {
             "cpuUtilizationTarget": self.request.get("cpu_utilization_target"),
@@ -264,18 +248,11 @@ class BigtableAutoScaling(gcp.Resource):
             "minNodeCount": self.request.get("min_node_count"),
         }
 
-    def _response(self):
-        return {
-            "cpuUtilizationTarget": self.response.get("cpuUtilizationTarget"),
-            "maxNodeCount": self.response.get("maxNodeCount"),
-            "minNodeCount": self.response.get("minNodeCount"),
-        }
 
-
-class DedicatedServingEndpoint(gcp.Resource):
+class DedicatedServingEndpoint(gcp_v2.Resource):
     def _request(self):
         return {
-            "privateServiceConnectConfig": gcp.remove_empties(
+            "privateServiceConnectConfig": gcp_v2.remove_empties(
                 DedicatedServingEndpointPrivateServiceConnectConfig(
                     self.request.get("private_service_connect_config", {})
                 ).to_request()
@@ -284,53 +261,34 @@ class DedicatedServingEndpoint(gcp.Resource):
 
     def _response(self):
         return {
-            "privateServiceConnectConfig": DedicatedServingEndpointPrivateServiceConnectConfig().from_response(
-                self.response.get("privateServiceConnectConfig", {})
-            ),
             "publicEndpointDomainName": self.response.get("publicEndpointDomainName"),
             "serviceAttachment": self.response.get("serviceAttachment"),
         }
 
 
-class DedicatedServingEndpointPrivateServiceConnectConfig(gcp.Resource):
+class DedicatedServingEndpointPrivateServiceConnectConfig(gcp_v2.Resource):
     def _request(self):
         return {
             "enablePrivateServiceConnect": self.request.get("enable_private_service_connect"),
             "projectAllowlist": self.request.get("project_allowlist"),
         }
 
-    def _response(self):
-        return {
-            "enablePrivateServiceConnect": self.response.get("enablePrivateServiceConnect"),
-            "projectAllowlist": self.response.get("projectAllowlist"),
-        }
 
-
-class EmbeddingManagement(gcp.Resource):
+class EmbeddingManagement(gcp_v2.Resource):
     def _request(self):
         return {
             "enabled": self.request.get("enabled"),
         }
 
-    def _response(self):
-        return {
-            "enabled": self.response.get("enabled"),
-        }
 
-
-class EncryptionSpec(gcp.Resource):
+class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
             "kmsKeyName": self.request.get("kms_key_name"),
         }
 
-    def _response(self):
-        return {
-            "kmsKeyName": self.response.get("kmsKeyName"),
-        }
 
-
-class Optimized(gcp.Resource):
+class Optimized(gcp_v2.Resource):
     def _request(self):
         return self.request.get("optimized", dict())
 
@@ -338,39 +296,31 @@ class Optimized(gcp.Resource):
         return self.response.get("optimized", dict())
 
 
-class VertexAI(gcp.Resource):
+class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
-            "bigtable": gcp.remove_empties(
+            "bigtable": gcp_v2.remove_empties(
                 Bigtable(self.request.get("bigtable", {})).to_request()
             ),  # remove empty values
-            "dedicatedServingEndpoint": gcp.remove_empties(
+            "dedicatedServingEndpoint": gcp_v2.remove_empties(
                 DedicatedServingEndpoint(self.request.get("dedicated_serving_endpoint", {})).to_request()
             ),  # remove empty values
-            "embeddingManagement": gcp.remove_empties(
+            "embeddingManagement": gcp_v2.remove_empties(
                 EmbeddingManagement(self.request.get("embedding_management", {})).to_request()
             ),  # remove empty values
-            "encryptionSpec": gcp.remove_empties(
+            "encryptionSpec": gcp_v2.remove_empties(
                 EncryptionSpec(self.request.get("encryption_spec", {})).to_request()
             ),  # remove empty values
             "labels": self.request.get("labels"),
-            "optimized": gcp.remove_nones(
+            "optimized": gcp_v2.remove_nones(
                 Optimized(self.request.get("optimized", {})).to_request()
             ),  # allow empty values
         }
 
     def _response(self):
         return {
-            "bigtable": Bigtable().from_response(self.response.get("bigtable", {})),
             "createTime": self.response.get("createTime"),
-            "dedicatedServingEndpoint": DedicatedServingEndpoint().from_response(
-                self.response.get("dedicatedServingEndpoint", {})
-            ),
-            "embeddingManagement": EmbeddingManagement().from_response(self.response.get("embeddingManagement", {})),
-            "encryptionSpec": EncryptionSpec().from_response(self.response.get("encryptionSpec", {})),
             "etag": self.response.get("etag"),
-            "labels": self.response.get("labels"),
-            "optimized": Optimized().from_response(self.response.get("optimized", {})),
             "updateTime": self.response.get("updateTime"),
         }
 
@@ -380,26 +330,10 @@ class VertexAI(gcp.Resource):
 ################################################################################
 
 
-def encode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from to_request()
-    and it mutates it before it is sent to the API.
-    """
-    return obj
-
-
-def decode(self, obj):
-    """
-    This is a function bound to the main resource object. Its input is the object returned from from_response()
-    and it mutates it before it is returned to the module caller.
-    """
-    return obj
-
-
 def main():
     """Main function"""
 
-    module = gcp.Module(
+    module = gcp_v2.Module(
         argument_spec=dict(
             name=dict(
                 type="str",
@@ -494,8 +428,7 @@ def main():
                 type="str",
             ),
         ),
-        mutually_exclusive=[["bigtable", "optimized"], ["embedding_management", "optimized"]],
-        required_one_of=[["bigtable", "optimized"]],
+        mutually_exclusive=[("embedding_management", "optimized")],
     )
 
     if not module.params["scopes"]:
@@ -503,17 +436,11 @@ def main():
 
     state = module.params["state"]
     changed = False
-    op_configs = gcp.ResourceOpConfigs(
-        {
-            "base_url": gcp.ResourceOpConfig(
-                **{
-                    "uri": "projects/{project}/locations/{region}/featureOnlineStores",
-                    "async_uri": "",
-                    "verb": "GET",
-                    "timeout_minutes": 0,
-                }
-            ),
-            "create": gcp.ResourceOpConfig(
+    op_configs = gcp_v2.ResourceOpConfigs(
+        base_url="https://{region}-aiplatform.googleapis.com/v1/",
+        base_uri="projects/{project}/locations/{region}/featureOnlineStores",
+        configs={
+            "create": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores?featureOnlineStoreId={name}",
                     "async_uri": "{op_id}",
@@ -521,7 +448,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "delete": gcp.ResourceOpConfig(
+            "delete": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{name}",
                     "async_uri": "{op_id}",
@@ -529,7 +456,7 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-            "read": gcp.ResourceOpConfig(
+            "read": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{name}",
                     "async_uri": "",
@@ -537,7 +464,7 @@ def main():
                     "timeout_minutes": 0,
                 }
             ),
-            "update": gcp.ResourceOpConfig(
+            "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{region}/featureOnlineStores/{name}",
                     "async_uri": "{op_id}",
@@ -545,63 +472,64 @@ def main():
                     "timeout_minutes": 20,
                 }
             ),
-        }
+        },
     )
 
-    params = gcp.remove_nones(module.params)
-    resource = VertexAI(params, module=module, product="VertexAI", kind="vertexai#featureOnlineStore")
-    read_uri = op_configs.read.uri
+    request = gcp_v2.remove_nones(module.params)
+    resource = VertexAI(
+        request, module=module, product="VertexAI", kind="vertexai#featureOnlineStore", op_configs=op_configs
+    )
 
     resource._state = state  # store the state in the resource object
-    # Bind the encode and decode functions to the resource object
-    resource.encode_func = types.MethodType(encode, resource)
-    resource.decode_func = types.MethodType(decode, resource)
 
-    custom_diff = None  # Set this variable if you want to implement custom diff logic
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = None
 
-    read_url = build_link(params, read_uri)
-    existing_obj = resource.get(read_url, allow_not_found=True) or {}
+    # BEGIN massaging ResourceRef properties
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
     new_obj = {}
-    gcp.debug(module, existing=existing_obj, post=False)
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
     if custom_diff is not None:
         is_different = custom_diff
     else:
-        is_different = resource.diff(gcp.remove_empties(existing_obj))
-    gcp.debug(
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(
         module,
-        request=gcp.remove_empties(resource.to_request()),
+        request=gcp_v2.remove_empties(resource.to_request()),
         existing=existing_obj,
         post=True,
         is_different=is_different,
     )
 
-    if gcp.empty(existing_obj):
+    if gcp_v2.empty(existing_obj):
         if state == "present":
-            create_uri = op_configs.create.uri
-            create_async_uri = op_configs.create.async_uri
+            gcp_v2.debug(module, action="create")
             try:
                 # --------- BEGIN create code ---------
-                is_async = create_async_uri != ""
-                create_link = build_link(params, create_uri)
+                create_link: str = ""  # give it a chance for pre-create to overload
+                if create_link == "":
+                    create_link = resource.build_link("create")
                 create_retries = op_configs.create.timeout
                 create_func = getattr(resource, op_configs.create.verb)
-                async_create_func = getattr(resource, op_configs.create.verb + "_async")
-                async_create_link = build_link(params, "") + create_async_uri
-                gcp.debug(
-                    module,
-                    msg="Creating resource",
-                    create_link=create_link,
-                    async_create_link=async_create_link,
-                    is_async=is_async,
-                )
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(module, msg="Creating resource", create_link=create_link, async_uri=create_async_uri)
 
-                if is_async:
-                    new_obj = async_create_func(create_link, async_link=async_create_link, retries=create_retries)
+                if create_async_uri != "":
+                    new_obj = create_async_func(create_link, async_uri=create_async_uri, retries=create_retries)
                 else:
                     new_obj = create_func(create_link)
-                gcp.debug(module, new=new_obj, action="create", post=False)
-                gcp.debug(module, new=new_obj, action="create", post=True)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
                 # --------- END create code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -611,31 +539,35 @@ def main():
             pass  # nothing to do
     else:
         if state == "absent":
-            delete_uri = op_configs.delete.uri
-            delete_async_uri = op_configs.delete.async_uri
+            gcp_v2.debug(module, action="delete")
             try:
                 # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
                 # --------- BEGIN pre-delete custom code ---------
-                if params.get("force_destroy"):
-                    delete_uri += "?force=true"
+                if request.get("force_destroy", False):
+                    delete_link = resource.build_link("delete") + "?force=true"
+
                 # --------- END pre-delete custom code ---------
-                is_async = delete_async_uri != ""
-                delete_link = build_link(params, delete_uri)
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
                 delete_func = getattr(resource, op_configs.delete.verb)
-                async_delete_func = getattr(resource, op_configs.delete.verb + "_async")
-                async_delete_link = build_link(params, "") + delete_async_uri
-                gcp.debug(
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
                     module,
                     msg="Destroying resource",
                     delete_link=delete_link,
-                    async_delete_link=async_delete_link,
-                    is_async=is_async,
+                    async_uri=delete_async_uri,
                 )
-                if is_async:
-                    new_obj = async_delete_func(delete_link, async_link=async_delete_link, retries=delete_retries)
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(delete_link, async_uri=delete_async_uri, retries=delete_retries)
                 else:
                     new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
                 # --------- END delete code ---------
             except Exception as e:
                 module.fail_json(msg=str(e))
@@ -643,29 +575,29 @@ def main():
             changed = True
         else:
             if is_different:
-                update_uri = op_configs.update.uri
-                update_async_uri = op_configs.update.async_uri
+                gcp_v2.debug(module, action="update")
                 try:
                     # --------- BEGIN update code ---------
-                    is_async = update_async_uri != ""
-                    update_link = build_link(params, update_uri)
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    if update_link == "":
+                        update_link = resource.build_link("update")
                     update_retries = op_configs.update.timeout
                     update_func = getattr(resource, op_configs.update.verb)
-                    async_update_func = getattr(resource, op_configs.update.verb + "_async")
-                    async_update_link = build_link(params, "") + update_async_uri
-                    gcp.debug(
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
                         module,
                         msg="Updating resource",
                         update_link=update_link,
-                        async_update_link=async_update_link,
-                        is_async=is_async,
+                        async_uri=update_async_uri,
                     )
-                    if is_async:
-                        new_obj = async_update_func(update_link, async_link=async_update_link, retries=update_retries)
+                    if update_async_uri != "":
+                        new_obj = update_async_func(update_link, async_uri=update_async_uri, retries=update_retries)
                     else:
                         new_obj = update_func(update_link)
-                    gcp.debug(module, new=new_obj, action="update", post=False)
-                    gcp.debug(module, new=new_obj, action="update", post=True)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
                     # --------- END update code ---------
                 except Exception as e:
                     module.fail_json(msg=str(e))
@@ -675,6 +607,7 @@ def main():
                 new_obj = existing_obj
 
     new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)
 
 
