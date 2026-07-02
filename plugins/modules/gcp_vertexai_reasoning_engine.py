@@ -42,79 +42,6 @@ notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.reasoningEngines/)'
   - 'Develop and deploy agents on Vertex AI Agent Engine Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/quickstart)'
 options:
-  context_spec:
-    description:
-      - Configuration for how Agent Engine sub-resources should manage context.
-    suboptions:
-      memory_bank_config:
-        description:
-          - Specification for a Memory Bank, which manages memories for the Agent Engine.
-        suboptions:
-          disable_memory_revisions:
-            description:
-              - If true, no memory revisions will be created for any requests to the Memory Bank.
-            type: bool
-          generation_config:
-            description:
-              - Configuration for how to generate memories for the Memory Bank.
-            suboptions:
-              model:
-                description:
-                  - The model used to generate memories.
-                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
-                required: true
-                type: str
-            type: dict
-          similarity_search_config:
-            description:
-              - Configuration for how to perform similarity search on memories.
-            suboptions:
-              embedding_model:
-                description:
-                  - The model used to generate embeddings to lookup similar memories.
-                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
-                required: true
-                type: str
-            type: dict
-          ttl_config:
-            description:
-              - Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.
-            suboptions:
-              default_ttl:
-                description:
-                  - The default TTL duration of the memories in the Memory Bank.
-                type: str
-              granular_ttl_config:
-                description:
-                  - The granular TTL configuration of the memories in the Memory Bank.
-                suboptions:
-                  create_ttl:
-                    description:
-                      - The TTL duration for memories uploaded via CreateMemory.
-                    type: str
-                  generate_created_ttl:
-                    description:
-                      - The TTL duration for memories newly generated via GenerateMemories.
-                    type: str
-                  generate_updated_ttl:
-                    description:
-                      - The TTL duration for memories updated via GenerateMemories.
-                    type: str
-                type: dict
-              memory_revision_default_ttl:
-                description:
-                  - The default TTL duration of the memory revisions in the Memory Bank.
-                type: str
-            type: dict
-        type: dict
-    type: dict
-  deletion_policy:
-    choices:
-      - FORCE
-    description:
-      - The deletion policy for the reasoning engine.
-      - Setting this to FORCE allows the reasoning engine to be deleted regardless of child undeleted resources.
-    type: str
   description:
     description:
       - The description of the ReasoningEngine.
@@ -277,21 +204,6 @@ options:
                 type: dict
             type: list
         type: dict
-      effective_identity:
-        description:
-          - The identity to use for the Reasoning Engine.
-        type: str
-      identity_type:
-        choices:
-          - SERVICE_ACCOUNT
-          - AGENT_IDENTITY
-        description:
-          - The identity type to use for the Reasoning Engine.
-          - If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
-          - 'Possible values: * `SERVICE_ACCOUNT`: Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.'
-          - '* `AGENT_IDENTITY`: Use Agent Identity.'
-          - The `service_account` field must not be set.
-        type: str
       package_spec:
         description:
           - User provided package spec of the ReasoningEngine.
@@ -465,69 +377,6 @@ from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 # END Custom imports
 
 
-class ContextSpec(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "memoryBankConfig": gcp_v2.remove_empties(
-                ContextSpecMemoryBankConfig(self.request.get("memory_bank_config", {})).to_request()
-            ),  # remove empty values
-        }
-
-
-class ContextSpecMemoryBankConfig(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "disableMemoryRevisions": self.request.get("disable_memory_revisions"),
-            "generationConfig": gcp_v2.remove_empties(
-                ContextSpecMemoryBankConfigGenerationConfig(self.request.get("generation_config", {})).to_request()
-            ),  # remove empty values
-            "similaritySearchConfig": gcp_v2.remove_empties(
-                ContextSpecMemoryBankConfigSimilaritySearchConfig(
-                    self.request.get("similarity_search_config", {})
-                ).to_request()
-            ),  # remove empty values
-            "ttlConfig": gcp_v2.remove_empties(
-                ContextSpecMemoryBankConfigTtlConfig(self.request.get("ttl_config", {})).to_request()
-            ),  # remove empty values
-        }
-
-
-class ContextSpecMemoryBankConfigGenerationConfig(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "model": self.request.get("model"),
-        }
-
-
-class ContextSpecMemoryBankConfigSimilaritySearchConfig(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "embeddingModel": self.request.get("embedding_model"),
-        }
-
-
-class ContextSpecMemoryBankConfigTtlConfig(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "defaultTtl": self.request.get("default_ttl"),
-            "granularTtlConfig": gcp_v2.remove_empties(
-                ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
-                    self.request.get("granular_ttl_config", {})
-                ).to_request()
-            ),  # remove empty values
-            "memoryRevisionDefaultTtl": self.request.get("memory_revision_default_ttl"),
-        }
-
-
-class ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(gcp_v2.Resource):
-    def _request(self):
-        return {
-            "createTtl": self.request.get("create_ttl"),
-            "generateCreatedTtl": self.request.get("generate_created_ttl"),
-            "generateUpdatedTtl": self.request.get("generate_updated_ttl"),
-        }
-
-
 class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
@@ -543,7 +392,6 @@ class Spec(gcp_v2.Resource):
             "deploymentSpec": gcp_v2.remove_empties(
                 SpecDeploymentSpec(self.request.get("deployment_spec", {})).to_request()
             ),  # remove empty values
-            "identityType": self.request.get("identity_type"),
             "packageSpec": gcp_v2.remove_empties(
                 SpecPackageSpec(self.request.get("package_spec", {})).to_request()
             ),  # remove empty values
@@ -551,11 +399,6 @@ class Spec(gcp_v2.Resource):
             "sourceCodeSpec": gcp_v2.remove_empties(
                 SpecSourceCodeSpec(self.request.get("source_code_spec", {})).to_request()
             ),  # remove empty values
-        }
-
-    def _response(self):
-        return {
-            "effectiveIdentity": self.response.get("effectiveIdentity"),
         }
 
 
@@ -685,9 +528,6 @@ class SpecSourceCodeSpecPythonSpec(gcp_v2.Resource):
 class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
-            "contextSpec": gcp_v2.remove_empties(
-                ContextSpec(self.request.get("context_spec", {})).to_request()
-            ),  # remove empty values
             "description": self.request.get("description"),
             "displayName": self.request.get("display_name"),
             "encryptionSpec": gcp_v2.remove_empties(
@@ -718,66 +558,6 @@ def main():
                 type="str",
                 default="present",
                 choices=["present", "absent"],
-            ),
-            context_spec=dict(
-                type="dict",
-                options=dict(
-                    memory_bank_config=dict(
-                        type="dict",
-                        options=dict(
-                            disable_memory_revisions=dict(
-                                type="bool",
-                            ),
-                            generation_config=dict(
-                                type="dict",
-                                options=dict(
-                                    model=dict(
-                                        type="str",
-                                        required=True,
-                                    )
-                                ),
-                            ),
-                            similarity_search_config=dict(
-                                type="dict",
-                                options=dict(
-                                    embedding_model=dict(
-                                        type="str",
-                                        required=True,
-                                    )
-                                ),
-                            ),
-                            ttl_config=dict(
-                                type="dict",
-                                options=dict(
-                                    default_ttl=dict(
-                                        type="str",
-                                    ),
-                                    granular_ttl_config=dict(
-                                        type="dict",
-                                        options=dict(
-                                            create_ttl=dict(
-                                                type="str",
-                                            ),
-                                            generate_created_ttl=dict(
-                                                type="str",
-                                            ),
-                                            generate_updated_ttl=dict(
-                                                type="str",
-                                            ),
-                                        ),
-                                    ),
-                                    memory_revision_default_ttl=dict(
-                                        type="str",
-                                    ),
-                                ),
-                            ),
-                        ),
-                    )
-                ),
-            ),
-            deletion_policy=dict(
-                type="str",
-                choices=["FORCE"],
             ),
             description=dict(
                 type="str",
@@ -890,13 +670,6 @@ def main():
                                 ),
                             ),
                         ),
-                    ),
-                    effective_identity=dict(
-                        type="str",
-                    ),
-                    identity_type=dict(
-                        type="str",
-                        choices=["SERVICE_ACCOUNT", "AGENT_IDENTITY"],
                     ),
                     package_spec=dict(
                         type="dict",

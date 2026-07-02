@@ -876,7 +876,7 @@ def main():
     changed = False
     op_configs = gcp_v2.ResourceOpConfigs(
         base_url="https://alloydb.googleapis.com/v1/",
-        base_uri="{cluster}/instances?instanceId={instance_id}",
+        base_uri="{cluster}/instances",
         configs={
             "create": gcp_v2.ResourceOpConfig(
                 **{
