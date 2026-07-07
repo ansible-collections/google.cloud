@@ -109,6 +109,16 @@
                 service_account_file: "{{ gcp_cred_file }}"
               register: _backup
 
+            - name: Fetch backup info
+              google.cloud.gcp_alloydb_backup_info:
+                location: us-central1
+                filters:
+                  - name = "{{ _backup.name }}"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
+              register: _backup_info
+
             - name: Run assertions
               ansible.builtin.assert:
                 that:
@@ -117,6 +127,7 @@
                   - _backup.changed == true
                   - _backup.type == "ON_DEMAND"
                   - _backup.clusterUid == _cluster.uid
+                  - _backup_info.resources | length == 1
 
           always:
             - name: Delete backup
