@@ -263,7 +263,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = None
+    custom_diff = False
 
     # BEGIN massaging ResourceRef properties
     resource.url_params["parent_connection"] = gcp_v2.resource_ref(module.params["parent_connection"], "name")
@@ -277,10 +277,7 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    if custom_diff is not None:
-        is_different = custom_diff
-    else:
-        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
+    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,
