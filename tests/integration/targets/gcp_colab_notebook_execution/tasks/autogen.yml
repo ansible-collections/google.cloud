@@ -105,16 +105,27 @@
               content: "{{ nb_config | to_json | b64encode }}"
             notebook_runtime_template_resource_name: "{{ _myrtt.name }}"
             gcs_output_uri: "gs://{{ _mybucket.name }}/output/"
+            service_account: "{{ _account_file.client_email }}"
             project: "{{ gcp_project }}"
             auth_kind: "{{ gcp_cred_kind }}"
             service_account_file: "{{ gcp_cred_file }}"
-            service_account: "{{ _account_file.client_email }}"
           register: _mynb
+
+        - name: Fetch notebook execution info
+          google.cloud.gcp_colab_notebook_execution_info:
+            location: us-central1
+            filters:
+              - display_name = "{{ resource_name }}-nb"
+            project: "{{ gcp_project }}"
+            auth_kind: "{{ gcp_cred_kind }}"
+            service_account_file: "{{ gcp_cred_file }}"
+          register: _mynb_info
 
         - name: Run assertions
           ansible.builtin.assert:
             that:
               - _mynb.changed == true
+              - _mynb_info.resources | length == 1
       always:
         - name: Delete Notebook Execution
           vars:
