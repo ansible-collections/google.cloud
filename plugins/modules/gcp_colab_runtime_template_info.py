@@ -292,7 +292,6 @@ from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 def main():
     """Main function"""
 
-    # for info modules, we don't need all operation configs just the base url/uri
     module = gcp_v2.Module(
         argument_spec=dict(
             filters=dict(
