@@ -4,6 +4,14 @@ Google.Cloud Release Notes
 
 .. contents:: Topics
 
+v1.14.0
+=======
+
+Minor Changes
+-------------
+
+- gcp_alloydb_*, gcp_cloudbuild_*, gcp_colab_*, gcp_vertexai_* - update to use `plugins/module_utils/gcp_v2.py` (https://github.com/ansible-collections/google.cloud/pull/763)
+
 v1.13.0
 =======
 
