@@ -114,6 +114,14 @@ releases:
     - 747-add-colab-modules.yml
     - 750-rename-compute-tags.yml
     release_date: '2026-04-06'
+  1.14.0:
+    changes:
+      minor_changes:
+      - gcp_alloydb_*, gcp_cloudbuild_*, gcp_colab_*, gcp_vertexai_* - update to use
+        `plugins/module_utils/gcp_v2.py` (https://github.com/ansible-collections/google.cloud/pull/763)
+    fragments:
+    - 763-update-modules-to-new-utils.yml
+    release_date: '2026-07-23'
   1.2.0:
     changes:
       bugfixes:
