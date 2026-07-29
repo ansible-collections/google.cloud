@@ -72,7 +72,7 @@
       },
       facts: {
         infra_type: "public_cloud",
-        infra_bucket: $actions[$data.action],
+        infra_bucket: ($actions[$data.action] // "unknown"),
         device_type: ($device_type_mapping[$kind] // $kind),
       }
     }
