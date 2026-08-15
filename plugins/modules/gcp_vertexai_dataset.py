@@ -126,12 +126,23 @@ EXAMPLES = r"""
     service_account_file: "{{ gcp_cred_file }}"
   register: _myds
 
+- name: Fetch dataset info
+  google.cloud.gcp_vertexai_dataset_info:
+    region: us-central1
+    filters:
+      - display_name = "{{ resource_name }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file }}"
+  register: _myds_info
+
 - name: Run assertions
   ansible.builtin.assert:
     that:
       - _myds.changed == true
       - _myds.labels | length > 0
       - _myds.labels.env == "test"
+      - _myds_info.resources | length == 1
 
 - name: Destroy dataset
   google.cloud.gcp_vertexai_dataset:

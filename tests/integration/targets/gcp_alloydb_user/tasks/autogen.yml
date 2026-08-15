@@ -114,12 +114,21 @@
                 service_account_file: "{{ gcp_cred_file }}"
               register: _password_ok
 
+            - name: Fetch user info
+              google.cloud.gcp_alloydb_user_info:
+                cluster: "{{ _cluster.name }}"
+                project: "{{ gcp_project }}"
+                auth_kind: "{{ gcp_cred_kind }}"
+                service_account_file: "{{ gcp_cred_file }}"
+              register: _password_ok_info
+
             - name: Run assertions
               ansible.builtin.assert:
                 that:
                   - _cluster.changed
                   - _instance.changed
                   - _password_ok.changed
+                  - _password_ok_info.resources | length >= 1  # clusters have built-in users
 
           always:
             - name: Delete user

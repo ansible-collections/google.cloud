@@ -44,10 +44,21 @@
             service_account_file: "{{ gcp_cred_file }}"
           register: _myrt
 
+        - name: Fetch runtime template info
+          google.cloud.gcp_colab_runtime_template_info:
+            location: us-central1
+            filters:
+              - display_name = "{{ resource_name }}-rtt"
+            project: "{{ gcp_project }}"
+            auth_kind: "{{ gcp_cred_kind }}"
+            service_account_file: "{{ gcp_cred_file }}"
+          register: _myrt_info
+
         - name: Run assertions
           ansible.builtin.assert:
             that:
               - _myrt.changed == true
+              - _myrt_info.resources | length == 1
 
       always:
         - name: Delete Runtime Template

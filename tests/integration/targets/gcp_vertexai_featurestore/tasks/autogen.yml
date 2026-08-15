@@ -31,14 +31,22 @@
         region: us-central1
         online_serving_config:
           fixed_node_count: 1
+        labels:
+          env: ci
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
       register: _myfs
 
-    - name: Print Featurestore
-      ansible.builtin.debug:
-        var: _myfs
+    - name: Fetch Featurestore info
+      google.cloud.gcp_vertexai_featurestore_info:
+        region: us-central1
+        filters:
+          - labels.env = "ci"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _myfs_info
 
     - name: Run assertions
       ansible.builtin.assert:

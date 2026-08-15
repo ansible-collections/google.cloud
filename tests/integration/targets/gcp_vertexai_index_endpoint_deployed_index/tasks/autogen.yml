@@ -156,6 +156,7 @@
             that:
               - _myidxedi.changed == true
 
+      always:
         - name: Delete Index Endpoint Deployed Index
           google.cloud.gcp_vertexai_index_endpoint_deployed_index:
             state: absent
@@ -166,7 +167,7 @@
             project: "{{ gcp_project }}"
             auth_kind: "{{ gcp_cred_kind }}"
             service_account_file: "{{ gcp_cred_file }}"
-      always:
+
         - name: Delete Index Endpoint
           google.cloud.gcp_vertexai_index_endpoint:
             state: absent
