@@ -1,0 +1,5 @@
+bugfixes:
+  - gcp_compute inventory plugin - resolve subfolders recursively when using ``folders:``,
+    instead of only the projects that are direct children of the given folder. On hierarchies
+    where the given folder only contains subfolders (no projects directly attached), the
+    plugin previously always returned zero hosts.
