@@ -17,6 +17,41 @@ Compute Engine instances into the Ansible inventory. Full option reference is in
 Both options can be combined; the plugin queries the union of explicit projects and
 folder-resolved ones.
 
+## Example: nested folder hierarchy
+
+Consider an environment folder that has no projects attached to it directly — only
+per-team/per-domain subfolders, each holding the actual projects, at varying depth:
+
+```
+production/                     (folder, id: 111111111111)
+├── infra/                      (folder)
+│   ├── networking/             (folder)
+│   │   └── network-project
+│   └── compute-project
+├── data-platform/               (folder)
+│   └── analytics-project
+└── security/                    (folder)
+    └── logging-project
+```
+
+```yaml
+plugin: google.cloud.gcp_compute
+folders:
+  - '111111111111'
+auth_kind: application
+```
+
+This configuration resolves all four projects — `compute-project`, `analytics-project` and
+`logging-project` one level below `production/`, and `network-project` two levels below it,
+under `infra/networking/` — because the resolution recurses into every subfolder it finds,
+regardless of how deep the hierarchy goes. Before this fix, `folders: ['111111111111']`
+resolved to an empty project list in this scenario: the direct-children-only query
+(`projects.list?filter=parent.id=production`) never sees a project nested under any subfolder,
+regardless of IAM permissions.
+
+Adding a new subfolder under `production/` later (e.g. a `machine-learning/` team) requires no
+inventory file changes — its projects are picked up automatically on the next sync.
+
 ## Required IAM permissions
 
 | Config | Permissions | Where to grant them |
