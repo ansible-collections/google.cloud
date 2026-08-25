@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'plugins/**'
+      - 'tests/integration/targets/**'
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
   GCP_PROJECT: ansible-gcp-ci
