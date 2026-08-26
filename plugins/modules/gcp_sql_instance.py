@@ -250,6 +250,12 @@ options:
         required: false
         type: dict
         suboptions:
+          private_network:
+            description:
+            - Private network the instance need to be associated with.
+              Format: "projects/{{ project }}/global/networks/{{ network.name }}"
+            required: false
+            type: str
           ipv4_enabled:
             description:
             - Whether the instance should be assigned an IP address or not.
@@ -880,6 +886,7 @@ def main():
                     ip_configuration=dict(
                         type='dict',
                         options=dict(
+                            private_network=dict(type='str'),
                             ipv4_enabled=dict(type='bool'),
                             private_network=dict(type='str'),
                             allocated_ip_range=dict(type='str'),
@@ -1273,6 +1280,7 @@ class InstanceIpconfiguration(object):
     def to_request(self):
         return remove_nones_from_dict(
             {
+                u'privateNetwork': self.request.get('private_network'),
                 u'ipv4Enabled': self.request.get('ipv4_enabled'),
                 u'privateNetwork': self.request.get('private_network'),
                 u'allocatedIpRange': self.request.get('allocated_ip_range'),
@@ -1284,6 +1292,7 @@ class InstanceIpconfiguration(object):
     def from_response(self):
         return remove_nones_from_dict(
             {
+                u'privateNetwork': self.request.get(u'privateNetwork'),
                 u'ipv4Enabled': self.request.get(u'ipv4Enabled'),
                 u'privateNetwork': self.request.get(u'privateNetwork'),
                 u'allocatedIpRange': self.request.get(u'allocatedIpRange'),
