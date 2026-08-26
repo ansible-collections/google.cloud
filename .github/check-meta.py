@@ -30,7 +30,7 @@ def check_tombstones(module_files, meta):
     # if a module is present in action groups but missing from the filesystem
     # then it means it should be tombstoned
     for module in meta_modules:
-        if module not in module_files:
+        if module not in module_files and module not in tombstones:
             warnings.append(
                 ValueError(
                     f"{module} is present in runtime meta but missing "
