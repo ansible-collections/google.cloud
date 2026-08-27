@@ -52,6 +52,11 @@ regardless of IAM permissions.
 Adding a new subfolder under `production/` later (e.g. a `machine-learning/` team) requires no
 inventory file changes — its projects are picked up automatically on the next sync.
 
+Listing both a folder and one of its descendants in `folders:` (e.g. `['111111111111', '<infra
+folder id>']` above) does not produce duplicate hosts: resolved projects are deduplicated before
+being queried, regardless of how many entries in `folders:` end up resolving to the same
+project.
+
 ## Required IAM permissions
 
 | Config | Permissions | Where to grant them |

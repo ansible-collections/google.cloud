@@ -652,6 +652,16 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             for folder in params["folders"]:
                 projects = projects + self.projects_for_folder(config_data, folder)
 
+            # Deduplicate, preserving order. Needed when "folders:" lists a
+            # folder and one of its descendants (e.g. FolderA and FolderB, with
+            # FolderB nested under FolderA): FolderB's projects would otherwise
+            # be resolved twice, once as part of FolderA's recursive walk and
+            # once from FolderB's own explicit entry. GCP folders form a tree
+            # (a folder has a single parent), so no duplicates can occur
+            # *within* a single projects_for_folder() call - only across
+            # separate entries in this loop.
+            projects = list(dict.fromkeys(projects))
+
         skipped_count = 0
 
         if not cache or cache_needs_update:

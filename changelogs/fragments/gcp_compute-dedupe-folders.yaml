@@ -1,0 +1,4 @@
+bugfixes:
+  - gcp_compute inventory plugin - deduplicate resolved projects when ``folders:`` lists both a
+    folder and one of its descendants, which previously caused that descendant's projects (and
+    therefore its hosts) to be resolved twice.
