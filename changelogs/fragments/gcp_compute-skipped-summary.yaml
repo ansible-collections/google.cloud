@@ -1,0 +1,4 @@
+minor_changes:
+  - gcp_compute inventory plugin - print an aggregate warning at the end of a sync when
+    ``folders:`` is used and one or more resolved projects were skipped, summarizing how many
+    out of the total.

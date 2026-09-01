@@ -1,0 +1,4 @@
+bugfixes:
+  - gcp_compute inventory plugin - skip a project instead of failing the entire inventory sync
+    when a project resolved via ``folders:`` cannot be queried (Compute Engine API disabled, or
+    blocked by a VPC Service Controls perimeter). Any other error still fails as before.

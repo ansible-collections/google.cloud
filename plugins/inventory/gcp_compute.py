@@ -523,19 +523,61 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def fetch_projects(self, params, link, query):
         module = GcpMockModule(params)
         auth = GcpSession(module, "cloudresourcemanager")
-        response = auth.get(link, params={"filter": query})
-        return self._return_if_object(module, response)
+        projects = []
+        page_token = None
+        while True:
+            request_params = {"filter": query}
+            if page_token:
+                request_params["pageToken"] = page_token
+            response = (
+                self._return_if_object(module, auth.get(link, params=request_params))
+                or {}
+            )
+            projects = projects + response.get("projects", [])
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+        return projects
+
+    def fetch_subfolders(self, params, link, parent):
+        module = GcpMockModule(params)
+        auth = GcpSession(module, "cloudresourcemanager")
+        subfolders = []
+        page_token = None
+        while True:
+            request_params = {"parent": parent}
+            if page_token:
+                request_params["pageToken"] = page_token
+            response = (
+                self._return_if_object(module, auth.get(link, params=request_params))
+                or {}
+            )
+            subfolders = subfolders + response.get("folders", [])
+            page_token = response.get("nextPageToken")
+            if not page_token:
+                break
+        return subfolders
 
     def projects_for_folder(self, config_data, folder):
-        link = "https://cloudresourcemanager.googleapis.com/v1/projects"
+        # Resolve projects that are direct children of the folder, then recurse into any
+        # subfolders. Some GCP resource hierarchies only attach subfolders to a top-level
+        # folder (e.g. one folder per environment, containing per-team/per-domain
+        # subfolders) and never attach projects to it directly - without recursing into
+        # subfolders, "folders:" would always resolve to an empty project list on such a
+        # hierarchy, regardless of IAM permissions.
+        projects_link = "https://cloudresourcemanager.googleapis.com/v1/projects"
         query = "parent.id = {0}".format(folder)
         projects = []
         config_data["scopes"] = ["https://www.googleapis.com/auth/cloud-platform"]
-        projects_response = self.fetch_projects(config_data, link, query)
+        for item in self.fetch_projects(config_data, projects_link, query):
+            projects.append(item["projectId"])
 
-        if "projects" in projects_response:
-            for item in projects_response.get("projects"):
-                projects.append(item["projectId"])
+        folders_link = "https://cloudresourcemanager.googleapis.com/v2/folders"
+        parent = "folders/{0}".format(folder)
+        for subfolder in self.fetch_subfolders(config_data, folders_link, parent):
+            subfolder_id = subfolder["name"].split("/")[-1]
+            projects = projects + self.projects_for_folder(config_data, subfolder_id)
+
         return projects
 
     def parse(self, inventory, loader, path, cache=True):
@@ -610,6 +652,18 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             for folder in params["folders"]:
                 projects = projects + self.projects_for_folder(config_data, folder)
 
+            # Deduplicate, preserving order. Needed when "folders:" lists a
+            # folder and one of its descendants (e.g. FolderA and FolderB, with
+            # FolderB nested under FolderA): FolderB's projects would otherwise
+            # be resolved twice, once as part of FolderA's recursive walk and
+            # once from FolderB's own explicit entry. GCP folders form a tree
+            # (a folder has a single parent), so no duplicates can occur
+            # *within* a single projects_for_folder() call - only across
+            # separate entries in this loop.
+            projects = list(dict.fromkeys(projects))
+
+        skipped_count = 0
+
         if not cache or cache_needs_update:
             cached_data = {}
             for project in projects:
@@ -618,7 +672,31 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 zones = params["zones"]
                 # Fetch all instances
                 link = self._instances % project
-                resp = self.fetch_list(params, link, query)
+                # A project resolved via "folders:" is not guaranteed to be reachable - a
+                # single problematic project would otherwise fail the ENTIRE sync with a
+                # fatal error, instead of simply returning zero instances for it. Two known
+                # causes so far: Compute Engine API disabled on the project
+                # ("accessNotConfigured"), and a project inside a VPC Service Controls
+                # perimeter that blocks the request ("vpcServiceControlsUniqueIdentifier" in
+                # the error message) - in both cases the project's VMs cannot be read by
+                # design, so it's skipped instead of failing everything. Matching on these
+                # specific causes only, not a generic "forbidden": a genuine IAM permission
+                # issue must still fail loudly, not be silently swallowed.
+                try:
+                    resp = self.fetch_list(params, link, query)
+                except AnsibleError as e:
+                    error_text = to_text(e)
+                    if "accessNotConfigured" in error_text:
+                        reason = "Compute Engine API is disabled"
+                    elif "vpcServiceControlsUniqueIdentifier" in error_text:
+                        reason = "blocked by a VPC Service Controls perimeter"
+                    else:
+                        raise
+                    skipped_count += 1
+                    self.display.warning(
+                        "gcp_compute: skipping project '%s' (%s)." % (project, reason)
+                    )
+                    continue
                 for key, value in resp.items():
                     zone = key[6:]
                     if not zones or zone in zones:
@@ -627,6 +705,14 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         if cache_needs_update:
             self._cache[cache_key] = cached_data
+
+        # Aggregate count of skipped projects, shown only when "folders:" is used and at
+        # least one project was skipped.
+        if skipped_count and params["folders"]:
+            self.display.warning(
+                "gcp_compute: %d out of %d project(s) were skipped while resolving "
+                "folders: (see warnings above for details)." % (skipped_count, len(projects))
+            )
 
     @staticmethod
     def _legacy_script_compatible_group_sanitization(name):
