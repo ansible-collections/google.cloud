@@ -48,9 +48,13 @@ plugin_routing:
 action_groups:
   gcp:
     - gcp_alloydb_backup
+    - gcp_alloydb_backup_info
     - gcp_alloydb_cluster
+    - gcp_alloydb_cluster_info
     - gcp_alloydb_instance
+    - gcp_alloydb_instance_info
     - gcp_alloydb_user
+    - gcp_alloydb_user_info
     - gcp_appengine_firewall_rule
     - gcp_appengine_firewall_rule_info
     - gcp_bigquery_dataset
@@ -62,13 +66,23 @@ action_groups:
     - gcp_cloudbuild_trigger
     - gcp_cloudbuild_trigger_info
     - gcp_cloudbuildv2_connection
+    - gcp_cloudbuildv2_connection_info
     - gcp_cloudbuildv2_repository
+    - gcp_cloudbuildv2_repository_info
     - gcp_cloudfunctions_cloud_function
     - gcp_cloudfunctions_cloud_function_info
     - gcp_cloudscheduler_job
     - gcp_cloudscheduler_job_info
     - gcp_cloudtasks_queue
     - gcp_cloudtasks_queue_info
+    - gcp_colab_notebook_execution
+    - gcp_colab_notebook_execution_info
+    - gcp_colab_runtime
+    - gcp_colab_runtime_info
+    - gcp_colab_runtime_template
+    - gcp_colab_runtime_template_info
+    - gcp_colab_schedule
+    - gcp_colab_schedule_info
     - gcp_compute_address
     - gcp_compute_address_info
     - gcp_compute_autoscaler
@@ -219,3 +233,36 @@ action_groups:
     - gcp_storage_object
     - gcp_tpu_node
     - gcp_tpu_node_info
+    - gcp_vertexai_dataset
+    - gcp_vertexai_dataset_info
+    - gcp_vertexai_deployment_resource_pool
+    - gcp_vertexai_deployment_resource_pool_info
+    - gcp_vertexai_endpoint
+    - gcp_vertexai_endpoint_info
+    - gcp_vertexai_endpoint_with_model_garden_deployment
+    - gcp_vertexai_feature_group
+    - gcp_vertexai_feature_group_feature
+    - gcp_vertexai_feature_group_feature_info
+    - gcp_vertexai_feature_group_info
+    - gcp_vertexai_feature_online_store
+    - gcp_vertexai_feature_online_store_featureview
+    - gcp_vertexai_feature_online_store_featureview_info
+    - gcp_vertexai_feature_online_store_info
+    - gcp_vertexai_featurestore
+    - gcp_vertexai_featurestore_entitytype
+    - gcp_vertexai_featurestore_entitytype_feature
+    - gcp_vertexai_featurestore_entitytype_feature_info
+    - gcp_vertexai_featurestore_entitytype_info
+    - gcp_vertexai_featurestore_info
+    - gcp_vertexai_index
+    - gcp_vertexai_index_endpoint
+    - gcp_vertexai_index_endpoint_deployed_index
+    - gcp_vertexai_index_endpoint_info
+    - gcp_vertexai_index_info
+    - gcp_vertexai_metadata_store
+    - gcp_vertexai_metadata_store_info
+    - gcp_vertexai_rag_engine_config
+    - gcp_vertexai_reasoning_engine
+    - gcp_vertexai_reasoning_engine_info
+    - gcp_vertexai_tensorboard
+    - gcp_vertexai_tensorboard_info

@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'plugins/**'
+      - 'tests/integration/targets/**'
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
   GCP_PROJECT: ansible-gcp-ci
@@ -16,10 +19,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
 jobs:
   setup:
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     env:
       # only need to change this one stanza to use the same
@@ -31,6 +30,37 @@ jobs:
       - id: set-python
         run: |
           echo "version=$PYTHON" >> $GITHUB_OUTPUT
+
+  filter:
+    runs-on: ubuntu-latest
+    env:
+      PR_BODY: ${{ github.event.pull_request.body }}
+    outputs:
+      targets: ${{ steps.match.outputs.targets }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          fetch-depth: 0
+      - id: match
+        name: Filter integration tests targets
+        run: |
+          set -ex
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "targets=cloud/gcp/" >> "$GITHUB_OUTPUT"  # run the full integration test on merge
+          else
+            echo "" > /tmp/integration_targets.txt
+            # fetch modified modules
+            git diff --name-only --diff-filter=ACMRT ..origin/master -- plugins/modules/ | grep -v '_info.py' | while read line
+            do
+              echo "$(basename $line .py)"
+            done >> /tmp/integration_targets.txt
+            # fetch modified integration tests
+            git diff --name-only --diff-filter=ACMRT ..origin/master -- tests/integration/ | cut -d'/' -f4 >> /tmp/integration_targets.txt
+            # fetch supplied targets in test-hints
+            echo "$PR_BODY" | grep -i "^test-hints:" | grep -i "targets=" | tr ',' ' ' | cut -d'=' -f2 >> /tmp/integration_targets.txt
+            echo "targets=$(grep . /tmp/integration_targets.txt | sort | uniq | paste -s -d' ') cloud/gcp/teardown/" >> "$GITHUB_OUTPUT"
+          fi
 
   integration:
     # NOTE: GitHub does not allow secrets to be used
@@ -44,7 +74,9 @@ jobs:
     defaults:
       run:
         working-directory: ansible_collections/google/cloud
-    needs: setup
+    needs:
+      - setup
+      - filter
     strategy:
       max-parallel: 1
       matrix:
@@ -103,4 +135,4 @@ jobs:
       # run tests
       - name: Run integration tests
         # Add the -vvv flag to print out more output
-        run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }} --venv-system-site-packages
+        run: ansible-test integration -vvv --color --python ${{ needs.setup.outputs.python }} --venv-system-site-packages ${{ needs.filter.outputs.targets }}
