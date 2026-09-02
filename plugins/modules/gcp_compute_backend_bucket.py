@@ -400,6 +400,7 @@ def main():
                     negative_caching_policy=dict(type='list', elements='dict', options=dict(code=dict(type='int'), ttl=dict(type='int'))),
                     cache_mode=dict(type='str'),
                     serve_while_stale=dict(type='int'),
+                    bypass_cache_on_request_headers=dict(type='list', elements='dict', options=dict(header_name=dict(type='str'))),
                 ),
             ),
             custom_response_headers=dict(type='list', elements='str'),
@@ -594,6 +595,7 @@ class BackendBucketCdnpolicy(object):
                 u'negativeCachingPolicy': BackendBucketNegativecachingpolicyArray(self.request.get('negative_caching_policy', []), self.module).to_request(),
                 u'cacheMode': self.request.get('cache_mode'),
                 u'serveWhileStale': self.request.get('serve_while_stale'),
+                u'bypassCacheOnRequestHeaders': self.request.get('bypass_cache_on_request_headers'),
             }
         )
 
