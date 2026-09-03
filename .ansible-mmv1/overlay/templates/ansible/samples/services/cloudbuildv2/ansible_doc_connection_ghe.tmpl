@@ -1,0 +1,12 @@
+- name: Create github enterprise connection
+  google.cloud.gcp_cloudbuildv2_connection:
+    name: ghe_conn
+    state: present
+    location: us-central1
+    github_enterprise_config:
+      host_uri: https://github.example.com
+      app_id: 12345
+      app_installation_id: 67890
+      app_slug: my-app
+      private_key_secret_version: projects/my-project/secrets/github-pk/versions/1
+      webhook_secret_secret_version: projects/my-project/secrets/github-webhook/versions/1

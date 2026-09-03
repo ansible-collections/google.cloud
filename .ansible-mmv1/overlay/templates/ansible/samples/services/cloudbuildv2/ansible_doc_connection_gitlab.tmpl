@@ -1,0 +1,12 @@
+- name: Create gitlab connection
+  google.cloud.gcp_cloudbuildv2_connection:
+    name: gitlab_conn
+    state: present
+    location: us-central1
+    gitlab_config:
+      authorizer_credential:
+        user_token_secret_version: projects/my-project/secrets/gitlab-api-token/versions/3
+      read_authorizer_credential:
+        user_token_secret_version: projects/my-project/secrets/gitlab-read-api-token/versions/1
+      webhook_secret_secret_version: projects/my-project/secrets/gitlab-webhook/versions/4
+      host_uri: https://gitlab.example.com  # if unset, defaults to gitlab.com

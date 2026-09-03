@@ -1,0 +1,11 @@
+- name: Trigger build with repository event config
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
+    state: present
+    location: us-central1
+    repository_event_config:
+      pull_request:
+        branch: 'feature/*'
+      push:
+        branch: main
+      repository: "{{`{{ my_repo.name }}`}}"

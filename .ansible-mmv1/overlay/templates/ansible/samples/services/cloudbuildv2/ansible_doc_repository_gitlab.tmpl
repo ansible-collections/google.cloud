@@ -1,0 +1,7 @@
+- name: Create gitlab repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-gitlab-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{`{{ my_gitlab_conn }}`}}"
+    remote_uri: https://gitlab.com/user/my-repo.git  # or e.g. gitlab.example.com if using hosted gitlab

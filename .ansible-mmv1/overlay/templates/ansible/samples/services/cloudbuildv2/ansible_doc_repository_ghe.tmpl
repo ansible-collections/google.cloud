@@ -1,0 +1,7 @@
+- name: Create github enterprise repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-ghe-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{`{{ my_github_enterprise_conn }}`}}"
+    remote_uri: "https://github.example.com/user/my-repo.git"

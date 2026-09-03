@@ -1,0 +1,39 @@
+---
+base_url: "{{parent_connection}}/repositories"
+self_link: "{{parent_connection}}/repositories/{{name}}"
+create_url: "{{parent_connection}}/repositories?repositoryId={{name}}"
+custom_code:
+  custom_import: |
+    import copy
+
+  decoder: |
+    # when creating, response is empty except for "kind"
+    if len(response) <= 1:
+      return response
+
+    r = copy.deepcopy(response)
+
+    # the name returned from the API is FQDN, but the name
+    # we send is just the "base name", convert it back to
+    # what we need but maintain the parent connection ref
+    if response.get("name", "") != "":
+      parts = response["name"].split("/")
+      r["parentConnection"] = "/".join(parts[:-2])
+      r["name"] = parts[-1]
+
+    return r
+
+  encoder: _drop
+samples:
+  - name: ansible_doc_repository_ghe
+    exclude_test: true
+    steps:
+      - name: ansible_doc_repository_ghe
+  - name: ansible_doc_repository_github
+    exclude_test: true
+    steps:
+      - name: ansible_doc_repository_github
+  - name: ansible_doc_repository_gitlab
+    exclude_test: true
+    steps:
+      - name: ansible_doc_repository_gitlab
