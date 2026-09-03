@@ -1,0 +1,46 @@
+- name: Create temporary directory
+  ansible.builtin.tempfile:
+    state: directory
+  register: _tempdir
+
+- name: Create Notebook Execution Config
+  vars:
+    nb_config:
+      cells:
+        - cell_type: code
+          execution_count: null
+          metadata: {}
+          outputs: []
+          source:
+            - print('Hello, World!')
+      metadata:
+        kernelspec:
+          display_name: Python 3
+          language: python
+          name: python3
+        language_info:
+          codemirror_mode:
+            name: ipython
+            version: 3
+          file_extension: .py
+          mimetype: text/x-python
+          name: python
+          nbconvert_exporter: python
+          pygments_lexer: ipython3
+          version: 3.8.5
+      nbformat: 4
+      nbformat_minor: 4
+  ansible.builtin.copy:
+    dest: "{{`{{ _tempdir.path }}/nb_config.json`}}"
+    mode: "0644"
+    content: "{{`{{ nb_config | to_nice_json }}`}}"
+
+- name: Upload Notebook Execution Config to GCS
+  google.cloud.gcp_storage_object:
+    action: upload
+    bucket: "{{`{{ resource_name }}`}}"
+    src: "{{`{{ _tempdir.path }}/nb_config.json`}}"
+    dest: "input/nb_config.json"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"

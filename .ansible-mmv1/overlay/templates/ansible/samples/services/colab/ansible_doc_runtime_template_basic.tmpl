@@ -1,0 +1,9 @@
+- name: Create Basic Runtime Template
+  google.cloud.gcp_colab_runtime_template:
+    display_name: my-runtime-template
+    state: present
+    location: us-central1
+    machine_spec:
+      machine_type: n1-standard-4
+    network_spec:
+      enable_internet_access: true

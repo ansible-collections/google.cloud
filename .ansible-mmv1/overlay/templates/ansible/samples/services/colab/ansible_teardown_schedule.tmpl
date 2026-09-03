@@ -1,0 +1,22 @@
+- name: Delete Schedules
+  google.cloud.gcp_colab_schedule:
+    display_name: "{{`{{ resource_name }}-{{ item }}`}}"
+    state: absent
+    location: us-central1
+    max_concurrent_run_count: 2
+    cron: "TZ=America/Los_Angeles * * * * *"
+    max_run_count: 5
+    create_notebook_execution_job_request:
+      notebook_execution_job:
+        display_name: "{{`{{ resource_name }}-{{ item }}`}}"
+        gcs_notebook_source:
+          uri: "gs://{{`{{ resource_name }}`}}/input/nb_config.json"
+        notebook_runtime_template_resource_name: "{{`{{ _myrtt.name }}`}}"
+        gcs_output_uri: "gs://{{`{{ resource_name }}`}}/output/"
+        service_account: "{{`{{ _account_file.client_email }}`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  loop:
+    - a
+    - p

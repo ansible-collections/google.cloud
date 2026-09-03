@@ -1,0 +1,10 @@
+- name: Create Notebook Execution With Dataform Repository Source
+  google.cloud.gcp_colab_notebook_execution:
+    state: present
+    display_name: my-notebook-execution
+    location: us-central1
+    dataform_repository_source:
+      commit_sha: deadbeef
+      dataform_repository_resource_name: projects/my-project/locations/us-central1/dataform/repositories/my-dataform-repository
+    notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+    gcs_output_uri: gs://my-bucket/output/

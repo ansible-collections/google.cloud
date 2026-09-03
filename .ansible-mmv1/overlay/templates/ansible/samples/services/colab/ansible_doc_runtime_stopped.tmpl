@@ -1,0 +1,10 @@
+- name: Create Basic Runtime in Stopped State
+  google.cloud.gcp_colab_runtime:
+    state: present
+    name: my-runtime
+    display_name: My Runtime
+    location: us-central1
+    runtime_user: my-user@gmail.com
+    notebook_runtime_template_ref:
+      notebook_runtime_template: my-runtime-template
+    desired_state: STOPPED
