@@ -1,0 +1,378 @@
+{{ template "python_file_header" . }}
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
+################################################################################
+# Documentation
+################################################################################
+
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
+
+DOCUMENTATION = r"""
+---
+{{ $.Documentation.ToString }}"""  # noqa: E501
+
+EXAMPLES = r"""
+{{ $.Examples.ToString "doc" }}"""  # noqa: E501
+
+RETURN = r"""
+{{ $.Returns.ToString }}"""  # noqa: E501
+
+################################################################################
+# Imports
+################################################################################
+
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
+{{ if and $.CustomCode (not (strEq $.CustomCode.CustomImport "_drop")) -}}
+# BEGIN Custom imports
+{{ $.CustomCode.CustomImport -}}
+# END Custom imports
+{{- end }}
+
+
+{{ range $option := $.AllNestedOptions -}}
+{{- if not $option.Virtual }}
+class {{ $option.ClassName }}(gcp_v2.Resource):
+{{- if $option.InputSuboptions | len | gt 0 }}
+    def _request(self):
+        return {
+    {{- range $suboption := $option.InputSuboptions }}
+            "{{ $suboption.ApiName }}": {{""}}
+        {{- if $suboption.IsNestedObject -}}
+            {{- if $suboption.AllowEmptyObject -}}
+            gcp_v2.remove_nones({{ $suboption.ClassName }}(self.request.get("{{ $suboption.AnsibleName }}", {})).to_request()),  # allow empty values
+            {{- else -}}
+            gcp_v2.remove_empties({{ $suboption.ClassName }}(self.request.get("{{ $suboption.AnsibleName }}", {})).to_request()),  # remove empty values
+            {{- end -}}
+        {{- else if $suboption.IsNestedList -}}
+            [{{ $suboption.ClassName }}(item).to_request() for item in (self.request.get("{{ $suboption.AnsibleName }}") or [])],
+        {{- else -}}
+            self.request.get("{{ $suboption.AnsibleName }}"),
+        {{- end }}
+    {{- end }}
+        }
+{{- else if $option.SendEmptyValue }}
+    def _request(self):
+        return self.request.get("{{ $option.AnsibleName }}", {{ $option.Type }}())
+{{- end }}
+
+{{- if $option.OutputSuboptions | len | gt 0 }}
+    def _response(self):
+        return {
+    {{- range $suboption := $option.OutputSuboptions }}
+            "{{ $suboption.ApiName }}": {{""}}
+        {{- if $suboption.IsNestedObject -}}
+            {{ $suboption.ClassName }}().from_response(self.response.get("{{ $suboption.ApiName }}", {})),
+        {{- else if $suboption.IsNestedList -}}
+            [{{ $suboption.ClassName }}().from_response(item) for item in (self.response.get("{{ $suboption.ApiName }}") or [])],
+        {{- else -}}
+            self.response.get("{{ $suboption.ApiName }}"),
+        {{- end }}
+    {{- end }}
+        }
+{{- else if or $option.SendEmptyValue $option.AllowEmptyObject }}
+    def _response(self):
+        return self.response.get("{{ $option.AnsibleName }}", {{ $option.Type }}())
+{{- end }}
+
+{{- end }}
+{{ end -}}
+class {{ $.ModuleClass }}(gcp_v2.Resource):
+    def _request(self):
+        return {
+        {{- range $option := $.InputOptions }}
+            "{{ $option.ApiName }}": {{ "" }}
+            {{- if $option.IsNestedObject -}}
+            {{- if $option.AllowEmptyObject -}}
+            gcp_v2.remove_nones({{ $option.ClassName }}(self.request.get("{{ $option.AnsibleName }}", {})).to_request()),  # allow empty values
+            {{- else -}}
+            gcp_v2.remove_empties({{ $option.ClassName }}(self.request.get("{{ $option.AnsibleName }}", {})).to_request()),  # remove empty values
+            {{- end -}}
+            {{- else if $option.IsNestedList -}}
+            [{{ $option.ClassName }}(item).to_request() for item in (self.request.get("{{ $option.AnsibleName }}") or [])],
+            {{- else if $option.IsList -}}
+            [{{ $option.Elements }}(item) for item in (self.request.get("{{ $option.AnsibleName }}") or [])],
+            {{- else -}}
+            self.request.get("{{ $option.AnsibleName }}"),
+            {{- end -}}
+        {{- end }}
+        }
+
+    def _response(self):
+        return {
+        {{- range $option := $.OutputOptions }}
+            "{{ $option.ApiName }}": {{ if $option.IsNestedObject -}}
+            {{ $option.ClassName }}().from_response(self.response.get("{{ $option.ApiName }}", {})),
+            {{- else if $option.IsNestedList -}}
+            [{{ $option.ClassName }}().from_response(item) for item in (self.response.get("{{ $option.ApiName }}") or [])],
+            {{- else if $option.IsList -}}
+            [{{ $option.Elements }}(item) for item in (self.response.get("{{ $option.ApiName }}") or [])],
+            {{- else -}}
+            self.response.get("{{ $option.ApiName }}"),
+            {{- end }}
+        {{- end }}
+        }
+
+    {{- if and $.CustomCode.Encoder (not (strEq $.CustomCode.Encoder "_drop")) }}
+    def encode(self, request):
+        "Custom encoder function, mutates the request object before it is sent to the API."
+
+        # --------- BEGIN custom encoder code ---------
+        {{ $.CustomCode.Encoder | indent 8 false }}
+        # --------- END custom encoder code ---------
+    {{- end }}
+
+
+    {{- if and $.CustomCode.Decoder (not (strEq $.CustomCode.Decoder "_drop")) }}
+    def decode(self, response):
+        "Custom decoder function, mutates the response object before it is returned to the module caller."
+
+        # --------- BEGIN custom decoder code ---------
+        {{ $.CustomCode.Decoder | indent 8 false }}
+        # --------- END custom decoder code ---------
+    {{- end }}
+
+
+
+################################################################################
+# Main
+################################################################################
+
+
+def main():
+    """Main function"""
+
+    module = gcp_v2.Module(
+        {{ $.ArgumentSpec.ToString | indent 8 false }}
+    )
+
+    if not module.params["scopes"]:
+        module.params["scopes"] = {{ $.Scopes | toJson }}
+
+    state = module.params["state"]
+    changed = False
+
+    {{- if $.ExcludeDelete }}
+    if state == "absent":
+        module.fail_json(msg="The API for this resource does not support deletion")
+    {{- end }}
+    op_configs = gcp_v2.ResourceOpConfigs(base_url="{{ $.BaseUrl }}", base_uri="{{ $.OperationConfigs.BaseUri }}", configs={
+    {{- range $op, $config := $.OperationConfigs.Configs }}
+        "{{ $op }}": gcp_v2.ResourceOpConfig(**{{ $config | toJson }}),
+    {{- end }}
+    })
+
+    request = gcp_v2.remove_nones(module.params)
+    resource = {{ $.ModuleClass }}(request, module=module, product="{{ $.ProductName }}", kind="{{ $.Kind }}", op_configs=op_configs)
+
+    resource._state = state  # store the state in the resource object
+
+    # Set this variable in one of the pre steps to implement custom diff logic
+    custom_diff = False
+
+    # BEGIN massaging ResourceRef properties
+{{- range $.UrlParamOnlyProperties }}
+    {{- if strEq .Type "ResourceRef" }}
+    resource.url_params["{{ .Name | underscore -}}"] = gcp_v2.resource_ref(module.params["{{ .Name | underscore -}}"], "{{ .Imports }}")
+    {{- end }}
+{{- end }}
+    # END massaging ResourceRef properties
+
+    read_link: str = ""  # give it a chance for pre-read to overload
+
+    {{ if $.CustomCode.PreRead -}}
+    # --------- BEGIN pre-read custom code ---------
+    {{ $.CustomCode.PreRead | indent 4 false }}
+    # --------- END pre-read custom code ---------
+    {{- end }}
+
+    if read_link == "":
+        read_link = resource.build_link("read")
+    existing_obj = resource.from_response(resource.get(read_link, allow_not_found=True) or {})
+    new_obj = {}
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
+
+    {{ if $.CustomCode.PostRead -}}
+    # --------- BEGIN post-read custom code ---------
+    {{ $.CustomCode.PostRead | indent 4 false }}
+    # --------- END post-read custom code ---------
+    {{- end }}
+
+    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+
+    gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=True, is_different=is_different)
+
+    if gcp_v2.empty(existing_obj):
+        if state == "present":
+            gcp_v2.debug(module, action="create")
+            try:
+            {{- if and $.CustomCode.CustomCreate (not (strEq $.CustomCode.CustomCreate "_drop")) }}
+                # --------- BEGIN custom create code ---------
+                {{ $.CustomCode.CustomCreate | indent 16 false }}
+                # --------- END custom create code ---------
+            {{- else }}
+                # --------- BEGIN create code ---------
+                create_link: str = ""  # give it a chance for pre-create to overload
+                {{- if and $.CustomCode.PreCreate (not (strEq $.CustomCode.PreCreate "_drop")) }}
+                # --------- BEGIN pre-create custom code ---------
+                {{ $.CustomCode.PreCreate | indent 16 false }}
+                # --------- END pre-create custom code ---------
+                {{- end }}
+                if create_link == "":
+                    create_link = resource.build_link("create")
+                create_retries = op_configs.create.timeout
+                create_func = getattr(resource, op_configs.create.verb)
+                create_async_uri = op_configs.create.async_uri
+                create_async_func = getattr(resource, op_configs.create.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Creating resource",
+                    create_link=create_link,
+                    async_uri=create_async_uri
+                )
+
+                if create_async_uri != "":
+                    new_obj = create_async_func(
+                        create_link,
+                        async_uri=create_async_uri,
+                        retries=create_retries
+                    )
+                else:
+                    new_obj = create_func(create_link)
+                new_obj = resource.with_kind(resource.from_response(new_obj))
+                gcp_v2.debug(module, new=new_obj, action="create", post=False)
+                {{- if and $.CustomCode.PostCreate (not (strEq $.CustomCode.PostCreate "_drop")) }}
+                # --------- BEGIN post-create custom code ---------
+                {{ $.CustomCode.PostCreate | indent 16 false }}
+                # --------- END post-create custom code ---------
+                {{- end }}
+                gcp_v2.debug(module, new=new_obj, action="create", post=True)
+                # --------- END create code ---------
+            {{- end }}
+            except Exception as e:
+                {{- if and $.CustomCode.PostCreateFailure (not (strEq $.CustomCode.PostCreateFailure "_drop")) }}
+                # --------- BEGIN post-create custom failure code ---------
+                {{ $.CustomCode.PostCreateFailure | indent 16 false }}
+                # --------- END post-create custom failure code ---------
+                {{- end }}
+                module.fail_json(msg=str(e))
+
+            changed = True
+        else:
+            pass  # nothing to do
+    else:
+        if state == "absent":
+            gcp_v2.debug(module, action="delete")
+            try:
+            {{- if and $.CustomCode.CustomDelete (not (strEq $.CustomCode.CustomDelete "_drop")) }}
+                # --------- BEGIN custom delete code ---------
+                {{ $.CustomCode.CustomDelete | indent 16 false }}
+                # --------- END custom delete code ---------
+            {{- else }}
+                # --------- BEGIN delete code ---------
+                delete_link: str = ""  # give it a chance for pre-delete to overload
+                {{- if and $.CustomCode.PreDelete (not (strEq $.CustomCode.PreDelete "_drop")) }}
+                # --------- BEGIN pre-delete custom code ---------
+                {{ $.CustomCode.PreDelete | indent 16 false }}
+                # --------- END pre-delete custom code ---------
+                {{- end }}
+                if delete_link == "":
+                    delete_link = resource.build_link("delete")
+                delete_retries = op_configs.delete.timeout
+                delete_func = getattr(resource, op_configs.delete.verb)
+                delete_async_uri = op_configs.delete.async_uri
+                delete_async_func = getattr(resource, op_configs.delete.verb + "_async")
+                gcp_v2.debug(
+                    module,
+                    msg="Destroying resource",
+                    delete_link=delete_link,
+                    async_uri=delete_async_uri,
+                )
+
+                if delete_async_uri != "":
+                    new_obj = delete_async_func(
+                        delete_link,
+                        async_uri=delete_async_uri,
+                        retries=delete_retries
+                    )
+                else:
+                    new_obj = delete_func(delete_link)
+                new_obj = resource.from_response(new_obj)
+                gcp_v2.debug(module, new=new_obj, action="delete", post=False)
+                {{- if and $.CustomCode.PostDelete (not (strEq $.CustomCode.PostDelete "_drop")) }}
+                # --------- BEGIN post-delete custom code ---------
+                {{ $.CustomCode.PostDelete | indent 16 false }}
+                # --------- END post-delete custom code ---------
+                {{- end }}
+                gcp_v2.debug(module, new=new_obj, action="delete", post=True)
+                # --------- END delete code ---------
+            {{- end }}
+            except Exception as e:
+                module.fail_json(msg=str(e))
+
+            changed = True
+        else:
+            if is_different:
+                gcp_v2.debug(module, action="update")
+                try:
+                {{- if and $.CustomCode.CustomUpdate (not (strEq $.CustomCode.CustomUpdate "_drop")) }}
+                    # --------- BEGIN custom update code ---------
+                    {{ $.CustomCode.CustomUpdate | indent 20 false }}
+                    # --------- END custom update code ---------
+                {{- else }}
+                    # --------- BEGIN update code ---------
+                    update_link: str = ""  # give it a chance for pre-update to overload
+                    {{- if and $.CustomCode.PreUpdate (not (strEq $.CustomCode.PreUpdate "_drop")) }}
+                    # --------- BEGIN pre-update custom code ---------
+                    {{ $.CustomCode.PreUpdate | indent 20 false }}
+                    # --------- END pre-update custom code ---------
+                    {{- end }}
+                    if update_link == "":
+                        update_link = resource.build_link("update")
+                    update_retries = op_configs.update.timeout
+                    update_func = getattr(resource, op_configs.update.verb)
+                    update_async_uri = op_configs.update.async_uri
+                    update_async_func = getattr(resource, op_configs.update.verb + "_async")
+                    gcp_v2.debug(
+                        module,
+                        msg="Updating resource",
+                        update_link=update_link,
+                        async_uri=update_async_uri,
+                    )
+                    if update_async_uri != "":
+                        new_obj = update_async_func(
+                            update_link,
+                            async_uri=update_async_uri,
+                            retries=update_retries
+                        )
+                    else:
+                        new_obj = update_func(update_link)
+                    new_obj = resource.with_kind(resource.from_response(new_obj))
+                    gcp_v2.debug(module, new=new_obj, action="update", post=False)
+                    {{- if and $.CustomCode.PostUpdate (not (strEq $.CustomCode.PostUpdate "_drop")) }}
+                    # --------- BEGIN post-update custom code ---------
+                    {{ $.CustomCode.PostUpdate | indent 20 false }}
+                    # --------- END post-update custom code ---------
+                    {{- end }}
+                    gcp_v2.debug(module, new=new_obj, action="update", post=True)
+                    # --------- END update code ---------
+                {{- end }}
+                except Exception as e:
+                    module.fail_json(msg=str(e))
+
+                changed = True
+            else:
+                new_obj = existing_obj
+
+    new_obj.update({"changed": changed})
+    gcp_v2.debug(module, final_obj=new_obj, changed=changed)
+    module.exit_json(**new_obj)
+
+
+if __name__ == "__main__":
+    main()

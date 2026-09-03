@@ -1,0 +1,22 @@
+{{ template "autogen_notice" . }}
+---
+- name: Main test block
+  block:
+    - name: Setup
+      ansible.builtin.debug:
+        msg: "Setup"
+
+    {{ $.Examples.ToString "setup" | trimSpace | indent 4 false }}
+
+    - name: Test
+      ansible.builtin.debug:
+        msg: "Test"
+
+    {{ $.Examples.ToString "test" | trimSpace | indent 4 false }}
+
+  always:
+    - name: Teardown
+      ansible.builtin.debug:
+        msg: "Teardown"
+
+    {{ $.Examples.ToString "teardown" | trimSpace | indent 4 false }}

@@ -1,0 +1,85 @@
+{{ template "python_file_header" . }}
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
+################################################################################
+# Documentation
+################################################################################
+
+ANSIBLE_METADATA = {
+    "metadata_version": "1.1",
+    "status": ["preview"],
+    "supported_by": "community",
+}
+
+DOCUMENTATION = r"""
+---
+{{ $.DocumentationInfo.ToString }}"""  # noqa: E501
+
+EXAMPLES = r"""
+{{ template "info_module_examples" . }}"""  # noqa: E501
+
+RETURN = r"""
+{{ $.ReturnInfo.ToString }}"""  # noqa: E501
+
+################################################################################
+# Imports
+################################################################################
+
+from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
+{{ if and .CustomCode .CustomCode.CustomImport (not (strEq .CustomCode.CustomImport "_drop")) -}}
+# BEGIN Custom imports
+{{ .CustomCode.CustomImport -}}
+# END Custom imports
+{{- end }}
+
+################################################################################
+# Main
+################################################################################
+
+
+def main():
+    """Main function"""
+
+    module = gcp_v2.Module(
+        {{ $.ArgumentInfoSpec.ToString | indent 8 false }},
+        supports_check_mode=True,
+    )
+
+    if not module.params["scopes"]:
+        module.params["scopes"] = {{ $.Scopes | toJson }}
+
+    # info modules only require the "collection" url
+    op_configs = gcp_v2.ResourceOpConfigs(base_url="{{ $.BaseUrl }}", base_uri="{{ $.OperationConfigs.BaseUri }}", configs={})
+
+    info = gcp_v2.Resource(
+        module.params,  # only need it to build the link
+        module=module,
+        product="{{ $.ProductName }}",
+        kind="{{ $.Kind }}",
+        op_configs=op_configs,
+    )
+
+    filter_exprs = module.params.get("filters") or []
+
+    {{ if and .CustomCode .CustomCode.PreRead }}
+    # BEGIN pre_read custom code
+    {{ .CustomCode.PreRead | indent 4 false }}
+    # END pre_read custom code
+    {{ end }}
+
+    link = info.build_link("list")
+    resources = info.list(link, key="{{ $.CollectionKey }}", filters=filter_exprs)
+
+    {{ if and .CustomCode .CustomCode.PostRead }}
+    # BEGIN post_read custom code
+    {{ .CustomCode.PostRead | indent 4 false }}
+    # END post_read custom code
+    {{ end }}
+
+    module.exit_json(changed=False, resources=resources)
+
+
+if __name__ == "__main__":
+    main()
