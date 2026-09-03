@@ -1,0 +1,50 @@
+---
+samples:
+  - name: ansible_doc_featurestore_entitytype
+    exclude_test: true
+    steps:
+      - name: ansible_doc_featurestore_entitytype
+  - name: ansible_test_featurestore_entitytype
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_featurestore
+        vars:
+          suffix: fset
+      - name: ansible_setup_featurestore_entitytype
+        vars:
+          suffix: fset
+      - name: ansible_test_featurestore_entitytype
+        vars:
+          suffix: fset
+      - name: ansible_teardown_featurestore_entitytype
+        vars:
+          suffix: fset
+      - name: ansible_teardown_featurestore
+        vars:
+          suffix: fset
+properties:
+  - name: name
+    type: String
+    description:
+      The name of the EntityType. This value may be up to 60 characters, and
+      valid characters are [a-z0-9_]. The first character cannot be a number.
+    url_param_only: true
+    required: true
+    immutable: true
+custom_code:
+  custom_import: |
+    import re
+
+  pre_read: |
+    # if this comes from a registered variable, strip down to base name
+    resource.url_params["name"] = request.get("name").split("/")[-1]
+
+    # extract region from featurestore
+    pattern = r"projects/(.+)/locations/(.+)/featurestores/(.+)"
+    match = re.search(pattern, str(request.get("featurestore")))
+    if match:
+        resource.url_params["region"] = match.group(2)
+
+  pre_create: _drop
+  pre_delete: _drop
+  encoder: _drop

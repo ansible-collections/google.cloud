@@ -1,0 +1,15 @@
+- name: Create Index with streaming updates
+  google.cloud.gcp_vertexai_index:
+    state: present
+    display_name: my-index
+    region: us-central1
+    metadata:
+      contents_delta_uri: "gs://my-bucket/contents"
+      config:
+        dimensions: 2
+        shard_size: SHARD_SIZE_LARGE
+        distance_measure_type: COSINE_DISTANCE
+        feature_norm_type: UNIT_L2_NORM
+        algorithm_config:
+          brute_force_config: {}
+    index_update_method: STREAM_UPDATE

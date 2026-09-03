@@ -1,0 +1,7 @@
+- name: Create feature group feature
+  google.cloud.gcp_vertexai_feature_group_feature:
+    state: present
+    name: my_feature
+    feature_group: my_feature_group
+    description: "A simple feature group feature"
+    region: us-central1

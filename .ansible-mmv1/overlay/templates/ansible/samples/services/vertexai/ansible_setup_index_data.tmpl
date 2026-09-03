@@ -1,0 +1,19 @@
+- name: Create delta configs
+  ansible.builtin.copy:
+    dest: "/tmp/{{`{{ resource_name }}-{{ item }}.json`}}"
+    mode: "0644"
+    content: |
+      {"id": "42", "embedding": [0.5, 1.0], "restricts": [{"namespace": "class", "allow": ["cat", "pet"]},{"namespace": "category", "allow": ["feline"]}]}
+      {"id": "43", "embedding": [0.6, 1.0], "restricts": [{"namespace": "class", "allow": ["dog", "pet"]},{"namespace": "category", "allow": ["canine"]}]}
+  loop: "{{`{{ range(1, `}}{{index $.Vars "count"}}{{`+1) | list }}`}}"
+
+- name: Upload delta configs to bucket
+  google.cloud.gcp_storage_object:
+    action: upload
+    bucket: "{{`{{ resource_name }}`}}"
+    src: "{{`/tmp/{{ resource_name }}-{{ item }}.json`}}"
+    dest: "{{`contents-{{ item }}/data.json`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  loop: "{{`{{ range(1, `}}{{index $.Vars "count"}}{{`+1) | list }}`}}"

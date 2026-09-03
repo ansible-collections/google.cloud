@@ -1,0 +1,16 @@
+- name: Create Source Based Deployment Reasoning Engine
+  google.cloud.gcp_vertexai_reasoning_engine:
+    state: present
+    display_name: source-based-deployment-reasoning-engine
+    description: A Source Based Deployment Reasoning Engine
+    region: us-central1
+    spec:
+      source_code_spec:
+        inline_source:
+          source_archive: "{{`{{ slurped_tarball.content }}`}}"  # slurp already returns b64
+          # source_archive: "{{ `{{ some_other_b64_encoded_string }}` }}"
+        python_spec:
+          entrypoint_module: my_agent
+          entrypoint_object: name_generator
+          requirements_file: prod-requirements.txt  # defaults to requirements.txt
+          version: "3.11"

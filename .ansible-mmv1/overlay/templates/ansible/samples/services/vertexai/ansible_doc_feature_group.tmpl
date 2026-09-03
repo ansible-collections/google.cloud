@@ -1,0 +1,9 @@
+- name: Create feature group
+  google.cloud.gcp_vertexai_feature_group:
+    state: present
+    name: my_feature_group
+    description: "My feature group"
+    region: us-central1
+    big_query:
+      big_query_source:
+        input_uri: "bq://my_project.my_dataset.my_table"

@@ -1,0 +1,110 @@
+---
+parameters:
+  - name: region
+    type: String
+    description: The region of the index. eg us-central1
+    required: true
+    url_param_only: true
+    immutable: true
+samples:
+  - name: ansible_doc_index_endpoint_deployed_index_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_index_endpoint_deployed_index_basic
+  - name: ansible_doc_index_endpoint_deployed_index_automatic_resources
+    exclude_test: true
+    steps:
+      - name: ansible_doc_index_endpoint_deployed_index_automatic_resources
+  - name: ansible_doc_index_endpoint_deployed_index_dedicated_resources
+    exclude_test: true
+    steps:
+      - name: ansible_doc_index_endpoint_deployed_index_dedicated_resources
+  - name: ansible_test_index_endpoint_deployed_index
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_bucket
+        config_path: templates/ansible/samples/common/ansible_setup_bucket.tmpl
+      - name: ansible_setup_index_data
+        vars:
+          count: 1
+      - name: ansible_setup_index
+      - name: ansible_setup_index_endpoint
+      - name: ansible_test_index_endpoint_deployed_index
+      - name: ansible_teardown_index_endpoint_deployed_index
+      - name: ansible_teardown_index_endpoint
+      - name: ansible_teardown_index_data
+        vars:
+          count: 1
+      - name: ansible_teardown_index
+      - name: ansible_teardown_bucket
+        config_path: templates/ansible/samples/common/ansible_teardown_bucket.tmpl
+custom_code:
+  custom_import: |
+    import copy
+
+  pre_create: |
+    resource._action = "create"
+
+  pre_update: |
+    resource._action = "update"
+
+  pre_delete: |
+    resource._action = "delete"
+
+  encoder: |
+    r = {}
+    action = getattr(self, "_action", "read")
+    self.debug(func="encoder", action=action, request=request)
+    if action == "read":  # for read, we just return the original object
+      return request
+    elif action == "create":  # encode for create
+      # deployIndex requires the deployedIndex in a nested object
+      # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/deployIndex#request-body
+      t = copy.deepcopy(request)
+      t["id"] = t.pop("deployedIndexId")
+      r = {
+          "deployedIndex": t
+      }
+    elif action == "update":  # encode for update
+      # mutateDeployedIndex requires the deployedIndex definition at top-level
+      # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/mutateDeployedIndex#request-body
+      r = copy.deepcopy(request)
+      r["id"] = r.pop("deployedIndexId")
+    else:  # encode for delete
+      # normally, deletes are empty but undeployIndex requires a single parameter, the deployedIndexId
+      # https://docs.cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/undeployIndex#request-body
+      r = {
+        "deployedIndexId": self._request().get("deployedIndexId")
+      }
+
+    return r
+
+  decoder: |
+    r = copy.deepcopy(response)
+    deployed_index = r.pop("deployedIndex", None)
+    if deployed_index is not None:
+      r["deployedIndexId"] = deployed_index.pop("id", None)
+    elif r.get("id") is not None:
+      r["deployedIndexId"] = r.pop("id")
+    else:
+      pass
+    return r
+
+  pre_read: |
+    resource._action = "read"
+
+  post_read: |
+    # We need an existing index endpoint to work with
+    if gcp_v2.empty(existing_obj):
+        module.fail_json(msg="The referenced index endpoint was not found")
+    else:
+        for didx in existing_obj.get("deployedIndexes", []):
+            if didx.get("id") == request.get("deployed_index_id"):
+                existing_obj = didx
+                break
+        else:  # deployedIndexes was empty or no match found
+            existing_obj = {}

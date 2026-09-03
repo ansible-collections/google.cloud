@@ -1,0 +1,29 @@
+---
+self_link: "projects/{project}/locations/{region}/tensorboards/{name}"
+samples:
+  - name: ansible_doc_tensorboard
+    exclude_test: true
+    steps:
+      - name: ansible_doc_tensorboard
+  - name: ansible_test_tensorboard
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_test_tensorboard
+      - name: ansible_teardown_tensorboard
+
+custom_code:
+  custom_import: _drop
+
+  pre_read: |
+    # for this module, we're hitting the list endpoint and filtering on display name and rebuild the link
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
+
+  post_read: |
+    # if there are existing tensorboards, the call would have returned a list
+    if not gcp_v2.empty(existing_obj):
+        for tb in existing_obj.get("tensorboards", []):
+            if tb.get("displayName") == request.get("display_name"):
+                existing_obj = tb
+                break
+        resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+

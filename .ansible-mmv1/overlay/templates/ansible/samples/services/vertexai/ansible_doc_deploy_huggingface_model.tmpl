@@ -1,0 +1,10 @@
+- name: Deploy Hugging Face Model
+  google.cloud.gcp_vertexai_endpoint_with_model_garden_deployment:
+    state: present
+    hugging_face_model_id: Qwen/Qwen3-0.6B
+    endpoint_config:
+      endpoint_display_name: huggingface-endpoint
+    model_config:
+      model_display_name: huggingface-model
+      accept_eula: true
+    location: us-central1

@@ -1,0 +1,6 @@
+- name: Create Featurestore Entitytype Feature
+  google.cloud.gcp_vertexai_featurestore_entitytype_feature:
+    state: present
+    name: my_featurestore_entitytype_feature
+    entitytype: projects/my-project/locations/us-central1/featurestores/my-fs/entitytypes/my-entitytype
+    value_type: INT64_ARRAY
