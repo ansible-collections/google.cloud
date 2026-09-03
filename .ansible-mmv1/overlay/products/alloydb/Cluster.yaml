@@ -1,0 +1,61 @@
+custom_code:
+  pre_create: |
+    secondary_config = module.params.get("secondary_config")
+    cluster_type = module.params.get("cluster_type")
+    if (cluster_type == "SECONDARY" and secondary_config is None) or (cluster_type == "PRIMARY" and secondary_config is not None):
+        module.fail_json(msg="A secondary_config is ONLY needed when cluster_type=SECONDARY")
+
+    # for secondary clusters, the creation link changes slightly
+    if cluster_type == "SECONDARY":
+        create_link = resource.build_link("create")
+        create_link = create_link.replace("clusters?clusterId", "clusters:createsecondary?cluster_id")
+
+    # for primary clusters, require an initial_user
+    if cluster_type == "PRIMARY":
+        initial_user = module.params.get("initial_user")
+        if not initial_user:
+            module.fail_json(msg="An initial_user is required when cluster_type=PRIMARY")
+
+  pre_update: |
+    secondary_config = module.params.get("secondary_config")
+    cluster_type = module.params.get("cluster_type")
+    db_version = module.params.get("database_version")
+
+    # validate you're not sending secondary config when cluster is primary and vice versa
+    if (cluster_type == "SECONDARY" and secondary_config is None) or (cluster_type == "PRIMARY" and secondary_config is not None):
+        module.fail_json(msg="A secondary_config is ONLY needed when cluster_type=SECONDARY")
+
+    # handle cluster promotions primary<->secondary
+    if cluster_type != existing_obj.get("clusterType"):
+        module.fail_json(msg="Cluster promotion not supported yet")
+
+    # handle database engine migration
+    if db_version is not None and db_version != existing_obj.get("databaseVersion"):
+        module.fail_json(msg="Database migration not supported yet")
+
+    # finally, need to build the updateMask for the fields in our module
+    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
+
+  pre_delete: _drop
+samples:
+  - name: ansible_doc_cluster
+    exclude_test: true
+    steps:
+      - name: ansible_doc_cluster
+  - name: ansible_doc_secondary_cluster
+    exclude_test: true
+    steps:
+      - name: ansible_doc_secondary_cluster
+  - name: ansible_test_cluster
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_cluster
+      - name: ansible_setup_secondary_cluster
+      - name: ansible_test_cluster
+      - name: ansible_test_secondary_cluster
+      - name: ansible_teardown_secondary_cluster
+      - name: ansible_teardown_cluster

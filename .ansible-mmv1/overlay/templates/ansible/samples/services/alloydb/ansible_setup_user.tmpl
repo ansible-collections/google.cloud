@@ -1,0 +1,13 @@
+- name: Create user with good password
+  google.cloud.gcp_alloydb_user:
+    user_id: okuser
+    state: present
+    user_type: ALLOYDB_BUILT_IN
+    password: "good-user-{{`{{ resource_name }}`}}"
+    database_roles:
+      - alloydbsuperuser
+    cluster: "{{`{{ _primary }}`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _user
