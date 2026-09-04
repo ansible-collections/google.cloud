@@ -148,4 +148,3 @@ custom_code:
         async_undeploy_op_link = (resource.build_link("async") + "{op_id}").format(**resource.url_params)
         gcp_v2.debug(module, url_params=resource.url_params, async_undeploy_op_link=async_undeploy_op_link)
         resource.wait_for_op(async_undeploy_op_link, retries=op_configs.delete.timeout)
-

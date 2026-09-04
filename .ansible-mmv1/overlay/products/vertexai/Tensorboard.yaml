@@ -26,4 +26,3 @@ custom_code:
                 existing_obj = tb
                 break
         resource.url_params["name"] = existing_obj["name"].split("/")[-1]
-

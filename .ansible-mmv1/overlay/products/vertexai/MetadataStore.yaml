@@ -12,4 +12,3 @@ samples:
 custom_code:
   pre_update: |
     module.fail_json(msg="Metadata stores API does not support updates")
-
