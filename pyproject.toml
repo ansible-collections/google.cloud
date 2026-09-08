@@ -1,7 +1,7 @@
 [tool.black]
 # Code limit set to 120
 line-length = 120
-target-version = ['py38']
+target-version = ['py311']
 include = '\.pyi?$'
 
 [tool.pycodestyle]
