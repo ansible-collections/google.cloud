@@ -231,6 +231,7 @@ action_groups:
     - gcp_storage_bucket_access_control
     - gcp_storage_default_object_acl
     - gcp_storage_object
+    - gcp_storage_signed_url
     - gcp_tpu_node
     - gcp_tpu_node_info
     - gcp_vertexai_dataset
