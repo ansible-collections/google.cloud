@@ -165,7 +165,7 @@ resources:
                             - When set to true, resources will be drawn from go/cloud-ai-gcp-pool.
                           returned: when set
                           type: bool
-                        values:
+                        value_values:
                           description:
                             - Corresponds to the label values of a reservation resource.
                             - This must be the full resource name of the reservation or reservation block.
@@ -749,7 +749,7 @@ def main():
     link = info.build_link("list")
     resources = info.list(link, key="schedules", filters=filter_exprs)
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":

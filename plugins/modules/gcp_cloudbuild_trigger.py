@@ -1179,14 +1179,14 @@ createTime:
     - Time when the trigger was created.
   returned: success
   type: str
-state:
-  description: The current state of the resource.
-  returned: always
-  type: str
-trigger_id:
+id:
   description:
     - The unique identifier for the trigger.
   returned: success
+  type: str
+state:
+  description: The current state of the resource.
+  returned: always
   type: str
 """  # noqa: E501
 

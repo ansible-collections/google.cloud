@@ -78,7 +78,7 @@ def main():
     # END post_read custom code
     {{ end }}
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":

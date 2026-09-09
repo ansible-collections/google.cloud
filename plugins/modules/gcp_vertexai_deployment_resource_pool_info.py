@@ -214,7 +214,7 @@ def main():
     link = info.build_link("list")
     resources = info.list(link, key="deploymentResourcePools", filters=filter_exprs)
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":
