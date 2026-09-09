@@ -121,51 +121,35 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.Featurestore resource
+short_description: Manages a VertexAI.Featurestore resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Featurestore
   google.cloud.gcp_vertexai_featurestore:
     state: present
-    name: "{{ resource_name }}"
+    name: my-featurestore
     region: us-central1
     online_serving_config:
       fixed_node_count: 2
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-  register: _myfs
-
-- name: Delete Featurestore
-  google.cloud.gcp_vertexai_featurestore:
-    state: absent
-    name: "{{ _myfs.name }}"
-    region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
 - name: Create Featurestore with scaling configuration
   google.cloud.gcp_vertexai_featurestore:
     state: present
-    name: "{{ resource_name }}"
+    name: my-featurestore
     region: us-central1
     online_serving_config:
       scaling:
         min_node_count: 1
         max_node_count: 10
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

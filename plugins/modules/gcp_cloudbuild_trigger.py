@@ -967,7 +967,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   substitutions:
     description:
@@ -1042,18 +1042,15 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP CloudBuild.Trigger resource
+short_description: Manages a CloudBuild.Trigger resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Trigger build with filename
-  google.cloud.gcp_cloudbuild_trigger_build:
-    name: "{{ resource_name }}"
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
     state: present
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
     trigger_template:
       repo_name: my-repo-name
       branch_name: main
@@ -1062,13 +1059,10 @@ EXAMPLES = r"""
 ################################################################################
 
 - name: Trigger build example
-  google.cloud.gcp_cloudbuild_trigger_build:
-    name: "{{ resource_name }}"
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
     state: present
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
     trigger_template:
       branch_name: main
       repo_name: my-repo-name
@@ -1100,13 +1094,10 @@ EXAMPLES = r"""
 ################################################################################
 
 - name: Trigger build with pubsub config
-  google.cloud.gcp_cloudbuild_trigger_build:
-    name: "{{ resource_name }}"
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
     state: present
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
     pubsub_config:
       topic: pubsub_topic.my_topic.id
     source_to_build:
@@ -1147,13 +1138,10 @@ EXAMPLES = r"""
 ################################################################################
 
 - name: Trigger manual build with approval needed
-  google.cloud.gcp_cloudbuild_trigger_build:
-    name: "{{ resource_name }}"
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
     state: present
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
     source_to_build:
       uri: https://my-host.com/my-user/my-repo-name.git
       ref: refs/heads/main
@@ -1169,19 +1157,16 @@ EXAMPLES = r"""
 ################################################################################
 
 - name: Trigger build with repository event config
-  google.cloud.gcp_cloudbuild_trigger_build:
-    name: "{{ resource_name }}"
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
     state: present
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
     repository_event_config:
       pull_request:
         branch: 'feature/*'
       push:
         branch: main
-      repository: "{{ repository_name }}"
+      repository: "{{ my_repo.name }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -2538,6 +2523,7 @@ def main():
                         module.url_params["trigger_id"] = existing_obj["id"]
                     else:
                         module.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+
                     # --------- END pre-update custom code ---------
                     if update_link == "":
                         update_link = resource.build_link("update")

@@ -96,6 +96,30 @@ options:
               - The type of the persistent disk.
             type: str
         type: dict
+      shielded_instance_config:
+        description:
+          - Shielded VM configuration.
+        suboptions:
+          enable_integrity_monitoring:
+            description:
+              - Defines whether the instance has integrity monitoring enabled.
+              - Enables monitoring and attestation of the boot integrity of the instance.
+              - The attestation is performed against the integrity policy baseline.
+              - This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+              - Enabled by default.
+            type: bool
+          enable_secure_boot:
+            description:
+              - Defines whether the instance has Secure Boot enabled.
+              - Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails.
+              - Disabled by default.
+            type: bool
+          enable_vtpm:
+            description:
+              - Defines whether the instance has the vTPM enabled.
+              - Enabled by default.
+            type: bool
+        type: dict
     type: dict
   dataform_repository_source:
     description:
@@ -180,13 +204,37 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
+  workbench_runtime:
+    description:
+      - Configuration for a Workbench Instances-based environment.
+    suboptions:
+      vm_image:
+        description:
+          - Custom Compute Engine VM image for the Workbench instance.
+        required: true
+        suboptions:
+          family:
+            description:
+              - Use this VM image family to find the image; the newest image in this family will be used.
+            type: str
+          name:
+            description:
+              - Use VM image name to find the image.
+            type: str
+          project:
+            description:
+              - The name of the Google Cloud project that this VM image belongs to.
+              - 'Format: {project_id}.'
+            type: str
+        type: dict
+    type: dict
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Colab.NotebookExecution resource
+short_description: Manages a Colab.NotebookExecution resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -223,11 +271,8 @@ EXAMPLES = r"""
     location: us-central1
     direct_notebook_source:
       content: "{{ nb_config | to_json | b64encode }}"
-    notebook_runtime_template_resource_name: projects/{{ gcp_project }}/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
-    gcs_output_uri: gs://my-bucket
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+    gcs_output_uri: gs://my-bucket/output/
 
 ################################################################################
 
@@ -264,7 +309,7 @@ EXAMPLES = r"""
     location: us-central1
     direct_notebook_source:
       content: "{{ nb_config | to_json | b64encode }}"
-    notebook_runtime_template_resource_name: projects/{{ gcp_project }}/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+    notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
     custom_environment_spec:
       machine_spec:
         machine_type: n1-standard-4
@@ -275,11 +320,8 @@ EXAMPLES = r"""
         disk_size_gb: 100
       network_spec:
         enable_internet_access: true
-        network: "projects/{{ gcp_project }}/global/networks/my-network"
-    gcs_output_uri: gs://my-bucket
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+        network: "projects/my-project/global/networks/my-network"
+    gcs_output_uri: gs://my-bucket/output/
 
 ################################################################################
 
@@ -290,12 +332,9 @@ EXAMPLES = r"""
     location: us-central1
     dataform_repository_source:
       commit_sha: deadbeef
-      dataform_repository_resource_name: projects/{{ gcp_project }}/locations/us-central1/dataform/repositories/my-dataform-repository
-    notebook_runtime_template_resource_name: projects/{{ gcp_project }}/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
-    gcs_output_uri: gs://my-bucket
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+      dataform_repository_resource_name: projects/my-project/locations/us-central1/dataform/repositories/my-dataform-repository
+    notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+    gcs_output_uri: gs://my-bucket/output/
 """  # noqa: E501
 
 RETURN = r"""
@@ -331,6 +370,11 @@ class CustomEnvironmentSpec(gcp_v2.Resource):
             "persistentDiskSpec": gcp_v2.remove_empties(
                 CustomEnvironmentSpecPersistentDiskSpec(self.request.get("persistent_disk_spec", {})).to_request()
             ),  # remove empty values
+            "shieldedInstanceConfig": gcp_v2.remove_empties(
+                CustomEnvironmentSpecShieldedInstanceConfig(
+                    self.request.get("shielded_instance_config", {})
+                ).to_request()
+            ),  # remove empty values
         }
 
 
@@ -360,6 +404,15 @@ class CustomEnvironmentSpecPersistentDiskSpec(gcp_v2.Resource):
         }
 
 
+class CustomEnvironmentSpecShieldedInstanceConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "enableIntegrityMonitoring": self.request.get("enable_integrity_monitoring"),
+            "enableSecureBoot": self.request.get("enable_secure_boot"),
+            "enableVtpm": self.request.get("enable_vtpm"),
+        }
+
+
 class DataformRepositorySource(gcp_v2.Resource):
     def _request(self):
         return {
@@ -380,6 +433,24 @@ class GcsNotebookSource(gcp_v2.Resource):
         return {
             "generation": self.request.get("generation"),
             "uri": self.request.get("uri"),
+        }
+
+
+class WorkbenchRuntime(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "vmImage": gcp_v2.remove_empties(
+                WorkbenchRuntimeVmImage(self.request.get("vm_image", {})).to_request()
+            ),  # remove empty values
+        }
+
+
+class WorkbenchRuntimeVmImage(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "family": self.request.get("family"),
+            "name": self.request.get("name"),
+            "project": self.request.get("project"),
         }
 
 
@@ -404,6 +475,9 @@ class Colab(gcp_v2.Resource):
             "gcsOutputUri": self.request.get("gcs_output_uri"),
             "notebookRuntimeTemplateResourceName": self.request.get("notebook_runtime_template_resource_name"),
             "serviceAccount": self.request.get("service_account"),
+            "workbenchRuntime": gcp_v2.remove_empties(
+                WorkbenchRuntime(self.request.get("workbench_runtime", {})).to_request()
+            ),  # remove empty values
         }
 
     def _response(self):
@@ -464,6 +538,20 @@ def main():
                             ),
                             disk_type=dict(
                                 type="str",
+                            ),
+                        ),
+                    ),
+                    shielded_instance_config=dict(
+                        type="dict",
+                        options=dict(
+                            enable_integrity_monitoring=dict(
+                                type="bool",
+                            ),
+                            enable_secure_boot=dict(
+                                type="bool",
+                            ),
+                            enable_vtpm=dict(
+                                type="bool",
                             ),
                         ),
                     ),
@@ -529,6 +617,26 @@ def main():
             service_account=dict(
                 type="str",
             ),
+            workbench_runtime=dict(
+                type="dict",
+                options=dict(
+                    vm_image=dict(
+                        type="dict",
+                        required=True,
+                        options=dict(
+                            family=dict(
+                                type="str",
+                            ),
+                            name=dict(
+                                type="str",
+                            ),
+                            project=dict(
+                                type="str",
+                            ),
+                        ),
+                    )
+                ),
+            ),
         )
     )
 
@@ -559,7 +667,7 @@ def main():
             ),
             "read": gcp_v2.ResourceOpConfig(
                 **{
-                    "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}",
+                    "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}?view=NOTEBOOK_EXECUTION_JOB_VIEW_FULL",
                     "async_uri": "",
                     "verb": "GET",
                     "timeout_minutes": 0,
@@ -567,7 +675,7 @@ def main():
             ),
             "update": gcp_v2.ResourceOpConfig(
                 **{
-                    "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}",
+                    "uri": "projects/{project}/locations/{location}/notebookExecutionJobs/{notebook_execution_job_id}?view=NOTEBOOK_EXECUTION_JOB_VIEW_FULL",
                     "async_uri": "{op_id}",
                     "verb": "PUT",
                     "timeout_minutes": 20,

@@ -62,7 +62,7 @@ options:
   parent_connection:
     description:
       - The connection for the resource.
-      - This field is a reference to a connection resource in GCP.
+      - This field is a reference to a connection resource.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a connection task and then set this field to `{{ name-of-resource }}`.'
       - This property is immutable, to change it, you must delete and recreate the resource.
@@ -80,21 +80,43 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Cloudbuildv2.Repository resource
+short_description: Manages a Cloudbuildv2.Repository resource
 """  # noqa: E501
 
 EXAMPLES = r"""
-# repository_ghe_doc
+- name: Create github enterprise repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-ghe-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{ my_github_enterprise_conn }}"
+    remote_uri: "https://github.example.com/user/my-repo.git"
 
 ################################################################################
 
-# repository_github_doc
+- name: Create github repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-github-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{ my_github_conn }}"
+    remote_uri: "https://github.com/user/my-repo.git"
+
+################################################################################
+
+- name: Create gitlab repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-gitlab-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{ my_gitlab_conn }}"
+    remote_uri: https://gitlab.com/user/my-repo.git  # or e.g. gitlab.example.com if using hosted gitlab
 """  # noqa: E501
 
 RETURN = r"""

@@ -76,7 +76,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   version_column_name:
     description:
@@ -87,7 +87,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.FeatureGroupFeature resource
+short_description: Manages a VertexAI.FeatureGroupFeature resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -98,9 +98,6 @@ EXAMPLES = r"""
     feature_group: my_feature_group
     description: "A simple feature group feature"
     region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

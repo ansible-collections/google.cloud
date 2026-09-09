@@ -101,13 +101,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Colab.Runtime resource
+short_description: Manages a Colab.Runtime resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -120,9 +120,6 @@ EXAMPLES = r"""
     location: us-central1
     notebook_runtime_template_ref:
       notebook_runtime_template: my-runtime-template
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -136,9 +133,6 @@ EXAMPLES = r"""
     notebook_runtime_template_ref:
       notebook_runtime_template: my-runtime-template
     desired_state: STOPPED
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

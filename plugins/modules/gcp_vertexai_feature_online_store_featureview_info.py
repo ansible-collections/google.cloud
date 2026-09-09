@@ -37,6 +37,7 @@ description:
   - FeatureView is representation of values that the FeatureOnlineStore will serve based on its syncConfig.
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_vertexai_feature_online_store_featureview_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores.featureViews)'
@@ -48,12 +49,6 @@ options:
     required: true
     type: str
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   region:
@@ -66,7 +61,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP vertexai.FeatureOnlineStoreFeatureview resources
+short_description: List VertexAI.FeatureOnlineStoreFeatureview resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -240,7 +235,6 @@ resources:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
-
 
 ################################################################################
 # Main

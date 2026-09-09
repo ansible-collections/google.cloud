@@ -183,23 +183,23 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.Index resource
+short_description: Manages a VertexAI.Index resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Index
   google.cloud.gcp_vertexai_index:
     state: present
-    display_name: "{{ resource_name }}"
+    display_name: my-index
     region: us-central1
     metadata:
-      contents_delta_uri: "gs://{{ resource_name }}/contents"
+      contents_delta_uri: "gs://my-bucket/contents"
       config:
         dimensions: 2
         approximate_neighbors_count: 150
@@ -209,19 +209,16 @@ EXAMPLES = r"""
           tree_ah_config:
             leaf_node_embedding_count: 500
             leaf_nodes_to_search_percent: 7
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
 - name: Create Index with streaming updates
   google.cloud.gcp_vertexai_index:
     state: present
-    display_name: "{{ resource_name }}"
+    display_name: my-index
     region: us-central1
     metadata:
-      contents_delta_uri: "gs://{{ resource_name }}/contents"
+      contents_delta_uri: "gs://my-bucket/contents"
       config:
         dimensions: 2
         shard_size: SHARD_SIZE_LARGE
@@ -230,9 +227,6 @@ EXAMPLES = r"""
         algorithm_config:
           brute_force_config: {}
     index_update_method: STREAM_UPDATE
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

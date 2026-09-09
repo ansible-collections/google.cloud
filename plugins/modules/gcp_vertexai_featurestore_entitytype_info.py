@@ -37,6 +37,7 @@ description:
   - An entity type is a type of object in a system that needs to be modeled and have stored information about. For example, driver is an entity type, and driver0 is an instance of an entity type driver.
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_vertexai_featurestore_entitytype_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes)'
@@ -48,19 +49,13 @@ options:
     required: true
     type: str
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP vertexai.FeaturestoreEntitytype resources
+short_description: List VertexAI.FeaturestoreEntitytype resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -106,6 +101,16 @@ resources:
     monitoringConfig:
       contains:
         categoricalThresholdConfig:
+          contains:
+            value:
+              description:
+                - Specify a threshold value that can trigger the alert.
+                - For categorical feature, the distribution distance is calculated by L-inifinity norm.
+                - Each feature must have a non-zero threshold if they need to be monitored.
+                - Otherwise no alert will be triggered for that feature.
+                - The default value is 0.3.
+              returned: always
+              type: float
           description:
             - Threshold for categorical features of anomaly detection.
             - This is shared by all types of Featurestore Monitoring for categorical features (i.e.
@@ -139,6 +144,16 @@ resources:
           returned: when set
           type: dict
         numericalThresholdConfig:
+          contains:
+            value:
+              description:
+                - Specify a threshold value that can trigger the alert.
+                - For numerical feature, the distribution distance is calculated by Jensen–Shannon divergence.
+                - Each feature must have a non-zero threshold if they need to be monitored.
+                - Otherwise no alert will be triggered for that feature.
+                - The default value is 0.3.
+              returned: always
+              type: float
           description:
             - Threshold for numerical features of anomaly detection.
             - This is shared by all objectives of Featurestore Monitoring for numerical features (i.e.
@@ -213,11 +228,6 @@ resources:
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
-# BEGIN Custom imports
-import re
-
-# END Custom imports
-
 ################################################################################
 # Main
 ################################################################################
@@ -257,15 +267,6 @@ def main():
     )
 
     filter_exprs = module.params.get("filters") or []
-
-    # BEGIN pre_read custom code
-    # extract region from featurestore
-    pattern = r"projects/(.+)/locations/(.+)/featurestores/(.+)"
-    match = re.search(pattern, str(module.params.get("featurestore")))
-    if match:
-        info.url_params["region"] = match.group(2)
-
-    # END pre_read custom code
 
     link = info.build_link("list")
     resources = info.list(link, key="entityTypes", filters=filter_exprs)

@@ -71,7 +71,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   value_type:
     description:
@@ -85,7 +85,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.FeaturestoreEntitytypeFeature resource
+short_description: Manages a VertexAI.FeaturestoreEntitytypeFeature resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -93,12 +93,8 @@ EXAMPLES = r"""
   google.cloud.gcp_vertexai_featurestore_entitytype_feature:
     state: present
     name: my_featurestore_entitytype_feature
-    entitytype: "projects/{{ gcp_project }}/locations/{{ gcp_region }}/featurestores/{{ featurestore }}/entitytypes/{{ entitytype }}"
-    # entitytype: "{{ _myet.name }}"  # use previously registered variable
+    entitytype: projects/my-project/locations/us-central1/featurestores/my-fs/entitytypes/my-entitytype
     value_type: INT64_ARRAY
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

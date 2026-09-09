@@ -134,13 +134,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.IndexEndpoint resource
+short_description: Manages a VertexAI.IndexEndpoint resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -149,22 +149,16 @@ EXAMPLES = r"""
     state: present
     display_name: myidxep
     region: us-central1
-    network: "projects/{{ gcp_project_number }}/global/networks/{{ mynet }}"  # Network must be peered
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+    network: projects/my-project/global/networks/my-network
 
 ################################################################################
 
 - name: Create Index Endpoint with public endpoint
   google.cloud.gcp_vertexai_index_endpoint:
     state: present
-    display_name: "{{ resource_name }}"
+    display_name: my-index-endpoint
     region: us-central1
     public_endpoint_enabled: true  # public endpoints don't require VPC network
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""

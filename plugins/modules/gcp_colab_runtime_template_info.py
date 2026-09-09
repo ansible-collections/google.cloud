@@ -39,18 +39,13 @@ description:
   - a runtime, its VM is created according to the specifications of a runtime template.'
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_colab_runtime_template_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates)'
   - 'Create a runtime template Guide: U(https://cloud.google.com/colab/docs/create-runtime-template)'
 options:
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   location:
@@ -62,7 +57,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP colab.RuntimeTemplate resources
+short_description: List Colab.RuntimeTemplate resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -224,6 +219,19 @@ resources:
       type: dict
     softwareConfig:
       contains:
+        colabImage:
+          contains:
+            releaseName:
+              description:
+                - The release name of the NotebookRuntime Colab image, e.g.
+                - '"py310".'
+                - If not specified, detault to the latest release.
+              returned: when set
+              type: str
+          description:
+            - Colab Image Configuration.
+          returned: when set
+          type: dict
         env:
           contains:
             name:
@@ -282,7 +290,6 @@ resources:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
-
 
 ################################################################################
 # Main

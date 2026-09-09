@@ -37,18 +37,13 @@ description:
   - '''A runtime is a Google-provisioned virtual machine (VM) that can run the code in your notebook (IPYNB file).'''
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_colab_runtime_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimes)'
   - 'Create a runtime Guide: U(https://cloud.google.com/colab/docs/create-runtime)'
 options:
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   location:
@@ -60,7 +55,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP colab.Runtime resources
+short_description: List Colab.Runtime resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -148,7 +143,6 @@ resources:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
-
 
 ################################################################################
 # Main

@@ -37,6 +37,7 @@ description:
   - A managed alloydb cluster instance.
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_alloydb_instance_info
 notes:
   - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters.instances/create)'
@@ -49,19 +50,13 @@ options:
     required: true
     type: str
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP alloydb.Instance resources
+short_description: List Alloydb.Instance resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -308,6 +303,12 @@ resources:
             - If not set, default value is "off".
           returned: when set
           type: bool
+        trackClientAddress:
+          description:
+            - Track client address for an instance.
+            - If not set, default value is "off".
+          returned: when set
+          type: bool
         trackWaitEventTypes:
           description:
             - Record wait event types during query execution for an instance.
@@ -490,7 +491,6 @@ resources:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
-
 
 ################################################################################
 # Main

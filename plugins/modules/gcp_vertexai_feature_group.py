@@ -92,13 +92,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.FeatureGroup resource
+short_description: Manages a VertexAI.FeatureGroup resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -110,10 +110,7 @@ EXAMPLES = r"""
     region: us-central1
     big_query:
       big_query_source:
-        input_uri: "bq://{{ gcp_project }}.my_dataset.my_table"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+        input_uri: "bq://my_project.my_dataset.my_table"
 """  # noqa: E501
 
 RETURN = r"""

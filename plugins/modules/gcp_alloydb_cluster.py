@@ -214,15 +214,6 @@ options:
         required: true
         type: bool
     type: dict
-  deletion_policy:
-    default: DEFAULT
-    description:
-      - Policy to determine if the cluster should be deleted forcefully.
-      - Deleting a cluster forcefully, deletes the cluster and all its associated instances within the cluster.
-      - Deleting a Secondary cluster with a secondary instance REQUIRES setting deletion_policy = "FORCE" otherwise an error is returned.
-      - This is needed as there is no support to delete just the secondary instance, and the only way to delete secondary instance is to delete the associated secondary cluster forcefully which also deletes the secondary instance.
-      - 'Possible values: DEFAULT, FORCE.'
-    type: str
   deletion_protection:
     default: true
     description:
@@ -449,7 +440,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   subscription_type:
     choices:
@@ -462,55 +453,33 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Alloydb.Cluster resource
+short_description: Manages a Alloydb.Cluster resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create basic alloydb cluster
   google.cloud.gcp_alloydb_cluster:
-    cluster_id: "{{ resource_name }}"
+    cluster_id: my-cluster
     state: present
     location: us-central1
     network_config:
-      network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
+      network: projects/1234567890/global/networks/my-network
     initial_user:
       user: pgroot
       password: Test123Test
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
-- name: Create primary alloydb cluster
-  google.cloud.gcp_alloydb_cluster:
-    cluster_id: "{{ resource_name }}-primary"
-    state: present
-    location: us-central1
-    cluster_type: PRIMARY
-    initial_user:
-      user: pgroot
-      password: Test123Test
-    network_config:
-      network: "projects/{{ gcp_project }}/global/networks/default"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-  register: _primary
-
 - name: Create secondary cluster attached to primary
   google.cloud.gcp_alloydb_cluster:
-    cluster_id: "{{ resource_name }}-secondary"
+    cluster_id: my-secondary-cluster
     state: present
     location: us-central1
     cluster_type: SECONDARY
     network_config:
-      network: "projects/{{ gcp_project }}/global/networks/default"
+      network: projects/my-project/global/networks/my-network
     secondary_config:
-      primary_cluster_name: "{{ _primary.name }}"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+      primary_cluster_name: projects/my-project/locations/us-central1/clusters/my-cluster
 """  # noqa: E501
 
 RETURN = r"""
@@ -1137,10 +1106,6 @@ def main():
                         required=True,
                     )
                 ),
-            ),
-            deletion_policy=dict(
-                type="str",
-                default="DEFAULT",
             ),
             deletion_protection=dict(
                 type="bool",

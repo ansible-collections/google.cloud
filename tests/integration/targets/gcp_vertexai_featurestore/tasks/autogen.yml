@@ -14,20 +14,10 @@
       ansible.builtin.debug:
         msg: "Setup"
 
-    - name: Create test network
-      google.cloud.gcp_compute_network:
-        name: "{{ resource_name }}"
-        state: present
-        auto_create_subnetworks: true
-        project: "{{ gcp_project }}"
-        auth_kind: "{{ gcp_cred_kind }}"
-        service_account_file: "{{ gcp_cred_file }}"
-      register: _network
-
-    - name: Create Featurestore with fixed node count
+    - name: Create Featurestore
       google.cloud.gcp_vertexai_featurestore:
         state: present
-        name: "{{ resource_name | regex_replace('-', '_') }}"
+        name: "{{ resource_name | regex_replace('-', '_') }}_fs"
         region: us-central1
         online_serving_config:
           fixed_node_count: 1
@@ -37,6 +27,10 @@
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
       register: _myfs
+
+    - name: Test
+      ansible.builtin.debug:
+        msg: "Test"
 
     - name: Fetch Featurestore info
       google.cloud.gcp_vertexai_featurestore_info:
@@ -51,32 +45,20 @@
     - name: Run assertions
       ansible.builtin.assert:
         that:
-          - _myfs.changed == true
+          - _myfs.changed | bool
+          - _myfs_info | length >= 1
+
+  always:
+    - name: Teardown
+      ansible.builtin.debug:
+        msg: "Teardown"
 
     - name: Delete Featurestore
       google.cloud.gcp_vertexai_featurestore:
         state: absent
-        name: "{{ _myfs.name }}"
+        name: "{{ resource_name | regex_replace('-', '_') }}_fs"
         region: us-central1
         force_destroy: true
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
-      register: _myfs
-
-    - name: Print Featurestore
-      ansible.builtin.debug:
-        var: _myfs
-
-  always:
-    - name: Destroy test network
-      google.cloud.gcp_compute_network:
-        name: "{{ resource_name }}"
-        state: absent
-        project: "{{ gcp_project }}"
-        auth_kind: "{{ gcp_cred_kind }}"
-        service_account_file: "{{ gcp_cred_file }}"
-
-    - name: Teardown
-      ansible.builtin.debug:
-        msg: "Teardown"

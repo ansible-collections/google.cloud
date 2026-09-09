@@ -39,9 +39,426 @@ extends_documentation_fragment:
   - google.cloud.gcp
 module: gcp_vertexai_reasoning_engine
 notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.reasoningEngines/)'
-  - 'Develop and deploy agents on Vertex AI Agent Engine Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/quickstart)'
+  - 'API Reference: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines)'
+  - 'Scale your agents Guide: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale)'
 options:
+  context_spec:
+    description:
+      - Configuration for how Agent Engine sub-resources should manage context.
+    suboptions:
+      example_store_config:
+        description:
+          - Specification for an Example Store, which manages few-shot examples for the Agent Engine.
+        suboptions:
+          similarity_search_config:
+            description:
+              - Configuration for how to perform similarity search on examples.
+            suboptions:
+              embedding_model:
+                description:
+                  - The Gemini model used to generate embeddings to lookup similar examples.
+                required: true
+                type: str
+            type: dict
+        type: dict
+      memory_bank_config:
+        description:
+          - Specification for a Memory Bank, which manages memories for the Agent Engine.
+        suboptions:
+          customization_configs:
+            description:
+              - Customization configs for how Agent Engine sub-resources manage context at different scope levels.
+            elements: dict
+            suboptions:
+              consolidation_config:
+                description:
+                  - Configuration for how many memory revisions Memory Bank considers when consolidating each memory candidate.
+                suboptions:
+                  revisions_per_candidate_count:
+                    description:
+                      - Number of revisions to consider per candidate count.
+                    type: int
+                type: dict
+              disable_natural_language_memories:
+                description:
+                  - Indicates whether natural language memory generation should be disabled.
+                type: bool
+              enable_third_person_memories:
+                description:
+                  - Generate memories in the third person if set to true.
+                type: bool
+              generate_memories_examples:
+                description:
+                  - Provides examples of how to generate memories for a particular scope.
+                elements: dict
+                suboptions:
+                  conversation_source:
+                    description:
+                      - A conversation source for the example.
+                    suboptions:
+                      events:
+                        description:
+                          - Represents the input conversation events for the example.
+                        elements: dict
+                        suboptions:
+                          content:
+                            description:
+                              - Represents the content of the event.
+                            required: true
+                            suboptions:
+                              parts:
+                                description:
+                                  - A list of Part objects that make up a single message.
+                                elements: dict
+                                required: true
+                                suboptions:
+                                  audio_transcription:
+                                    description:
+                                      - Audio (input or output) transcription.
+                                      - This is only set when this Part contains audio data.
+                                    suboptions:
+                                      speaker_label:
+                                        description:
+                                          - A label identifying the speaker of this audio segment (e.g.
+                                          - spk_1, spk_2).
+                                          - Present when diarization is set.
+                                        type: str
+                                      text:
+                                        description:
+                                          - The transcription text of this audio segment.
+                                        required: true
+                                        type: str
+                                      words:
+                                        description:
+                                          - Detailed word-level transcriptions and timing details.
+                                          - Present when word_timestamp is set.
+                                        elements: dict
+                                        suboptions:
+                                          end_offset:
+                                            description:
+                                              - End offset in time of the word relative to the start of the audio.
+                                            type: str
+                                          start_offset:
+                                            description:
+                                              - Start offset in time of the word relative to the start of the audio.
+                                            type: str
+                                          word:
+                                            description:
+                                              - Transcript of the word.
+                                            required: true
+                                            type: str
+                                        type: list
+                                    type: dict
+                                  code_execution_result:
+                                    description:
+                                      - Result of executing the ExecutableCode.
+                                    suboptions:
+                                      id:
+                                        description:
+                                          - The identifier of the ExecutableCode part this result is for.
+                                        type: str
+                                      outcome:
+                                        description:
+                                          - Outcome of the code execution.
+                                          - 'Possible values: ["OUTCOME_UNSPECIFIED", "OUTCOME_OK", "OUTCOME_FAILED", "OUTCOME_DEADLINE_EXCEEDED"].'
+                                        required: true
+                                        type: str
+                                      output:
+                                        description:
+                                          - Contains stdout when code execution is successful, stderr or other description otherwise.
+                                        type: str
+                                    type: dict
+                                  executable_code:
+                                    description:
+                                      - Code generated by the model that is intended to be executed.
+                                    suboptions:
+                                      code:
+                                        description:
+                                          - The code to be executed.
+                                        required: true
+                                        type: str
+                                      id:
+                                        description:
+                                          - Unique identifier of the ExecutableCode part.
+                                        type: str
+                                      language:
+                                        description:
+                                          - Supported programming languages for the generated code.
+                                          - 'Possible values: ["LANGUAGE_UNSPECIFIED", "PYTHON", "BASH"].'
+                                        required: true
+                                        type: str
+                                    type: dict
+                                  file_data:
+                                    description:
+                                      - URI based data.
+                                    suboptions:
+                                      file_uri:
+                                        description:
+                                          - The URI of the file in Google Cloud Storage.
+                                        required: true
+                                        type: str
+                                      mime_type:
+                                        description:
+                                          - The IANA standard MIME type of the source data.
+                                        required: true
+                                        type: str
+                                    type: dict
+                                  function_call:
+                                    description:
+                                      - A predicted function call returned from the model.
+                                    suboptions:
+                                      args:
+                                        description:
+                                          - The function parameters and values in JSON object format.
+                                        type: str
+                                      id:
+                                        description:
+                                          - The unique id of the function call.
+                                        type: str
+                                      name:
+                                        description:
+                                          - The name of the function to call.
+                                        type: str
+                                    type: dict
+                                  function_response:
+                                    description:
+                                      - The result of a function call.
+                                    suboptions:
+                                      id:
+                                        description:
+                                          - The id of the function call this response is for.
+                                        type: str
+                                      name:
+                                        description:
+                                          - The name of the function to call.
+                                        required: true
+                                        type: str
+                                      response:
+                                        description:
+                                          - The function response in JSON object format.
+                                        type: str
+                                    type: dict
+                                  inline_data:
+                                    description:
+                                      - The inline data content of the part.
+                                    suboptions:
+                                      data:
+                                        description:
+                                          - Raw bytes, which should be base64-encoded.
+                                        required: true
+                                        type: str
+                                      mime_type:
+                                        description:
+                                          - The IANA standard MIME type of the source data.
+                                        required: true
+                                        type: str
+                                    type: dict
+                                  text:
+                                    description:
+                                      - The text content of the part.
+                                    type: str
+                                  thought:
+                                    description:
+                                      - Indicates whether the part represents the model's thought process or reasoning.
+                                    type: bool
+                                  video_metadata:
+                                    description:
+                                      - Video metadata.
+                                    suboptions:
+                                      end_offset:
+                                        description:
+                                          - The end offset of the video.
+                                        type: str
+                                      start_offset:
+                                        description:
+                                          - The start offset of the video.
+                                        type: str
+                                    type: dict
+                                type: list
+                              role:
+                                description:
+                                  - The producer of the content.
+                                  - Must be either 'user' or 'model'.
+                                  - If not set, the service will default to 'user'.
+                                type: str
+                            type: dict
+                        type: list
+                    type: dict
+                  generated_memories:
+                    description:
+                      - Represents the memories that are expected to be generated from the input conversation.
+                    elements: dict
+                    suboptions:
+                      fact:
+                        description:
+                          - Represents the fact to generate a memory from.
+                        required: true
+                        type: str
+                      topics:
+                        description:
+                          - Represents the list of topics that the memory should be associated with.
+                        elements: dict
+                        suboptions:
+                          custom_memory_topic_label:
+                            description:
+                              - Represents the custom memory topic label.
+                            type: str
+                          managed_memory_topic:
+                            description:
+                              - Represents the managed memory topic.
+                              - 'Possible values: ["USER_PERSONAL_INFO", "USER_PREFERENCES", "KEY_CONVERSATION_DETAILS", "EXPLICIT_INSTRUCTIONS"].'
+                            type: str
+                        type: list
+                    type: list
+                type: list
+              memory_topics:
+                description:
+                  - List of topics that the memory should be associated with.
+                elements: dict
+                suboptions:
+                  custom_memory_topic:
+                    description:
+                      - Custom memory topic.
+                    suboptions:
+                      description:
+                        description:
+                          - Description of custom memory topic.
+                        type: str
+                      label:
+                        description:
+                          - Label of custom memory topic.
+                        type: str
+                    type: dict
+                  managed_memory_topic:
+                    description:
+                      - Managed memory topic.
+                    suboptions:
+                      managed_topic_enum:
+                        description:
+                          - Managed topic enum (e.g.
+                          - USER_PREFERENCES, EXPLICIT_INSTRUCTIONS).
+                        type: str
+                    type: dict
+                type: list
+              scope_keys:
+                description:
+                  - List of scope keys that this customization config applies to.
+                elements: str
+                type: list
+            type: list
+          disable_memory_revisions:
+            description:
+              - If true, no memory revisions will be created for any requests to the Memory Bank.
+            type: bool
+          generation_config:
+            description:
+              - Configuration for how to generate memories for the Memory Bank.
+            suboptions:
+              generation_trigger_config:
+                description:
+                  - Configuration for triggering memory generation.
+                suboptions:
+                  generation_rule:
+                    description:
+                      - The active rule that determines when to flush the buffer.
+                      - If not set, then the stream will be force flushed immediately.
+                    suboptions:
+                      event_count:
+                        description:
+                          - Specifies to trigger generation when the event count reaches this limit.
+                        type: int
+                      fixed_interval:
+                        description:
+                          - Specifies to trigger generation at a fixed interval.
+                          - The duration must have a minute-level granularity.
+                        type: str
+                      idle_duration:
+                        description:
+                          - Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event.
+                          - The duration must have a minute-level granularity.
+                        type: str
+                      overlap_event_count:
+                        description:
+                          - Re-include the last N already-processed events in the next window.
+                        type: int
+                    type: dict
+                type: dict
+              model:
+                description:
+                  - The model used to generate memories.
+                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+                required: true
+                type: str
+            type: dict
+          similarity_search_config:
+            description:
+              - Configuration for how to perform similarity search on memories.
+            suboptions:
+              embedding_model:
+                description:
+                  - The model used to generate embeddings to lookup similar memories.
+                  - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+                required: true
+                type: str
+            type: dict
+          structured_memory_configs:
+            description:
+              - Structured memory configurations for Agent Engine sub-resources.
+            elements: dict
+            suboptions:
+              schema_configs:
+                description:
+                  - List of schema configs that this structured memory config applies to.
+                elements: dict
+                suboptions:
+                  id:
+                    description:
+                      - Unique ID identifying the memory schema.
+                    required: true
+                    type: str
+                  memory_schema:
+                    description:
+                      - The memory schema defined as an OpenAPI Schema Object JSON string.
+                    type: str
+                type: list
+              scope_keys:
+                description:
+                  - List of scope keys that this structured memory config applies to.
+                elements: str
+                type: list
+            type: list
+          ttl_config:
+            description:
+              - Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.
+            suboptions:
+              default_ttl:
+                description:
+                  - The default TTL duration of the memories in the Memory Bank.
+                type: str
+              granular_ttl_config:
+                description:
+                  - The granular TTL configuration of the memories in the Memory Bank.
+                suboptions:
+                  create_ttl:
+                    description:
+                      - The TTL duration for memories uploaded via CreateMemory.
+                    type: str
+                  generate_created_ttl:
+                    description:
+                      - The TTL duration for memories newly generated via GenerateMemories.
+                    type: str
+                  generate_updated_ttl:
+                    description:
+                      - The TTL duration for memories updated via GenerateMemories.
+                    type: str
+                type: dict
+              memory_revision_default_ttl:
+                description:
+                  - The default TTL duration of the memory revisions in the Memory Bank.
+                type: str
+            type: dict
+        type: dict
+    type: dict
   description:
     description:
       - The description of the ReasoningEngine.
@@ -65,6 +482,12 @@ options:
         required: true
         type: str
     type: dict
+  labels:
+    description:
+      - The labels associated with this ReasoningEngine.
+      - You can use these to organize and group your ReasoningEngines.
+      - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+    type: dict
   region:
     description:
       - The region of the reasoning engine.
@@ -75,24 +498,107 @@ options:
     description:
       - Configurations of the ReasoningEngine.
     suboptions:
+      agent_card:
+        description:
+          - The A2A Agent Card for the agent (if available).
+        type: str
       agent_framework:
         description:
           - The OSS agent framework used to develop the agent.
         type: str
+      build_spec:
+        description:
+          - Configuration for building container image.
+        suboptions:
+          service_account:
+            description:
+              - The service account that the Cloud Build builder runs as.
+            type: str
+          worker_pool:
+            description:
+              - The resource name of the Cloud Build WorkerPool to use for the build.
+            type: str
+        type: dict
       class_methods:
         description:
           - Declarations for object class methods in OpenAPI specification format.
+          - '**Note**: When deploying via Terraform, this field must be populated manually.'
+          - Otherwise, client SDKs (like `agent_engines.get()`) will not be able to discover the methods, and calls to the engine (or A2A integrations) will fail.
+          - 'Depending on the template/framework used (`agent_framework`), the required class methods and their parameters differ:  **Warning**: The configuration snippets below are illustrative, may not be exhaustive, and could stop working over time.'
+          - 'For the most up-to-date method lists and schemas, please consult the respective SDK source code: * For Google ADK: See [ADK Python SDK cli_deploy.py](https://github.com/google/adk-python/blob/68a780306e3bdd648a882ef34c0abf8e5148353e/src/google/adk/cli/cli_deploy.py#L109).'
+          - '* For Langchain: See [Vertex AI Python SDK langchain.py](https://github.com/googleapis/python-aiplatform/blob/c8a38a085931b01f4d6071f0ab7a64cb42851829/agentplatform/agent_engines/templates/langchain.py#L642-L717).'
+          - '### 1.'
+          - 'Langchain Template * `query` (api_mode = "sync" or empty) * `stream_query` (api_mode = "stream")  Example for Langchain: ```hcl class_methods = jsonencode([   {     name        = "query"     api_mode    = "sync"     description = "Queries the reasoning engine"     parameters  = {       type       = "object"       required   = ["input"]       properties = {         input = {           type        = "string"           description = "The input prompt"         }       }     }   },   {     name        = "stream_query"     api_mode    = "stream"     description = "Streams queries from the reasoning engine"     parameters  = {       type       = "object"       required   = ["input"]       properties = {         input = {           type        = "string"           description = "The input prompt"         }       }     }   } ]) ```  ### 2.'
+          - 'Google ADK Template (Standard - No A2A) For standard Google ADK (Agent Development Kit) deployments, you must define the following 11 methods:  Example for Standard ADK: ```hcl class_methods = jsonencode([   {     name        = "get_session"     api_mode    = ""     description = "Retrieve session by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "async_get_session"     api_mode    = "async"     description = "Retrieve session asynchronously by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "list_sessions"     api_mode    = ""     description = "List all sessions for a user"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id = { type = "string" }       }     }   },   {     name        = "async_list_sessions"     api_mode    = "async"     description = "List all sessions for a user asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id = { type = "string" }       }     }   },   {     name        = "create_session"     api_mode    = ""     description = "Create a new session"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }   },   {     name        = "async_create_session"     api_mode    = "async"     description = "Create a new session asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }   },   {     name        = "delete_session"     api_mode    = ""     description = "Delete session by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "async_delete_session"     api_mode    = "async"     description = "Delete session asynchronously by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "stream_query"     api_mode    = "stream"     description = "Stream queries from the agent"     parameters  = {       type     = "object"       required = ["message", "user_id"]       properties = {         message    = { description = "Message string or object" }         user_id    = { type = "string" }         session_id = { type = "string" }         run_config = { type = "object" }       }     }   },   {     name        = "async_stream_query"     api_mode    = "async_stream"     description = "Stream queries asynchronously from the agent"     parameters  = {       type     = "object"       required = ["message", "user_id"]       properties = {         message        = { description = "Message string or object" }         user_id        = { type = "string" }         session_id     = { type = "string" }         session_events = { type = "array", items = { type = "object" } }         run_config     = { type = "object" }       }     }   },   {     name        = "streaming_agent_run_with_events"     api_mode    = "async_stream"     description = "Stream agent run with events asynchronously"     parameters  = {       type     = "object"       required = ["request_json"]       properties = {         request_json = { type = "string" }       }     }   } ]) ```  ### 3.'
+          - 'Google ADK Template (A2A-Enabled) If the agent integrates with the Gemini Enterprise Agent Registry (A2A), you must inject the `a2a_agent_card` JSON metadata as a string **specifically inside the `async_create_session` method definition**:  Example for A2A-Enabled ADK: ```hcl locals {   # Construct the A2A endpoint URL   a2a_url = "https://us-central1-aiplatform.googleapis.com/v1/projects/my-project/locations/us-central1/reasoningEngines/my-agent/a2a"    agent_card = {     name                 = "my-agent"     description          = "A2A Agent"     version              = "1.0.0"     preferred_transport  = "HTTP_JSON"     supported_interfaces = [{ url = local.a2a_url, protocol_binding = "HTTP_JSON" }]     capabilities         = { streaming = true }   } }  # In class_methods, append "a2a_agent_card" key ONLY to the "async_create_session" method: class_methods = jsonencode([   # ..'
+          - other 10 standard methods (same as Standard ADK) ..
+          - '{     name        = "async_create_session"     api_mode    = "async"     description = "Create a new session asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }     # Inject the serialized Agent Card here     a2a_agent_card = jsonencode(local.agent_card)   } ]) ```.'
         type: str
+      container_spec:
+        description:
+          - Deploy from a container image with a defined entrypoint and commands.
+        suboptions:
+          image_uri:
+            description:
+              - The Artifact Registry Docker image URI (e.g., `us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag`) of the container image that is to be run on each worker replica.
+            required: true
+            type: str
+          port:
+            description:
+              - The port that the container listens on for incoming requests.
+              - If not specified, defaults to 8080.
+            type: int
+        type: dict
       deployment_spec:
         description:
           - The specification of a Reasoning Engine deployment.
         suboptions:
+          agent_gateway_config:
+            description:
+              - Agent Gateway configuration for a Reasoning Engine deployment.
+            suboptions:
+              agent_to_anywhere_config:
+                description:
+                  - Configuration for traffic originating from the Reasoning Engine.
+                suboptions:
+                  agent_gateway:
+                    description:
+                      - The resource name of the Agent Gateway for outbound traffic.
+                    required: true
+                    type: str
+                type: dict
+              client_to_agent_config:
+                description:
+                  - Configuration for traffic targeting the Reasoning Engine.
+                suboptions:
+                  agent_gateway:
+                    description:
+                      - The resource name of the Agent Gateway to use for inbound traffic.
+                    required: true
+                    type: str
+                type: dict
+            type: dict
+          agent_server_mode:
+            choices:
+              - STABLE
+              - EXPERIMENTAL
+            description:
+              - The agent server mode specifies what features are used when deploy the agent to agent engine.
+              - 'Possible values: * `STABLE`: Stable agent server mode.'
+              - '* `EXPERIMENTAL`: Experimental agent server mode.'
+            type: str
           container_concurrency:
             description:
               - Concurrency for each container and agent server.
               - 'Recommended value: 2 * cpu + 1.'
               - Defaults to 9.
             type: int
+          dedicated_ingress_endpoint_enabled:
+            description:
+              - Whether to enable dedicated ingress endpoint for the deployment.
+              - If true, the deployment will be accessible via a dedicated endpoint.
+              - This is required to enable GKE V2 runtime.
+            type: bool
           env:
             description:
               - Environment variables to be set with the Reasoning Engine deployment.
@@ -113,6 +619,30 @@ options:
                 required: true
                 type: str
             type: list
+          keep_alive_probe:
+            description:
+              - Specifies the configuration for keep-alive probe.
+            suboptions:
+              http_get:
+                description:
+                  - Specifies the HTTP GET configuration for the probe.
+                suboptions:
+                  path:
+                    description:
+                      - Specifies the path of the HTTP GET request (e.g., `"/is_busy"`).
+                    required: true
+                    type: str
+                  port:
+                    description:
+                      - Specifies the port number on the container to which the request is sent.
+                    type: int
+                type: dict
+              max_seconds:
+                description:
+                  - Specifies the maximum duration (in seconds) to keep the instance alive via this probe.
+                  - Can be a maximum of 3600 seconds (1 hour).
+                type: int
+            type: dict
           max_instances:
             description:
               - The maximum number of application instances that can be launched to handle increased traffic.
@@ -204,6 +734,25 @@ options:
                 type: dict
             type: list
         type: dict
+      effective_identity:
+        description:
+          - The identity to use for the Reasoning Engine.
+        type: str
+      example_store:
+        description:
+          - The resource name of the linked ExampleStore.
+        type: str
+      identity_type:
+        choices:
+          - SERVICE_ACCOUNT
+          - AGENT_IDENTITY
+        description:
+          - The identity type to use for the Reasoning Engine.
+          - If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
+          - 'Possible values: * `SERVICE_ACCOUNT`: Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.'
+          - '* `AGENT_IDENTITY`: Use Agent Identity.'
+          - The `service_account` field must not be set.
+        type: str
       package_spec:
         description:
           - User provided package spec of the ReasoningEngine.
@@ -238,6 +787,32 @@ options:
         description:
           - Specification for deploying from source code.
         suboptions:
+          agent_config_source:
+            description:
+              - Specification for the deploying from agent config.
+            suboptions:
+              adk_config:
+                description:
+                  - Configuration for the Agent Development Kit (ADK).
+                suboptions:
+                  json_config:
+                    description:
+                      - The value of the ADK config in JSON format.
+                    required: true
+                    type: str
+                type: dict
+              inline_source:
+                description:
+                  - Any additional files needed to interpret the config.
+                suboptions:
+                  source_archive:
+                    description:
+                      - Input only.
+                      - The application source code archive, provided as a compressed tarball (.tar.gz) file.
+                    required: true
+                    type: str
+                type: dict
+            type: dict
           developer_connect_source:
             description:
               - Specification for source code to be fetched from a Git repository managed through the Developer Connect service.
@@ -262,6 +837,16 @@ options:
                       - The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
                     required: true
                     type: str
+                type: dict
+            type: dict
+          image_spec:
+            description:
+              - Configuration for building an image with custom config file.
+            suboptions:
+              build_args:
+                description:
+                  - Build arguments to be used.
+                  - They will be passed through --build-arg flags.
                 type: dict
             type: dict
           inline_source:
@@ -310,16 +895,62 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
+  traffic_config:
+    description:
+      - Traffic distribution configuration for the Reasoning Engine.
+      - ~> **Note:** Because revision IDs do not exist before the resource is created, the best practice for initial deployment is to set `traffic_split_always_latest {}`.
+      - Once the resource is created, you can update the configuration to a manual split using newly generated revision IDs, short names (e.g.
+      - '`rev-1`), or keywords such as `LATEST` and `PREVIOUS`.'
+    suboptions:
+      traffic_split_always_latest:
+        description:
+          - Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.
+        type: dict
+      traffic_split_manual:
+        description:
+          - Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each.
+        suboptions:
+          targets:
+            description:
+              - A list of traffic targets for the Runtimes Revisions.
+              - The sum of percentages must equal to 100.
+            elements: dict
+            suboptions:
+              percent:
+                description:
+                  - Specifies percent of the traffic to this Runtime Revision.
+                required: true
+                type: int
+              runtime_revision_name:
+                description:
+                  - The Runtime Revision name to which to send this portion of traffic.
+                  - Accepts revision IDs, short names (e.g.
+                  - '`rev-1`), or keywords such as `LATEST` and `PREVIOUS`.'
+                  - 'Note: Keywords like `LATEST` and `PREVIOUS` resolve at apply time to the concrete underlying revision ID and remain pinned until `traffic_config` is updated in Terraform.'
+                required: true
+                type: str
+            type: list
+        type: dict
+    type: dict
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.ReasoningEngine resource
+short_description: Manages a VertexAI.ReasoningEngine resource
 """  # noqa: E501
 
 EXAMPLES = r"""
+- name: Create Basic Reasoning Engine
+  google.cloud.gcp_vertexai_reasoning_engine:
+    state: present
+    display_name: basic-reasoning-engine
+    description: A Basic Reasoning Engine
+    region: us-central1
+
+################################################################################
+
 - name: Create Source Based Deployment Reasoning Engine
   google.cloud.gcp_vertexai_reasoning_engine:
     state: present
@@ -336,9 +967,6 @@ EXAMPLES = r"""
           entrypoint_object: name_generator
           requirements_file: prod-requirements.txt  # defaults to requirements.txt
           version: "3.11"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -365,6 +993,12 @@ updateTime:
     - The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+url:
+  description:
+    - Output only.
+    - The URL of the reasoning engine.
+  returned: success
+  type: str
 """  # noqa: E501
 
 ################################################################################
@@ -377,6 +1011,428 @@ from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 # END Custom imports
 
 
+class ContextSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "exampleStoreConfig": gcp_v2.remove_empties(
+                ContextSpecExampleStoreConfig(self.request.get("example_store_config", {})).to_request()
+            ),  # remove empty values
+            "memoryBankConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfig(self.request.get("memory_bank_config", {})).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecExampleStoreConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "similaritySearchConfig": gcp_v2.remove_empties(
+                ContextSpecExampleStoreConfigSimilaritySearchConfig(
+                    self.request.get("similarity_search_config", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecExampleStoreConfigSimilaritySearchConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "embeddingModel": self.request.get("embedding_model"),
+        }
+
+
+class ContextSpecMemoryBankConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "customizationConfigs": [
+                ContextSpecMemoryBankConfigCustomizationConfig(item).to_request()
+                for item in (self.request.get("customization_configs") or [])
+            ],
+            "disableMemoryRevisions": self.request.get("disable_memory_revisions"),
+            "generationConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigGenerationConfig(self.request.get("generation_config", {})).to_request()
+            ),  # remove empty values
+            "similaritySearchConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigSimilaritySearchConfig(
+                    self.request.get("similarity_search_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "structuredMemoryConfigs": [
+                ContextSpecMemoryBankConfigStructuredMemoryConfig(item).to_request()
+                for item in (self.request.get("structured_memory_configs") or [])
+            ],
+            "ttlConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigTtlConfig(self.request.get("ttl_config", {})).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "consolidationConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigConsolidationConfig(
+                    self.request.get("consolidation_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "disableNaturalLanguageMemories": self.request.get("disable_natural_language_memories"),
+            "enableThirdPersonMemories": self.request.get("enable_third_person_memories"),
+            "generateMemoriesExamples": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExample(item).to_request()
+                for item in (self.request.get("generate_memories_examples") or [])
+            ],
+            "memoryTopics": [
+                ContextSpecMemoryBankConfigCustomizationConfigMemoryTopic(item).to_request()
+                for item in (self.request.get("memory_topics") or [])
+            ],
+            "scopeKeys": self.request.get("scope_keys"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigConsolidationConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "revisionsPerCandidateCount": self.request.get("revisions_per_candidate_count"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExample(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "conversationSource": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSource(
+                    self.request.get("conversation_source", {})
+                ).to_request()
+            ),  # remove empty values
+            "generatedMemories": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleGeneratedMemorie(item).to_request()
+                for item in (self.request.get("generated_memories") or [])
+            ],
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSource(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "events": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
+                    item
+                ).to_request()
+                for item in (self.request.get("events") or [])
+            ],
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "content": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContent(
+                    self.request.get("content", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContent(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "parts": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPart(
+                    item
+                ).to_request()
+                for item in (self.request.get("parts") or [])
+            ],
+            "role": self.request.get("role"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPart(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "audioTranscription": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartAudioTranscription(
+                    self.request.get("audio_transcription", {})
+                ).to_request()
+            ),  # remove empty values
+            "codeExecutionResult": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartCodeExecutionResult(
+                    self.request.get("code_execution_result", {})
+                ).to_request()
+            ),  # remove empty values
+            "executableCode": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartExecutableCode(
+                    self.request.get("executable_code", {})
+                ).to_request()
+            ),  # remove empty values
+            "fileData": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFileData(
+                    self.request.get("file_data", {})
+                ).to_request()
+            ),  # remove empty values
+            "functionCall": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFunctionCall(
+                    self.request.get("function_call", {})
+                ).to_request()
+            ),  # remove empty values
+            "functionResponse": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFunctionResponse(
+                    self.request.get("function_response", {})
+                ).to_request()
+            ),  # remove empty values
+            "inlineData": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartInlineData(
+                    self.request.get("inline_data", {})
+                ).to_request()
+            ),  # remove empty values
+            "text": self.request.get("text"),
+            "thought": self.request.get("thought"),
+            "videoMetadata": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartVideoMetadata(
+                    self.request.get("video_metadata", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartAudioTranscription(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "speakerLabel": self.request.get("speaker_label"),
+            "text": self.request.get("text"),
+            "words": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartAudioTranscriptionWord(
+                    item
+                ).to_request()
+                for item in (self.request.get("words") or [])
+            ],
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartAudioTranscriptionWord(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "endOffset": self.request.get("end_offset"),
+            "startOffset": self.request.get("start_offset"),
+            "word": self.request.get("word"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartCodeExecutionResult(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "id": self.request.get("id"),
+            "outcome": self.request.get("outcome"),
+            "output": self.request.get("output"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartExecutableCode(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "code": self.request.get("code"),
+            "id": self.request.get("id"),
+            "language": self.request.get("language"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFileData(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "fileUri": self.request.get("file_uri"),
+            "mimeType": self.request.get("mime_type"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFunctionCall(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "args": self.request.get("args"),
+            "id": self.request.get("id"),
+            "name": self.request.get("name"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartFunctionResponse(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "id": self.request.get("id"),
+            "name": self.request.get("name"),
+            "response": self.request.get("response"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartInlineData(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "data": self.request.get("data"),
+            "mimeType": self.request.get("mime_type"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleConversationSourceEventContentPartVideoMetadata(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "endOffset": self.request.get("end_offset"),
+            "startOffset": self.request.get("start_offset"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleGeneratedMemorie(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "fact": self.request.get("fact"),
+            "topics": [
+                ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleGeneratedMemorieTopic(
+                    item
+                ).to_request()
+                for item in (self.request.get("topics") or [])
+            ],
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigGenerateMemoriesExampleGeneratedMemorieTopic(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "customMemoryTopicLabel": self.request.get("custom_memory_topic_label"),
+            "managedMemoryTopic": self.request.get("managed_memory_topic"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigMemoryTopic(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "customMemoryTopic": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigMemoryTopicCustomMemoryTopic(
+                    self.request.get("custom_memory_topic", {})
+                ).to_request()
+            ),  # remove empty values
+            "managedMemoryTopic": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigCustomizationConfigMemoryTopicManagedMemoryTopic(
+                    self.request.get("managed_memory_topic", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigMemoryTopicCustomMemoryTopic(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "description": self.request.get("description"),
+            "label": self.request.get("label"),
+        }
+
+
+class ContextSpecMemoryBankConfigCustomizationConfigMemoryTopicManagedMemoryTopic(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "managedTopicEnum": self.request.get("managed_topic_enum"),
+        }
+
+
+class ContextSpecMemoryBankConfigGenerationConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "generationTriggerConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(
+                    self.request.get("generation_trigger_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "model": self.request.get("model"),
+        }
+
+
+class ContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "generationRule": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(
+                    self.request.get("generation_rule", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class ContextSpecMemoryBankConfigGenerationConfigGenerationTriggerConfigGenerationRule(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "eventCount": self.request.get("event_count"),
+            "fixedInterval": self.request.get("fixed_interval"),
+            "idleDuration": self.request.get("idle_duration"),
+            "overlapEventCount": self.request.get("overlap_event_count"),
+        }
+
+
+class ContextSpecMemoryBankConfigSimilaritySearchConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "embeddingModel": self.request.get("embedding_model"),
+        }
+
+
+class ContextSpecMemoryBankConfigStructuredMemoryConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "schemaConfigs": [
+                ContextSpecMemoryBankConfigStructuredMemoryConfigSchemaConfig(item).to_request()
+                for item in (self.request.get("schema_configs") or [])
+            ],
+            "scopeKeys": self.request.get("scope_keys"),
+        }
+
+
+class ContextSpecMemoryBankConfigStructuredMemoryConfigSchemaConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "id": self.request.get("id"),
+            "schema": self.request.get("memory_schema"),
+        }
+
+
+class ContextSpecMemoryBankConfigTtlConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "defaultTtl": self.request.get("default_ttl"),
+            "granularTtlConfig": gcp_v2.remove_empties(
+                ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
+                    self.request.get("granular_ttl_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "memoryRevisionDefaultTtl": self.request.get("memory_revision_default_ttl"),
+        }
+
+
+class ContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "createTtl": self.request.get("create_ttl"),
+            "generateCreatedTtl": self.request.get("generate_created_ttl"),
+            "generateUpdatedTtl": self.request.get("generate_updated_ttl"),
+        }
+
+
 class EncryptionSpec(gcp_v2.Resource):
     def _request(self):
         return {
@@ -387,11 +1443,20 @@ class EncryptionSpec(gcp_v2.Resource):
 class Spec(gcp_v2.Resource):
     def _request(self):
         return {
+            "agentCard": self.request.get("agent_card"),
             "agentFramework": self.request.get("agent_framework"),
+            "buildSpec": gcp_v2.remove_empties(
+                SpecBuildSpec(self.request.get("build_spec", {})).to_request()
+            ),  # remove empty values
             "classMethods": self.request.get("class_methods"),
+            "containerSpec": gcp_v2.remove_empties(
+                SpecContainerSpec(self.request.get("container_spec", {})).to_request()
+            ),  # remove empty values
             "deploymentSpec": gcp_v2.remove_empties(
                 SpecDeploymentSpec(self.request.get("deployment_spec", {})).to_request()
             ),  # remove empty values
+            "exampleStore": self.request.get("example_store"),
+            "identityType": self.request.get("identity_type"),
             "packageSpec": gcp_v2.remove_empties(
                 SpecPackageSpec(self.request.get("package_spec", {})).to_request()
             ),  # remove empty values
@@ -401,12 +1466,41 @@ class Spec(gcp_v2.Resource):
             ),  # remove empty values
         }
 
+    def _response(self):
+        return {
+            "effectiveIdentity": self.response.get("effectiveIdentity"),
+        }
+
+
+class SpecBuildSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "serviceAccount": self.request.get("service_account"),
+            "workerPool": self.request.get("worker_pool"),
+        }
+
+
+class SpecContainerSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "imageUri": self.request.get("image_uri"),
+            "port": self.request.get("port"),
+        }
+
 
 class SpecDeploymentSpec(gcp_v2.Resource):
     def _request(self):
         return {
+            "agentGatewayConfig": gcp_v2.remove_empties(
+                SpecDeploymentSpecAgentGatewayConfig(self.request.get("agent_gateway_config", {})).to_request()
+            ),  # remove empty values
+            "agentServerMode": self.request.get("agent_server_mode"),
             "containerConcurrency": self.request.get("container_concurrency"),
+            "dedicatedIngressEndpointEnabled": self.request.get("dedicated_ingress_endpoint_enabled"),
             "env": [SpecDeploymentSpecEnv(item).to_request() for item in (self.request.get("env") or [])],
+            "keepAliveProbe": gcp_v2.remove_empties(
+                SpecDeploymentSpecKeepAliveProbe(self.request.get("keep_alive_probe", {})).to_request()
+            ),  # remove empty values
             "maxInstances": self.request.get("max_instances"),
             "minInstances": self.request.get("min_instances"),
             "pscInterfaceConfig": gcp_v2.remove_empties(
@@ -419,11 +1513,59 @@ class SpecDeploymentSpec(gcp_v2.Resource):
         }
 
 
+class SpecDeploymentSpecAgentGatewayConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "agentToAnywhereConfig": gcp_v2.remove_empties(
+                SpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(
+                    self.request.get("agent_to_anywhere_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "clientToAgentConfig": gcp_v2.remove_empties(
+                SpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(
+                    self.request.get("client_to_agent_config", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class SpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "agentGateway": self.request.get("agent_gateway"),
+        }
+
+
+class SpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "agentGateway": self.request.get("agent_gateway"),
+        }
+
+
 class SpecDeploymentSpecEnv(gcp_v2.Resource):
     def _request(self):
         return {
             "name": self.request.get("name"),
             "value": self.request.get("value"),
+        }
+
+
+class SpecDeploymentSpecKeepAliveProbe(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "httpGet": gcp_v2.remove_empties(
+                SpecDeploymentSpecKeepAliveProbeHttpGet(self.request.get("http_get", {})).to_request()
+            ),  # remove empty values
+            "maxSeconds": self.request.get("max_seconds"),
+        }
+
+
+class SpecDeploymentSpecKeepAliveProbeHttpGet(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "path": self.request.get("path"),
+            "port": self.request.get("port"),
         }
 
 
@@ -478,15 +1620,47 @@ class SpecPackageSpec(gcp_v2.Resource):
 class SpecSourceCodeSpec(gcp_v2.Resource):
     def _request(self):
         return {
+            "agentConfigSource": gcp_v2.remove_empties(
+                SpecSourceCodeSpecAgentConfigSource(self.request.get("agent_config_source", {})).to_request()
+            ),  # remove empty values
             "developerConnectSource": gcp_v2.remove_empties(
                 SpecSourceCodeSpecDeveloperConnectSource(self.request.get("developer_connect_source", {})).to_request()
             ),  # remove empty values
+            "imageSpec": gcp_v2.remove_nones(
+                SpecSourceCodeSpecImageSpec(self.request.get("image_spec", {})).to_request()
+            ),  # allow empty values
             "inlineSource": gcp_v2.remove_empties(
                 SpecSourceCodeSpecInlineSource(self.request.get("inline_source", {})).to_request()
             ),  # remove empty values
             "pythonSpec": gcp_v2.remove_empties(
                 SpecSourceCodeSpecPythonSpec(self.request.get("python_spec", {})).to_request()
             ),  # remove empty values
+        }
+
+
+class SpecSourceCodeSpecAgentConfigSource(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "adkConfig": gcp_v2.remove_empties(
+                SpecSourceCodeSpecAgentConfigSourceAdkConfig(self.request.get("adk_config", {})).to_request()
+            ),  # remove empty values
+            "inlineSource": gcp_v2.remove_empties(
+                SpecSourceCodeSpecAgentConfigSourceInlineSource(self.request.get("inline_source", {})).to_request()
+            ),  # remove empty values
+        }
+
+
+class SpecSourceCodeSpecAgentConfigSourceAdkConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "jsonConfig": self.request.get("json_config"),
+        }
+
+
+class SpecSourceCodeSpecAgentConfigSourceInlineSource(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "sourceArchive": self.request.get("source_archive"),
         }
 
 
@@ -508,6 +1682,16 @@ class SpecSourceCodeSpecDeveloperConnectSourceConfig(gcp_v2.Resource):
         }
 
 
+class SpecSourceCodeSpecImageSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "buildArgs": self.request.get("build_args"),
+        }
+
+    def _response(self):
+        return self.response.get("image_spec", dict())
+
+
 class SpecSourceCodeSpecInlineSource(gcp_v2.Resource):
     def _request(self):
         return {
@@ -525,15 +1709,59 @@ class SpecSourceCodeSpecPythonSpec(gcp_v2.Resource):
         }
 
 
+class TrafficConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "trafficSplitAlwaysLatest": gcp_v2.remove_nones(
+                TrafficConfigTrafficSplitAlwaysLatest(self.request.get("traffic_split_always_latest", {})).to_request()
+            ),  # allow empty values
+            "trafficSplitManual": gcp_v2.remove_empties(
+                TrafficConfigTrafficSplitManual(self.request.get("traffic_split_manual", {})).to_request()
+            ),  # remove empty values
+        }
+
+
+class TrafficConfigTrafficSplitAlwaysLatest(gcp_v2.Resource):
+    def _request(self):
+        return self.request.get("traffic_split_always_latest", dict())
+
+    def _response(self):
+        return self.response.get("traffic_split_always_latest", dict())
+
+
+class TrafficConfigTrafficSplitManual(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "targets": [
+                TrafficConfigTrafficSplitManualTarget(item).to_request() for item in (self.request.get("targets") or [])
+            ],
+        }
+
+
+class TrafficConfigTrafficSplitManualTarget(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "percent": self.request.get("percent"),
+            "runtimeRevisionName": self.request.get("runtime_revision_name"),
+        }
+
+
 class VertexAI(gcp_v2.Resource):
     def _request(self):
         return {
+            "contextSpec": gcp_v2.remove_empties(
+                ContextSpec(self.request.get("context_spec", {})).to_request()
+            ),  # remove empty values
             "description": self.request.get("description"),
             "displayName": self.request.get("display_name"),
             "encryptionSpec": gcp_v2.remove_empties(
                 EncryptionSpec(self.request.get("encryption_spec", {})).to_request()
             ),  # remove empty values
+            "labels": self.request.get("labels"),
             "spec": gcp_v2.remove_empties(Spec(self.request.get("spec", {})).to_request()),  # remove empty values
+            "trafficConfig": gcp_v2.remove_empties(
+                TrafficConfig(self.request.get("traffic_config", {})).to_request()
+            ),  # remove empty values
         }
 
     def _response(self):
@@ -541,6 +1769,7 @@ class VertexAI(gcp_v2.Resource):
             "createTime": self.response.get("createTime"),
             "name": self.response.get("name"),
             "updateTime": self.response.get("updateTime"),
+            "url": self.response.get("url"),
         }
 
 
@@ -559,6 +1788,358 @@ def main():
                 default="present",
                 choices=["present", "absent"],
             ),
+            context_spec=dict(
+                type="dict",
+                options=dict(
+                    example_store_config=dict(
+                        type="dict",
+                        options=dict(
+                            similarity_search_config=dict(
+                                type="dict",
+                                options=dict(
+                                    embedding_model=dict(
+                                        type="str",
+                                        required=True,
+                                    )
+                                ),
+                            )
+                        ),
+                    ),
+                    memory_bank_config=dict(
+                        type="dict",
+                        options=dict(
+                            customization_configs=dict(
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    consolidation_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            revisions_per_candidate_count=dict(
+                                                type="int",
+                                            )
+                                        ),
+                                    ),
+                                    disable_natural_language_memories=dict(
+                                        type="bool",
+                                    ),
+                                    enable_third_person_memories=dict(
+                                        type="bool",
+                                    ),
+                                    generate_memories_examples=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            conversation_source=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    events=dict(
+                                                        type="list",
+                                                        elements="dict",
+                                                        options=dict(
+                                                            content=dict(
+                                                                type="dict",
+                                                                required=True,
+                                                                options=dict(
+                                                                    parts=dict(
+                                                                        type="list",
+                                                                        required=True,
+                                                                        elements="dict",
+                                                                        options=dict(
+                                                                            audio_transcription=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    speaker_label=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    text=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    words=dict(
+                                                                                        type="list",
+                                                                                        elements="dict",
+                                                                                        options=dict(
+                                                                                            end_offset=dict(
+                                                                                                type="str",
+                                                                                            ),
+                                                                                            start_offset=dict(
+                                                                                                type="str",
+                                                                                            ),
+                                                                                            word=dict(
+                                                                                                type="str",
+                                                                                                required=True,
+                                                                                            ),
+                                                                                        ),
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            code_execution_result=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    id=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    outcome=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    output=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            executable_code=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    code=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    id=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    language=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            file_data=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    file_uri=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    mime_type=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            function_call=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    args=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    id=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    name=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            function_response=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    id=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    name=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    response=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            inline_data=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    data=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                    mime_type=dict(
+                                                                                        type="str",
+                                                                                        required=True,
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                            text=dict(
+                                                                                type="str",
+                                                                            ),
+                                                                            thought=dict(
+                                                                                type="bool",
+                                                                            ),
+                                                                            video_metadata=dict(
+                                                                                type="dict",
+                                                                                options=dict(
+                                                                                    end_offset=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                    start_offset=dict(
+                                                                                        type="str",
+                                                                                    ),
+                                                                                ),
+                                                                            ),
+                                                                        ),
+                                                                    ),
+                                                                    role=dict(
+                                                                        type="str",
+                                                                    ),
+                                                                ),
+                                                            )
+                                                        ),
+                                                    )
+                                                ),
+                                            ),
+                                            generated_memories=dict(
+                                                type="list",
+                                                elements="dict",
+                                                options=dict(
+                                                    fact=dict(
+                                                        type="str",
+                                                        required=True,
+                                                    ),
+                                                    topics=dict(
+                                                        type="list",
+                                                        elements="dict",
+                                                        options=dict(
+                                                            custom_memory_topic_label=dict(
+                                                                type="str",
+                                                            ),
+                                                            managed_memory_topic=dict(
+                                                                type="str",
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                    memory_topics=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            custom_memory_topic=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    description=dict(
+                                                        type="str",
+                                                    ),
+                                                    label=dict(
+                                                        type="str",
+                                                    ),
+                                                ),
+                                            ),
+                                            managed_memory_topic=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    managed_topic_enum=dict(
+                                                        type="str",
+                                                    )
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                    scope_keys=dict(
+                                        type="list",
+                                        elements="str",
+                                        no_log=False,
+                                    ),
+                                ),
+                            ),
+                            disable_memory_revisions=dict(
+                                type="bool",
+                            ),
+                            generation_config=dict(
+                                type="dict",
+                                options=dict(
+                                    generation_trigger_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            generation_rule=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    event_count=dict(
+                                                        type="int",
+                                                    ),
+                                                    fixed_interval=dict(
+                                                        type="str",
+                                                    ),
+                                                    idle_duration=dict(
+                                                        type="str",
+                                                    ),
+                                                    overlap_event_count=dict(
+                                                        type="int",
+                                                    ),
+                                                ),
+                                            )
+                                        ),
+                                    ),
+                                    model=dict(
+                                        type="str",
+                                        required=True,
+                                    ),
+                                ),
+                            ),
+                            similarity_search_config=dict(
+                                type="dict",
+                                options=dict(
+                                    embedding_model=dict(
+                                        type="str",
+                                        required=True,
+                                    )
+                                ),
+                            ),
+                            structured_memory_configs=dict(
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    schema_configs=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            id=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            memory_schema=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                    scope_keys=dict(
+                                        type="list",
+                                        elements="str",
+                                        no_log=False,
+                                    ),
+                                ),
+                            ),
+                            ttl_config=dict(
+                                type="dict",
+                                options=dict(
+                                    default_ttl=dict(
+                                        type="str",
+                                    ),
+                                    granular_ttl_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            create_ttl=dict(
+                                                type="str",
+                                            ),
+                                            generate_created_ttl=dict(
+                                                type="str",
+                                            ),
+                                            generate_updated_ttl=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                    memory_revision_default_ttl=dict(
+                                        type="str",
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
             description=dict(
                 type="str",
             ),
@@ -576,23 +2157,82 @@ def main():
                     )
                 ),
             ),
+            labels=dict(
+                type="dict",
+            ),
             region=dict(
                 type="str",
             ),
             spec=dict(
                 type="dict",
                 options=dict(
+                    agent_card=dict(
+                        type="str",
+                    ),
                     agent_framework=dict(
                         type="str",
+                    ),
+                    build_spec=dict(
+                        type="dict",
+                        options=dict(
+                            service_account=dict(
+                                type="str",
+                            ),
+                            worker_pool=dict(
+                                type="str",
+                            ),
+                        ),
                     ),
                     class_methods=dict(
                         type="str",
                     ),
+                    container_spec=dict(
+                        type="dict",
+                        options=dict(
+                            image_uri=dict(
+                                type="str",
+                                required=True,
+                            ),
+                            port=dict(
+                                type="int",
+                            ),
+                        ),
+                    ),
                     deployment_spec=dict(
                         type="dict",
                         options=dict(
+                            agent_gateway_config=dict(
+                                type="dict",
+                                options=dict(
+                                    agent_to_anywhere_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            agent_gateway=dict(
+                                                type="str",
+                                                required=True,
+                                            )
+                                        ),
+                                    ),
+                                    client_to_agent_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            agent_gateway=dict(
+                                                type="str",
+                                                required=True,
+                                            )
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            agent_server_mode=dict(
+                                type="str",
+                                choices=["STABLE", "EXPERIMENTAL"],
+                            ),
                             container_concurrency=dict(
                                 type="int",
+                            ),
+                            dedicated_ingress_endpoint_enabled=dict(
+                                type="bool",
                             ),
                             env=dict(
                                 type="list",
@@ -605,6 +2245,26 @@ def main():
                                     value=dict(
                                         type="str",
                                         required=True,
+                                    ),
+                                ),
+                            ),
+                            keep_alive_probe=dict(
+                                type="dict",
+                                options=dict(
+                                    http_get=dict(
+                                        type="dict",
+                                        options=dict(
+                                            path=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            port=dict(
+                                                type="int",
+                                            ),
+                                        ),
+                                    ),
+                                    max_seconds=dict(
+                                        type="int",
                                     ),
                                 ),
                             ),
@@ -671,6 +2331,16 @@ def main():
                             ),
                         ),
                     ),
+                    effective_identity=dict(
+                        type="str",
+                    ),
+                    example_store=dict(
+                        type="str",
+                    ),
+                    identity_type=dict(
+                        type="str",
+                        choices=["SERVICE_ACCOUNT", "AGENT_IDENTITY"],
+                    ),
                     package_spec=dict(
                         type="dict",
                         options=dict(
@@ -694,6 +2364,29 @@ def main():
                     source_code_spec=dict(
                         type="dict",
                         options=dict(
+                            agent_config_source=dict(
+                                type="dict",
+                                options=dict(
+                                    adk_config=dict(
+                                        type="dict",
+                                        options=dict(
+                                            json_config=dict(
+                                                type="str",
+                                                required=True,
+                                            )
+                                        ),
+                                    ),
+                                    inline_source=dict(
+                                        type="dict",
+                                        options=dict(
+                                            source_archive=dict(
+                                                type="str",
+                                                required=True,
+                                            )
+                                        ),
+                                    ),
+                                ),
+                            ),
                             developer_connect_source=dict(
                                 type="dict",
                                 options=dict(
@@ -714,6 +2407,14 @@ def main():
                                                 required=True,
                                             ),
                                         ),
+                                    )
+                                ),
+                            ),
+                            image_spec=dict(
+                                type="dict",
+                                options=dict(
+                                    build_args=dict(
+                                        type="dict",
                                     )
                                 ),
                             ),
@@ -743,8 +2444,38 @@ def main():
                                 ),
                             ),
                         ),
+                        mutually_exclusive=[("image_spec", "python_spec")],
                     ),
                 ),
+                mutually_exclusive=[("container_spec", "source_code_spec")],
+            ),
+            traffic_config=dict(
+                type="dict",
+                options=dict(
+                    traffic_split_always_latest=dict(
+                        type="dict",
+                    ),
+                    traffic_split_manual=dict(
+                        type="dict",
+                        options=dict(
+                            targets=dict(
+                                type="list",
+                                elements="dict",
+                                options=dict(
+                                    percent=dict(
+                                        type="int",
+                                        required=True,
+                                    ),
+                                    runtime_revision_name=dict(
+                                        type="str",
+                                        required=True,
+                                    ),
+                                ),
+                            )
+                        ),
+                    ),
+                ),
+                mutually_exclusive=[("traffic_split_always_latest", "traffic_split_manual")],
             ),
         )
     )

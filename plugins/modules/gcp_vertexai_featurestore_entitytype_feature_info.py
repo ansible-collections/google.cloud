@@ -37,6 +37,7 @@ description:
   - Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature that describes apple.
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_vertexai_featurestore_entitytype_feature_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features)'
@@ -48,19 +49,13 @@ options:
     required: true
     type: str
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP vertexai.FeaturestoreEntitytypeFeature resources
+short_description: List VertexAI.FeaturestoreEntitytypeFeature resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -127,11 +122,6 @@ resources:
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
-# BEGIN Custom imports
-import re
-
-# END Custom imports
-
 ################################################################################
 # Main
 ################################################################################
@@ -171,15 +161,6 @@ def main():
     )
 
     filter_exprs = module.params.get("filters") or []
-
-    # BEGIN pre_read custom code
-    # extract region from entitytype
-    pattern = r"projects/(.+)/locations/(.+)/featurestores/(.+)/entityTypes/(.+)"
-    match = re.search(pattern, str(module.params.get("entitytype")))
-    if match:
-        info.url_params["region"] = match.group(2)
-
-    # END pre_read custom code
 
     link = info.build_link("list")
     resources = info.list(link, key="features", filters=filter_exprs)

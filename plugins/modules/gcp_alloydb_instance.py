@@ -102,7 +102,7 @@ options:
     description:
       - Identifies the alloydb cluster.
       - Must be in the format 'projects/{project}/locations/{location}/clusters/{cluster_id}'.
-      - This field is a reference to a Cluster resource in GCP.
+      - This field is a reference to a Cluster resource.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a Cluster task and then set this field to `{{ name-of-resource }}`.'
       - This property is immutable, to change it, you must delete and recreate the resource.
@@ -256,6 +256,11 @@ options:
           - Track actively running queries.
           - If not set, default value is "off".
         type: bool
+      track_client_address:
+        description:
+          - Track client address for an instance.
+          - If not set, default value is "off".
+        type: bool
       track_wait_event_types:
         description:
           - Record wait event types during query execution for an instance.
@@ -373,27 +378,24 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Alloydb.Instance resource
+short_description: Manages a Alloydb.Instance resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create a basic primary alloydb instance
   google.cloud.gcp_alloydb_instance:
-    instance_id: "{{ resource_name }}"
+    instance_id: my-instance
     state: present
     location: us-central1
     instance_type: PRIMARY
     cluster:
-      name: "projects/{{ gcp_project_number }}/locations/us-central1/clusters/{{ resource_name }}-cluster"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+      name: projects/1234567890/locations/us-central1/clusters/my-cluster
 """  # noqa: E501
 
 RETURN = r"""
@@ -530,6 +532,7 @@ class ObservabilityConfig(gcp_v2.Resource):
             "queryPlansPerMinute": self.request.get("query_plans_per_minute"),
             "recordApplicationTags": self.request.get("record_application_tags"),
             "trackActiveQueries": self.request.get("track_active_queries"),
+            "trackClientAddress": self.request.get("track_client_address"),
             "trackWaitEventTypes": self.request.get("track_wait_event_types"),
             "trackWaitEvents": self.request.get("track_wait_events"),
         }
@@ -786,6 +789,9 @@ def main():
                         type="bool",
                     ),
                     track_active_queries=dict(
+                        type="bool",
+                    ),
+                    track_client_address=dict(
                         type="bool",
                     ),
                     track_wait_event_types=dict(
