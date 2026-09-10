@@ -255,7 +255,11 @@ def main():
 
 def create(module):
     auth = GcpSession(module, 'iam')
-    json_content = return_if_object(module, auth.post(self_link(module), resource_to_request(module)))
+    response = auth.post(self_link(module), resource_to_request(module))
+    if response.status_code == 404:
+        name = replace_resource_dict(module.params['service_account'], 'name')
+        module.fail_json(msg="No such Service Account: %s" % name)
+    json_content = return_if_object(module, response)
     with open(module.params['path'], 'w') as f:
         private_key_contents = to_native(base64.b64decode(json_content['privateKeyData']))
         f.write(private_key_contents)
