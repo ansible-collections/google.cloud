@@ -228,6 +228,11 @@ resources:
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
+# BEGIN Custom imports
+import re
+
+# END Custom imports
+
 ################################################################################
 # Main
 ################################################################################
@@ -267,6 +272,15 @@ def main():
     )
 
     filter_exprs = module.params.get("filters") or []
+
+    # BEGIN pre_read custom code
+    # extract region from featurestore
+    pattern = r"projects/(.+)/locations/(.+)/featurestores/(.+)"
+    match = re.search(pattern, str(module.params.get("featurestore")))
+    if match:
+        info.url_params["region"] = match.group(2)
+
+    # END pre_read custom code
 
     link = info.build_link("list")
     resources = info.list(link, key="entityTypes", filters=filter_exprs)
