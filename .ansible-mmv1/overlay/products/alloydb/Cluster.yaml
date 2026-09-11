@@ -54,7 +54,6 @@ samples:
       - name: ansible_setup_vpc_peering
         config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
       - name: ansible_setup_cluster
-      - name: ansible_setup_secondary_cluster
       - name: ansible_test_cluster
       - name: ansible_test_secondary_cluster
       - name: ansible_teardown_secondary_cluster
