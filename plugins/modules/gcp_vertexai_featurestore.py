@@ -355,7 +355,7 @@ def main():
 
     # --------- BEGIN pre-read custom code ---------
     # if this comes from a registered variable, strip down to base name
-    request["name"] = request["name"].split("/")[-1]
+    resource.url_params["name"] = request["name"].split("/")[-1]
 
     # --------- END pre-read custom code ---------
 

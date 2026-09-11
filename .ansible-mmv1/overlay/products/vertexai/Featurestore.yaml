@@ -32,7 +32,7 @@ properties:
 custom_code:
   pre_read: |
     # if this comes from a registered variable, strip down to base name
-    request["name"] = request["name"].split("/")[-1]
+    resource.url_params["name"] = request["name"].split("/")[-1]
 
   pre_delete: |
     if request.get("force_destroy"):
