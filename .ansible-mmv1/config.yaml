@@ -3,8 +3,13 @@ min-version: beta
 git:
   url: https://github.com/GoogleCloudPlatform/magic-modules
   dir: magic-modules
-  rev: origin/main
-  pull: true
+  # commit d3fb38b1ccca391c45fd2cbc00a67e4e2cf5d72b (HEAD, origin/tpgb-sync, origin/tpg-sync, origin/tgc-sync, origin/tf-oics-sync, origin/main)
+  # Author: Mauricio Alvarez Leon <65101411+BBBmau@users.noreply.github.com>
+  # Date:   Tue Sep 8 19:57:44 2026 +0000
+  #
+  #     Add Vertex AI RagCorpus resource (#18889)
+  rev: d3fb38b1ccca391c45fd2cbc00a67e4e2cf5d72b
+  pull: false
 
 # Optional mmv1 overlay (layout: products/, templates/) merged over base
 overlay: overlay
