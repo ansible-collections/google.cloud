@@ -83,14 +83,14 @@ def diff_action_groups(module_files, meta):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    logging.info("Loading plugin filenames from {}".format(MODULE_DIR))
+    logging.info("Loading plugin filenames from %s", MODULE_DIR)
     warnings = []
     module_files = []
     for fn in glob.glob(os.path.join(MODULE_DIR, "*.py")):
         module_files.append(os.path.basename(os.path.splitext(fn)[0]))
     module_files.sort()
 
-    logging.info("Loading runtime meta from {}/runtime.yml".format(META_DIR))
+    logging.info("Loading runtime meta from %s/runtime.yml", META_DIR)
     try:
         meta = yaml.safe_load(open(os.path.join(META_DIR, "runtime.yml")).read())
     except Exception as e:

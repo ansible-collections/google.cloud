@@ -1,0 +1,16 @@
+---
+samples:
+  - name: ansible_test_endpoint
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_endpoint
+      - name: ansible_test_endpoint
+      - name: ansible_teardown_endpoint
+  - name: ansible_doc_endpoint_network
+    exclude_test: true
+    steps:
+      - name: ansible_doc_endpoint_network

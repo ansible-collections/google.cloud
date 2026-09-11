@@ -1,0 +1,5 @@
+- name: Create Scaled RAG Engine Config
+  google.cloud.gcp_vertexai_rag_engine_config:
+    state: absent
+    rag_managed_config: unprovisioned
+    region: us-central1

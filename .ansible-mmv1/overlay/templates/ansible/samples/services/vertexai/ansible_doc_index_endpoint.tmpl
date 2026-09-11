@@ -1,0 +1,6 @@
+- name: Create Index Endpoint
+  google.cloud.gcp_vertexai_index_endpoint:
+    state: present
+    display_name: myidxep
+    region: us-central1
+    network: projects/my-project/global/networks/my-network

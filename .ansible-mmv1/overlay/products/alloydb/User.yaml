@@ -1,0 +1,24 @@
+---
+update_url: "{cluster}/users/{user_id}"
+update_verb: PATCH
+custom_code:
+  custom_import: _drop
+samples:
+  - name: ansible_doc_user
+    exclude_test: true
+    steps:
+      - name: ansible_doc_user
+  - name: ansible_test_user
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_cluster
+      - name: ansible_setup_instance
+      - name: ansible_setup_user
+      - name: ansible_test_user
+      - name: ansible_teardown_user
+      - name: ansible_teardown_instance
+      - name: ansible_teardown_cluster

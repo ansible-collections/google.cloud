@@ -1,0 +1,35 @@
+custom_code:
+  pre_read: |
+    # for this module, we're hitting the list endpoint and filtering on display name
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
+
+  post_read: |
+    # if there are existing datasets, the call would have returned a list
+    if not gcp_v2.empty(existing_obj):
+        for ds in existing_obj.get("datasets", []):
+            if ds.get("displayName") == request.get("display_name"):
+                existing_obj = ds
+                break
+
+  pre_update: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"]
+
+    # need to build the link with the updateMask
+    update_link = resource.build_link("update")
+    update_link += "?updateMask=" + ",".join(resource.dot_fields())
+
+  pre_delete: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"]
+
+samples:
+  - name: ansible_doc_dataset
+    exclude_test: true
+    steps:
+      - name: ansible_doc_dataset
+  - name: ansible_test_dataset
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_test_dataset
+      - name: ansible_teardown_dataset

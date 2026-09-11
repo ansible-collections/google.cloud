@@ -1,0 +1,95 @@
+# Git settings for the magic-modules repository
+min-version: beta
+git:
+  url: https://github.com/GoogleCloudPlatform/magic-modules
+  dir: magic-modules
+  # commit d3fb38b1ccca391c45fd2cbc00a67e4e2cf5d72b (HEAD, origin/tpgb-sync, origin/tpg-sync, origin/tgc-sync, origin/tf-oics-sync, origin/main)
+  # Author: Mauricio Alvarez Leon <65101411+BBBmau@users.noreply.github.com>
+  # Date:   Tue Sep 8 19:57:44 2026 +0000
+  #
+  #     Add Vertex AI RagCorpus resource (#18889)
+  rev: d3fb38b1ccca391c45fd2cbc00a67e4e2cf5d72b
+  pull: false
+
+# Optional mmv1 overlay (layout: products/, templates/) merged over base
+overlay: overlay
+
+# Optional but strongly suggested ansible templates directory
+templates: templates
+
+# output code settings
+output: ..
+ansible:
+  module-prefix: gcp_
+  authors:
+    - Google Inc. (@googlecloudplatform)
+  doc-fragments:
+    - google.cloud.gcp
+  info-doc-fragments:
+    - google.cloud.gcp
+    - google.cloud.info
+
+# Overwrite existing files
+overwrite: true
+
+# Products to generate
+# Each product can optionally specify:
+#   resources   - list of resources to generate (omit or leave empty for all)
+#   skip-code   - ['*'] to skip code generation for every resource in the product,
+#                 or a list of resource names to skip selectively
+#   skip-tests  - ['*'] to skip test generation for every resource in the product,
+#                 or a list of resource names to skip selectively
+#   skip-info   - ['*'] to skip info module generation for every resource in the product,
+#                 or a list of resource names to skip selectively
+products:
+  - name: alloydb
+    resources:
+      - Backup
+      - Cluster
+      - Instance
+      - User
+  - name: cloudbuild
+    skip-tests:
+      - "*"
+    skip-info:
+      - "*"
+    resources:
+      - Trigger
+  - name: cloudbuildv2
+    skip-tests:
+      - "*"
+    resources:
+      - Connection
+      - Repository
+  - name: colab
+    resources:
+      - NotebookExecution
+      - Runtime
+      - RuntimeTemplate
+      - Schedule
+  - name: vertexai
+    # skip-tests:
+    #   - Endpoint   # or skip-tests: ['*'] for all resources
+    skip-info:
+      - EndpointWithModelGardenDeployment # Should be using Endpoint instead
+      - IndexEndpointDeployedIndex # Should use IndexEndpoint instead
+      - RagEngineConfig # Deprecated / no way to query
+    resources:
+      - Dataset
+      - DeploymentResourcePool
+      - Endpoint
+      - EndpointWithModelGardenDeployment
+      - FeatureGroup
+      - FeatureGroupFeature
+      - FeatureOnlineStore
+      - FeatureOnlineStoreFeatureview
+      - Featurestore
+      - FeaturestoreEntitytype
+      - FeaturestoreEntitytypeFeature
+      - Index
+      - IndexEndpoint
+      - IndexEndpointDeployedIndex
+      - MetadataStore
+      - RagEngineConfig
+      - ReasoningEngine
+      - Tensorboard

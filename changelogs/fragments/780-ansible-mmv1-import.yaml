@@ -1,0 +1,10 @@
+---
+trivial:
+  - ci - correctly set integration targets for GHA for modules without integration tests
+  - ansible-mmv1 - imported config, overlays, and templates from github.com/thekad/ansible-mmv1
+minor_changes:
+  - gcp_alloydb_* - update to most recent version generated from MMv1
+  - gcp_cloudbuild_trigger - update to most recent version generated from MMv1
+  - gcp_cloudbuildv2_* - update to most recent version generated from MMv1
+  - gcp_colab_* - update to most recent version generated from MMv1
+  - gcp_vertexai_* - update to most recent version generated from MMv1

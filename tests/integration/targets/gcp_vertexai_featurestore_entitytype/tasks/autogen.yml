@@ -14,86 +14,72 @@
       ansible.builtin.debug:
         msg: "Setup"
 
-    - name: Create test network
-      google.cloud.gcp_compute_network:
-        name: "{{ resource_name }}"
+    - name: Create Featurestore
+      google.cloud.gcp_vertexai_featurestore:
         state: present
-        auto_create_subnetworks: true
+        name: "{{ resource_name | regex_replace('-', '_') }}_fset"
+        region: us-central1
+        online_serving_config:
+          fixed_node_count: 1
+        labels:
+          env: ci
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
-      register: _network
+      register: _myfs
 
-    - name: Test case
-      block:
-        - name: Create Featurestore
-          google.cloud.gcp_vertexai_featurestore:
-            state: present
-            name: "{{ resource_name | regex_replace('-', '_') }}_et"
-            online_serving_config:
-              fixed_node_count: 2
-            region: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _myfs
+    - name: Create Featurestore Entitytype
+      google.cloud.gcp_vertexai_featurestore_entitytype:
+        state: present
+        name: "{{ resource_name | regex_replace('-', '_') }}_fset"
+        featurestore: "{{ _myfs.name }}"
+        labels:
+          env: ci
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _myfset
 
-        - name: Create Featurestore Entitytype
-          google.cloud.gcp_vertexai_featurestore_entitytype:
-            state: present
-            name: "{{ resource_name | regex_replace('-', '_') }}"
-            featurestore: "{{ _myfs.name }}"
-            labels:
-              env: ci
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _myfset
+    - name: Test
+      ansible.builtin.debug:
+        msg: "Test"
 
-        - name: Fetch Featurestore Entitytype info
-          google.cloud.gcp_vertexai_featurestore_entitytype_info:
-            featurestore: "{{ _myfs.name }}"
-            filters:
-              - labels.env = "ci"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _myfset_info
+    - name: Fetch Featurestore Entitytype info
+      google.cloud.gcp_vertexai_featurestore_entitytype_info:
+        featurestore: "{{ _myfs.name }}"
+        filters:
+          - labels.env = "ci"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _myfset_info
 
-        - name: Run assertions
-          ansible.builtin.assert:
-            that:
-              - _myfset.changed
-              - _myfset_info.resources | length >= 1
-
-      always:
-        - name: Delete Featurestore Entitytype
-          google.cloud.gcp_vertexai_featurestore_entitytype:
-            state: absent
-            name: "{{ resource_name | regex_replace('-', '_') }}"
-            featurestore: "{{ _myfs.name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-
-        - name: Delete Featurestore
-          google.cloud.gcp_vertexai_featurestore:
-            state: absent
-            name: "{{ resource_name | regex_replace('-', '_') }}_et"
-            region: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
+    - name: Run assertions
+      ansible.builtin.assert:
+        that:
+          - _myfset.changed | bool
+          - _myfset_info.resources | length >= 1
 
   always:
-    - name: Destroy test network
-      google.cloud.gcp_compute_network:
-        name: "{{ resource_name }}"
-        state: absent
-        project: "{{ gcp_project }}"
-        auth_kind: "{{ gcp_cred_kind }}"
-        service_account_file: "{{ gcp_cred_file }}"
-
     - name: Teardown
       ansible.builtin.debug:
         msg: "Teardown"
+
+    - name: Delete Featurestore Entitytype
+      google.cloud.gcp_vertexai_featurestore_entitytype:
+        state: absent
+        name: "{{ resource_name | regex_replace('-', '_') }}_fset"
+        featurestore: "{{ _myfs.name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+
+    - name: Delete Featurestore
+      google.cloud.gcp_vertexai_featurestore:
+        state: absent
+        name: "{{ resource_name | regex_replace('-', '_') }}_fset"
+        region: us-central1
+        force_destroy: true
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"

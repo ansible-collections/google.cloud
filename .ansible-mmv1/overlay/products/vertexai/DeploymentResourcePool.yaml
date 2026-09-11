@@ -1,0 +1,45 @@
+---
+update_verb: PATCH
+samples:
+  - name: ansible_doc_deployment_resource_pool
+    exclude_test: true
+    steps:
+      - name: ansible_doc_deployment_resource_pool
+  - name: ansible_test_deployment_resource_pool
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_test_deployment_resource_pool
+      - name: ansible_teardown_deployment_resource_pool
+custom_code:
+  custom_import: |
+    import copy
+
+  pre_create: |
+    resource._action = "create"
+
+  pre_update: |
+    resource._action = "update"
+    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
+
+  pre_delete: |
+    resource._action = "delete"
+
+  encoder: |
+    self.debug(func="encoder", request=request, encoded=False)
+    action = getattr(self, "_action", "read")
+    r = {}
+    if action == "create":
+        r = {
+          "deploymentResourcePool": copy.deepcopy(request),
+          "deploymentResourcePoolId": request["name"],
+        }
+    elif action == "read":
+        r = copy.deepcopy(request)
+    elif action == "update":
+        r = copy.deepcopy(request)
+    else:
+        pass
+
+    self.debug(func="encoder", request=request, encoded=True)
+
+    return r

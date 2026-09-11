@@ -183,23 +183,23 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.Index resource
+short_description: Manages a VertexAI.Index resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Index
   google.cloud.gcp_vertexai_index:
     state: present
-    display_name: "{{ resource_name }}"
+    display_name: my-index
     region: us-central1
     metadata:
-      contents_delta_uri: "gs://{{ resource_name }}/contents"
+      contents_delta_uri: "gs://my-bucket/contents"
       config:
         dimensions: 2
         approximate_neighbors_count: 150
@@ -209,19 +209,16 @@ EXAMPLES = r"""
           tree_ah_config:
             leaf_node_embedding_count: 500
             leaf_nodes_to_search_percent: 7
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
 - name: Create Index with streaming updates
   google.cloud.gcp_vertexai_index:
     state: present
-    display_name: "{{ resource_name }}"
+    display_name: my-index
     region: us-central1
     metadata:
-      contents_delta_uri: "gs://{{ resource_name }}/contents"
+      contents_delta_uri: "gs://my-bucket/contents"
       config:
         dimensions: 2
         shard_size: SHARD_SIZE_LARGE
@@ -230,9 +227,6 @@ EXAMPLES = r"""
         algorithm_config:
           brute_force_config: {}
     index_update_method: STREAM_UPDATE
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -684,14 +678,14 @@ def main():
 
                     update_mask = []
                     metadata_mask = []
-                    req_metadata = gcp_v2.remove_empties(resource.to_request().get("metadata"))
-                    obj_metadata = gcp_v2.remove_empties(existing_obj.get("metadata"))
+                    req_metadata = gcp_v2.remove_empties(resource.to_request().get("metadata")) or {}
+                    obj_metadata = gcp_v2.remove_empties(existing_obj.get("metadata")) or {}
                     gcp_v2.debug(module, req_metadata=req_metadata, obj_metadata=obj_metadata)
                     if req_metadata.get("contentsDeltaUri") != obj_metadata.get("contentsDeltaUri"):
                         metadata_mask.append("metadata.contentsDeltaUri")
                     if req_metadata.get("isCompleteOverwrite", False) != obj_metadata.get("isCompleteOverwrite", False):
                         metadata_mask.append("metadata.isCompleteOverwrite")
-                    if not gcp_v2.deep_equal(req_metadata["config"], obj_metadata["config"]):
+                    if not gcp_v2.deep_equal(req_metadata.get("config") or {}, obj_metadata.get("config") or {}):
                         metadata_mask.append("metadata.config")
 
                     # if description is set, we need to update it
@@ -736,6 +730,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

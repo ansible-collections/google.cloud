@@ -1,0 +1,98 @@
+---
+samples:
+  - name: ansible_doc_runtime_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_runtime_basic
+  - name: ansible_doc_runtime_stopped
+    exclude_test: true
+    steps:
+      - name: ansible_doc_runtime_stopped
+  - name: ansible_test_runtime
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_runtime_template
+        vars:
+          suffix: rt
+      - name: ansible_test_runtime
+      - name: ansible_teardown_runtime
+      - name: ansible_teardown_runtime_template
+        vars:
+          suffix: rt
+virtual_fields:
+  - name: desired_state
+    description: |
+      Desired state of the Colab Runtime. Set this field to `RUNNING` to start the runtime, and `STOPPED` to stop it.
+    type: Enum
+    enum_values:
+      - RUNNING
+      - STOPPED
+    default_value: RUNNING
+parameters:
+  - name: name
+    type: String
+    url_param_only: true
+    description: The resource name of the Runtime
+    immutable: true
+    required: true
+custom_code:
+  pre_read: |
+    def change_state(state_link, async_uri, resource, retries, verb):
+        """Change the state of the runtime"""
+
+        resource._state = "update"
+        async_state_func = getattr(resource, "post_async")
+        return async_state_func(state_link + f":{verb}", async_uri=async_uri, retries=retries)
+
+  custom_import: |
+    import copy
+    import time
+
+  encoder: |
+    if self._state in ["absent", "update"]:  # no encoding when making a DELETE or POST request
+        return {}
+    self.debug(func="encoder", encoded=False, request=request)
+    r = {}
+    tmp = copy.deepcopy(request)
+    tplRef = tmp.pop("notebookRuntimeTemplateRef", None)
+    if tplRef:
+        r["notebookRuntimeTemplate"] = tplRef["notebookRuntimeTemplate"]  # sub-field is required
+    r["notebookRuntime"] = tmp
+    self.debug(func="encoder", encoded=True, request=r)
+
+    return r
+
+  post_create: |
+    # stop runtime if desired_state is STOPPED
+    if module.params.get("desired_state") == "STOPPED":
+        gcp_v2.debug(module, msg="Changing runtime state to STOPPED")
+        state_link = resource.build_link("update")
+        new_obj = change_state(state_link, op_configs.update.async_uri, resource, op_configs.update.timeout, "stop")
+    # wait for runtime to reach desired state
+    while True:
+        new_obj = resource.get(read_link)
+        gcp_v2.debug(module, polling=new_obj, action="post_create")
+        if new_obj.get("runtimeState") == module.params.get("desired_state"):
+            break
+        time.sleep(1)
+
+  custom_update: |
+    desired_state = module.params.get("desired_state")
+    state_link = resource.build_link("update")
+    if desired_state != existing_obj.get("runtimeState"):
+        gcp_v2.debug(module, msg=f"Changing runtime state to {desired_state}")
+        new_obj = change_state(state_link, op_configs.update.async_uri, resource, op_configs.update.timeout, "start" if desired_state == "RUNNING" else "stop")
+        # wait for runtime to reach desired state
+        while True:
+            new_obj = resource.get(read_link)
+            gcp_v2.debug(module, polling=new_obj, action="custom_update")
+            if new_obj.get("runtimeState") == module.params.get("desired_state"):
+                break
+            time.sleep(1)
+    auto_upgrade = module.params.get("auto_upgrade", False)
+    is_upgradable = existing_obj.get("isUpgradable", False)
+    if auto_upgrade and is_upgradable:
+        gcp_v2.debug(module, msg="Upgrading runtime")
+        new_obj = change_state(state_link, op_configs.update.async_uri, resource, op_configs.update.timeout, "upgrade")

@@ -1,0 +1,6 @@
+- name: Create Index Endpoint with public endpoint
+  google.cloud.gcp_vertexai_index_endpoint:
+    state: present
+    display_name: my-index-endpoint
+    region: us-central1
+    public_endpoint_enabled: true  # public endpoints don't require VPC network

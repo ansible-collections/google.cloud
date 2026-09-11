@@ -1,0 +1,10 @@
+- name: Create user for cluster
+  google.cloud.gcp_alloydb_user:
+    user_id: superuser
+    state: present
+    user_type: ALLOYDB_BUILT_IN
+    password: Test123Test
+    database_roles:
+      - alloydbsuperuser
+    cluster:
+      name: projects/my-project/locations/us-central1/clusters/my-cluster

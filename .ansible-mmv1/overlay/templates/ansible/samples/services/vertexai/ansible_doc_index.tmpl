@@ -1,0 +1,16 @@
+- name: Create Index
+  google.cloud.gcp_vertexai_index:
+    state: present
+    display_name: my-index
+    region: us-central1
+    metadata:
+      contents_delta_uri: "gs://my-bucket/contents"
+      config:
+        dimensions: 2
+        approximate_neighbors_count: 150
+        shard_size: SHARD_SIZE_SMALL
+        distance_measure_type: DOT_PRODUCT_DISTANCE
+        algorithm_config:
+          tree_ah_config:
+            leaf_node_embedding_count: 500
+            leaf_nodes_to_search_percent: 7

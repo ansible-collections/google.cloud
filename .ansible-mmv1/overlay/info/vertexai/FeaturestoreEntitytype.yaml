@@ -1,0 +1,9 @@
+custom_code:
+  custom_import: |
+    import re
+  pre_read: |
+    # extract region from featurestore
+    pattern = r"projects/(.+)/locations/(.+)/featurestores/(.+)"
+    match = re.search(pattern, str(module.params.get("featurestore")))
+    if match:
+        info.url_params["region"] = match.group(2)

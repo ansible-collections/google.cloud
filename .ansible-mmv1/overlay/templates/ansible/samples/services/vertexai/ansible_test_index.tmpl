@@ -1,0 +1,73 @@
+- name: Fetch index info
+  google.cloud.gcp_vertexai_index_info:
+    region: us-central1
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myidx_info
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _myidx.changed | bool
+      - _myidx_info.resources | length >= 1
+
+- name: Attempt to update description and metadata.contentsDeltaUri Index
+  google.cloud.gcp_vertexai_index:
+    state: present
+    display_name: "{{`{{ resource_name }}`}}"
+    description: "Updated description"
+    region: us-central1
+    metadata:
+      contents_delta_uri: "gs://{{`{{ resource_name }}`}}/contents-2"
+      config:
+        dimensions: 2
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myidx
+  ignore_errors: true
+
+- name: Previous task should have failed
+  ansible.builtin.assert:
+    that:
+      - _myidx.failed | bool
+
+- name: Update Index description only
+  google.cloud.gcp_vertexai_index:
+    state: present
+    display_name: "{{`{{ resource_name }}`}}"
+    description: "Updated description"
+    metadata:
+      config:
+        dimensions: 2
+    region: us-central1
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myidx
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _myidx.changed | bool
+      - _myidx.description == "Updated description"
+
+- name: Update Index metadata only
+  google.cloud.gcp_vertexai_index:
+    state: present
+    display_name: "{{`{{ resource_name }}`}}"
+    region: us-central1
+    metadata:
+      contents_delta_uri: "gs://{{`{{ resource_name }}`}}/contents-2"
+      config:
+        dimensions: 2
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myidx
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _myidx.changed | bool

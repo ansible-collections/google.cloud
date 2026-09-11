@@ -77,7 +77,7 @@ options:
               - Otherwise no alert will be triggered for that feature.
               - The default value is 0.3.
             required: true
-            type: str
+            type: float
         type: dict
       import_features_analysis:
         description:
@@ -116,7 +116,7 @@ options:
               - Otherwise no alert will be triggered for that feature.
               - The default value is 0.3.
             required: true
-            type: str
+            type: float
         type: dict
       snapshot_analysis:
         description:
@@ -176,13 +176,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.FeaturestoreEntitytype resource
+short_description: Manages a VertexAI.FeaturestoreEntitytype resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -190,16 +190,12 @@ EXAMPLES = r"""
   google.cloud.gcp_vertexai_featurestore_entitytype:
     state: present
     name: my_featurestore_entitytype
-    featurestore: "projects/{{ gcp_project }}/locations/{{ gcp_region }}/featurestores/{{ featurestore }}"
-    # featurestore: "{{ _myfs.name }}"  # use previously registered variable
+    featurestore: projects/my-project/locations/us-central1/featurestores/my-fs
     monitoring_config:
       snapshot_analysis:
         disabled: false
         monitoring_interval_days: 1
         staleness_days: 30
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -344,7 +340,7 @@ def main():
                         type="dict",
                         options=dict(
                             value=dict(
-                                type="str",
+                                type="float",
                                 required=True,
                             )
                         ),
@@ -364,7 +360,7 @@ def main():
                         type="dict",
                         options=dict(
                             value=dict(
-                                type="str",
+                                type="float",
                                 required=True,
                             )
                         ),
@@ -567,6 +563,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

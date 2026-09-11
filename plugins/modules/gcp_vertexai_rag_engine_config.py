@@ -72,13 +72,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.RagEngineConfig resource
+short_description: Manages a VertexAI.RagEngineConfig resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -87,9 +87,6 @@ EXAMPLES = r"""
     state: present
     rag_managed_config: basic
     region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -98,9 +95,6 @@ EXAMPLES = r"""
     state: present
     rag_managed_config: scaled
     region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -109,9 +103,6 @@ EXAMPLES = r"""
     state: absent
     rag_managed_config: unprovisioned
     region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -156,7 +147,7 @@ class VertexAI(gcp_v2.Resource):
         "Custom encoder function, mutates the request object before it is sent to the API."
 
         # --------- BEGIN custom encoder code ---------
-        tier = request.get("ragManagedDbConfig")
+        tier = request.get("ragManagedDbConfig") or "basic"
         if getattr(self, "_state", "present") == "absent":
             tier = "unprovisioned"
         return {
@@ -170,6 +161,8 @@ class VertexAI(gcp_v2.Resource):
         "Custom decoder function, mutates the response object before it is returned to the module caller."
 
         # --------- BEGIN custom decoder code ---------
+        if not response or "ragManagedDbConfig" not in response:
+            return response
         tier = next(iter(response["ragManagedDbConfig"]))
         return {"name": response.get("name"), "ragManagedDbConfig": {tier.lower(): {}}}
 
@@ -369,6 +362,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

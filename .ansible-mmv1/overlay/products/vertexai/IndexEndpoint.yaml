@@ -1,0 +1,43 @@
+---
+samples:
+  - name: ansible_doc_index_endpoint
+    exclude_test: true
+    steps:
+      - name: ansible_doc_index_endpoint
+  - name: ansible_doc_index_endpoint_with_public_endpoint
+    exclude_test: true
+    steps:
+      - name: ansible_doc_index_endpoint_with_public_endpoint
+  - name: ansible_test_index_endpoint
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_index_endpoint
+      - name: ansible_test_index_endpoint
+      - name: ansible_teardown_index_endpoint
+custom_code:
+  pre_read: |
+    # for this module, we're hitting the list endpoint and filtering on display name and rebuild the link
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
+
+  post_read: |
+    # if there are existing indexes, the call would have returned a list
+    if not gcp_v2.empty(existing_obj):
+        for idx in existing_obj.get("indexEndpoints", []):
+            if idx.get("displayName") == request.get("display_name"):
+                existing_obj = idx
+                break
+
+  pre_update: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+
+    # finally, need to build the updateMask for the fields in our module
+    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
+
+  pre_delete: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"].split("/")[-1]

@@ -1,0 +1,10 @@
+- name: Create Feature Online Store
+  google.cloud.gcp_vertexai_feature_online_store:
+    state: present
+    name: my_feature_online_store
+    bigtable:
+      auto_scaling:
+        min_node_count: 1
+        max_node_count: 3
+        cpu_utilization_target: 50
+    region: us-central1

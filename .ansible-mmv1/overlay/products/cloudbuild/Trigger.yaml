@@ -1,0 +1,46 @@
+---
+custom_code:
+  pre_read: |
+    # if set from a registered variable, get the resource basename
+    resource.url_params["trigger_id"] = module.params["name"].split("/")[-1]
+
+  pre_create: _drop
+
+  pre_delete: |
+    # set the trigger ID from the existing object's ID before delete
+    if existing_obj.get("id"):
+      resource.url_params["trigger_id"] = existing_obj["id"]
+    else:
+      resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+
+  pre_update: |
+    # set the trigger ID from the existing object's ID before update
+    if existing_obj.get("id"):
+      resource.url_params["trigger_id"] = existing_obj["id"]
+    else:
+      resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+samples:
+  - name: ansible_doc_trigger_filename
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_filename
+  - name: ansible_doc_trigger_build
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_build
+  - name: ansible_doc_trigger_pubsub_config
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_pubsub_config
+  - name: ansible_doc_trigger_webhook_config
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_webhook_config
+  - name: ansible_doc_trigger_manual
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_manual
+  - name: ansible_doc_trigger_repo
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_repo
