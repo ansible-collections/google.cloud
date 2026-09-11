@@ -678,14 +678,14 @@ def main():
 
                     update_mask = []
                     metadata_mask = []
-                    req_metadata = gcp_v2.remove_empties(resource.to_request().get("metadata"))
-                    obj_metadata = gcp_v2.remove_empties(existing_obj.get("metadata"))
+                    req_metadata = gcp_v2.remove_empties(resource.to_request().get("metadata")) or {}
+                    obj_metadata = gcp_v2.remove_empties(existing_obj.get("metadata")) or {}
                     gcp_v2.debug(module, req_metadata=req_metadata, obj_metadata=obj_metadata)
                     if req_metadata.get("contentsDeltaUri") != obj_metadata.get("contentsDeltaUri"):
                         metadata_mask.append("metadata.contentsDeltaUri")
                     if req_metadata.get("isCompleteOverwrite", False) != obj_metadata.get("isCompleteOverwrite", False):
                         metadata_mask.append("metadata.isCompleteOverwrite")
-                    if not gcp_v2.deep_equal(req_metadata["config"], obj_metadata["config"]):
+                    if not gcp_v2.deep_equal(req_metadata.get("config") or {}, obj_metadata("config") or {}):
                         metadata_mask.append("metadata.config")
 
                     # if description is set, we need to update it
