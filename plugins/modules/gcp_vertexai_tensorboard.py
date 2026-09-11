@@ -292,8 +292,10 @@ def main():
         for tb in existing_obj.get("tensorboards", []):
             if tb.get("displayName") == request.get("display_name"):
                 existing_obj = tb
+                resource.url_params["name"] = existing_obj["name"].split("/")[-1]
                 break
-        resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+        else:
+            existing_obj = {}
 
     # --------- END post-read custom code ---------
 
