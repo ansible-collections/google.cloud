@@ -28,7 +28,7 @@ custom_code:
         metadata_mask.append("metadata.contentsDeltaUri")
     if req_metadata.get("isCompleteOverwrite", False) != obj_metadata.get("isCompleteOverwrite", False):
         metadata_mask.append("metadata.isCompleteOverwrite")
-    if not gcp_v2.deep_equal(req_metadata.get("config") or {}, obj_metadata("config") or {}):
+    if not gcp_v2.deep_equal(req_metadata.get("config") or {}, obj_metadata.get("config") or {}):
         metadata_mask.append("metadata.config")
 
     # if description is set, we need to update it
