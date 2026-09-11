@@ -2481,9 +2481,9 @@ def main():
                 # --------- BEGIN pre-delete custom code ---------
                 # set the trigger ID from the existing object's ID before delete
                 if existing_obj.get("id"):
-                    module.url_params["trigger_id"] = existing_obj["id"]
+                    resource.url_params["trigger_id"] = existing_obj["id"]
                 else:
-                    module.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+                    resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
 
                 # --------- END pre-delete custom code ---------
                 if delete_link == "":
@@ -2520,9 +2520,9 @@ def main():
                     # --------- BEGIN pre-update custom code ---------
                     # set the trigger ID from the existing object's ID before update
                     if existing_obj.get("id"):
-                        module.url_params["trigger_id"] = existing_obj["id"]
+                        resource.url_params["trigger_id"] = existing_obj["id"]
                     else:
-                        module.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+                        resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
 
                     # --------- END pre-update custom code ---------
                     if update_link == "":

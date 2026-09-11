@@ -9,16 +9,16 @@ custom_code:
   pre_delete: |
     # set the trigger ID from the existing object's ID before delete
     if existing_obj.get("id"):
-      module.url_params["trigger_id"] = existing_obj["id"]
+      resource.url_params["trigger_id"] = existing_obj["id"]
     else:
-      module.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+      resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
 
   pre_update: |
     # set the trigger ID from the existing object's ID before update
     if existing_obj.get("id"):
-      module.url_params["trigger_id"] = existing_obj["id"]
+      resource.url_params["trigger_id"] = existing_obj["id"]
     else:
-      module.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
+      resource.url_params["trigger_id"] = existing_obj["name"].split("/")[-1]
 samples:
   - name: ansible_doc_trigger_filename
     exclude_test: true
