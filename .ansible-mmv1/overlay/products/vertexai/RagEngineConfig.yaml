@@ -33,7 +33,7 @@ properties:
     required: false
 custom_code:
   encoder: |
-    tier = request.get("ragManagedDbConfig")
+    tier = request.get("ragManagedDbConfig") or "basic"
     if getattr(self, "_state", "present") == "absent":
         tier = "unprovisioned"
     return {
@@ -44,6 +44,8 @@ custom_code:
     }
 
   decoder: |
+    if not response or "ragManagedDbConfig" not in response:
+      return response
     tier = next(iter(response["ragManagedDbConfig"]))
     return {
         "name": response.get("name"),

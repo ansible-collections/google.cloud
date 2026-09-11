@@ -147,7 +147,7 @@ class VertexAI(gcp_v2.Resource):
         "Custom encoder function, mutates the request object before it is sent to the API."
 
         # --------- BEGIN custom encoder code ---------
-        tier = request.get("ragManagedDbConfig")
+        tier = request.get("ragManagedDbConfig") or "basic"
         if getattr(self, "_state", "present") == "absent":
             tier = "unprovisioned"
         return {
@@ -161,6 +161,8 @@ class VertexAI(gcp_v2.Resource):
         "Custom decoder function, mutates the response object before it is returned to the module caller."
 
         # --------- BEGIN custom decoder code ---------
+        if not response or "ragManagedDbConfig" not in response:
+            return response
         tier = next(iter(response["ragManagedDbConfig"]))
         return {"name": response.get("name"), "ragManagedDbConfig": {tier.lower(): {}}}
 
