@@ -319,6 +319,45 @@ def concatenates_a_literal(expression):
     return any(re.fullmatch(r'"[^"]*"', operand) for operand in operands)
 
 
+SAFE_FILTERS = ("ascii_downcase", "ascii_upcase", "tostring", "tojson",
+                "tonumber", "length", "ltrimstr", "rtrimstr")
+
+
+def balanced_prefix(text, close):
+    """Inner text of the parenthesised group whose ``)`` is at index ``close``.
+
+    Scans backwards, so it copes with the parens inside a jq regex literal such
+    as ``capture("(?<t>[^/]+)")`` -- those are balanced, which is what matters.
+    """
+    depth = 0
+    index = close
+    while index >= 0:
+        if text[index] == ")":
+            depth += 1
+        elif text[index] == "(":
+            depth -= 1
+            if depth == 0:
+                return text[index + 1:close]
+        index -= 1
+    return None
+
+
+def pipeline_is_safe(alternative, paths):
+    """``X | ascii_downcase`` cannot be null when ``X`` is proven non-null."""
+    stages = split_top(alternative, "|")
+    if len(stages) < 2:
+        return False
+    head = stages[0]
+    while outer_parens_match(head):
+        head = head[1:-1].strip()
+    if head not in paths:
+        return False
+    return all(
+        any(stage.startswith(name) for name in SAFE_FILTERS)
+        for stage in stages[1:]
+    )
+
+
 def proven_non_null(query):
     """What the query proves before it builds the record.
 
@@ -349,20 +388,44 @@ def proven_non_null(query):
             record(inner.group(1))
         if re.search(r"(?:^|[\s(])\.\s*!=\s*null", condition):
             paths.add(".")
+        # `select((.x | type) == "string")` -- null has type "null", so passing
+        # this proves .x is not null.
+        for inner in re.finditer(
+            r"\(\s*(\$?[\w.\[\]]+)\s*\|\s*type\s*\)\s*==", condition
+        ):
+            paths.add(inner.group(1))
+        # `select(.x | test("..."))` -- test() raises on null, so reaching the
+        # record at all proves .x was a string.
+        for inner in re.finditer(
+            r"^\s*(\$?[\w.\[\]]+)\s*\|\s*(?:test|startswith|endswith)\b",
+            condition,
+        ):
+            paths.add(inner.group(1))
     # `if (.a // null) != null and (.b // null) != null then ...`
     for match in re.finditer(r"(\([^()]*\))\s*!=\s*null", source):
         record(match.group(1))
-    # `(.kind // "missing") as $kind` -- the variable cannot be null.
+
+    # Variable bindings. `(.kind // "missing") as $kind` cannot be null, and
+    # neither can `($data.id | ascii_downcase) as $arm_id` once `$data.id` is
+    # proven. A binding can depend on an earlier binding, so iterate to a fixed
+    # point rather than making a single pass.
+    bindings = []
+    for match in re.finditer(r"\)\s+as\s+(\$[A-Za-z_]\w*)", source):
+        inner = balanced_prefix(source, match.start())
+        if inner is not None:
+            bindings.append((inner.strip(), match.group(1)))
     for match in re.finditer(
-        r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s+as\s+(\$[A-Za-z_]\w*)", source
+        r"(?<![)\w])(\$?[\w.\[\]]+)\s+as\s+(\$[A-Za-z_]\w*)", source
     ):
-        expression, variable = match.group(1), match.group(2)
-        if re.search(r'//\s*("[^"]*"|\{\}|\[\]|-?\d+|true|false)\s*$', expression.strip()):
-            paths.add(variable)
-    for match in re.finditer(r"(\$?[\w.\[\]]+)\s+as\s+(\$[A-Za-z_]\w*)", source):
-        if match.group(1) in paths:
-            paths.add(match.group(2))
-    return paths, chains
+        bindings.append((match.group(1), match.group(2)))
+
+    while True:
+        before = len(paths)
+        for expression, variable in bindings:
+            if variable not in paths and not can_be_null(expression, (paths, chains)):
+                paths.add(variable)
+        if len(paths) == before:
+            return paths, chains
 
 
 def can_be_null(expression, proven):
@@ -389,6 +452,8 @@ def can_be_null(expression, proven):
             return False            # proven non-null by an earlier guard
         if "tostring" in alternative or "tojson" in alternative:
             return False            # coerced to a string
+        if pipeline_is_safe(alternative, paths):
+            return False            # `<proven> | ascii_downcase` and friends
         if not PATH.findall(alternative):
             return False            # no path reference, cannot be null
 
