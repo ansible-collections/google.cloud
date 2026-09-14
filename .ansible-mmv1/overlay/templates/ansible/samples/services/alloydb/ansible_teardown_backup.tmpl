@@ -1,0 +1,10 @@
+- name: Delete backup
+  google.cloud.gcp_alloydb_backup:
+    backup_id: "{{`{{ resource_name }}`}}"
+    state: absent
+    location: us-central1
+    cluster_name: "projects/{{`{{ gcp_project }}`}}/locations/us-central1/clusters/{{`{{ resource_name }}`}}"
+    type: ON_DEMAND
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"

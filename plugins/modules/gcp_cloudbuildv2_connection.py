@@ -341,13 +341,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Cloudbuildv2.Connection resource
+short_description: Manages a Cloudbuildv2.Connection resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -361,11 +361,8 @@ EXAMPLES = r"""
       app_id: 12345
       app_installation_id: 67890
       app_slug: my-app
-      private_key_secret_version: "projects/{{ gcp_project }}/secrets/github-pk/versions/1"
-      webhook_secret_secret_version: "projects/{{ gcp_project }}/secrets/github-webhook/versions/1"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+      private_key_secret_version: projects/my-project/secrets/github-pk/versions/1
+      webhook_secret_secret_version: projects/my-project/secrets/github-webhook/versions/1
 
 ################################################################################
 
@@ -377,10 +374,7 @@ EXAMPLES = r"""
     github_config:
       app_installation_id: 123456
       authorizer_credential:
-        oauth_token_secret_version: "projects/{{ gcp_project }}/secrets/github-oauth-token/versions/1"
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+        oauth_token_secret_version: projects/my-project/secrets/github-oauth-token/versions/1
 
 ################################################################################
 
@@ -391,14 +385,11 @@ EXAMPLES = r"""
     location: us-central1
     gitlab_config:
       authorizer_credential:
-        user_token_secret_version: "projects/{{ gcp_project }}/secrets/gitlab-api-token/versions/3"
+        user_token_secret_version: projects/my-project/secrets/gitlab-api-token/versions/3
       read_authorizer_credential:
-        user_token_secret_version: "projects/{{ gcp_project }}/secrets/gitlab-read-api-token/versions/1"
-      webhook_secret_secret_version: "projects/{{ gcp_project }}/secrets/gitlab-webhook/versions/4"
+        user_token_secret_version: projects/my-project/secrets/gitlab-read-api-token/versions/1
+      webhook_secret_secret_version: projects/my-project/secrets/gitlab-webhook/versions/4
       host_uri: https://gitlab.example.com  # if unset, defaults to gitlab.com
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -1173,6 +1164,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

@@ -1,0 +1,7 @@
+- name: Create Featurestore
+  google.cloud.gcp_vertexai_featurestore:
+    state: present
+    name: my-featurestore
+    region: us-central1
+    online_serving_config:
+      fixed_node_count: 2

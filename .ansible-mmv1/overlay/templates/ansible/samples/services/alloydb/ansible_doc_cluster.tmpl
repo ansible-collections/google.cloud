@@ -1,0 +1,10 @@
+- name: Create basic alloydb cluster
+  google.cloud.gcp_alloydb_cluster:
+    cluster_id: my-cluster
+    state: present
+    location: us-central1
+    network_config:
+      network: projects/1234567890/global/networks/my-network
+    initial_user:
+      user: pgroot
+      password: Test123Test

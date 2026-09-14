@@ -46,7 +46,7 @@ options:
     description:
       - Identifies the alloydb cluster.
       - Must be in the format 'projects/{project}/locations/{location}/clusters/{cluster_id}'.
-      - This field is a reference to a Cluster resource in GCP.
+      - This field is a reference to a Cluster resource.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a Cluster task and then set this field to `{{ name-of-resource }}`.'
       - This property is immutable, to change it, you must delete and recreate the resource.
@@ -67,7 +67,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   user_id:
     description:
@@ -88,7 +88,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Alloydb.User resource
+short_description: Manages a Alloydb.User resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -326,6 +326,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

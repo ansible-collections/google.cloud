@@ -133,7 +133,7 @@ options:
       sampling_rate:
         description:
           - Percentage of requests to be logged, expressed as a fraction in range(0,1].
-        type: str
+        type: float
     type: dict
   private_service_connect_config:
     description:
@@ -206,7 +206,7 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
   traffic_split:
     description:
@@ -220,38 +220,18 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.Endpoint resource
+short_description: Manages a VertexAI.Endpoint resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create Endpoint
   google.cloud.gcp_vertexai_endpoint:
-    name: "{{ resource_name }}"
+    name: my-endpoint
     state: present
-    display_name: "{{ resource_name }}"
-    # network: "projects/{{ gcp_project_number }}/global/networks/{{ mynet }}"  # Network must be peered
+    display_name: my-endpoint
+    network: projects/my-project/global/networks/my-network  # Network must be peered
     location: us-central1
     region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
-  register: _myep
-
-- name: Print Endpoint
-  ansible.builtin.debug:
-    var: _myep
-
-- name: Delete Endpoint
-  google.cloud.gcp_vertexai_endpoint:
-    name: "{{ resource_name }}"
-    state: absent
-    display_name: "{{ resource_name }}"
-    # network: "projects/{{ gcp_project_number }}/global/networks/{{ mynet }}"
-    location: us-central1
-    region: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -726,7 +706,7 @@ def main():
                         type="bool",
                     ),
                     sampling_rate=dict(
-                        type="str",
+                        type="float",
                     ),
                 ),
             ),
@@ -952,6 +932,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

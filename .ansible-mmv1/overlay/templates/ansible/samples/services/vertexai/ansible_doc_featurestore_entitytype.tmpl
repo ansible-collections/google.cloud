@@ -1,0 +1,10 @@
+- name: Create Featurestore Entitytype
+  google.cloud.gcp_vertexai_featurestore_entitytype:
+    state: present
+    name: my_featurestore_entitytype
+    featurestore: projects/my-project/locations/us-central1/featurestores/my-fs
+    monitoring_config:
+      snapshot_analysis:
+        disabled: false
+        monitoring_interval_days: 1
+        staleness_days: 30

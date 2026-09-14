@@ -1,0 +1,9 @@
+- name: Create github connection
+  google.cloud.gcp_cloudbuildv2_connection:
+    name: github_conn
+    state: present
+    location: us-central1
+    github_config:
+      app_installation_id: 123456
+      authorizer_credential:
+        oauth_token_secret_version: projects/my-project/secrets/github-oauth-token/versions/1

@@ -1,0 +1,15 @@
+- name: Create Paused Schedule
+  google.cloud.gcp_colab_schedule:
+    display_name: my-schedule
+    state: present
+    location: us-central1
+    desired_state: PAUSED
+    max_concurrent_run_count: 2
+    cron: "TZ=America/Los_Angeles * * * * *"
+    create_notebook_execution_job_request:
+      notebook_execution_job:
+        display_name: my-notebook-execution
+        gcs_notebook_source:
+          uri: gs://my-bucket/input/my-notebook.json
+        notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
+        gcs_output_uri: gs://my-bucket/output/

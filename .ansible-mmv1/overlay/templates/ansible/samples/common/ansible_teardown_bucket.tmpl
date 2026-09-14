@@ -1,0 +1,28 @@
+- name: Destroy storage bucket
+  block:
+    - name: Create temporary directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: _tempdir
+
+    - name: Activate service account
+      environment:
+        CLOUDSDK_CONFIG: "{{`{{ _tempdir.path }}`}}"
+        GOOGLE_APPLICATION_CREDENTIALS: "{{`{{ gcp_cred_file }}`}}"
+      ansible.builtin.command: |
+        gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
+    - name: Remove bucket and contents
+      environment:
+        CLOUDSDK_CONFIG: "{{`{{ _tempdir.path }}`}}"
+        GOOGLE_APPLICATION_CREDENTIALS: "{{`{{ gcp_cred_file }}`}}"
+      ansible.builtin.command: |
+        gcloud storage rm --recursive gs://{{`{{ resource_name }}`}}/
+      failed_when: false
+      changed_when: true
+
+  always:
+    - name: Delete temporary directory
+      ansible.builtin.file:
+        path: "{{`{{ _tempdir.path }}`}}"
+        state: absent

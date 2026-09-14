@@ -1,0 +1,27 @@
+---
+samples:
+  - name: ansible_doc_feature_online_store_featureview
+    exclude_test: true
+    steps:
+      - name: ansible_doc_feature_online_store_featureview
+  - name: ansible_test_feature_online_store_featureview
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_bigquery_prereqs
+        vars:
+          suffix: fosf
+      - name: ansible_setup_feature_online_store
+        vars:
+          suffix: fosf
+      - name: ansible_test_feature_online_store_featureview
+        vars:
+          suffix: fosf
+      - name: ansible_teardown_feature_online_store_featureview
+        vars:
+          suffix: fosf
+      - name: ansible_teardown_feature_online_store
+        vars:
+          suffix: fosf
+      - name: ansible_teardown_bigquery_table
+        vars:
+          suffix: fosf

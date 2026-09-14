@@ -1,0 +1,38 @@
+---
+samples:
+  - name: ansible_doc_reasoning_engine_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_reasoning_engine_basic
+  - name: ansible_doc_reasoning_engine_source_based_deployment
+    exclude_test: true
+    steps:
+      - name: ansible_doc_reasoning_engine_source_based_deployment
+  - name: ansible_test_reasoning_engine
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_reasoning_engine
+      - name: ansible_test_reasoning_engine
+      - name: ansible_teardown_reasoning_engine
+custom_code:
+  pre_read: |
+    # for this module, we're hitting the list endpoint and filtering on display name and rebuild the link
+    read_link = resource.build_link("list") + "?filter=displayName=" + request.get("display_name")
+
+  post_read: |
+    if not gcp_v2.empty(existing_obj):
+        for rengine in existing_obj.get("reasoningEngines", []):
+            if rengine.get("displayName") == request.get("display_name"):
+                existing_obj = rengine
+                break
+
+  pre_update: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"].split("/")[-1]
+
+    # finally, need to build the updateMask for the fields in our module
+    update_link = resource.build_link("update") + "?updateMask=" + ",".join(resource.dot_fields())
+
+  pre_delete: |
+    # need to set to the required parameter "name" to the existing resource name
+    resource.url_params["name"] = existing_obj["name"].split("/")[-1]

@@ -1,0 +1,5 @@
+- name: Delete delta configs
+  ansible.builtin.file:
+    path: "/tmp/{{`{{ resource_name }}-{{ item }}.json`}}"
+    state: absent
+  loop: "{{`{{ range(1, `}}{{index $.Vars "count"}}{{`+1) | list }}`}}"

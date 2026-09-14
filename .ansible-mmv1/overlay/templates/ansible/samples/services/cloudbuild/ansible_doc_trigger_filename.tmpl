@@ -1,0 +1,9 @@
+- name: Trigger build with filename
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
+    state: present
+    location: us-central1
+    trigger_template:
+      repo_name: my-repo-name
+      branch_name: main
+    filename: my-cloudbuild.yml

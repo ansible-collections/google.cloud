@@ -1,0 +1,39 @@
+---
+samples:
+  - name: ansible_doc_featurestore
+    exclude_test: true
+    steps:
+      - name: ansible_doc_featurestore
+  - name: ansible_doc_featurestore_scaling
+    exclude_test: true
+    steps:
+      - name: ansible_doc_featurestore_scaling
+  - name: ansible_test_featurestore
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_featurestore
+        vars:
+          suffix: fs
+      - name: ansible_test_featurestore
+        vars:
+          suffix: fs
+      - name: ansible_teardown_featurestore
+        vars:
+          suffix: fs
+properties:
+  - name: name
+    type: String
+    description:
+      The name of the Featurestore. This value may be up to 60 characters, and
+      valid characters are [a-z0-9_]. The first character cannot be a number.
+    url_param_only: true
+    immutable: true
+    required: true
+custom_code:
+  pre_read: |
+    # if this comes from a registered variable, strip down to base name
+    resource.url_params["name"] = request["name"].split("/")[-1]
+
+  pre_delete: |
+    if request.get("force_destroy"):
+        delete_link = resource.build_link("delete") + "?force=true"

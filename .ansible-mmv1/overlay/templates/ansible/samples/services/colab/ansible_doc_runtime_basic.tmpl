@@ -1,0 +1,9 @@
+- name: Create Basic Runtime
+  google.cloud.gcp_colab_runtime:
+    state: present
+    name: my-runtime
+    display_name: My Runtime
+    runtime_user: my-user@gmail.com
+    location: us-central1
+    notebook_runtime_template_ref:
+      notebook_runtime_template: my-runtime-template

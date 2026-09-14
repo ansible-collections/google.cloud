@@ -1,0 +1,7 @@
+- name: Create an on-demand backup for a cluster
+  google.cloud.gcp_alloydb_backup:
+    backup_id: my-backup
+    state: present
+    cluster_name: projects/my-project/locations/us-central1/clusters/my-cluster
+    type: ON_DEMAND
+    location: us-central1

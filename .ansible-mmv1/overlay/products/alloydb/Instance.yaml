@@ -1,0 +1,44 @@
+---
+base_url: "{cluster}/instances" # upstream mmv1 could use create_url instead of using base_url wrong
+create_url: "{cluster}/instances?instanceId={instance_id}" # upstream mmv1 doesn't have this value
+custom_code:
+  custom_import: _drop
+  pre_create: _drop
+  pre_delete: _drop
+samples:
+  - name: ansible_doc_instance
+    exclude_test: true
+    steps:
+      - name: ansible_doc_instance
+  - name: ansible_test_instance
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_cluster
+      - name: ansible_setup_instance
+      - name: ansible_test_instance
+      - name: ansible_teardown_instance
+      - name: ansible_teardown_cluster
+properties:
+  - name: instanceType
+    required: true
+    description: |
+      The type of the instance.
+      If the instance type is SECONDARY, point to the cluster_type of the associated secondary cluster instead of mentioning SECONDARY.
+  - name: connectionPoolConfig
+    type: NestedObject
+    description: |
+      Configuration for Managed Connection Pool.
+    properties:
+      - name: flags
+        type: KeyValuePairs
+        description: |
+          Flags for configuring managed connection pooling when it is enabled.
+          These flags will only be set if `connection_pool_config.enabled` is
+          true.
+          Please see
+          https://cloud.google.com/alloydb/docs/configure-managed-connection-pooling#configuration-options
+          for a comprehensive list of flags that can be set.

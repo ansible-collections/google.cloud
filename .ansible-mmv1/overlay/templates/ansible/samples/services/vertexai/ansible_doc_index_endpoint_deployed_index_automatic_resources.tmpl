@@ -1,0 +1,17 @@
+- name: Create index endpoint deployed index with automatic resources
+  google.cloud.gcp_vertexai_index_endpoint_deployed_index:
+    state: present
+    display_name: my-index-endpoint-index
+    deployed_index_id: my_index_endpoint_index
+    region: us-central1
+    index: projects/my-project/locations/us-central1/indexes/my-index
+    index_endpoint: projects/my-project/locations/us-central1/indexEndpoints/my-index-endpoint
+    enable_access_logging: false
+    deployed_index_auth_config:
+      auth_provider:
+        audiences:
+          - 123-myapp
+        allowed_issuers:
+          - mysa@myproject.iam.gserviceaccount.com
+    automatic_resources:
+      max_replica_count: 3

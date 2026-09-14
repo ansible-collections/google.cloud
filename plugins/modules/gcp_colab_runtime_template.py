@@ -47,21 +47,25 @@ options:
   data_persistent_disk_spec:
     description:
       - The configuration for the data disk of the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       disk_size_gb:
         description:
           - The disk size of the runtime in GB.
           - If specified, the diskType must also be specified.
           - The minimum size is 10GB and the maximum is 65536GB.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       disk_type:
         description:
           - The type of the persistent disk.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   description:
     description:
       - The description of the Runtime Template.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     type: str
   display_name:
     description:
@@ -80,15 +84,18 @@ options:
   euc_config:
     description:
       - EUC configuration of the NotebookRuntimeTemplate.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       euc_disabled:
         description:
           - Disable end user credential access for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: bool
     type: dict
   idle_shutdown_config:
     description:
       - Notebook Idle Shutdown configuration for the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       idle_timeout:
         description:
@@ -109,51 +116,62 @@ options:
   machine_spec:
     description:
       - '''The machine configuration of the runtime.''.'
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       accelerator_count:
         description:
           - The number of accelerators used by the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: int
       accelerator_type:
         description:
           - The type of hardware accelerator used by the runtime.
           - If specified, acceleratorCount must also be specified.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       machine_type:
         description:
           - The Compute Engine machine type selected for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   name:
     description:
       - The resource name of the Runtime Template.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     required: true
     type: str
   network_spec:
     description:
       - The network configuration for the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       enable_internet_access:
         description:
           - Enable public internet access for the runtime.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: bool
       network:
         description:
           - The name of the VPC that this runtime is in.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
       subnetwork:
         description:
           - The name of the subnetwork that this runtime is in.
+          - This property is immutable, to change it, you must delete and recreate the resource.
         type: str
     type: dict
   network_tags:
     description:
       - Applies the given Compute Engine tags to the runtime.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     elements: str
     type: list
   shielded_vm_config:
     description:
       - Runtime Shielded VM spec.
+      - This property is immutable, to change it, you must delete and recreate the resource.
     suboptions:
       enable_secure_boot:
         description:
@@ -164,6 +182,17 @@ options:
     description:
       - The notebook software configuration of the notebook runtime.
     suboptions:
+      colab_image:
+        description:
+          - Colab Image Configuration.
+        suboptions:
+          release_name:
+            description:
+              - The release name of the NotebookRuntime Colab image, e.g.
+              - '"py310".'
+              - If not specified, detault to the latest release.
+            type: str
+        type: dict
       env:
         description:
           - Environment variables to be passed to the container.
@@ -211,13 +240,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Colab.RuntimeTemplate resource
+short_description: Manages a Colab.RuntimeTemplate resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -230,9 +259,6 @@ EXAMPLES = r"""
       machine_type: n1-standard-4
     network_spec:
       enable_internet_access: true
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -313,10 +339,20 @@ class ShieldedVmConfig(gcp_v2.Resource):
 class SoftwareConfig(gcp_v2.Resource):
     def _request(self):
         return {
+            "colabImage": gcp_v2.remove_empties(
+                SoftwareConfigColabImage(self.request.get("colab_image", {})).to_request()
+            ),  # remove empty values
             "env": [SoftwareConfigEnv(item).to_request() for item in (self.request.get("env") or [])],
             "postStartupScriptConfig": gcp_v2.remove_empties(
                 SoftwareConfigPostStartupScriptConfig(self.request.get("post_startup_script_config", {})).to_request()
             ),  # remove empty values
+        }
+
+
+class SoftwareConfigColabImage(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "releaseName": self.request.get("release_name"),
         }
 
 
@@ -487,6 +523,14 @@ def main():
             software_config=dict(
                 type="dict",
                 options=dict(
+                    colab_image=dict(
+                        type="dict",
+                        options=dict(
+                            release_name=dict(
+                                type="str",
+                            )
+                        ),
+                    ),
                     env=dict(
                         type="list",
                         elements="dict",
@@ -555,8 +599,8 @@ def main():
             "update": gcp_v2.ResourceOpConfig(
                 **{
                     "uri": "projects/{project}/locations/{location}/notebookRuntimeTemplates/{name}",
-                    "async_uri": "{op_id}",
-                    "verb": "PUT",
+                    "async_uri": "",
+                    "verb": "PATCH",
                     "timeout_minutes": 20,
                 }
             ),
@@ -684,6 +728,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

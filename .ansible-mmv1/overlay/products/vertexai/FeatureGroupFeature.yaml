@@ -1,0 +1,36 @@
+---
+samples:
+  - name: ansible_doc_feature_group_feature
+    exclude_test: true
+    steps:
+      - name: ansible_doc_feature_group_feature
+  - name: ansible_test_feature_group_feature
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_bigquery_prereqs
+        vars:
+          suffix: fgf
+      - name: ansible_setup_feature_group
+        vars:
+          suffix: fgf
+      - name: ansible_test_feature_group_feature
+        vars:
+          suffix: fgf
+      - name: ansible_teardown_feature_group_feature
+        vars:
+          suffix: fgf
+      - name: ansible_teardown_feature_group
+        vars:
+          suffix: fgf
+      - name: ansible_teardown_bigquery_table
+        vars:
+          suffix: fgf
+custom_code:
+  custom_import: |
+    import copy
+
+  decoder: |
+    r = copy.deepcopy(response)
+    if "name" in r:
+        r["name"] = r.pop("name").split("/")[-1]
+    return r

@@ -53,7 +53,10 @@ jobs:
             # fetch modified modules
             git diff --name-only --diff-filter=ACMRT ..origin/master -- plugins/modules/ | grep -v '_info.py' | while read line
             do
-              echo "$(basename $line .py)"
+              # fetch modules with accompanying integration test directory
+              if [ -d "tests/integration/targets/$(basename $line .py)" ]; then
+                echo "$(basename $line .py)"
+              fi
             done >> /tmp/integration_targets.txt
             # fetch modified integration tests
             git diff --name-only --diff-filter=ACMRT ..origin/master -- tests/integration/ | cut -d'/' -f4 >> /tmp/integration_targets.txt

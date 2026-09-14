@@ -1,0 +1,29 @@
+- name: Create Basic RAG Engine Config
+  google.cloud.gcp_vertexai_rag_engine_config:
+    state: present
+    rag_managed_config: basic
+    region: us-central1
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myrec
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _myrec.changed == true
+
+- name: Noop RAG Engine Config
+  google.cloud.gcp_vertexai_rag_engine_config:
+    state: present
+    rag_managed_config: basic
+    region: us-central1
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _myrec
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - not (_myrec.changed | bool)

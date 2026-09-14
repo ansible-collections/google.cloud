@@ -41,6 +41,21 @@ resource_ref: T.Callable = replace_resource_dict
 
 
 ASYNC_RETRY_WAIT = 1.0
+# List of bad-return-value-key sanity check forbidden keys
+# https://github.com/ansible/ansible/blob/devel/test/lib/ansible_test/_util/controller/sanity/validate-modules/validate_modules/constants.py#L29
+RESERVED_RETURN_KEYS = {
+    "clear": "clear_value",
+    "copy": "copy_value",
+    "fromkeys": "fromkey_values",
+    "get": "get_value",
+    "items": "item_values",
+    "keys": "key_values",
+    "pop": "pop_value",
+    "popitem": "popitem_value",
+    "setdefault": "setdefault_value",
+    "update": "update_value",
+    "values": "value_values",
+}
 
 
 # Define a type alias for a nested dictionary structure
@@ -593,3 +608,19 @@ def remove_empties(data: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
         return {k: v for k, v in data.items() if not empty(v)}
     else:
         return None
+
+
+def filter_reserved_keys(obj):
+    """
+    Recursively rename dict keys that collide with dict builtin method
+    names, as per ansible-test sanity bad-return-value-key check
+    """
+
+    if isinstance(obj, dict):
+        return {
+            RESERVED_RETURN_KEYS.get(key, key): filter_reserved_keys(value)
+            for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [filter_reserved_keys(item) for item in obj]
+    return obj

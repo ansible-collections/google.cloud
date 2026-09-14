@@ -1,0 +1,7 @@
+- name: Create github repository
+  google.cloud.gcp_cloudbuildv2_repository:
+    name: my-github-repo
+    state: present
+    location: us-central1
+    parent_connection: "{{`{{ my_github_conn }}`}}"
+    remote_uri: "https://github.com/user/my-repo.git"

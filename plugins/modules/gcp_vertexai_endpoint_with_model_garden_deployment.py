@@ -60,7 +60,6 @@ options:
               - The default target value is 60 for both metrics.
               - If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set.
               - For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
-              - This property is immutable, to change it, you must delete and recreate the resource.
             elements: dict
             suboptions:
               metric_name:
@@ -139,14 +138,12 @@ options:
               - If this value is not provided, will use min_replica_count as the default value.
               - The value of this field impacts the charge against Vertex CPU and GPU quotas.
               - Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
-              - This property is immutable, to change it, you must delete and recreate the resource.
             type: int
           min_replica_count:
             description:
               - The minimum number of machine replicas that will be always deployed on.
               - This value must be greater than or equal to 1.
               - If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
-              - This property is immutable, to change it, you must delete and recreate the resource.
             required: true
             type: int
           required_replica_count:
@@ -829,13 +826,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.EndpointWithModelGardenDeployment resource
+short_description: Manages a VertexAI.EndpointWithModelGardenDeployment resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -849,9 +846,6 @@ EXAMPLES = r"""
       model_display_name: my-model
       accept_eula: true
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -865,9 +859,6 @@ EXAMPLES = r"""
       model_display_name: huggingface-model
       accept_eula: true
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -884,9 +875,6 @@ EXAMPLES = r"""
     model_config:
       accept_eula: true
     location: us-central1
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
@@ -1851,7 +1839,7 @@ def main():
                     "uri": "projects/{project}/locations/{location}/endpoints/{endpoint}",
                     "async_uri": "",
                     "verb": "PUT",
-                    "timeout_minutes": 0,
+                    "timeout_minutes": 20,
                 }
             ),
         },
@@ -2111,6 +2099,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

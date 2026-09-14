@@ -1,0 +1,21 @@
+custom_code:
+  encoder: _drop
+samples:
+  - name: ansible_doc_backup
+    exclude_test: true
+    steps:
+      - name: ansible_doc_backup
+  - name: ansible_test_backup
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_vpc_peering
+        config_path: templates/ansible/samples/common/ansible_setup_vpc_peering.tmpl
+      - name: ansible_setup_cluster
+      - name: ansible_setup_instance
+      - name: ansible_setup_backup
+      - name: ansible_test_backup
+      - name: ansible_teardown_backup
+      - name: ansible_teardown_instance
+      - name: ansible_teardown_cluster

@@ -1,0 +1,14 @@
+samples:
+  - name: ansible_test_metadata_store
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_test_metadata_store
+      - name: ansible_teardown_metadata_store
+  - name: ansible_doc_metadata_store
+    exclude_test: true
+    steps:
+      - name: ansible_doc_metadata_store
+
+custom_code:
+  pre_update: |
+    module.fail_json(msg="Metadata stores API does not support updates")

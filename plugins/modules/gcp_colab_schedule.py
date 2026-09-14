@@ -52,13 +52,126 @@ options:
     description:
       - Request for google_colab_notebook_execution.
       - This property is immutable, to change it, you must delete and recreate the resource.
-    required: true
     suboptions:
       notebook_execution_job:
         description:
           - The NotebookExecutionJob to create.
         required: true
         suboptions:
+          create_time:
+            description:
+              - Timestamp when this NotebookExecutionJob was created.
+            type: str
+          custom_environment_spec:
+            description:
+              - Compute configuration to use for an execution job.
+            suboptions:
+              machine_spec:
+                description:
+                  - Specification of a single machine.
+                suboptions:
+                  accelerator_count:
+                    description:
+                      - The number of accelerators to attach to the machine.
+                      - For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs.
+                      - If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost.
+                      - For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8.
+                      - If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost.
+                      - When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM.
+                      - For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM.
+                      - Note that the feature is not compatible with multihost_gpu_node_count.
+                      - When multihost_gpu_node_count is set, the co-scheduling will not be enabled.
+                    type: int
+                  accelerator_type:
+                    description:
+                      - 'Possible values: NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 NVIDIA_GB200 NVIDIA_RTX_PRO_6000 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD.'
+                    type: str
+                  gpu_partition_size:
+                    description:
+                      - The Nvidia GPU partition size.
+                      - When specified, the requested accelerators will be partitioned into smaller GPU partitions.
+                      - For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances.
+                      - The partition size must be a value supported by the requested accelerator.
+                      - Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes.
+                      - If set, the accelerator_count should be set to 1.
+                      - This property is immutable, to change it, you must delete and recreate the resource.
+                    type: str
+                  machine_type:
+                    description:
+                      - The type of the machine.
+                      - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
+                      - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
+                      - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
+                      - This property is immutable, to change it, you must delete and recreate the resource.
+                    type: str
+                  reservation_affinity:
+                    description:
+                      - A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.
+                    suboptions:
+                      key:
+                        description:
+                          - Corresponds to the label key of a reservation resource.
+                          - To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.
+                        type: str
+                      reservation_affinity_type:
+                        description:
+                          - Specifies the reservation affinity type.
+                          - 'Possible values: NO_RESERVATION ANY_RESERVATION SPECIFIC_RESERVATION SPECIFIC_THEN_ANY_RESERVATION SPECIFIC_THEN_NO_RESERVATION.'
+                        required: true
+                        type: str
+                      use_reservation_pool:
+                        description:
+                          - When set to true, resources will be drawn from go/cloud-ai-gcp-pool.
+                        type: bool
+                      values:
+                        description:
+                          - Corresponds to the label values of a reservation resource.
+                          - This must be the full resource name of the reservation or reservation block.
+                        elements: str
+                        type: list
+                    type: dict
+                  tpu_topology:
+                    description:
+                      - The topology of the TPUs.
+                      - Corresponds to the TPU topologies available from GKE.
+                      - '(Example: tpu_topology: "2x2x1").'
+                      - This property is immutable, to change it, you must delete and recreate the resource.
+                    type: str
+                type: dict
+              network_spec:
+                description:
+                  - Network spec.
+                suboptions:
+                  enable_internet_access:
+                    description:
+                      - Whether to enable public internet access.
+                      - Default false.
+                    type: bool
+                  network:
+                    description:
+                      - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks).
+                    type: str
+                  subnetwork:
+                    description:
+                      - The name of the subnet that this instance is in.
+                      - 'Format: `projects/{project_id_or_number}/regions/{region}/subnetworks/{subnetwork_id}`.'
+                    type: str
+                type: dict
+              persistent_disk_spec:
+                description:
+                  - Represents the spec of persistent disk options.
+                suboptions:
+                  disk_size_gb:
+                    description:
+                      - Size in GB of the disk (default is 100GB).
+                    type: str
+                  disk_type:
+                    description:
+                      - Type of the disk (default is "pd-standard").
+                      - 'Valid values: "pd-ssd" (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme Persistent Disk).'
+                    type: str
+                type: dict
+            type: dict
           dataform_repository_source:
             description:
               - The Dataform Repository containing the input notebook.
@@ -71,6 +184,7 @@ options:
               dataform_repository_resource_name:
                 description:
                   - The resource name of the Dataform Repository.
+                  - 'Format: `projects/{project_id}/locations/{location}/repositories/{repository_id}`.'
                 required: true
                 type: str
             type: dict
@@ -79,6 +193,18 @@ options:
               - The display name of the Notebook Execution.
             required: true
             type: str
+          encryption_spec:
+            description:
+              - Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+            suboptions:
+              kms_key_name:
+                description:
+                  - Resource name of the Cloud KMS key used to protect the resource.
+                  - The Cloud KMS key must be in the same region as the resource.
+                  - It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+                required: true
+                type: str
+            type: dict
           execution_timeout:
             description:
               - Max running time of the execution job in seconds (default 86400s / 24 hrs).
@@ -112,16 +238,243 @@ options:
               - Format:`gs://bucket-name`.
             required: true
             type: str
+          job_state:
+            description:
+              - 'Possible values: JOB_STATE_QUEUED JOB_STATE_PENDING JOB_STATE_RUNNING JOB_STATE_SUCCEEDED JOB_STATE_FAILED JOB_STATE_CANCELLING JOB_STATE_CANCELLED JOB_STATE_PAUSED JOB_STATE_EXPIRED JOB_STATE_UPDATING JOB_STATE_PARTIALLY_SUCCEEDED.'
+            type: str
+          kernel_name:
+            description:
+              - The name of the kernel to use during notebook execution.
+              - If unset, the default kernel is used.
+            type: str
+          labels:
+            description:
+              - The labels with user-defined metadata to organize NotebookExecutionJobs.
+            type: dict
+          name:
+            description:
+              - The resource name of this NotebookExecutionJob.
+              - 'Format: `projects/{project_id}/locations/{location}/notebookExecutionJobs/{job_id}`.'
+            type: str
           notebook_runtime_template_resource_name:
             description:
               - The NotebookRuntimeTemplate to source compute configuration from.
-            required: true
+            type: str
+          schedule_resource_name:
+            description:
+              - The Schedule resource name if this job is triggered by one.
+              - 'Format: `projects/{project_id}/locations/{location}/schedules/{schedule_id}`.'
             type: str
           service_account:
             description:
               - The service account to run the execution as.
             type: str
+          update_time:
+            description:
+              - Timestamp when this NotebookExecutionJob was most recently updated.
+            type: str
+          workbench_runtime:
+            description:
+              - Configuration for a Workbench Instances-based environment.
+            type: dict
         type: dict
+      notebook_execution_job_id:
+        description:
+          - User specified ID for the NotebookExecutionJob.
+        type: str
+      parent:
+        description:
+          - The resource name of the Location to create the NotebookExecutionJob.
+          - 'Format: `projects/{project}/locations/{location}`.'
+        type: str
+    type: dict
+  create_pipeline_job_request:
+    description:
+      - Request message for PipelineService.CreatePipelineJob.
+    suboptions:
+      parent:
+        description:
+          - The resource name of the Location to create the PipelineJob in.
+          - 'Format: `projects/{project}/locations/{location}`.'
+        type: str
+      pipeline_job:
+        description:
+          - An instance of a machine learning PipelineJob.
+        required: true
+        suboptions:
+          create_time:
+            description:
+              - Pipeline creation time.
+            type: str
+          display_name:
+            description:
+              - The display name of the Pipeline.
+              - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+            type: str
+          encryption_spec:
+            description:
+              - Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+            suboptions:
+              kms_key_name:
+                description:
+                  - Resource name of the Cloud KMS key used to protect the resource.
+                  - The Cloud KMS key must be in the same region as the resource.
+                  - It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+                required: true
+                type: str
+            type: dict
+          end_time:
+            description:
+              - Pipeline end time.
+            type: str
+          labels:
+            description:
+              - The labels with user-defined metadata to organize PipelineJob.
+              - Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes.
+              - International characters are allowed.
+              - See https://goo.gl/xmQnxf for more information and examples of labels.
+              - Note there is some reserved label key for Vertex AI Pipelines.
+              - '- `vertex-ai-pipelines-run-billing-id`, user set value will get overrided.'
+            type: dict
+          name:
+            description:
+              - The resource name of the PipelineJob.
+            type: str
+          network:
+            description:
+              - The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Pipeline Job's workload should be peered.
+              - For example, `projects/12345/global/networks/myVPC`.
+              - '[Format](/compute/docs/reference/rest/v1/networks/insert) is of the form `projects/{project}/global/networks/{network}`.'
+              - Where {project} is a project number, as in `12345`, and {network} is a network name.
+              - Private services access must already be configured for the network.
+              - Pipeline job will apply the network configuration to the Google Cloud resources being launched, if applied, such as Vertex AI Training or Dataflow job.
+              - If left unspecified, the workload is not peered with any network.
+            type: str
+          pipeline_spec:
+            description:
+              - A compiled definition of a pipeline, represented as a `JSON` object.
+              - Defines the structure of the pipeline, including its components, tasks, and parameters.
+              - This specification is generated by compiling a pipeline function defined in `Python` using the `Kubeflow Pipelines SDK`.
+            type: str
+          preflight_validations:
+            description:
+              - Whether to do component level validations before job creation.
+            type: bool
+          psc_interface_config:
+            description:
+              - Configuration for PSC-I.
+            suboptions:
+              dns_peering_configs:
+                description:
+                  - DNS peering configurations.
+                  - When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS.
+                  - The user must grant the dns.peer role to the Vertex AI Service Agent on the target project.
+                elements: dict
+                suboptions:
+                  domain:
+                    description:
+                      - The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.".
+                      - Must end with a dot.
+                    required: true
+                    type: str
+                  target_network:
+                    description:
+                      - The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.
+                    required: true
+                    type: str
+                  target_project:
+                    description:
+                      - The project ID hosting the Cloud DNS managed zone that contains the 'domain'.
+                      - The Vertex AI Service Agent requires the dns.peer role on this project.
+                    required: true
+                    type: str
+                type: list
+              network_attachment:
+                description:
+                  - The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project.
+                  - To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments).
+                  - This field is only used for resources using PSC-I.
+                type: str
+            type: dict
+          reserved_ip_ranges:
+            description:
+              - A list of names for the reserved ip ranges under the VPC network that can be used for this Pipeline Job's workload.
+              - If set, we will deploy the Pipeline Job's workload within the provided ip ranges.
+              - Otherwise, the job will be deployed to any ip ranges under the provided VPC network.
+              - 'Example: [''vertex-ai-ip-range''].'
+            elements: str
+            type: list
+          runtime_config:
+            description:
+              - The runtime config of a PipelineJob.
+            suboptions:
+              failure_policy:
+                description:
+                  - 'Possible values: PIPELINE_FAILURE_POLICY_FAIL_SLOW PIPELINE_FAILURE_POLICY_FAIL_FAST.'
+                type: str
+              gcs_output_directory:
+                description:
+                  - A path in a Cloud Storage bucket, which will be treated as the root output directory of the pipeline.
+                  - It is used by the system to generate the paths of output artifacts.
+                  - The artifact paths are generated with a sub-path pattern `{job_id}/{task_id}/{output_key}` under the specified output directory.
+                  - The service account specified in this pipeline must have the `storage.objects.get` and `storage.objects.create` permissions for this bucket.
+                required: true
+                type: str
+              parameter_values:
+                description:
+                  - The runtime parameters of the PipelineJob.
+                  - The parameters will be passed into PipelineJob.pipeline_spec to replace the placeholders at runtime.
+                  - This field is used by pipelines built using `PipelineJob.pipeline_spec.schema_version` 2.1.0, such as pipelines built using Kubeflow Pipelines SDK 1.9 or higher and the v2 DSL.
+                type: dict
+            type: dict
+          schedule_name:
+            description:
+              - The schedule resource name.
+              - Only returned if the Pipeline is created by Schedule API.
+            type: str
+          service_account:
+            description:
+              - The service account that the pipeline workload runs as.
+              - If not specified, the Compute Engine default service account in the project will be used.
+              - See https://cloud.google.com/compute/docs/access/service-accounts#default_service_account Users starting the pipeline must have the `iam.serviceAccounts.actAs` permission on this service account.
+            type: str
+          start_time:
+            description:
+              - Pipeline start time.
+            type: str
+          state:
+            description:
+              - 'Possible values: PIPELINE_STATE_QUEUED PIPELINE_STATE_PENDING PIPELINE_STATE_RUNNING PIPELINE_STATE_SUCCEEDED PIPELINE_STATE_FAILED PIPELINE_STATE_CANCELLING PIPELINE_STATE_CANCELLED PIPELINE_STATE_PAUSED.'
+            type: str
+          template_metadata:
+            description:
+              - Pipeline template metadata if PipelineJob.template_uri is from supported template registry.
+              - Currently, the only supported registry is Artifact Registry.
+            suboptions:
+              version:
+                description:
+                  - The version_name in artifact registry.
+                  - Will always be presented in output if the PipelineJob.template_uri is from supported template registry.
+                  - Format is "sha256:abcdef123456...".
+                type: str
+            type: dict
+          template_uri:
+            description:
+              - A template uri from where the PipelineJob.pipeline_spec, if empty, will be downloaded.
+              - Currently, only uri from Vertex Template Registry & Gallery is supported.
+              - Reference to https://cloud.google.com/vertex-ai/docs/pipelines/create-pipeline-template.
+            type: str
+          update_time:
+            description:
+              - Timestamp when this PipelineJob was most recently updated.
+            type: str
+        type: dict
+      pipeline_job_id:
+        description:
+          - The ID to use for the PipelineJob, which will become the final component of the PipelineJob name.
+          - If not provided, an ID will be automatically generated.
+          - This value should be less than 128 characters, and valid characters are `/a-z-/`.
+        type: str
     type: dict
   cron:
     description:
@@ -153,6 +506,12 @@ options:
       - 'The location for the resource: https://cloud.google.com/colab/docs/locations.'
     required: true
     type: str
+  max_concurrent_active_run_count:
+    description:
+      - Specifies the maximum number of active runs that can be executed concurrently for this Schedule.
+      - This limits the number of runs that can be in a non-terminal state at the same time.
+      - Currently, this field is only supported for requests of type CreatePipelineJobRequest.
+    type: str
   max_concurrent_run_count:
     description:
       - Maximum number of runs that can be started concurrently for this Schedule.
@@ -179,13 +538,13 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP Colab.Schedule resource
+short_description: Manages a Colab.Schedule resource
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -203,9 +562,6 @@ EXAMPLES = r"""
           uri: gs://my-bucket/input/my-notebook.json
         notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
         gcs_output_uri: gs://my-bucket/output/
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 
 ################################################################################
 
@@ -224,25 +580,79 @@ EXAMPLES = r"""
           uri: gs://my-bucket/input/my-notebook.json
         notebook_runtime_template_resource_name: projects/my-project/locations/us-central1/notebookRuntimeTemplates/my-runtime-template
         gcs_output_uri: gs://my-bucket/output/
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
 """  # noqa: E501
 
 RETURN = r"""
+catchUp:
+  description:
+    - Whether to backfill missed runs when the schedule is resumed from PAUSED state.
+    - If set to true, all missed runs will be scheduled.
+    - New runs will be scheduled after the backfill is complete.
+    - Default to false.
+  returned: success
+  type: bool
 changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+createTime:
+  description:
+    - Timestamp when this Schedule was created.
+  returned: success
+  type: str
+lastPauseTime:
+  description:
+    - Timestamp when this Schedule was last paused.
+    - Unset if never paused.
+  returned: success
+  type: str
+lastResumeTime:
+  description:
+    - Timestamp when this Schedule was last resumed.
+    - Unset if never resumed from pause.
+  returned: success
+  type: str
+lastScheduledRunResponse:
+  contains:
+    runResponse:
+      description:
+        - The response of the scheduled run.
+      returned: success
+      type: str
+    scheduledRunTime:
+      description:
+        - The scheduled run time based on the user-specified schedule.
+      returned: success
+      type: str
+  description:
+    - Status of a scheduled run.
+  returned: success
+  type: dict
 name:
   description:
     - The resource name of the Schedule.
+  returned: success
+  type: str
+nextRunTime:
+  description:
+    - Timestamp when this Schedule should schedule the next run.
+    - Having a next_run_time in the past means the runs are being started behind schedule.
+  returned: success
+  type: str
+startedRunCount:
+  description:
+    - The number of runs started by this schedule.
   returned: success
   type: str
 state:
   description:
     - Output only.
     - The state of the schedule.
+  returned: success
+  type: str
+updateTime:
+  description:
+    - Timestamp when this Schedule was updated.
   returned: success
   type: str
 """  # noqa: E501
@@ -267,18 +677,34 @@ class CreateNotebookExecutionJobRequest(gcp_v2.Resource):
                     self.request.get("notebook_execution_job", {})
                 ).to_request()
             ),  # remove empty values
+            "parent": self.request.get("parent"),
+        }
+
+    def _response(self):
+        return {
+            "notebookExecutionJobId": self.response.get("notebookExecutionJobId"),
         }
 
 
 class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp_v2.Resource):
     def _request(self):
         return {
+            "customEnvironmentSpec": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(
+                    self.request.get("custom_environment_spec", {})
+                ).to_request()
+            ),  # remove empty values
             "dataformRepositorySource": gcp_v2.remove_empties(
                 CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySource(
                     self.request.get("dataform_repository_source", {})
                 ).to_request()
             ),  # remove empty values
             "displayName": self.request.get("display_name"),
+            "encryptionSpec": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(
+                    self.request.get("encryption_spec", {})
+                ).to_request()
+            ),  # remove empty values
             "executionTimeout": self.request.get("execution_timeout"),
             "executionUser": self.request.get("execution_user"),
             "gcsNotebookSource": gcp_v2.remove_empties(
@@ -287,8 +713,90 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJob(gcp_v2.Resource):
                 ).to_request()
             ),  # remove empty values
             "gcsOutputUri": self.request.get("gcs_output_uri"),
+            "kernelName": self.request.get("kernel_name"),
+            "labels": self.request.get("labels"),
             "notebookRuntimeTemplateResourceName": self.request.get("notebook_runtime_template_resource_name"),
             "serviceAccount": self.request.get("service_account"),
+            "workbenchRuntime": gcp_v2.remove_nones(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(
+                    self.request.get("workbench_runtime", {})
+                ).to_request()
+            ),  # allow empty values
+        }
+
+    def _response(self):
+        return {
+            "createTime": self.response.get("createTime"),
+            "jobState": self.response.get("jobState"),
+            "name": self.response.get("name"),
+            "scheduleResourceName": self.response.get("scheduleResourceName"),
+            "updateTime": self.response.get("updateTime"),
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "machineSpec": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(
+                    self.request.get("machine_spec", {})
+                ).to_request()
+            ),  # remove empty values
+            "networkSpec": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(
+                    self.request.get("network_spec", {})
+                ).to_request()
+            ),  # remove empty values
+            "persistentDiskSpec": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(
+                    self.request.get("persistent_disk_spec", {})
+                ).to_request()
+            ),  # remove empty values
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "acceleratorCount": self.request.get("accelerator_count"),
+            "acceleratorType": self.request.get("accelerator_type"),
+            "gpuPartitionSize": self.request.get("gpu_partition_size"),
+            "machineType": self.request.get("machine_type"),
+            "reservationAffinity": gcp_v2.remove_empties(
+                CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(
+                    self.request.get("reservation_affinity", {})
+                ).to_request()
+            ),  # remove empty values
+            "tpuTopology": self.request.get("tpu_topology"),
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecMachineSpecReservationAffinity(
+    gcp_v2.Resource
+):
+    def _request(self):
+        return {
+            "key": self.request.get("key"),
+            "reservationAffinityType": self.request.get("reservation_affinity_type"),
+            "useReservationPool": self.request.get("use_reservation_pool"),
+            "values": self.request.get("values"),
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecNetworkSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "enableInternetAccess": self.request.get("enable_internet_access"),
+            "network": self.request.get("network"),
+            "subnetwork": self.request.get("subnetwork"),
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobCustomEnvironmentSpecPersistentDiskSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "diskSizeGb": self.request.get("disk_size_gb"),
+            "diskType": self.request.get("disk_type"),
         }
 
 
@@ -300,11 +808,128 @@ class CreateNotebookExecutionJobRequestNotebookExecutionJobDataformRepositorySou
         }
 
 
+class CreateNotebookExecutionJobRequestNotebookExecutionJobEncryptionSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "kmsKeyName": self.request.get("kms_key_name"),
+        }
+
+
 class CreateNotebookExecutionJobRequestNotebookExecutionJobGcsNotebookSource(gcp_v2.Resource):
     def _request(self):
         return {
             "generation": self.request.get("generation"),
             "uri": self.request.get("uri"),
+        }
+
+
+class CreateNotebookExecutionJobRequestNotebookExecutionJobWorkbenchRuntime(gcp_v2.Resource):
+    def _response(self):
+        return self.response.get("workbench_runtime", dict())
+
+
+class CreatePipelineJobRequest(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "parent": self.request.get("parent"),
+            "pipelineJob": gcp_v2.remove_empties(
+                CreatePipelineJobRequestPipelineJob(self.request.get("pipeline_job", {})).to_request()
+            ),  # remove empty values
+        }
+
+    def _response(self):
+        return {
+            "pipelineJobId": self.response.get("pipelineJobId"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJob(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "displayName": self.request.get("display_name"),
+            "encryptionSpec": gcp_v2.remove_empties(
+                CreatePipelineJobRequestPipelineJobEncryptionSpec(self.request.get("encryption_spec", {})).to_request()
+            ),  # remove empty values
+            "labels": self.request.get("labels"),
+            "network": self.request.get("network"),
+            "pipelineSpec": self.request.get("pipeline_spec"),
+            "preflightValidations": self.request.get("preflight_validations"),
+            "pscInterfaceConfig": gcp_v2.remove_empties(
+                CreatePipelineJobRequestPipelineJobPscInterfaceConfig(
+                    self.request.get("psc_interface_config", {})
+                ).to_request()
+            ),  # remove empty values
+            "reservedIpRanges": self.request.get("reserved_ip_ranges"),
+            "runtimeConfig": gcp_v2.remove_empties(
+                CreatePipelineJobRequestPipelineJobRuntimeConfig(self.request.get("runtime_config", {})).to_request()
+            ),  # remove empty values
+            "serviceAccount": self.request.get("service_account"),
+            "templateUri": self.request.get("template_uri"),
+        }
+
+    def _response(self):
+        return {
+            "createTime": self.response.get("createTime"),
+            "endTime": self.response.get("endTime"),
+            "name": self.response.get("name"),
+            "scheduleName": self.response.get("scheduleName"),
+            "startTime": self.response.get("startTime"),
+            "state": self.response.get("state"),
+            "templateMetadata": CreatePipelineJobRequestPipelineJobTemplateMetadata().from_response(
+                self.response.get("templateMetadata", {})
+            ),
+            "updateTime": self.response.get("updateTime"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJobEncryptionSpec(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "kmsKeyName": self.request.get("kms_key_name"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJobPscInterfaceConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "dnsPeeringConfigs": [
+                CreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfig(item).to_request()
+                for item in (self.request.get("dns_peering_configs") or [])
+            ],
+            "networkAttachment": self.request.get("network_attachment"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJobPscInterfaceConfigDnsPeeringConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "domain": self.request.get("domain"),
+            "targetNetwork": self.request.get("target_network"),
+            "targetProject": self.request.get("target_project"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJobRuntimeConfig(gcp_v2.Resource):
+    def _request(self):
+        return {
+            "failurePolicy": self.request.get("failure_policy"),
+            "gcsOutputDirectory": self.request.get("gcs_output_directory"),
+            "parameterValues": self.request.get("parameter_values"),
+        }
+
+
+class CreatePipelineJobRequestPipelineJobTemplateMetadata(gcp_v2.Resource):
+    def _response(self):
+        return {
+            "version": self.response.get("version"),
+        }
+
+
+class LastScheduledRunResponse(gcp_v2.Resource):
+    def _response(self):
+        return {
+            "runResponse": self.response.get("runResponse"),
+            "scheduledRunTime": self.response.get("scheduledRunTime"),
         }
 
 
@@ -317,9 +942,13 @@ class Colab(gcp_v2.Resource):
                     self.request.get("create_notebook_execution_job_request", {})
                 ).to_request()
             ),  # remove empty values
+            "createPipelineJobRequest": gcp_v2.remove_empties(
+                CreatePipelineJobRequest(self.request.get("create_pipeline_job_request", {})).to_request()
+            ),  # remove empty values
             "cron": self.request.get("cron"),
             "displayName": self.request.get("display_name"),
             "endTime": self.request.get("end_time"),
+            "maxConcurrentActiveRunCount": self.request.get("max_concurrent_active_run_count"),
             "maxConcurrentRunCount": self.request.get("max_concurrent_run_count"),
             "maxRunCount": self.request.get("max_run_count"),
             "startTime": self.request.get("start_time"),
@@ -327,7 +956,17 @@ class Colab(gcp_v2.Resource):
 
     def _response(self):
         return {
+            "catchUp": self.response.get("catchUp"),
+            "createTime": self.response.get("createTime"),
+            "lastPauseTime": self.response.get("lastPauseTime"),
+            "lastResumeTime": self.response.get("lastResumeTime"),
+            "lastScheduledRunResponse": LastScheduledRunResponse().from_response(
+                self.response.get("lastScheduledRunResponse", {})
+            ),
             "name": self.response.get("name"),
+            "nextRunTime": self.response.get("nextRunTime"),
+            "startedRunCount": self.response.get("startedRunCount"),
+            "updateTime": self.response.get("updateTime"),
         }
 
     def encode(self, request):
@@ -388,12 +1027,84 @@ def main():
             ),
             create_notebook_execution_job_request=dict(
                 type="dict",
-                required=True,
                 options=dict(
                     notebook_execution_job=dict(
                         type="dict",
                         required=True,
                         options=dict(
+                            create_time=dict(
+                                type="str",
+                            ),
+                            custom_environment_spec=dict(
+                                type="dict",
+                                options=dict(
+                                    machine_spec=dict(
+                                        type="dict",
+                                        options=dict(
+                                            accelerator_count=dict(
+                                                type="int",
+                                            ),
+                                            accelerator_type=dict(
+                                                type="str",
+                                            ),
+                                            gpu_partition_size=dict(
+                                                type="str",
+                                            ),
+                                            machine_type=dict(
+                                                type="str",
+                                            ),
+                                            reservation_affinity=dict(
+                                                type="dict",
+                                                options=dict(
+                                                    key=dict(
+                                                        type="str",
+                                                        no_log=False,
+                                                    ),
+                                                    reservation_affinity_type=dict(
+                                                        type="str",
+                                                        required=True,
+                                                    ),
+                                                    use_reservation_pool=dict(
+                                                        type="bool",
+                                                    ),
+                                                    values=dict(
+                                                        type="list",
+                                                        elements="str",
+                                                    ),
+                                                ),
+                                            ),
+                                            tpu_topology=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                    network_spec=dict(
+                                        type="dict",
+                                        options=dict(
+                                            enable_internet_access=dict(
+                                                type="bool",
+                                            ),
+                                            network=dict(
+                                                type="str",
+                                            ),
+                                            subnetwork=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                    persistent_disk_spec=dict(
+                                        type="dict",
+                                        options=dict(
+                                            disk_size_gb=dict(
+                                                type="str",
+                                            ),
+                                            disk_type=dict(
+                                                type="str",
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
                             dataform_repository_source=dict(
                                 type="dict",
                                 options=dict(
@@ -409,6 +1120,16 @@ def main():
                             display_name=dict(
                                 type="str",
                                 required=True,
+                            ),
+                            encryption_spec=dict(
+                                type="dict",
+                                options=dict(
+                                    kms_key_name=dict(
+                                        type="str",
+                                        required=True,
+                                        no_log=False,
+                                    )
+                                ),
                             ),
                             execution_timeout=dict(
                                 type="str",
@@ -432,15 +1153,163 @@ def main():
                                 type="str",
                                 required=True,
                             ),
+                            job_state=dict(
+                                type="str",
+                            ),
+                            kernel_name=dict(
+                                type="str",
+                            ),
+                            labels=dict(
+                                type="dict",
+                            ),
+                            name=dict(
+                                type="str",
+                            ),
                             notebook_runtime_template_resource_name=dict(
                                 type="str",
-                                required=True,
+                            ),
+                            schedule_resource_name=dict(
+                                type="str",
                             ),
                             service_account=dict(
                                 type="str",
                             ),
+                            update_time=dict(
+                                type="str",
+                            ),
+                            workbench_runtime=dict(
+                                type="dict",
+                            ),
                         ),
-                    )
+                    ),
+                    notebook_execution_job_id=dict(
+                        type="str",
+                    ),
+                    parent=dict(
+                        type="str",
+                    ),
+                ),
+            ),
+            create_pipeline_job_request=dict(
+                type="dict",
+                options=dict(
+                    parent=dict(
+                        type="str",
+                    ),
+                    pipeline_job=dict(
+                        type="dict",
+                        required=True,
+                        options=dict(
+                            create_time=dict(
+                                type="str",
+                            ),
+                            display_name=dict(
+                                type="str",
+                            ),
+                            encryption_spec=dict(
+                                type="dict",
+                                options=dict(
+                                    kms_key_name=dict(
+                                        type="str",
+                                        required=True,
+                                        no_log=False,
+                                    )
+                                ),
+                            ),
+                            end_time=dict(
+                                type="str",
+                            ),
+                            labels=dict(
+                                type="dict",
+                            ),
+                            name=dict(
+                                type="str",
+                            ),
+                            network=dict(
+                                type="str",
+                            ),
+                            pipeline_spec=dict(
+                                type="str",
+                            ),
+                            preflight_validations=dict(
+                                type="bool",
+                            ),
+                            psc_interface_config=dict(
+                                type="dict",
+                                options=dict(
+                                    dns_peering_configs=dict(
+                                        type="list",
+                                        elements="dict",
+                                        options=dict(
+                                            domain=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            target_network=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                            target_project=dict(
+                                                type="str",
+                                                required=True,
+                                            ),
+                                        ),
+                                    ),
+                                    network_attachment=dict(
+                                        type="str",
+                                    ),
+                                ),
+                            ),
+                            reserved_ip_ranges=dict(
+                                type="list",
+                                elements="str",
+                            ),
+                            runtime_config=dict(
+                                type="dict",
+                                options=dict(
+                                    failure_policy=dict(
+                                        type="str",
+                                    ),
+                                    gcs_output_directory=dict(
+                                        type="str",
+                                        required=True,
+                                    ),
+                                    parameter_values=dict(
+                                        type="dict",
+                                    ),
+                                ),
+                            ),
+                            schedule_name=dict(
+                                type="str",
+                            ),
+                            service_account=dict(
+                                type="str",
+                            ),
+                            start_time=dict(
+                                type="str",
+                            ),
+                            state=dict(
+                                type="str",
+                            ),
+                            template_metadata=dict(
+                                type="dict",
+                                options=dict(
+                                    version=dict(
+                                        type="str",
+                                    )
+                                ),
+                            ),
+                            template_uri=dict(
+                                type="str",
+                            ),
+                            update_time=dict(
+                                type="str",
+                            ),
+                        ),
+                    ),
+                    pipeline_job_id=dict(
+                        type="str",
+                    ),
                 ),
             ),
             cron=dict(
@@ -462,6 +1331,9 @@ def main():
             location=dict(
                 type="str",
                 required=True,
+            ),
+            max_concurrent_active_run_count=dict(
+                type="str",
             ),
             max_concurrent_run_count=dict(
                 type="str",
@@ -705,6 +1577,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

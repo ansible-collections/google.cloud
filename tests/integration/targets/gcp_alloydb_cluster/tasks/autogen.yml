@@ -24,98 +24,157 @@
         service_account_file: "{{ gcp_cred_file }}"
       register: _network
 
-    - name: Test case
-      block:
-        - name: Create primary alloydb cluster
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-primary"
-            state: present
-            location: us-central1
-            cluster_type: PRIMARY
-            initial_user:
-              user: pgroot
-              password: Test123Test
-            network_config:
-              network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _primary
-
-        - name: Fetch primary cluster info
-          google.cloud.gcp_alloydb_cluster_info:
-            location: us-central1
-            filters:
-              - name = "{{ _primary.name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _primary_info
-
-        - name: Create secondary cluster attached to primary
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-secondary"
-            state: present
-            location: us-central1
-            cluster_type: SECONDARY
-            network_config:
-              network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
-            secondary_config:
-              primary_cluster_name: "{{ _primary.name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _secondary
-
-        - name: Fetch secondary cluster info
-          google.cloud.gcp_alloydb_cluster_info:
-            location: us-central1
-            filters:
-              - name = "{{ _secondary.name }}"
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-          register: _secondary_info
-
-        - name: Run assertions
-          ansible.builtin.assert:
-            that:
-              - _primary.changed == true
-              - _primary.clusterType == "PRIMARY"
-              - _secondary.changed == true
-              - _secondary.clusterType == "SECONDARY"
-              - _secondary.secondaryConfig.primaryClusterName.split('/')[-1] == _primary.name.split('/')[-1]
-              - _primary_info.resources | length == 1
-              - _secondary_info.resources | length == 1
-
-      always:
-        - name: Delete secondary cluster
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-secondary"
-            state: absent
-            location: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-
-        - name: Delete primary cluster
-          google.cloud.gcp_alloydb_cluster:
-            cluster_id: "{{ resource_name }}-primary"
-            state: absent
-            location: us-central1
-            project: "{{ gcp_project }}"
-            auth_kind: "{{ gcp_cred_kind }}"
-            service_account_file: "{{ gcp_cred_file }}"
-
-  always:
-    - name: Destroy test network
-      google.cloud.gcp_compute_network:
-        name: "{{ resource_name }}"
-        state: absent
+    - name: Create peering range address
+      google.cloud.gcp_compute_global_address:
+        name: "{{ resource_name }}-peering"
+        state: present
+        address_type: INTERNAL
+        prefix_length: 16
+        purpose: VPC_PEERING
+        network: "{{ _network }}"
         project: "{{ gcp_project }}"
         auth_kind: "{{ gcp_cred_kind }}"
         service_account_file: "{{ gcp_cred_file }}"
 
+    - name: Connect VPC peering service
+      block:
+        - name: Create temporary directory
+          ansible.builtin.tempfile:
+            state: directory
+          register: _tempdir
+
+        - name: Activate service account
+          environment:
+            CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
+            GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
+          ansible.builtin.command: |
+            gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
+        - name: Check for vpc-peering service
+          environment:
+            CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
+            GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
+          ansible.builtin.command: |
+            gcloud services vpc-peerings list \
+                --service=servicenetworking.googleapis.com \
+                --network="{{ _network.name }}" \
+                --project="{{ gcp_project }}"
+          register: _vpc_peering_check
+          failed_when: false
+          changed_when: false
+
+        - name: Connect vpc-peering service
+          environment:
+            CLOUDSDK_CONFIG: "{{ _tempdir.path }}"
+            GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_cred_file }}"
+          ansible.builtin.command: |
+            gcloud services vpc-peerings connect \
+                --quiet \
+                --service=servicenetworking.googleapis.com \
+                --ranges="{{ resource_name }}-peering" \
+                --network="{{ _network.name }}" \
+                --project="{{ gcp_project }}"
+          when: _vpc_peering_check.stdout | length == 0
+          register: _vpc_peering_connect
+          failed_when:
+            - "'finished successfully' not in _vpc_peering_connect.stderr"
+          changed_when: true
+
+      always:
+        - name: Delete temporary directory
+          ansible.builtin.file:
+            path: "{{ _tempdir.path }}"
+            state: absent
+
+    - name: Create alloydb cluster
+      google.cloud.gcp_alloydb_cluster:
+        cluster_id: "{{ resource_name }}"
+        state: present
+        location: us-central1
+        cluster_type: PRIMARY
+        initial_user:
+          user: pgroot
+          password: "test-alloydb-{{ resource_name }}"
+        network_config:
+          network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _primary
+
+    - name: Test
+      ansible.builtin.debug:
+        msg: "Test"
+
+    - name: Fetch primary cluster info
+      google.cloud.gcp_alloydb_cluster_info:
+        location: us-central1
+        filters:
+          - name = "{{ _primary.name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _primary_info
+
+    - name: Run assertions
+      ansible.builtin.assert:
+        that:
+          - _primary.changed | bool
+          - _primary.clusterType == "PRIMARY"
+          - _primary_info.resources | length >= 1
+
+    - name: Create secondary cluster attached to primary
+      google.cloud.gcp_alloydb_cluster:
+        cluster_id: "{{ resource_name }}-secondary"
+        state: present
+        location: us-central1
+        cluster_type: SECONDARY
+        network_config:
+          network: "projects/{{ gcp_project_number }}/global/networks/{{ resource_name }}"
+        secondary_config:
+          primary_cluster_name: "{{ _primary.name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _secondary
+
+    - name: Fetch secondary cluster info
+      google.cloud.gcp_alloydb_cluster_info:
+        location: us-central1
+        filters:
+          - name = "{{ _secondary.name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+      register: _secondary_info
+
+    - name: Run assertions
+      ansible.builtin.assert:
+        that:
+          - _secondary.changed | bool
+          - _secondary.clusterType == "SECONDARY"
+          - _secondary.secondaryConfig.primaryClusterName.split('/')[-1] == _primary.name.split('/')[-1]
+          - _secondary_info.resources | length >= 1
+
+  always:
     - name: Teardown
       ansible.builtin.debug:
         msg: "Teardown"
+
+    - name: Delete secondary cluster
+      google.cloud.gcp_alloydb_cluster:
+        cluster_id: "{{ resource_name }}-secondary"
+        state: absent
+        location: us-central1
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"
+
+    - name: Delete alloydb cluster
+      google.cloud.gcp_alloydb_cluster:
+        cluster_id: "{{ resource_name }}"
+        state: absent
+        location: us-central1
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file }}"

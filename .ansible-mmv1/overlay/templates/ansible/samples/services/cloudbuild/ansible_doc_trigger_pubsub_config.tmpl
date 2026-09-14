@@ -1,0 +1,19 @@
+- name: Trigger build with pubsub config
+  google.cloud.gcp_cloudbuild_trigger:
+    name: my-trigger
+    state: present
+    location: us-central1
+    pubsub_config:
+      topic: pubsub_topic.my_topic.id
+    source_to_build:
+      uri: https://my-host.com/my-user/my-repo-name.git
+      ref: refs/heads/main
+      repo_type: UNKNOWN
+    git_file_source:
+      path: cloudbuild.yaml
+      uri: https://my-host.com/my-user/my-repo-name.git
+      revision: refs/heads/main
+      repo_type: UNKNOWN
+    substitutions:
+      _ACTION: "$(body.message.data.action)"
+    filter: "_ACTION.matches('INSERT')"

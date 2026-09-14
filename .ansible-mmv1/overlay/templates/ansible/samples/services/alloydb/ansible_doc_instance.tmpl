@@ -1,0 +1,8 @@
+- name: Create a basic primary alloydb instance
+  google.cloud.gcp_alloydb_instance:
+    instance_id: my-instance
+    state: present
+    location: us-central1
+    instance_type: PRIMARY
+    cluster:
+      name: projects/1234567890/locations/us-central1/clusters/my-cluster

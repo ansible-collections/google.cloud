@@ -37,18 +37,13 @@ description:
   - '''An instance of a notebook Execution'''
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_colab_notebook_execution_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookExecutionJobs)'
   - 'Schedule a notebook run Guide: U(https://cloud.google.com/colab/docs/schedule-notebook-run)'
 options:
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   location:
@@ -60,7 +55,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP colab.NotebookExecution resources
+short_description: List Colab.NotebookExecution resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -150,6 +145,34 @@ resources:
             - The configuration for the data disk of the runtime.
           returned: when set
           type: dict
+        shieldedInstanceConfig:
+          contains:
+            enableIntegrityMonitoring:
+              description:
+                - Defines whether the instance has integrity monitoring enabled.
+                - Enables monitoring and attestation of the boot integrity of the instance.
+                - The attestation is performed against the integrity policy baseline.
+                - This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+                - Enabled by default.
+              returned: when set
+              type: bool
+            enableSecureBoot:
+              description:
+                - Defines whether the instance has Secure Boot enabled.
+                - Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails.
+                - Disabled by default.
+              returned: when set
+              type: bool
+            enableVtpm:
+              description:
+                - Defines whether the instance has the vTPM enabled.
+                - Enabled by default.
+              returned: when set
+              type: bool
+          description:
+            - Shielded VM configuration.
+          returned: when set
+          type: dict
       description:
         - Compute configuration to use for an execution job.
       returned: when set
@@ -169,6 +192,17 @@ resources:
           type: str
       description:
         - The Dataform Repository containing the input notebook.
+      returned: when set
+      type: dict
+    directNotebookSource:
+      contains:
+        content:
+          description:
+            - The base64-encoded contents of the input notebook file.
+          returned: always
+          type: str
+      description:
+        - The content of the input notebook in ipynb format.
       returned: when set
       type: dict
     displayName:
@@ -232,7 +266,6 @@ resources:
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
-
 ################################################################################
 # Main
 ################################################################################
@@ -278,7 +311,7 @@ def main():
     link = info.build_link("list")
     resources = info.list(link, key="notebookExecutionJobs", filters=filter_exprs)
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":

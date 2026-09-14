@@ -1,0 +1,10 @@
+- name: Create Feature Online Store Featureview
+  google.cloud.gcp_vertexai_feature_online_store_featureview:
+    state: present
+    name: my_feature_online_store_featureview
+    feature_online_store: my_feature_online_store
+    sync_config:
+      cron: "0 0 * * *"
+    big_query_source:
+      uri: "bq://my_project.my_dataset.my_table"
+    region: us-central1

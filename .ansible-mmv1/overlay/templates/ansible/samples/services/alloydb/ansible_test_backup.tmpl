@@ -1,0 +1,17 @@
+- name: Fetch backup info
+  google.cloud.gcp_alloydb_backup_info:
+    location: us-central1
+    filters:
+      - name = "{{`{{ _backup.name }}`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _backup_info
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _backup.changed | bool
+      - _backup.type == "ON_DEMAND"
+      - _backup_info.resources | length >= 1
+      - _backup_info.resources[0].type == "ON_DEMAND"

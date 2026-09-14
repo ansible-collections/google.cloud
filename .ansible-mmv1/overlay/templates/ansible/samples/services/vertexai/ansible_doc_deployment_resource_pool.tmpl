@@ -1,0 +1,12 @@
+- name: Create Deployment Resource Pool
+  google.cloud.gcp_vertexai_deployment_resource_pool:
+    state: present
+    name: my_deployment_resource_pool
+    dedicated_resources:
+      min_replica_count: 1
+      max_replica_count: 3
+      machine_spec:
+        machine_type: n1-standard-4
+        accelerator_type: NVIDIA_TESLA_P4
+        accelerator_count: 1
+    region: us-central1

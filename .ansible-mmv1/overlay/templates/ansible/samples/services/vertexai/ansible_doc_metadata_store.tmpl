@@ -1,0 +1,11 @@
+- name: Create Metadata Store
+  google.cloud.gcp_vertexai_metadata_store:
+    state: present
+    name: my-metadata-store
+    region: us-central1
+
+- name: Delete Metadata Store
+  google.cloud.gcp_vertexai_metadata_store:
+    state: absent
+    name: my-metadata-store
+    region: us-central1

@@ -1,0 +1,9 @@
+- name: Create Featurestore with scaling configuration
+  google.cloud.gcp_vertexai_featurestore:
+    state: present
+    name: my-featurestore
+    region: us-central1
+    online_serving_config:
+      scaling:
+        min_node_count: 1
+        max_node_count: 10

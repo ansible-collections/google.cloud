@@ -1,0 +1,10 @@
+- name: Create secondary cluster attached to primary
+  google.cloud.gcp_alloydb_cluster:
+    cluster_id: my-secondary-cluster
+    state: present
+    location: us-central1
+    cluster_type: SECONDARY
+    network_config:
+      network: projects/my-project/global/networks/my-network
+    secondary_config:
+      primary_cluster_name: projects/my-project/locations/us-central1/clusters/my-cluster

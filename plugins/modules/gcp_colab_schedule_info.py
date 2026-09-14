@@ -37,18 +37,13 @@ description:
   - '''Colab Enterprise Notebook Execution Schedules.'''
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_colab_schedule_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.schedules)'
   - 'Schedule a notebook run Guide: U(https://cloud.google.com/colab/docs/schedule-notebook-run)'
 options:
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   location:
@@ -60,7 +55,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP colab.Schedule resources
+short_description: List Colab.Schedule resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -94,10 +89,148 @@ resources:
         - Default to false.
       returned: when set
       type: bool
+    catchUp:
+      description:
+        - Whether to backfill missed runs when the schedule is resumed from PAUSED state.
+        - If set to true, all missed runs will be scheduled.
+        - New runs will be scheduled after the backfill is complete.
+        - Default to false.
+      returned: success
+      type: bool
     createNotebookExecutionJobRequest:
       contains:
         notebookExecutionJob:
           contains:
+            createTime:
+              description:
+                - Timestamp when this NotebookExecutionJob was created.
+              returned: success
+              type: str
+            customEnvironmentSpec:
+              contains:
+                machineSpec:
+                  contains:
+                    acceleratorCount:
+                      description:
+                        - The number of accelerators to attach to the machine.
+                        - For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs.
+                        - If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost.
+                        - For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8.
+                        - If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost.
+                        - When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM.
+                        - For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM.
+                        - Note that the feature is not compatible with multihost_gpu_node_count.
+                        - When multihost_gpu_node_count is set, the co-scheduling will not be enabled.
+                      returned: when set
+                      type: int
+                    acceleratorType:
+                      description:
+                        - 'Possible values: NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 NVIDIA_GB200 NVIDIA_RTX_PRO_6000 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD.'
+                      returned: when set
+                      type: str
+                    gpuPartitionSize:
+                      description:
+                        - The Nvidia GPU partition size.
+                        - When specified, the requested accelerators will be partitioned into smaller GPU partitions.
+                        - For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances.
+                        - The partition size must be a value supported by the requested accelerator.
+                        - Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes.
+                        - If set, the accelerator_count should be set to 1.
+                      returned: when set
+                      type: str
+                    machineType:
+                      description:
+                        - The type of the machine.
+                        - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
+                        - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
+                        - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
+                      returned: when set
+                      type: str
+                    reservationAffinity:
+                      contains:
+                        key:
+                          description:
+                            - Corresponds to the label key of a reservation resource.
+                            - To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.
+                          returned: when set
+                          type: str
+                        reservationAffinityType:
+                          description:
+                            - Specifies the reservation affinity type.
+                            - 'Possible values: NO_RESERVATION ANY_RESERVATION SPECIFIC_RESERVATION SPECIFIC_THEN_ANY_RESERVATION SPECIFIC_THEN_NO_RESERVATION.'
+                          returned: always
+                          type: str
+                        useReservationPool:
+                          description:
+                            - When set to true, resources will be drawn from go/cloud-ai-gcp-pool.
+                          returned: when set
+                          type: bool
+                        value_values:
+                          description:
+                            - Corresponds to the label values of a reservation resource.
+                            - This must be the full resource name of the reservation or reservation block.
+                          elements: str
+                          returned: when set
+                          type: list
+                      description:
+                        - A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.
+                      returned: when set
+                      type: dict
+                    tpuTopology:
+                      description:
+                        - The topology of the TPUs.
+                        - Corresponds to the TPU topologies available from GKE.
+                        - '(Example: tpu_topology: "2x2x1").'
+                      returned: when set
+                      type: str
+                  description:
+                    - Specification of a single machine.
+                  returned: when set
+                  type: dict
+                networkSpec:
+                  contains:
+                    enableInternetAccess:
+                      description:
+                        - Whether to enable public internet access.
+                        - Default false.
+                      returned: when set
+                      type: bool
+                    network:
+                      description:
+                        - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks).
+                      returned: when set
+                      type: str
+                    subnetwork:
+                      description:
+                        - The name of the subnet that this instance is in.
+                        - 'Format: `projects/{project_id_or_number}/regions/{region}/subnetworks/{subnetwork_id}`.'
+                      returned: when set
+                      type: str
+                  description:
+                    - Network spec.
+                  returned: when set
+                  type: dict
+                persistentDiskSpec:
+                  contains:
+                    diskSizeGb:
+                      description:
+                        - Size in GB of the disk (default is 100GB).
+                      returned: when set
+                      type: str
+                    diskType:
+                      description:
+                        - Type of the disk (default is "pd-standard").
+                        - 'Valid values: "pd-ssd" (Persistent Disk Solid State Drive) "pd-standard" (Persistent Disk Hard Disk Drive) "pd-balanced" (Balanced Persistent Disk) "pd-extreme" (Extreme Persistent Disk).'
+                      returned: when set
+                      type: str
+                  description:
+                    - Represents the spec of persistent disk options.
+                  returned: when set
+                  type: dict
+              description:
+                - Compute configuration to use for an execution job.
+              returned: when set
+              type: dict
             dataformRepositorySource:
               contains:
                 commitSha:
@@ -109,6 +242,7 @@ resources:
                 dataformRepositoryResourceName:
                   description:
                     - The resource name of the Dataform Repository.
+                    - 'Format: `projects/{project_id}/locations/{location}/repositories/{repository_id}`.'
                   returned: always
                   type: str
               description:
@@ -120,6 +254,19 @@ resources:
                 - The display name of the Notebook Execution.
               returned: always
               type: str
+            encryptionSpec:
+              contains:
+                kmsKeyName:
+                  description:
+                    - Resource name of the Cloud KMS key used to protect the resource.
+                    - The Cloud KMS key must be in the same region as the resource.
+                    - It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+                  returned: always
+                  type: str
+              description:
+                - Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+              returned: when set
+              type: dict
             executionTimeout:
               description:
                 - Max running time of the execution job in seconds (default 86400s / 24 hrs).
@@ -157,24 +304,293 @@ resources:
                 - Format:`gs://bucket-name`.
               returned: always
               type: str
+            jobState:
+              description:
+                - 'Possible values: JOB_STATE_QUEUED JOB_STATE_PENDING JOB_STATE_RUNNING JOB_STATE_SUCCEEDED JOB_STATE_FAILED JOB_STATE_CANCELLING JOB_STATE_CANCELLED JOB_STATE_PAUSED JOB_STATE_EXPIRED JOB_STATE_UPDATING JOB_STATE_PARTIALLY_SUCCEEDED.'
+              returned: success
+              type: str
+            kernelName:
+              description:
+                - The name of the kernel to use during notebook execution.
+                - If unset, the default kernel is used.
+              returned: when set
+              type: str
+            labels:
+              description:
+                - The labels with user-defined metadata to organize NotebookExecutionJobs.
+              returned: when set
+              type: dict
+            name:
+              description:
+                - The resource name of this NotebookExecutionJob.
+                - 'Format: `projects/{project_id}/locations/{location}/notebookExecutionJobs/{job_id}`.'
+              returned: success
+              type: str
             notebookRuntimeTemplateResourceName:
               description:
                 - The NotebookRuntimeTemplate to source compute configuration from.
-              returned: always
+              returned: when set
+              type: str
+            scheduleResourceName:
+              description:
+                - The Schedule resource name if this job is triggered by one.
+                - 'Format: `projects/{project_id}/locations/{location}/schedules/{schedule_id}`.'
+              returned: success
               type: str
             serviceAccount:
               description:
                 - The service account to run the execution as.
               returned: when set
               type: str
+            updateTime:
+              description:
+                - Timestamp when this NotebookExecutionJob was most recently updated.
+              returned: success
+              type: str
+            workbenchRuntime:
+              description:
+                - Configuration for a Workbench Instances-based environment.
+              returned: when set
+              type: dict
           description:
             - The NotebookExecutionJob to create.
           returned: always
           type: dict
+        notebookExecutionJobId:
+          description:
+            - User specified ID for the NotebookExecutionJob.
+          returned: success
+          type: str
+        parent:
+          description:
+            - The resource name of the Location to create the NotebookExecutionJob.
+            - 'Format: `projects/{project}/locations/{location}`.'
+          returned: when set
+          type: str
       description:
         - Request for google_colab_notebook_execution.
-      returned: always
+      returned: when set
       type: dict
+    createPipelineJobRequest:
+      contains:
+        parent:
+          description:
+            - The resource name of the Location to create the PipelineJob in.
+            - 'Format: `projects/{project}/locations/{location}`.'
+          returned: when set
+          type: str
+        pipelineJob:
+          contains:
+            createTime:
+              description:
+                - Pipeline creation time.
+              returned: success
+              type: str
+            displayName:
+              description:
+                - The display name of the Pipeline.
+                - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+              returned: when set
+              type: str
+            encryptionSpec:
+              contains:
+                kmsKeyName:
+                  description:
+                    - Resource name of the Cloud KMS key used to protect the resource.
+                    - The Cloud KMS key must be in the same region as the resource.
+                    - It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.
+                  returned: always
+                  type: str
+              description:
+                - Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource.
+              returned: when set
+              type: dict
+            endTime:
+              description:
+                - Pipeline end time.
+              returned: success
+              type: str
+            labels:
+              description:
+                - The labels with user-defined metadata to organize PipelineJob.
+                - Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes.
+                - International characters are allowed.
+                - See https://goo.gl/xmQnxf for more information and examples of labels.
+                - Note there is some reserved label key for Vertex AI Pipelines.
+                - '- `vertex-ai-pipelines-run-billing-id`, user set value will get overrided.'
+              returned: when set
+              type: dict
+            name:
+              description:
+                - The resource name of the PipelineJob.
+              returned: success
+              type: str
+            network:
+              description:
+                - The full name of the Compute Engine [network](/compute/docs/networks-and-firewalls#networks) to which the Pipeline Job's workload should be peered.
+                - For example, `projects/12345/global/networks/myVPC`.
+                - '[Format](/compute/docs/reference/rest/v1/networks/insert) is of the form `projects/{project}/global/networks/{network}`.'
+                - Where {project} is a project number, as in `12345`, and {network} is a network name.
+                - Private services access must already be configured for the network.
+                - Pipeline job will apply the network configuration to the Google Cloud resources being launched, if applied, such as Vertex AI Training or Dataflow job.
+                - If left unspecified, the workload is not peered with any network.
+              returned: when set
+              type: str
+            pipelineSpec:
+              description:
+                - A compiled definition of a pipeline, represented as a `JSON` object.
+                - Defines the structure of the pipeline, including its components, tasks, and parameters.
+                - This specification is generated by compiling a pipeline function defined in `Python` using the `Kubeflow Pipelines SDK`.
+              returned: when set
+              type: str
+            preflightValidations:
+              description:
+                - Whether to do component level validations before job creation.
+              returned: when set
+              type: bool
+            pscInterfaceConfig:
+              contains:
+                dnsPeeringConfigs:
+                  contains:
+                    domain:
+                      description:
+                        - The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.".
+                        - Must end with a dot.
+                      returned: always
+                      type: str
+                    targetNetwork:
+                      description:
+                        - The VPC network name in the target_project where the DNS zone specified by 'domain' is visible.
+                      returned: always
+                      type: str
+                    targetProject:
+                      description:
+                        - The project ID hosting the Cloud DNS managed zone that contains the 'domain'.
+                        - The Vertex AI Service Agent requires the dns.peer role on this project.
+                      returned: always
+                      type: str
+                  description:
+                    - DNS peering configurations.
+                    - When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS.
+                    - The user must grant the dns.peer role to the Vertex AI Service Agent on the target project.
+                  elements: dict
+                  returned: when set
+                  type: list
+                networkAttachment:
+                  description:
+                    - The name of the Compute Engine [network attachment](https://cloud.google.com/vpc/docs/about-network-attachments) to attach to the resource within the region and user project.
+                    - To specify this field, you must have already [created a network attachment] (https://cloud.google.com/vpc/docs/create-manage-network-attachments#create-network-attachments).
+                    - This field is only used for resources using PSC-I.
+                  returned: when set
+                  type: str
+              description:
+                - Configuration for PSC-I.
+              returned: when set
+              type: dict
+            reservedIpRanges:
+              description:
+                - A list of names for the reserved ip ranges under the VPC network that can be used for this Pipeline Job's workload.
+                - If set, we will deploy the Pipeline Job's workload within the provided ip ranges.
+                - Otherwise, the job will be deployed to any ip ranges under the provided VPC network.
+                - 'Example: [''vertex-ai-ip-range''].'
+              elements: str
+              returned: when set
+              type: list
+            runtimeConfig:
+              contains:
+                failurePolicy:
+                  description:
+                    - 'Possible values: PIPELINE_FAILURE_POLICY_FAIL_SLOW PIPELINE_FAILURE_POLICY_FAIL_FAST.'
+                  returned: when set
+                  type: str
+                gcsOutputDirectory:
+                  description:
+                    - A path in a Cloud Storage bucket, which will be treated as the root output directory of the pipeline.
+                    - It is used by the system to generate the paths of output artifacts.
+                    - The artifact paths are generated with a sub-path pattern `{job_id}/{task_id}/{output_key}` under the specified output directory.
+                    - The service account specified in this pipeline must have the `storage.objects.get` and `storage.objects.create` permissions for this bucket.
+                  returned: always
+                  type: str
+                parameterValues:
+                  description:
+                    - The runtime parameters of the PipelineJob.
+                    - The parameters will be passed into PipelineJob.pipeline_spec to replace the placeholders at runtime.
+                    - This field is used by pipelines built using `PipelineJob.pipeline_spec.schema_version` 2.1.0, such as pipelines built using Kubeflow Pipelines SDK 1.9 or higher and the v2 DSL.
+                  returned: when set
+                  type: dict
+              description:
+                - The runtime config of a PipelineJob.
+              returned: when set
+              type: dict
+            scheduleName:
+              description:
+                - The schedule resource name.
+                - Only returned if the Pipeline is created by Schedule API.
+              returned: success
+              type: str
+            serviceAccount:
+              description:
+                - The service account that the pipeline workload runs as.
+                - If not specified, the Compute Engine default service account in the project will be used.
+                - See https://cloud.google.com/compute/docs/access/service-accounts#default_service_account Users starting the pipeline must have the `iam.serviceAccounts.actAs` permission on this service account.
+              returned: when set
+              type: str
+            startTime:
+              description:
+                - Pipeline start time.
+              returned: success
+              type: str
+            state:
+              description:
+                - 'Possible values: PIPELINE_STATE_QUEUED PIPELINE_STATE_PENDING PIPELINE_STATE_RUNNING PIPELINE_STATE_SUCCEEDED PIPELINE_STATE_FAILED PIPELINE_STATE_CANCELLING PIPELINE_STATE_CANCELLED PIPELINE_STATE_PAUSED.'
+              returned: success
+              type: str
+            templateMetadata:
+              contains:
+                version:
+                  description:
+                    - The version_name in artifact registry.
+                    - Will always be presented in output if the PipelineJob.template_uri is from supported template registry.
+                    - Format is "sha256:abcdef123456...".
+                  returned: success
+                  type: str
+              description:
+                - Pipeline template metadata if PipelineJob.template_uri is from supported template registry.
+                - Currently, the only supported registry is Artifact Registry.
+              returned: success
+              type: dict
+            templateUri:
+              description:
+                - A template uri from where the PipelineJob.pipeline_spec, if empty, will be downloaded.
+                - Currently, only uri from Vertex Template Registry & Gallery is supported.
+                - Reference to https://cloud.google.com/vertex-ai/docs/pipelines/create-pipeline-template.
+              returned: when set
+              type: str
+            updateTime:
+              description:
+                - Timestamp when this PipelineJob was most recently updated.
+              returned: success
+              type: str
+          description:
+            - An instance of a machine learning PipelineJob.
+          returned: always
+          type: dict
+        pipelineJobId:
+          description:
+            - The ID to use for the PipelineJob, which will become the final component of the PipelineJob name.
+            - If not provided, an ID will be automatically generated.
+            - This value should be less than 128 characters, and valid characters are `/a-z-/`.
+          returned: success
+          type: str
+      description:
+        - Request message for PipelineService.CreatePipelineJob.
+      returned: when set
+      type: dict
+    createTime:
+      description:
+        - Timestamp when this Schedule was created.
+      returned: success
+      type: str
     cron:
       description:
         - Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.
@@ -190,6 +606,41 @@ resources:
         - Timestamp after which no new runs can be scheduled.
         - If specified, the schedule will be completed when either end_time is reached or when scheduled_run_count >= max_run_count.
         - Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
+      returned: when set
+      type: str
+    lastPauseTime:
+      description:
+        - Timestamp when this Schedule was last paused.
+        - Unset if never paused.
+      returned: success
+      type: str
+    lastResumeTime:
+      description:
+        - Timestamp when this Schedule was last resumed.
+        - Unset if never resumed from pause.
+      returned: success
+      type: str
+    lastScheduledRunResponse:
+      contains:
+        runResponse:
+          description:
+            - The response of the scheduled run.
+          returned: success
+          type: str
+        scheduledRunTime:
+          description:
+            - The scheduled run time based on the user-specified schedule.
+          returned: success
+          type: str
+      description:
+        - Status of a scheduled run.
+      returned: success
+      type: dict
+    maxConcurrentActiveRunCount:
+      description:
+        - Specifies the maximum number of active runs that can be executed concurrently for this Schedule.
+        - This limits the number of runs that can be in a non-terminal state at the same time.
+        - Currently, this field is only supported for requests of type CreatePipelineJobRequest.
       returned: when set
       type: str
     maxConcurrentRunCount:
@@ -212,6 +663,12 @@ resources:
         - The resource name of the Schedule.
       returned: success
       type: str
+    nextRunTime:
+      description:
+        - Timestamp when this Schedule should schedule the next run.
+        - Having a next_run_time in the past means the runs are being started behind schedule.
+      returned: success
+      type: str
     startTime:
       description:
         - The timestamp after which the first run can be scheduled.
@@ -219,10 +676,20 @@ resources:
         - Must be in the RFC 3339 (https://www.ietf.org/rfc/rfc3339.txt) format.
       returned: when set
       type: str
+    startedRunCount:
+      description:
+        - The number of runs started by this schedule.
+      returned: success
+      type: str
     state:
       description:
         - Output only.
         - The state of the schedule.
+      returned: success
+      type: str
+    updateTime:
+      description:
+        - Timestamp when this Schedule was updated.
       returned: success
       type: str
   description: List of Colab.Schedule resources matching the supplied filters. May be empty, contain a single resource, or multiple resources.
@@ -236,7 +703,6 @@ resources:
 ################################################################################
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
-
 
 ################################################################################
 # Main
@@ -283,7 +749,7 @@ def main():
     link = info.build_link("list")
     resources = info.list(link, key="schedules", filters=filter_exprs)
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":

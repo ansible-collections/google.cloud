@@ -37,18 +37,13 @@ description:
   - Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency. The Feature Online Store is a top-level container.
 extends_documentation_fragment:
   - google.cloud.gcp
+  - google.cloud.info
 module: gcp_vertexai_feature_online_store_info
 notes:
   - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores)'
   - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
 options:
   filters:
-    description:
-      - A list of filter expression strings used to filter the resources returned by the API.
-      - Each string is a filter expression (e.g. C(some_field = "SOME_VALUE")).
-      - Multiple expressions are combined with a logical AND.
-      - Refer to the filter topic documentation U(https://cloud.google.com/sdk/gcloud/reference/topic/filters).
-      - Refer to the IAP-160 filter syntax documentation U(https://google.aip.dev/160).
     elements: str
     type: list
   region:
@@ -60,7 +55,7 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List GCP vertexai.FeatureOnlineStore resources
+short_description: List VertexAI.FeatureOnlineStore resources
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -232,7 +227,6 @@ resources:
 
 from ansible_collections.google.cloud.plugins.module_utils import gcp_v2
 
-
 ################################################################################
 # Main
 ################################################################################
@@ -277,7 +271,7 @@ def main():
     link = info.build_link("list")
     resources = info.list(link, key="featureOnlineStores", filters=filter_exprs)
 
-    module.exit_json(changed=False, resources=resources)
+    module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
 
 if __name__ == "__main__":

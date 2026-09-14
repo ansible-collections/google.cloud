@@ -1,0 +1,16 @@
+- name: Fetch primary cluster info
+  google.cloud.gcp_alloydb_cluster_info:
+    location: us-central1
+    filters:
+      - name = "{{`{{ _primary.name }}`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file }}`}}"
+  register: _primary_info
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _primary.changed | bool
+      - _primary.clusterType == "PRIMARY"
+      - _primary_info.resources | length >= 1

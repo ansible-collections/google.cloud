@@ -1,0 +1,39 @@
+---
+samples:
+  - name: ansible_doc_connection_ghe
+    exclude_test: true
+    steps:
+      - name: ansible_doc_connection_ghe
+  - name: ansible_doc_connection_github
+    exclude_test: true
+    steps:
+      - name: ansible_doc_connection_github
+  - name: ansible_doc_connection_gitlab
+    exclude_test: true
+    steps:
+      - name: ansible_doc_connection_gitlab
+custom_code:
+  custom_import: |
+    import copy
+
+  decoder: |
+    # when creating, response is empty (except for "kind" maybe)
+    if len(response) <= 1:
+      return response
+
+    r = copy.deepcopy(response)
+
+    # disabled key doesn't seem to appear consistently for gitlab,
+    # set to the default if missing
+    r["disabled"] = response.get("disabled", False)
+
+    # the github app id returned from the API shows as a string,
+    # and the input is an int, when running comparison they will be
+    # incorrectly show as diff
+    if r.get("githubConfig") is not None:
+      r["githubConfig"]["appInstallationId"] = int(response["githubConfig"]["appInstallationId"])
+    # same for GHE
+    if r.get("githubEnterpriseConfig") is not None:
+      r["githubEnterpriseConfig"]["appInstallationId"] = int(response["githubEnterpriseConfig"]["appInstallationId"])
+
+    return r

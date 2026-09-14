@@ -170,7 +170,7 @@ options:
     description:
       - Identifies the index endpoint.
       - Must be in the format 'projects/{{project}}/locations/{{region}}/indexEndpoints/{{indexEndpoint}}'.
-      - This field is a reference to a IndexEndpoint resource in GCP.
+      - This field is a reference to a IndexEndpoint resource.
       - 'It can be specified in two ways: First, you can place a dictionary with key ''name'' matching your resource.'
       - 'Alternatively, you can add `register: name-of-resource` to a IndexEndpoint task and then set this field to `{{ name-of-resource }}`.'
       - This property is immutable, to change it, you must delete and recreate the resource.
@@ -199,24 +199,24 @@ options:
       - absent
     default: present
     description:
-      - Whether the resource should exist in GCP.
+      - Whether the resource should exist.
     type: str
 requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Creates a GCP VertexAI.IndexEndpointDeployedIndex resource
+short_description: Manages a VertexAI.IndexEndpointDeployedIndex resource
 """  # noqa: E501
 
 EXAMPLES = r"""
 - name: Create basic index endpoint deployed index
   google.cloud.gcp_vertexai_index_endpoint_deployed_index:
     state: present
-    display_name: "{{ resource_name }}"
-    deployed_index_id: "{{ resource_name | regex_replace('-', '_') }}"
+    display_name: my-deployed-index
+    deployed_index_id: my_deployed_index
     region: us-central1
-    index: "{{ _myidx.name }}"
-    index_endpoint: "{{ _myidxep.name }}"
+    index: projects/my-project/locations/us-central1/indexes/my-index
+    index_endpoint: projects/my-project/locations/us-central1/indexEndpoints/my-index-endpoint
     enable_access_logging: false
     deployed_index_auth_config:
       auth_provider:
@@ -224,9 +224,49 @@ EXAMPLES = r"""
           - 123-myapp
         allowed_issuers:
           - mysa@myproject.iam.gserviceaccount.com
-    project: "{{ gcp_project }}"
-    auth_kind: "{{ gcp_cred_kind }}"
-    service_account_file: "{{ gcp_cred_file }}"
+
+################################################################################
+
+- name: Create index endpoint deployed index with automatic resources
+  google.cloud.gcp_vertexai_index_endpoint_deployed_index:
+    state: present
+    display_name: my-index-endpoint-index
+    deployed_index_id: my_index_endpoint_index
+    region: us-central1
+    index: projects/my-project/locations/us-central1/indexes/my-index
+    index_endpoint: projects/my-project/locations/us-central1/indexEndpoints/my-index-endpoint
+    enable_access_logging: false
+    deployed_index_auth_config:
+      auth_provider:
+        audiences:
+          - 123-myapp
+        allowed_issuers:
+          - mysa@myproject.iam.gserviceaccount.com
+    automatic_resources:
+      max_replica_count: 3
+
+################################################################################
+
+- name: Create index endpoint deployed index with dedicated resources
+  google.cloud.gcp_vertexai_index_endpoint_deployed_index:
+    state: present
+    display_name: my-deployed-index
+    deployed_index_id: my_deployed_index
+    region: us-central1
+    index: projects/my-project/locations/us-central1/indexes/my-index
+    index_endpoint: projects/my-project/locations/us-central1/indexEndpoints/my-index-endpoint
+    enable_access_logging: false
+    deployed_index_auth_config:
+      auth_provider:
+        audiences:
+          - 123-myapp
+        allowed_issuers:
+          - mysa@myproject.iam.gserviceaccount.com
+    dedicated_resources:
+      min_replica_count: 1
+      max_replica_count: 3
+      machine_spec:
+        machine_type: e2-standard-2
 """  # noqa: E501
 
 RETURN = r"""
@@ -742,6 +782,7 @@ def main():
             else:
                 new_obj = existing_obj
 
+    new_obj = gcp_v2.filter_reserved_keys(new_obj)
     new_obj.update({"changed": changed})
     gcp_v2.debug(module, final_obj=new_obj, changed=changed)
     module.exit_json(**new_obj)

@@ -1,0 +1,8 @@
+- name: Create Endpoint
+  google.cloud.gcp_vertexai_endpoint:
+    name: my-endpoint
+    state: present
+    display_name: my-endpoint
+    network: projects/my-project/global/networks/my-network  # Network must be peered
+    location: us-central1
+    region: us-central1
