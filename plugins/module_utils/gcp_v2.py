@@ -610,7 +610,7 @@ def remove_empties(data: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
         return None
 
 
-def filter_reserved_keys(obj):
+def filter_reserved_keys(obj: T.Any):
     """
     Recursively rename dict keys that collide with dict builtin method
     names, as per ansible-test sanity bad-return-value-key check
@@ -624,3 +624,7 @@ def filter_reserved_keys(obj):
     if isinstance(obj, list):
         return [filter_reserved_keys(item) for item in obj]
     return obj
+
+
+def flatten_name(url: str, sep: str = "/"):
+    return url.split(sep)[-1]
