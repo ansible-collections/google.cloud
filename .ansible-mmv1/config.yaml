@@ -67,6 +67,9 @@ products:
       - Runtime
       - RuntimeTemplate
       - Schedule
+  - name: containeranalysis
+    resources:
+      - Note
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources

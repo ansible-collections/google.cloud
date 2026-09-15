@@ -1,0 +1,8 @@
+- name: Create Container Analysis Note
+  google.cloud.gcp_containeranalysis_note:
+    name: my-note
+    state: present
+    attestation_authority:
+      hint:
+        human_readable_name: "qa@example.com"
+    short_description: "QA team attestation"
