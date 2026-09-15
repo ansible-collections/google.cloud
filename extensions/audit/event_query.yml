@@ -1,0 +1,386 @@
+---
+# Indirect node counting queries for the google.cloud collection.
+#
+# These jq expressions run inside the Automation Platform controller
+# (awx/main/tasks/host_indirect.py) against each module's result, and their
+# output feeds subscription node counting. Nothing in this repository executes
+# them, so tests/unit/audit/test_event_query_contract.py asserts the contract
+# the controller imposes on the output.
+#
+# WHY THIS FILE IS NAMED event_query.yml
+# --------------------------------------
+# The controller only ever reads extensions/audit/event_query.yml
+# (awx/playbooks/library/indirect_instance_count.py). The previous file was
+# named extensions/audit/taxonomy.jq, so it was never loaded.
+#
+# THE CONTRACT
+# ------------
+# name             must be present and never null -- `if name is None: continue`
+# canonical_facts  must be present, truthy, and free of null at ANY depth.
+#                  get_hashable_form() accepts int/float/str/bool/dict/list/
+#                  tuple and raises UnhashableFacts on anything else, including
+#                  null; the caller catches it and skips the record. A single
+#                  null field silently discards the whole node, with the job
+#                  still green.
+# canonical_facts  is the ONLY dedup key (`results[hashable_facts]`), so it must
+#                  hold identity and nothing else. Anything in it that changes
+#                  over the life of a resource re-counts that resource.
+# facts            must carry infra_type, infra_bucket and device_type; a
+#                  resource without them is counted but cannot be bucketed.
+#
+# WHY THERE IS ONE ENTRY PER MODULE
+# ---------------------------------
+# The previous query was a single wildcard expression that looked the resource
+# up in a table keyed by `$data.action`. The controller passes jq only
+# `event_data['res']` -- the module's result dict -- and no google.cloud module
+# puts its own name in its result, so that lookup never matched. The module name
+# is available to the controller as the YAML key, which is what is used here.
+#
+# The identifier for each module below is whatever its response_to_hash()
+# actually returns. etag is deliberately never used: it changes on every
+# mutation, so a resource keyed on it is counted again each time it is touched.
+
+google.cloud.gcp_bigquery_dataset:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "database",
+        device_type: "database_analytics",
+        module: "gcp_bigquery_dataset"
+      }
+    }
+google.cloud.gcp_bigquery_table:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "database",
+        device_type: "database_analytics",
+        module: "gcp_bigquery_table"
+      }
+    }
+google.cloud.gcp_compute_address:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "networking",
+        device_type: "vpc",
+        module: "gcp_compute_address"
+      }
+    }
+google.cloud.gcp_compute_disk:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "storage",
+        device_type: "block_storage",
+        module: "gcp_compute_disk"
+      }
+    }
+google.cloud.gcp_compute_firewall:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "security_identity",
+        device_type: "firewall",
+        module: "gcp_compute_firewall"
+      }
+    }
+google.cloud.gcp_compute_instance:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "compute",
+        device_type: "virtual_machine",
+        module: "gcp_compute_instance"
+      }
+    }
+google.cloud.gcp_compute_instance_group_manager:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "compute",
+        device_type: "instance_group",
+        module: "gcp_compute_instance_group_manager"
+      }
+    }
+google.cloud.gcp_compute_instance_template:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "compute",
+        device_type: "virtual_machine_template",
+        module: "gcp_compute_instance_template"
+      }
+    }
+google.cloud.gcp_compute_network:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "networking",
+        device_type: "vpc",
+        module: "gcp_compute_network"
+      }
+    }
+google.cloud.gcp_compute_ssl_certificate:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "security_identity",
+        device_type: "certificate",
+        module: "gcp_compute_ssl_certificate"
+      }
+    }
+google.cloud.gcp_container_cluster:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "compute",
+        device_type: "kubernetes_cluster",
+        module: "gcp_container_cluster"
+      }
+    }
+google.cloud.gcp_container_node_pool:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "compute",
+        device_type: "kubernetes_node_pool",
+        module: "gcp_container_node_pool"
+      }
+    }
+google.cloud.gcp_dns_managed_zone:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "networking",
+        device_type: "dns",
+        module: "gcp_dns_managed_zone"
+      }
+    }
+# A record set is identified by name AND type: an A record and a TXT
+# record on the same name are two resources. Keying on name alone
+# collapsed them into one.
+google.cloud.gcp_dns_resource_record_set:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name | tostring),
+      canonical_facts: {
+        id: ((.name | tostring) + "/" + (.type | tostring))
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "networking",
+        device_type: "dns",
+        module: "gcp_dns_resource_record_set"
+      }
+    }
+# response_to_hash() returns etag but no id, so the previous fallback
+# chain (.id // .etag // .selfLink // .name) resolved to etag -- which
+# changes on every mutation, so each update counted the same instance
+# again. name is the full resource path and is stable.
+google.cloud.gcp_filestore_instance:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "storage",
+        device_type: "file_storage",
+        module: "gcp_filestore_instance"
+      }
+    }
+google.cloud.gcp_iam_role:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "security_identity",
+        device_type: "iam",
+        module: "gcp_iam_role"
+      }
+    }
+# uniqueId survives the account being deleted and recreated at the same
+# email; name is the fallback for older API responses.
+google.cloud.gcp_iam_service_account:
+  query: >-
+    select(type == "object") | select((.uniqueId // .name) != null) |
+    {
+      name: (.name // ((.uniqueId // .name) | tostring)),
+      canonical_facts: {
+        id: ((.uniqueId // .name) | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "security_identity",
+        device_type: "iam",
+        module: "gcp_iam_service_account"
+      }
+    }
+google.cloud.gcp_kms_key_ring:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "security_identity",
+        device_type: "key_vault",
+        module: "gcp_kms_key_ring"
+      }
+    }
+google.cloud.gcp_pubsub_subscription:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "app_integration_messaging",
+        device_type: "messaging",
+        module: "gcp_pubsub_subscription"
+      }
+    }
+google.cloud.gcp_pubsub_topic:
+  query: >-
+    select(type == "object") | select(.name != null) |
+    {
+      name: (.name // (.name | tostring)),
+      canonical_facts: {
+        id: (.name | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "app_integration_messaging",
+        device_type: "messaging",
+        module: "gcp_pubsub_topic"
+      }
+    }
+# connectionName is project:region:instance and is unique across
+# projects; name alone is only unique within one project.
+google.cloud.gcp_sql_instance:
+  query: >-
+    select(type == "object") | select((.connectionName // .name) != null) |
+    {
+      name: (.name // ((.connectionName // .name) | tostring)),
+      canonical_facts: {
+        id: ((.connectionName // .name) | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "database",
+        device_type: "database_relational",
+        module: "gcp_sql_instance"
+      }
+    }
+google.cloud.gcp_storage_bucket:
+  query: >-
+    select(type == "object") | select(.id != null) |
+    {
+      name: (.name // (.id | tostring)),
+      canonical_facts: {
+        id: (.id | tostring)
+      },
+      facts: {
+        infra_type: "public_cloud",
+        infra_bucket: "storage",
+        device_type: "object_storage",
+        module: "gcp_storage_bucket"
+      }
+    }
+# The table this file replaces also mapped google.cloud.gcp_resource_record_set
+# and google.cloud.gcp_sourcerepo_repository. Neither module exists in this
+# collection, so both entries are dropped.
