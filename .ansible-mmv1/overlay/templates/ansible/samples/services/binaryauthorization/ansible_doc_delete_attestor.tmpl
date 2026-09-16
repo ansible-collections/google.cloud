@@ -1,0 +1,6 @@
+- name: Delete Attestor
+  google.cloud.gcp_binaryauthorization_attestor:
+    name: test-attestor
+    state: absent
+    attestation_authority_note:
+      note_reference: projects/my-project/notes/my-note

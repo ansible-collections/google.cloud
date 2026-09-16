@@ -48,6 +48,9 @@ products:
       - Cluster
       - Instance
       - User
+  - name: binaryauthorization
+    resources:
+      - Attestor
   - name: cloudbuild
     skip-tests:
       - "*"

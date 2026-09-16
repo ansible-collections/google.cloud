@@ -1,0 +1,13 @@
+- name: Read armored public key file
+  ansible.builtin.slurp:
+    path: /path/to/public-key.asc
+  register: _public_key
+
+- name: Create Attestor
+  google.cloud.gcp_binaryauthorization_attestor:
+    name: test-attestor
+    state: present
+    attestation_authority_note:
+      note_reference: projects/my-project/notes/my-note
+      public_keys:
+        - ascii_armored_pgp_public_key: "{{`{{ _public_key.content | b64decode }}`}}"
