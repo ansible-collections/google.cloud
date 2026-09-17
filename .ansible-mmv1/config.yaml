@@ -51,6 +51,7 @@ products:
   - name: binaryauthorization
     resources:
       - Attestor
+      - Policy
   - name: cloudbuild
     skip-tests:
       - "*"

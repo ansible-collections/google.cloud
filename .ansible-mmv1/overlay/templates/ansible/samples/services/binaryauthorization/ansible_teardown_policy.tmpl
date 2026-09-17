@@ -1,0 +1,9 @@
+- name: Delete Custom Policy
+  google.cloud.gcp_binaryauthorization_policy:
+    state: absent
+    default_admission_rule:
+      evaluation_mode: ALWAYS_ALLOW
+      enforcement_mode: ENFORCED_BLOCK_AND_AUDIT_LOG
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"

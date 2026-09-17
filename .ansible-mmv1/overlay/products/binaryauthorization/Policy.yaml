@@ -1,0 +1,44 @@
+---
+collection_url_key: clusterAdmissionRules
+custom_code:
+  decoder: |
+    # flatten name
+    if not gcp_v2.empty(response):
+      n: str = response.pop("name")
+      response["name"] = gcp_v2.flatten_name(n)
+      response["id"] = n
+
+    return response
+  pre_delete: |
+    # when you delete, you actually reset it back to defaults
+    resource.request = {
+      "global_policy_evaluation_mode": "ENABLE",
+      "default_admission_rule": {
+          "evaluation_mode": "ALWAYS_ALLOW",
+          "enforcement_mode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
+      }
+    }
+
+samples:
+  - name: ansible_doc_create
+    exclude_test: true
+    steps:
+      - name: ansible_doc_create_policy
+  - name: ansible_doc_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_delete_policy
+  - name: ansible_test_policy
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_note
+        config_path: templates/ansible/samples/services/containeranalysis/ansible_setup_note.tmpl
+      - name: ansible_setup_attestor
+        config_path: templates/ansible/samples/services/binaryauthorization/ansible_setup_attestor.tmpl
+      - name: ansible_setup_policy
+      - name: ansible_test_policy
+      - name: ansible_teardown_policy
+      - name: ansible_teardown_attestor
+        config_path: templates/ansible/samples/services/binaryauthorization/ansible_teardown_attestor.tmpl
+      - name: ansible_teardown_note
+        config_path: templates/ansible/samples/services/containeranalysis/ansible_teardown_note.tmpl
