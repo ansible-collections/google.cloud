@@ -1,0 +1,3 @@
+minor_changes:
+  - gcp_binaryauthorization_* - Adding 4 new binauthz modules for attestor/policy and accompanying info modules (https://github.com/ansible-collections/google.cloud/pull/782)
+  - gcp_containeranalysis_* - Adding 2 new container analysis module and info module (https://github.com/ansible-collections/google.cloud/pull/782)
