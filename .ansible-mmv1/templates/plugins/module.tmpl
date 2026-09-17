@@ -49,6 +49,8 @@ class {{ $option.ClassName }}(gcp_v2.Resource):
             {{- else -}}
             gcp_v2.remove_empties({{ $suboption.ClassName }}(self.request.get("{{ $suboption.AnsibleName }}", {})).to_request()),  # remove empty values
             {{- end -}}
+        {{- else if $suboption.IsMapOfNestedObjects -}}
+            {item["{{ $suboption.MapKeySuboption.AnsibleName }}"]: gcp_v2.remove_empties({{ $suboption.ClassName }}(item).to_request()) for item in (self.request.get("{{ $suboption.AnsibleName }}") or [])},
         {{- else if $suboption.IsNestedList -}}
             [{{ $suboption.ClassName }}(item).to_request() for item in (self.request.get("{{ $suboption.AnsibleName }}") or [])],
         {{- else -}}
@@ -68,6 +70,8 @@ class {{ $option.ClassName }}(gcp_v2.Resource):
             "{{ $suboption.ApiName }}": {{""}}
         {{- if $suboption.IsNestedObject -}}
             {{ $suboption.ClassName }}().from_response(self.response.get("{{ $suboption.ApiName }}", {})),
+        {{- else if $suboption.IsMapOfNestedObjects -}}
+            [{**{{ $suboption.ClassName }}().from_response(val), "{{ $suboption.MapKeySuboption.SafeApiName }}": key} for key, val in (self.response.get("{{ $suboption.ApiName }}") or {}).items()],
         {{- else if $suboption.IsNestedList -}}
             [{{ $suboption.ClassName }}().from_response(item) for item in (self.response.get("{{ $suboption.ApiName }}") or [])],
         {{- else -}}
@@ -93,6 +97,8 @@ class {{ $.ModuleClass }}(gcp_v2.Resource):
             {{- else -}}
             gcp_v2.remove_empties({{ $option.ClassName }}(self.request.get("{{ $option.AnsibleName }}", {})).to_request()),  # remove empty values
             {{- end -}}
+            {{- else if $option.IsMapOfNestedObjects -}}
+            {item["{{ $option.MapKeySuboption.AnsibleName }}"]: gcp_v2.remove_empties({{ $option.ClassName }}(item).to_request()) for item in (self.request.get("{{ $option.AnsibleName }}") or [])},
             {{- else if $option.IsNestedList -}}
             [{{ $option.ClassName }}(item).to_request() for item in (self.request.get("{{ $option.AnsibleName }}") or [])],
             {{- else if $option.IsList -}}
@@ -108,6 +114,8 @@ class {{ $.ModuleClass }}(gcp_v2.Resource):
         {{- range $option := $.OutputOptions }}
             "{{ $option.ApiName }}": {{ if $option.IsNestedObject -}}
             {{ $option.ClassName }}().from_response(self.response.get("{{ $option.ApiName }}", {})),
+            {{- else if $option.IsMapOfNestedObjects -}}
+            [{**{{ $option.ClassName }}().from_response(val), "{{ $option.MapKeySuboption.SafeApiName }}": key} for key, val in (self.response.get("{{ $option.ApiName }}") or {}).items()],
             {{- else if $option.IsNestedList -}}
             [{{ $option.ClassName }}().from_response(item) for item in (self.response.get("{{ $option.ApiName }}") or [])],
             {{- else if $option.IsList -}}
