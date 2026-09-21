@@ -38,9 +38,9 @@ short_description: Generates a signed URL for a GCP Storage object
 author: Google Inc. (@googlecloudplatform)
 requirements:
 - python >= 2.6
-- requests >= 2.18.4
-- google-auth >= 1.3.0
-- google-cloud-storage >= 1.2.0
+- requests >= 2.18.4 (only when signing with I(signer_service_account))
+- google-auth >= 1.3.0 (only when signing with I(signer_service_account))
+- google-cloud-storage >= 1.2.0 (only when signing with I(signer_service_account))
 options:
   bucket:
     description:
@@ -67,6 +67,10 @@ options:
     - The signing is performed locally, using the V4 HMAC-SHA256 algorithm - no call
       to the IAM Credentials API is made, and no serviceAccountTokenCreator grant is
       required.
+    - The HMAC key only authenticates the request; the service account (or user) it
+      belongs to still needs the usual Cloud Storage IAM role on the bucket or object
+      (for example roles/storage.objectViewer for a GET URL) for the resulting URL to
+      actually work.
     - Requires I(hmac_key_secret). Mutually exclusive with I(signer_service_account).
     type: str
   hmac_key_secret:
@@ -162,15 +166,22 @@ EXAMPLES = """
         url: "{{ package_url.signed_url }}"
         dest: /tmp/agent.rpm
 
-- name: Generate a signed URL locally from an HMAC key, no IAM API call involved
-  google.cloud.gcp_storage_signed_url:
-    bucket: my-software-bucket
-    object_name: agents/agent-1.2.3.rpm
-    hmac_key_access_id: GOOG1EZ...
-    hmac_key_secret: "{{ vaulted_hmac_secret }}"
-    auth_kind: application
-  delegate_to: localhost
-  register: package_url
+- name: Generate a signed URL locally from an HMAC key, then download it
+  block:
+    - name: Generate signed URL, signed with an HMAC key - no IAM API call involved
+      google.cloud.gcp_storage_signed_url:
+        bucket: my-software-bucket
+        object_name: agents/agent-1.2.3.rpm
+        hmac_key_access_id: GOOG1EZ...
+        hmac_key_secret: "{{ vaulted_hmac_secret }}"
+        auth_kind: application
+      delegate_to: localhost
+      register: package_url
+
+    - name: Download package
+      ansible.builtin.get_url:
+        url: "{{ package_url.signed_url }}"
+        dest: /tmp/agent.rpm
 """
 
 RETURN = """
