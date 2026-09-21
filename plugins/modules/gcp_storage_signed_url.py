@@ -301,7 +301,7 @@ def main():
     except Exception as e:
         module.fail_json(msg="Could not generate signed URL: %s" % str(e))
 
-    expires_at = datetime.datetime.utcnow() + expiration
+    expires_at = datetime.datetime.now(datetime.timezone.utc) + expiration
     module.exit_json(
         changed=False,
         signed_url=signed_url,
@@ -345,7 +345,7 @@ def generate_hmac_signed_url(module):
     expiration_seconds = module.params["expiration_seconds"]
 
     host = "storage.googleapis.com"
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     request_timestamp = now.strftime("%Y%m%dT%H%M%SZ")
     datestamp = now.strftime("%Y%m%d")
 

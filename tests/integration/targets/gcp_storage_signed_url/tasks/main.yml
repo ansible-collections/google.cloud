@@ -12,7 +12,7 @@
   ansible.builtin.copy:
     content: Ansible GCS signed URL test file
     dest: "{{ upload_temp.path }}"
-    mode: "0644"
+    mode: "0600"
 - name: Create a bucket
   google.cloud.gcp_storage_bucket:
     name: "{{ resource_name }}"
