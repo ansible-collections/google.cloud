@@ -77,6 +77,7 @@ products:
   - name: networkconnectivity
     resources:
       - Hub
+      - Spoke
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources

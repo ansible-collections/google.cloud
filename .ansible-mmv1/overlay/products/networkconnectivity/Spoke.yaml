@@ -1,0 +1,47 @@
+---
+custom_code:
+  decoder: |
+    self.debug(response=response, decoded=False)
+    if not gcp_v2.empty(response):
+      # flatten name
+      if response.get("name"):
+        n = response.pop("name")
+        response["id"] = n
+        response["name"] = gcp_v2.flatten_name(n)
+
+      # flatten group
+      if response.get("group"):
+        g = response.pop("group")
+        response["group"] = gcp_v2.flatten_name(g)
+    self.debug(response=response, decoded=True)
+
+    return response
+
+properties:
+  - name: hub
+    description: Immutable. The URI of the hub that this spoke is attached to.
+    required: true
+    type: String
+    immutable: true
+
+samples:
+  - name: ansible_doc_create_spoke
+    exclude_test: true
+    steps:
+      - name: ansible_doc_create_spoke
+  - name: ansible_doc_delete_spoke
+    exclude_test: true
+    steps:
+      - name: ansible_doc_delete_spoke
+  - name: ansible_test_spoke
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_hub
+        config_path: templates/ansible/samples/services/networkconnectivity/ansible_setup_hub.tmpl
+      - name: ansible_setup_spoke
+      - name: ansible_test_spoke
+      - name: ansible_teardown_spoke
+      - name: ansible_teardown_hub
+        config_path: templates/ansible/samples/services/networkconnectivity/ansible_teardown_hub.tmpl
