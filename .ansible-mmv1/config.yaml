@@ -74,6 +74,9 @@ products:
   - name: containeranalysis
     resources:
       - Note
+  - name: networkconnectivity
+    resources:
+      - Hub
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources
