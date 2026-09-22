@@ -402,7 +402,7 @@ class Resource(object):
                     rsp: T.Any = navigate_hash(op_obj, ["response"], {})
 
                     if rsp is not None:
-                        return self.decode(rsp)
+                        return rsp
 
             self.debug(op_url=op_url, retry=retry)
             time.sleep(ASYNC_RETRY_WAIT)  # TODO: should we relax the check?
