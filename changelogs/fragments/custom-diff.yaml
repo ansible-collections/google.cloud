@@ -1,0 +1,2 @@
+bugfixes:
+  - ansible-mmv1(templates) - Reverted to a 3-way boolean check for custom diff logic, this way you can force a custom diff when the values aren't actually different
