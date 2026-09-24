@@ -357,7 +357,8 @@ class Resource(object):
         Args:
             link:    The full URL of the list endpoint to call.
             key:     The JSON response key whose value contains the list of resources
-                     (e.g. "clusters", "instances").
+                     (e.g. "clusters", "instances"). A special value of '*' indicates
+                     to return the whole response in a single-item list.
             filters: Optional list of filter expressions to narrow results. Each entry
                      is a filter string following AIP-160 syntax. Multiple entries are
                      joined with AND - this is the only logical operator applied
@@ -382,6 +383,8 @@ class Resource(object):
             result: T.Optional[NestedDict] = self.if_object(response, allow_not_found=True)
             if result is None:
                 break
+            if key == "*":  # for singleton resources
+                return [result]
             items.extend(result.get(key) or [])
             next_page_token = result.get("nextPageToken")
             if next_page_token:
