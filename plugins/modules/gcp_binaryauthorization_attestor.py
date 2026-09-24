@@ -166,10 +166,98 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+description:
+  description:
+    - A descriptive comment.
+    - This field may be updated.
+    - The field may be displayed in chooser dialogs.
+  returned: when set
+  type: str
+name:
+  description:
+    - The resource name.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
+  type: str
 state:
   description: The current state of the resource.
   returned: always
   type: str
+userOwnedGrafeasNote:
+  contains:
+    delegationServiceAccountEmail:
+      description:
+        - This field will contain the service account email address that this Attestor will use as the principal when querying Container Analysis.
+        - Attestor administrators must grant this service account the IAM role needed to read attestations from the noteReference in Container Analysis (containeranalysis.notes.occurrences.viewer).
+        - This email address is fixed for the lifetime of the Attestor, but callers should not make any other assumptions about the service account email; future versions may use an email based on a different naming pattern.
+      returned: success
+      type: str
+    noteReference:
+      description:
+        - The resource name of a ATTESTATION_AUTHORITY Note, created by the user.
+        - If the Note is in a different project from the Attestor, it should be specified in the format `projects/*/notes/*` (or the legacy `providers/*/notes/*`).
+        - This field may not be updated.
+        - An attestation by this attestor is stored as a Container Analysis ATTESTATION_AUTHORITY Occurrence that names a container image and that links to this Note.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+    publicKeys:
+      contains:
+        asciiArmoredPgpPublicKey:
+          description:
+            - ASCII-armored representation of a PGP public key, as the entire output by the command `gpg --export --armor foo@example.com` (either LF or CRLF line endings).
+            - When using this field, id should be left blank.
+            - The BinAuthz API handlers will calculate the ID and fill it in automatically.
+            - BinAuthz computes this ID as the OpenPGP RFC4880 V4 fingerprint, represented as upper-case hex.
+            - If id is provided by the caller, it will be overwritten by the API-calculated ID.
+          returned: when set
+          type: str
+        comment:
+          description:
+            - A descriptive comment.
+            - This field may be updated.
+          returned: when set
+          type: str
+        id:
+          description:
+            - The ID of this public key.
+            - Signatures verified by BinAuthz must include the ID of the public key that can be used to verify them, and that ID must match the contents of this field exactly.
+            - Additional restrictions on this field can be imposed based on which public key type is encapsulated.
+            - See the documentation on publicKey cases below for details.
+          returned: when set
+          type: str
+        pkixPublicKey:
+          contains:
+            publicKeyPem:
+              description:
+                - A PEM-encoded public key, as described in `https://tools.ietf.org/html/rfc7468#section-13`.
+              returned: when set
+              type: str
+            signatureAlgorithm:
+              description:
+                - The signature algorithm used to verify a message against a signature using this key.
+                - These signature algorithm must match the structure and any object identifiers encoded in publicKeyPem (i.e.
+                - this algorithm must match that of the public key).
+              returned: when set
+              type: str
+          description:
+            - A raw PKIX SubjectPublicKeyInfo format public key.
+            - 'NOTE: id may be explicitly provided by the caller when using this type of public key, but it MUST be a valid RFC3986 URI.'
+            - If id is left blank, a default one will be computed based on the digest of the DER encoding of the public key.
+          returned: when set
+          type: dict
+      description:
+        - Public keys that verify attestations signed by this attestor.
+        - This field may be updated.
+        - If this field is non-empty, one of the specified public keys must verify that an attestation was signed by this attestor for the image specified in the admission request.
+        - If this field is empty, this attestor always returns that no valid attestations exist.
+      elements: dict
+      returned: when set
+      type: list
+  description:
+    - A Container Analysis ATTESTATION_AUTHORITY Note, created by the user.
+  returned: always
+  type: dict
 """  # noqa: E501
 
 ################################################################################
@@ -237,9 +325,10 @@ class BinaryAuthorization(gcp_v2.Resource):
         # flatten name
         self.debug(response=response, decoded=False)
         if not gcp_v2.empty(response):
-            n: str = response.pop("name")
-            response["id"] = n
-            response["name"] = gcp_v2.flatten_name(n)
+            if response.get("name"):
+                n: str = response.pop("name")
+                response["id"] = n
+                response["name"] = gcp_v2.flatten_name(n)
         self.debug(response=response, decoded=True)
 
         return response
@@ -362,7 +451,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -375,7 +464,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

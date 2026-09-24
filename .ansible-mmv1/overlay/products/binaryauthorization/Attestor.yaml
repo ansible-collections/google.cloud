@@ -6,9 +6,10 @@ custom_code:
     # flatten name
     self.debug(response=response, decoded=False)
     if not gcp_v2.empty(response):
-      n: str = response.pop("name")
-      response["id"] = n
-      response["name"] = gcp_v2.flatten_name(n)
+        if response.get("name"):
+            n: str = response.pop("name")
+            response["id"] = n
+            response["name"] = gcp_v2.flatten_name(n)
     self.debug(response=response, decoded=True)
 
     return response
