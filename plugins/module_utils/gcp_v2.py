@@ -308,11 +308,10 @@ class Resource(object):
 
         return self.response
 
-    def to_request(self) -> T.Optional[NestedDict]:
+    def to_request(self) -> NestedDict:
         "This should be built from self.request"
 
-        req = remove_empties(self._request())
-        req = self.encode(req or {})
+        req = remove_empties(self._request()) or {}
 
         return req
 
@@ -489,7 +488,7 @@ class Resource(object):
         Make POST request.
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request())
         self.debug(method="post", link=link, request=req)
         return self.if_object(self.session().post(link, req))
 
@@ -498,7 +497,7 @@ class Resource(object):
         Make PUT request.
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request() or {})
         self.debug(method="put", link=link, request=req)
         return self.if_object(self.session().put(link, req))
 
@@ -507,7 +506,7 @@ class Resource(object):
         Make PATCH request
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request() or {})
         self.debug(method="patch", link=link, request=req)
         return self.if_object(self.session().patch(link, req))
 
