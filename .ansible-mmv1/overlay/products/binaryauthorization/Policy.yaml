@@ -1,23 +1,35 @@
 ---
-collection_url_key: clusterAdmissionRules
+collection_url_key: "*"
 custom_code:
-  decoder: |
-    # flatten name
-    if not gcp_v2.empty(response):
-      n: str = response.pop("name")
-      response["name"] = gcp_v2.flatten_name(n)
-      response["id"] = n
+  post_read: |
+    if state == "absent":
+      # nope, cheat and force the code go through the update path
+      state = "present"
 
-    return response
-  pre_delete: |
-    # when you delete, you actually reset it back to defaults
-    resource.request = {
-      "global_policy_evaluation_mode": "ENABLE",
-      "default_admission_rule": {
-          "evaluation_mode": "ALWAYS_ALLOW",
-          "enforcement_mode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
+      # custom diff logic
+      custom_diff = False  # init flag
+      default_policy = {
+          "globalPolicyEvaluationMode": "ENABLE",
+          "defaultAdmissionRule": {
+              "evaluationMode": "ALWAYS_ALLOW",
+              "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
+          }
       }
-    }
+      gcp_v2.debug(module, msg="Performing custom diff", existing=existing_obj, default=default_policy, custom_diff=custom_diff)
+      if resource.diff(default_policy):
+          custom_diff = True
+      else:
+          exceptions = ("name", "etag", "updateTime",)  # everything else should be empty
+          for k in existing_obj.keys():
+              if k in exceptions:
+                  continue
+              # anything not in exception which isn't empty means it's
+              # different, remove_empties() should get rid of empty lists
+              # before this, but just to be safe
+              if k not in default_policy and len(existing_obj[k]) != 0:
+                  custom_diff = True
+                  break
+      gcp_v2.debug(module, msg="Performed custom diff", custom_diff=custom_diff)
 
 samples:
   - name: ansible_doc_create

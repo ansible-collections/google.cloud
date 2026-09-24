@@ -340,20 +340,6 @@ class BinaryAuthorization(gcp_v2.Resource):
     def _response(self):
         return {}
 
-    def decode(self, response):
-        "Custom decoder function, mutates the response object before it is returned to the module caller."
-
-        # --------- BEGIN custom decoder code ---------
-        # flatten name
-        if not gcp_v2.empty(response):
-            n: str = response.pop("name")
-            response["name"] = gcp_v2.flatten_name(n)
-            response["id"] = n
-
-        return response
-
-        # --------- END custom decoder code ---------
-
 
 ################################################################################
 # Main
@@ -466,7 +452,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -479,7 +465,48 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    # --------- BEGIN post-read custom code ---------
+    if state == "absent":
+        # nope, cheat and force the code go through the update path
+        state = "present"
+
+        # custom diff logic
+        custom_diff = False  # init flag
+        default_policy = {
+            "globalPolicyEvaluationMode": "ENABLE",
+            "defaultAdmissionRule": {
+                "evaluationMode": "ALWAYS_ALLOW",
+                "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
+            },
+        }
+        gcp_v2.debug(
+            module, msg="Performing custom diff", existing=existing_obj, default=default_policy, custom_diff=custom_diff
+        )
+        if resource.diff(default_policy):
+            custom_diff = True
+        else:
+            exceptions = (
+                "name",
+                "etag",
+                "updateTime",
+            )  # everything else should be empty
+            for k in existing_obj.keys():
+                if k in exceptions:
+                    continue
+                # anything not in exception which isn't empty means it's
+                # different, remove_empties() should get rid of empty lists
+                # before this, but just to be safe
+                if k not in default_policy and len(existing_obj[k]) != 0:
+                    custom_diff = True
+                    break
+        gcp_v2.debug(module, msg="Performed custom diff", custom_diff=custom_diff)
+
+    # --------- END post-read custom code ---------
+
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,
@@ -523,17 +550,6 @@ def main():
             try:
                 # --------- BEGIN delete code ---------
                 delete_link: str = ""  # give it a chance for pre-delete to overload
-                # --------- BEGIN pre-delete custom code ---------
-                # when you delete, you actually reset it back to defaults
-                resource.request = {
-                    "global_policy_evaluation_mode": "ENABLE",
-                    "default_admission_rule": {
-                        "evaluation_mode": "ALWAYS_ALLOW",
-                        "enforcement_mode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
-                    },
-                }
-
-                # --------- END pre-delete custom code ---------
                 if delete_link == "":
                     delete_link = resource.build_link("delete")
                 delete_retries = op_configs.delete.timeout
