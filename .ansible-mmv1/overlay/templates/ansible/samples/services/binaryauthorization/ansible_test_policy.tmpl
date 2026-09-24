@@ -9,4 +9,8 @@
   ansible.builtin.assert:
     that:
       - _my_policy.changed | bool
-      - _my_policy_info.resources | length >= 1
+      - _my_policy_info.resources | length == 1  # singletons return a single-item list
+      - _my_policy_info.resources[0].clusterAdmissionRules is defined
+      - _my_policy_info.resources[0].clusterAdmissionRules["us-central1-a.my-cluster"] is defined
+      - _my_policy_info.resources[0].clusterAdmissionRules["us-central1-a.my-cluster"].evaluationMode is defined
+      - _my_policy_info.resources[0].clusterAdmissionRules["us-central1-a.my-cluster"].evaluationMode == "REQUIRE_ATTESTATION"
