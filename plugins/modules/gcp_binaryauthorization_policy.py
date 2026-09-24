@@ -171,8 +171,8 @@ EXAMPLES = r"""
         evaluation_mode: REQUIRE_ATTESTATION
         enforcement_mode: ENFORCED_BLOCK_AND_AUDIT_LOG
         require_attestations_by:
-          - projects/my-project/attestor/attestor-1
-          - projects/my-project/attestor/attestor-2
+          - projects/my-project/attestors/attestor-1
+          - projects/my-project/attestors/attestor-2
 
 ################################################################################
 
