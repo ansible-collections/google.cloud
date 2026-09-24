@@ -5,18 +5,20 @@ custom_code:
   encoder: |
     # field was renamed in GA API
     self.debug(request=request, encoded=False)
-    if request.get("attestationAuthority", False):
-      request["attestation"] = request.pop("attestationAuthority")
+    if request.get("attestationAuthority"):
+        request["attestation"] = request.pop("attestationAuthority")
     self.debug(request=request, encoded=True)
 
     return request
   decoder: |
-    # field was renamed in GA API
     self.debug(response=response, decoded=False)
     if not gcp_v2.empty(response):
-      n: str = response.pop("name")
-      response["name"] = gcp_v2.flatten_name(n)
-      response["id"] = n
+        if response.get("attestation"):
+            response["attestationAuthority"] = response.pop("attestation")
+        if response.get("name"):
+            n: str = response.pop("name")
+            response["id"] = n
+            response["name"] = gcp_v2.flatten_name(n)
     self.debug(response=response, decoded=True)
 
     return response

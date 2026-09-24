@@ -143,6 +143,29 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+attestationAuthority:
+  contains:
+    hint:
+      contains:
+        humanReadableName:
+          description:
+            - The human readable name of this Attestation Authority, for example "qa".
+          returned: always
+          type: str
+      description:
+        - This submessage provides human-readable hints about the purpose of the AttestationAuthority.
+        - Because the name of a Note acts as its resource reference, it is important to disambiguate the canonical name of the Note (which might be a UUID for security purposes) from "readable" names more suitable for debug output.
+        - Note that these hints should NOT be used to look up AttestationAuthorities in security sensitive contexts, such as when looking up Attestations to verify.
+      returned: always
+      type: dict
+  description:
+    - Note kind that represents a logical attestation "role" or "authority".
+    - For example, an organization might have one AttestationAuthority for "QA" and one for "build".
+    - This Note is intended to act strictly as a grouping mechanism for the attached Occurrences (Attestations).
+    - This grouping mechanism also provides a security boundary, since IAM ACLs gate the ability for a principle to attach an Occurrence to a given Note.
+    - It also provides a single point of lookup to find all attached Attestation Occurrences, even if they don't all live in the same project.
+  returned: always
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -152,10 +175,55 @@ createTime:
     - The time this note was created.
   returned: success
   type: str
+expirationTime:
+  description:
+    - Time of expiration for this note.
+    - Leave empty if note does not expire.
+  returned: when set
+  type: str
 kind:
   description:
     - The type of analysis this note describes.
   returned: success
+  type: str
+longDescription:
+  description:
+    - A detailed description of the note.
+  returned: when set
+  type: str
+name:
+  description:
+    - The name of the note.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
+  type: str
+relatedNoteNames:
+  description:
+    - Names of other notes related to this note.
+  elements: str
+  returned: when set
+  type: list
+relatedUrl:
+  contains:
+    label:
+      description:
+        - Label to describe usage of the URL.
+      returned: when set
+      type: str
+    url:
+      description:
+        - Specific URL associated with the resource.
+      returned: always
+      type: str
+  description:
+    - URLs associated with this note and related metadata.
+  elements: dict
+  returned: when set
+  type: list
+shortDescription:
+  description:
+    - A one sentence description of the note.
+  returned: when set
   type: str
 state:
   description: The current state of the resource.
@@ -229,7 +297,7 @@ class ContainerAnalysis(gcp_v2.Resource):
         # --------- BEGIN custom encoder code ---------
         # field was renamed in GA API
         self.debug(request=request, encoded=False)
-        if request.get("attestationAuthority", False):
+        if request.get("attestationAuthority"):
             request["attestation"] = request.pop("attestationAuthority")
         self.debug(request=request, encoded=True)
 
@@ -241,12 +309,14 @@ class ContainerAnalysis(gcp_v2.Resource):
         "Custom decoder function, mutates the response object before it is returned to the module caller."
 
         # --------- BEGIN custom decoder code ---------
-        # field was renamed in GA API
         self.debug(response=response, decoded=False)
         if not gcp_v2.empty(response):
-            n: str = response.pop("name")
-            response["name"] = gcp_v2.flatten_name(n)
-            response["id"] = n
+            if response.get("attestation"):
+                response["attestationAuthority"] = response.pop("attestation")
+            if response.get("name"):
+                n: str = response.pop("name")
+                response["id"] = n
+                response["name"] = gcp_v2.flatten_name(n)
         self.debug(response=response, decoded=True)
 
         return response
@@ -356,7 +426,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -369,7 +439,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,
