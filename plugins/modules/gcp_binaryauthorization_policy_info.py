@@ -215,7 +215,7 @@ def main():
     filter_exprs = module.params.get("filters") or []
 
     link = info.build_link("list")
-    resources = info.list(link, key="clusterAdmissionRules", filters=filter_exprs)
+    resources = info.list(link, key="*", filters=filter_exprs)
 
     module.exit_json(changed=False, resources=gcp_v2.filter_reserved_keys(resources))
 
