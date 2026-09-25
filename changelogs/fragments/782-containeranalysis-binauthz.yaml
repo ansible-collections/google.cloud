@@ -1,6 +1,0 @@
-minor_changes:
-  - gcp_binaryauthorization_* - Adding 4 new binauthz modules for attestor/policy and accompanying info modules (https://github.com/ansible-collections/google.cloud/pull/782)
-  - gcp_containeranalysis_* - Adding 2 new container analysis module and info module (https://github.com/ansible-collections/google.cloud/pull/782)
-bugfixes:
-  - module_utils.gcp_v2 - Fix double decoding bug where async operations went through the custom decoder (if any) twice (https://github.com/ansible-collections/google.cloud/pull/782)
-  - module_utils.gcp_v2 - Fix a premature encoding bug by moving the encoding to right before sending to the API (https://github.com/ansible-collections/google.cloud/pull/782)
