@@ -63,6 +63,10 @@ action_groups:
     - gcp_bigquery_table_info
     - gcp_bigtable_instance
     - gcp_bigtable_instance_info
+    - gcp_binaryauthorization_attestor
+    - gcp_binaryauthorization_attestor_info
+    - gcp_binaryauthorization_policy
+    - gcp_binaryauthorization_policy_info
     - gcp_cloudbuild_trigger
     - gcp_cloudbuild_trigger_info
     - gcp_cloudbuildv2_connection
@@ -183,6 +187,8 @@ action_groups:
     - gcp_container_cluster_info
     - gcp_container_node_pool
     - gcp_container_node_pool_info
+    - gcp_containeranalysis_note
+    - gcp_containeranalysis_note_info
     - gcp_dns_managed_zone
     - gcp_dns_managed_zone_info
     - gcp_dns_resource_record_set

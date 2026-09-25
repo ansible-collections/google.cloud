@@ -1,0 +1,6 @@
+- name: Delete Custom Policy (reset to default)
+  google.cloud.gcp_binaryauthorization_policy:
+    state: absent
+    default_admission_rule:
+      evaluation_mode: ALWAYS_ALLOW
+      enforcement_mode: ENFORCED_BLOCK_AND_AUDIT_LOG

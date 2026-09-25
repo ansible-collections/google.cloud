@@ -48,6 +48,10 @@ products:
       - Cluster
       - Instance
       - User
+  - name: binaryauthorization
+    resources:
+      - Attestor
+      - Policy
   - name: cloudbuild
     skip-tests:
       - "*"
@@ -67,6 +71,9 @@ products:
       - Runtime
       - RuntimeTemplate
       - Schedule
+  - name: containeranalysis
+    resources:
+      - Note
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources

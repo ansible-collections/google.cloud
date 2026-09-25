@@ -1,6 +1,4 @@
 ---
-update_url: "{cluster}/users/{user_id}"
-update_verb: PATCH
 custom_code:
   custom_import: _drop
 samples:

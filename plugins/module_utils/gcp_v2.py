@@ -308,11 +308,10 @@ class Resource(object):
 
         return self.response
 
-    def to_request(self) -> T.Optional[NestedDict]:
+    def to_request(self) -> NestedDict:
         "This should be built from self.request"
 
-        req = remove_empties(self._request())
-        req = self.encode(req or {})
+        req = remove_empties(self._request()) or {}
 
         return req
 
@@ -357,7 +356,8 @@ class Resource(object):
         Args:
             link:    The full URL of the list endpoint to call.
             key:     The JSON response key whose value contains the list of resources
-                     (e.g. "clusters", "instances").
+                     (e.g. "clusters", "instances"). A special value of '*' indicates
+                     to return the whole response in a single-item list.
             filters: Optional list of filter expressions to narrow results. Each entry
                      is a filter string following AIP-160 syntax. Multiple entries are
                      joined with AND - this is the only logical operator applied
@@ -382,6 +382,8 @@ class Resource(object):
             result: T.Optional[NestedDict] = self.if_object(response, allow_not_found=True)
             if result is None:
                 break
+            if key == "*":  # for singleton resources
+                return [result]
             items.extend(result.get(key) or [])
             next_page_token = result.get("nextPageToken")
             if next_page_token:
@@ -402,7 +404,7 @@ class Resource(object):
                     rsp: T.Any = navigate_hash(op_obj, ["response"], {})
 
                     if rsp is not None:
-                        return self.decode(rsp)
+                        return rsp
 
             self.debug(op_url=op_url, retry=retry)
             time.sleep(ASYNC_RETRY_WAIT)  # TODO: should we relax the check?
@@ -486,7 +488,7 @@ class Resource(object):
         Make POST request.
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request())
         self.debug(method="post", link=link, request=req)
         return self.if_object(self.session().post(link, req))
 
@@ -495,7 +497,7 @@ class Resource(object):
         Make PUT request.
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request() or {})
         self.debug(method="put", link=link, request=req)
         return self.if_object(self.session().put(link, req))
 
@@ -504,7 +506,7 @@ class Resource(object):
         Make PATCH request
         """
 
-        req = self.to_request()
+        req = self.encode(self.to_request() or {})
         self.debug(method="patch", link=link, request=req)
         return self.if_object(self.session().patch(link, req))
 
@@ -610,7 +612,7 @@ def remove_empties(data: T.Optional[NestedDict]) -> T.Optional[NestedDict]:
         return None
 
 
-def filter_reserved_keys(obj):
+def filter_reserved_keys(obj: T.Any):
     """
     Recursively rename dict keys that collide with dict builtin method
     names, as per ansible-test sanity bad-return-value-key check
@@ -624,3 +626,7 @@ def filter_reserved_keys(obj):
     if isinstance(obj, list):
         return [filter_reserved_keys(item) for item in obj]
     return obj
+
+
+def flatten_name(url: str, sep: str = "/"):
+    return url.split(sep)[-1]

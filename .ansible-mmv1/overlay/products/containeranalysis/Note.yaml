@@ -1,0 +1,39 @@
+---
+base_url: projects/{{project}}/notes
+create_url: projects/{{project}}/notes?noteId={{name}}
+custom_code:
+  encoder: |
+    # field was renamed in GA API
+    self.debug(request=request, encoded=False)
+    if request.get("attestationAuthority"):
+        request["attestation"] = request.pop("attestationAuthority")
+    self.debug(request=request, encoded=True)
+
+    return request
+  decoder: |
+    self.debug(response=response, decoded=False)
+    if not gcp_v2.empty(response):
+        if response.get("attestation"):
+            response["attestationAuthority"] = response.pop("attestation")
+        if response.get("name"):
+            n: str = response.pop("name")
+            response["id"] = n
+            response["name"] = gcp_v2.flatten_name(n)
+    self.debug(response=response, decoded=True)
+
+    return response
+samples:
+  - name: ansible_doc_create
+    exclude_test: true
+    steps:
+      - name: ansible_doc_create
+  - name: ansible_doc_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_delete
+  - name: ansible_test_note
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_note
+      - name: ansible_test_note
+      - name: ansible_teardown_note

@@ -1,0 +1,7 @@
+- name: Delete Container Analysis Note
+  google.cloud.gcp_containeranalysis_note:
+    name: my-note
+    state: absent
+    attestation_authority:
+      hint:
+        human_readable_name: "qa@example.com"

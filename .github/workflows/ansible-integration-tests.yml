@@ -51,7 +51,7 @@ jobs:
           else
             echo "" > /tmp/integration_targets.txt
             # fetch modified modules
-            git diff --name-only --diff-filter=ACMRT ..origin/master -- plugins/modules/ | grep -v '_info.py' | while read line
+            git diff --name-only --diff-filter=ACMRT origin/master -- plugins/modules/ | grep -v '_info.py' | while read line
             do
               # fetch modules with accompanying integration test directory
               if [ -d "tests/integration/targets/$(basename $line .py)" ]; then
@@ -59,7 +59,7 @@ jobs:
               fi
             done >> /tmp/integration_targets.txt
             # fetch modified integration tests
-            git diff --name-only --diff-filter=ACMRT ..origin/master -- tests/integration/ | cut -d'/' -f4 >> /tmp/integration_targets.txt
+            git diff --name-only --diff-filter=ACMRT origin/master -- tests/integration/ | cut -d'/' -f4 >> /tmp/integration_targets.txt
             # fetch supplied targets in test-hints
             echo "$PR_BODY" | grep -i "^test-hints:" | grep -i "targets=" | tr ',' ' ' | cut -d'=' -f2 >> /tmp/integration_targets.txt
             echo "targets=$(grep . /tmp/integration_targets.txt | sort | uniq | paste -s -d' ') cloud/gcp/teardown/" >> "$GITHUB_OUTPUT"
