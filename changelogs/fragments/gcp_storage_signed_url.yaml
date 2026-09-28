@@ -1,0 +1,6 @@
+minor_changes:
+  - Added gcp_storage_signed_url module - generates a V4 signed URL for a GCS object, so a
+    party without any IAM access to the bucket can perform a single HTTP request against that
+    object until the URL expires. Supports signing via the IAM Credentials API (``signBlob``,
+    using a service account other than the one running the module) or locally via an HMAC key,
+    with no IAM API call and no ``serviceAccountTokenCreator`` grant required for the latter.
