@@ -1,3 +1,5 @@
 ---
 - name: Generated tests
   ansible.builtin.include_tasks: autogen.yml
+- name: Test 'settings.edition' argument
+  ansible.builtin.include_tasks: edition.yml

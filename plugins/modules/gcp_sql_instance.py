@@ -307,6 +307,12 @@ options:
           Generation (recommended) or First Generation.
         required: false
         type: str
+      edition:
+        description:
+        - The edition of the instance.
+        - 'Some valid choices include: "ENTERPRISE", "ENTERPRISE_PLUS"'
+        required: false
+        type: str
       availability_type:
         description:
         - The availabilityType define if your postgres instance is run zonal or regional.
@@ -418,6 +424,7 @@ EXAMPLES = '''
         - name: google dns server
           value: 8.8.8.8/32
       tier: db-n1-standard-1
+      edition: ENTERPRISE
     region: us-central1
     project: test_project
     auth_kind: serviceaccount
@@ -701,6 +708,11 @@ settings:
         Generation (recommended) or First Generation.
       returned: success
       type: str
+    edition:
+      description:
+      - The edition of the instance.
+      returned: success
+      type: str
     availabilityType:
       description:
       - The availabilityType define if your postgres instance is run zonal or regional.
@@ -890,6 +902,7 @@ def main():
                         ),
                     ),
                     tier=dict(type='str'),
+                    edition=dict(type='str'),
                     availability_type=dict(type='str'),
                     backup_configuration=dict(
                         type='dict', options=dict(enabled=dict(type='bool'), binary_log_enabled=dict(type='bool'), start_time=dict(type='str'))
@@ -1216,6 +1229,7 @@ class InstanceSettings(object):
                 u'databaseFlags': InstanceDatabaseflagsArray(self.request.get('database_flags', []), self.module).to_request(),
                 u'ipConfiguration': InstanceIpconfiguration(self.request.get('ip_configuration', {}), self.module).to_request(),
                 u'tier': self.request.get('tier'),
+                u'edition': self.request.get('edition'),
                 u'availabilityType': self.request.get('availability_type'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get('backup_configuration', {}), self.module).to_request(),
                 u'userLabels': self.request.get('user_labels'),
@@ -1228,6 +1242,7 @@ class InstanceSettings(object):
                 u'databaseFlags': InstanceDatabaseflagsArray(self.request.get(u'databaseFlags', []), self.module).from_response(),
                 u'ipConfiguration': InstanceIpconfiguration(self.request.get(u'ipConfiguration', {}), self.module).from_response(),
                 u'tier': self.request.get(u'tier'),
+                u'edition': self.request.get('edition'),
                 u'availabilityType': self.request.get(u'availabilityType'),
                 u'backupConfiguration': InstanceBackupconfiguration(self.request.get(u'backupConfiguration', {}), self.module).from_response(),
                 u'userLabels': self.request.get(u'userLabels'),
