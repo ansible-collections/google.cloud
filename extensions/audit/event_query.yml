@@ -16,6 +16,18 @@
 # THE CONTRACT
 # ------------
 # name             must be present and never null -- `if name is None: continue`
+# name             must also be UNIQUE WITHIN A JOB. IndirectManagedNodeAudit
+#                  declares unique_together = [('name', 'job')] and the
+#                  controller bulk_create()s a job's records in one
+#                  transaction, so two resources that dedup apart but share a
+#                  name -- two instances called "web-01" in different zones, or
+#                  an A and a TXT record on one DNS name -- raise IntegrityError
+#                  and lose EVERY audit record for that job, not just the
+#                  colliding pair. The rollback reverts event_queries_processed
+#                  too, so the fallback task re-picks the job and fails again
+#                  until it ages out. Every module below therefore emits its
+#                  identifier as `name` and its display name as `facts.name`,
+#                  which is not constrained.
 # canonical_facts  must be present, truthy, and free of null at ANY depth.
 #                  get_hashable_form() accepts int/float/str/bool/dict/list/
 #                  tuple and raises UnhashableFacts on anything else, including
@@ -44,7 +56,7 @@ google.cloud.gcp_bigquery_dataset:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -52,14 +64,15 @@ google.cloud.gcp_bigquery_dataset:
         infra_type: "public_cloud",
         infra_bucket: "database",
         device_type: "database_analytics",
-        module: "gcp_bigquery_dataset"
+        module: "gcp_bigquery_dataset",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_bigquery_table:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -67,14 +80,15 @@ google.cloud.gcp_bigquery_table:
         infra_type: "public_cloud",
         infra_bucket: "database",
         device_type: "database_analytics",
-        module: "gcp_bigquery_table"
+        module: "gcp_bigquery_table",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_address:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -82,14 +96,15 @@ google.cloud.gcp_compute_address:
         infra_type: "public_cloud",
         infra_bucket: "networking",
         device_type: "vpc",
-        module: "gcp_compute_address"
+        module: "gcp_compute_address",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_disk:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -97,14 +112,15 @@ google.cloud.gcp_compute_disk:
         infra_type: "public_cloud",
         infra_bucket: "storage",
         device_type: "block_storage",
-        module: "gcp_compute_disk"
+        module: "gcp_compute_disk",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_firewall:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -112,14 +128,15 @@ google.cloud.gcp_compute_firewall:
         infra_type: "public_cloud",
         infra_bucket: "security_identity",
         device_type: "firewall",
-        module: "gcp_compute_firewall"
+        module: "gcp_compute_firewall",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_instance:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -127,14 +144,15 @@ google.cloud.gcp_compute_instance:
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "virtual_machine",
-        module: "gcp_compute_instance"
+        module: "gcp_compute_instance",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_instance_group_manager:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -142,14 +160,15 @@ google.cloud.gcp_compute_instance_group_manager:
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "instance_group",
-        module: "gcp_compute_instance_group_manager"
+        module: "gcp_compute_instance_group_manager",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_instance_template:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -157,14 +176,15 @@ google.cloud.gcp_compute_instance_template:
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "virtual_machine_template",
-        module: "gcp_compute_instance_template"
+        module: "gcp_compute_instance_template",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_network:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -172,14 +192,15 @@ google.cloud.gcp_compute_network:
         infra_type: "public_cloud",
         infra_bucket: "networking",
         device_type: "vpc",
-        module: "gcp_compute_network"
+        module: "gcp_compute_network",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_compute_ssl_certificate:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -187,14 +208,15 @@ google.cloud.gcp_compute_ssl_certificate:
         infra_type: "public_cloud",
         infra_bucket: "security_identity",
         device_type: "certificate",
-        module: "gcp_compute_ssl_certificate"
+        module: "gcp_compute_ssl_certificate",
+        name: (.name // (.id | tostring))
       }
     }
 google.cloud.gcp_container_cluster:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -202,14 +224,15 @@ google.cloud.gcp_container_cluster:
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "kubernetes_cluster",
-        module: "gcp_container_cluster"
+        module: "gcp_container_cluster",
+        name: (.name // (.name | tostring))
       }
     }
 google.cloud.gcp_container_node_pool:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -217,14 +240,15 @@ google.cloud.gcp_container_node_pool:
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "kubernetes_node_pool",
-        module: "gcp_container_node_pool"
+        module: "gcp_container_node_pool",
+        name: (.name // (.name | tostring))
       }
     }
 google.cloud.gcp_dns_managed_zone:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -232,7 +256,8 @@ google.cloud.gcp_dns_managed_zone:
         infra_type: "public_cloud",
         infra_bucket: "networking",
         device_type: "dns",
-        module: "gcp_dns_managed_zone"
+        module: "gcp_dns_managed_zone",
+        name: (.name // (.id | tostring))
       }
     }
 # A record set is identified by name AND type: an A record and a TXT
@@ -242,7 +267,7 @@ google.cloud.gcp_dns_resource_record_set:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name | tostring),
+      name: ((.name | tostring) + "/" + (.type | tostring)),
       canonical_facts: {
         id: ((.name | tostring) + "/" + (.type | tostring))
       },
@@ -250,7 +275,8 @@ google.cloud.gcp_dns_resource_record_set:
         infra_type: "public_cloud",
         infra_bucket: "networking",
         device_type: "dns",
-        module: "gcp_dns_resource_record_set"
+        module: "gcp_dns_resource_record_set",
+        name: (.name | tostring)
       }
     }
 # response_to_hash() returns etag but no id, so the previous fallback
@@ -261,7 +287,7 @@ google.cloud.gcp_filestore_instance:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -269,14 +295,15 @@ google.cloud.gcp_filestore_instance:
         infra_type: "public_cloud",
         infra_bucket: "storage",
         device_type: "file_storage",
-        module: "gcp_filestore_instance"
+        module: "gcp_filestore_instance",
+        name: (.name // (.name | tostring))
       }
     }
 google.cloud.gcp_iam_role:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -284,7 +311,8 @@ google.cloud.gcp_iam_role:
         infra_type: "public_cloud",
         infra_bucket: "security_identity",
         device_type: "iam",
-        module: "gcp_iam_role"
+        module: "gcp_iam_role",
+        name: (.name // (.name | tostring))
       }
     }
 # uniqueId survives the account being deleted and recreated at the same
@@ -293,7 +321,7 @@ google.cloud.gcp_iam_service_account:
   query: >-
     select(type == "object") | select((.uniqueId // .name) != null) |
     {
-      name: (.name // ((.uniqueId // .name) | tostring)),
+      name: ((.uniqueId // .name) | tostring),
       canonical_facts: {
         id: ((.uniqueId // .name) | tostring)
       },
@@ -301,14 +329,15 @@ google.cloud.gcp_iam_service_account:
         infra_type: "public_cloud",
         infra_bucket: "security_identity",
         device_type: "iam",
-        module: "gcp_iam_service_account"
+        module: "gcp_iam_service_account",
+        name: (.name // ((.uniqueId // .name) | tostring))
       }
     }
 google.cloud.gcp_kms_key_ring:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -316,14 +345,15 @@ google.cloud.gcp_kms_key_ring:
         infra_type: "public_cloud",
         infra_bucket: "security_identity",
         device_type: "key_vault",
-        module: "gcp_kms_key_ring"
+        module: "gcp_kms_key_ring",
+        name: (.name // (.name | tostring))
       }
     }
 google.cloud.gcp_pubsub_subscription:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -331,14 +361,15 @@ google.cloud.gcp_pubsub_subscription:
         infra_type: "public_cloud",
         infra_bucket: "app_integration_messaging",
         device_type: "messaging",
-        module: "gcp_pubsub_subscription"
+        module: "gcp_pubsub_subscription",
+        name: (.name // (.name | tostring))
       }
     }
 google.cloud.gcp_pubsub_topic:
   query: >-
     select(type == "object") | select(.name != null) |
     {
-      name: (.name // (.name | tostring)),
+      name: (.name | tostring),
       canonical_facts: {
         id: (.name | tostring)
       },
@@ -346,7 +377,8 @@ google.cloud.gcp_pubsub_topic:
         infra_type: "public_cloud",
         infra_bucket: "app_integration_messaging",
         device_type: "messaging",
-        module: "gcp_pubsub_topic"
+        module: "gcp_pubsub_topic",
+        name: (.name // (.name | tostring))
       }
     }
 # connectionName is project:region:instance and is unique across
@@ -355,7 +387,7 @@ google.cloud.gcp_sql_instance:
   query: >-
     select(type == "object") | select((.connectionName // .name) != null) |
     {
-      name: (.name // ((.connectionName // .name) | tostring)),
+      name: ((.connectionName // .name) | tostring),
       canonical_facts: {
         id: ((.connectionName // .name) | tostring)
       },
@@ -363,14 +395,15 @@ google.cloud.gcp_sql_instance:
         infra_type: "public_cloud",
         infra_bucket: "database",
         device_type: "database_relational",
-        module: "gcp_sql_instance"
+        module: "gcp_sql_instance",
+        name: (.name // ((.connectionName // .name) | tostring))
       }
     }
 google.cloud.gcp_storage_bucket:
   query: >-
     select(type == "object") | select(.id != null) |
     {
-      name: (.name // (.id | tostring)),
+      name: (.id | tostring),
       canonical_facts: {
         id: (.id | tostring)
       },
@@ -378,7 +411,8 @@ google.cloud.gcp_storage_bucket:
         infra_type: "public_cloud",
         infra_bucket: "storage",
         device_type: "object_storage",
-        module: "gcp_storage_bucket"
+        module: "gcp_storage_bucket",
+        name: (.name // (.id | tostring))
       }
     }
 # The table this file replaces also mapped google.cloud.gcp_resource_record_set
