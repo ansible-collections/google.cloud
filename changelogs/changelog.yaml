@@ -122,6 +122,45 @@ releases:
     fragments:
     - 763-update-modules-to-new-utils.yml
     release_date: '2026-07-23'
+  1.15.0:
+    changes:
+      bugfixes:
+      - gcp_compute inventory plugin - deduplicate resolved projects when ``folders:``
+        lists both a folder and one of its descendants, which previously caused that
+        descendant's projects (and therefore its hosts) to be resolved twice.
+      - gcp_compute inventory plugin - resolve subfolders recursively when using ``folders:``,
+        instead of only the projects that are direct children of the given folder.
+        On hierarchies where the given folder only contains subfolders (no projects
+        directly attached), the plugin previously always returned zero hosts.
+      - gcp_compute inventory plugin - skip a project instead of failing the entire
+        inventory sync when a project resolved via ``folders:`` cannot be queried
+        (Compute Engine API disabled, or blocked by a VPC Service Controls perimeter).
+        Any other error still fails as before.
+      - module_utils.gcp_v2 - Fix a premature encoding bug by moving the encoding
+        to right before sending to the API (https://github.com/ansible-collections/google.cloud/pull/782)
+      - module_utils.gcp_v2 - Fix double decoding bug where async operations went
+        through the custom decoder (if any) twice (https://github.com/ansible-collections/google.cloud/pull/782)
+      minor_changes:
+      - gcp_alloydb_* - update to most recent version generated from MMv1
+      - gcp_binaryauthorization_* - Adding 4 new binauthz modules for attestor/policy
+        and accompanying info modules (https://github.com/ansible-collections/google.cloud/pull/782)
+      - gcp_cloudbuild_trigger - update to most recent version generated from MMv1
+      - gcp_cloudbuildv2_* - update to most recent version generated from MMv1
+      - gcp_colab_* - update to most recent version generated from MMv1
+      - gcp_compute inventory plugin - print an aggregate warning at the end of a
+        sync when ``folders:`` is used and one or more resolved projects were skipped,
+        summarizing how many out of the total.
+      - gcp_containeranalysis_* - Adding 2 new container analysis module and info
+        module (https://github.com/ansible-collections/google.cloud/pull/782)
+      - gcp_vertexai_* - update to most recent version generated from MMv1
+    fragments:
+    - 780-ansible-mmv1-import.yaml
+    - 782-containeranalysis-binauthz.yaml
+    - gcp_compute-dedupe-folders.yaml
+    - gcp_compute-recursive-folders.yaml
+    - gcp_compute-skip-unreachable-projects.yaml
+    - gcp_compute-skipped-summary.yaml
+    release_date: '2026-09-25'
   1.2.0:
     changes:
       bugfixes:
