@@ -1,0 +1,60 @@
+---
+- block:
+    - name: Fail at creating an instance - setting with wrong edition
+      google.cloud.gcp_sql_instance:
+        name: "{{ resource_name }}-edition-fail"
+        settings:
+          tier: db-g1-small
+          edition: WRONG_EDITION
+          ip_configuration:
+            authorized_networks:
+              - name: google dns server
+                value: 8.8.8.8/32
+        region: us-central1
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: present
+      failed_when: false
+      register: _fail1_edition_gcp_sql_instance
+
+    - name: Assert creation failed
+      assert:
+        that:
+          - _fail1_edition_gcp_sql_instance['changed'] == false
+          - _fail1_edition_gcp_sql_instance['msg'] is regex("Invalid value at .+ \(type.googleapis.com/google.cloud.sql.v1beta4.Settings.Edition\)")
+
+    - name: Create an instance using ENTERPRISE edition
+      google.cloud.gcp_sql_instance:
+        name: "{{ resource_name }}-edition"
+        database_version: POSTGRES_18  # because default behavior changed in recent postgresql versions
+        settings:
+          tier: db-g1-small
+          edition: ENTERPRISE
+          ip_configuration:
+            authorized_networks:
+              - name: google dns server
+                value: 8.8.8.8/32
+        region: us-central1
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: present
+      register: _create_edition_gcp_sql_instance
+
+    - name: Assert creation succeeded
+      assert:
+        that:
+          - _create_edition_gcp_sql_instance['changed'] == true
+          - _create_edition_gcp_sql_instance['failed'] == false
+          - _create_edition_gcp_sql_instance['settings']['edition'] == 'ENTERPRISE'
+
+  always:
+    - name: Delete the instance
+      google.cloud.gcp_sql_instance:
+        name: "{{ resource_name }}-edition"
+        region: us-central1
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: absent
