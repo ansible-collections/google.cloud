@@ -26,7 +26,7 @@ except ImportError:
     HAS_GOOGLE_LIBRARIES = False
 
 from ansible.module_utils.basic import AnsibleModule, env_fallback
-from ansible.module_utils._text import to_text
+from ansible.module_utils.common.text.converters import to_text
 
 
 def navigate_hash(source: T.Dict, path: T.List, default: T.Any = None) -> T.Any:

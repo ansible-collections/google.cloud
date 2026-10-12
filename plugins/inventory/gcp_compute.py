@@ -147,7 +147,7 @@ compose:
 import json
 
 from ansible.errors import AnsibleError, AnsibleParserError
-from ansible.module_utils._text import to_text
+from ansible.module_utils.common.text.converters import to_text
 from ansible.module_utils.basic import missing_required_lib
 from ..module_utils.gcp_utils import (
     GcpSession,
