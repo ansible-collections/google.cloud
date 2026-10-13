@@ -1,0 +1,6 @@
+- name: Create Network Connectivity Hub
+  google.cloud.gcp_networkconnectivity_hub:
+    name: my-hub
+    state: present
+    description: My hub description
+    preset_topology: HYBRID_INSPECTION
