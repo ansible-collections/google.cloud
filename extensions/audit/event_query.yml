@@ -212,36 +212,43 @@ google.cloud.gcp_compute_ssl_certificate:
         name: (.name // (.id | tostring))
       }
     }
+# GKE returns `.name` as the short name only ("my-cluster", "default-pool"),
+# not the full resource path. Keying on it collapses same-named node pools in
+# different clusters into one node, and -- because `name` is unique per job --
+# a job touching two of them loses every audit record it produced. The raw
+# REST payload reaches the query unmodified (`return_if_object` hands
+# `response.json()` straight to `exit_json`; `response_to_hash` is only used
+# inside `is_different`), so `.id` and `.selfLink` are both available here.
 google.cloud.gcp_container_cluster:
   query: >-
-    select(type == "object") | select(.name != null) |
+    select(type == "object") | select((.id // .selfLink // .name) != null) |
     {
-      name: (.name | tostring),
+      name: ((.id // .selfLink // .name) | tostring),
       canonical_facts: {
-        id: (.name | tostring)
+        id: ((.id // .selfLink // .name) | tostring)
       },
       facts: {
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "kubernetes_cluster",
         module: "gcp_container_cluster",
-        name: (.name // (.name | tostring))
+        name: (.name // ((.id // .selfLink // .name) | tostring))
       }
     }
 google.cloud.gcp_container_node_pool:
   query: >-
-    select(type == "object") | select(.name != null) |
+    select(type == "object") | select((.selfLink // .name) != null) |
     {
-      name: (.name | tostring),
+      name: ((.selfLink // .name) | tostring),
       canonical_facts: {
-        id: (.name | tostring)
+        id: ((.selfLink // .name) | tostring)
       },
       facts: {
         infra_type: "public_cloud",
         infra_bucket: "compute",
         device_type: "kubernetes_node_pool",
         module: "gcp_container_node_pool",
-        name: (.name // (.name | tostring))
+        name: (.name // ((.selfLink // .name) | tostring))
       }
     }
 google.cloud.gcp_dns_managed_zone:
@@ -265,7 +272,7 @@ google.cloud.gcp_dns_managed_zone:
 # collapsed them into one.
 google.cloud.gcp_dns_resource_record_set:
   query: >-
-    select(type == "object") | select(.name != null) |
+    select(type == "object") | select(.name != null and .type != null) |
     {
       name: ((.name | tostring) + "/" + (.type | tostring)),
       canonical_facts: {
