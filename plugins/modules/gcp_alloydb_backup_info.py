@@ -31,17 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_alloydb_backup_info
+short_description: List Alloydb.Backup resources
 description:
   - An AlloyDB Backup.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_alloydb_backup_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.backups/create)'
-  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -55,7 +50,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List Alloydb.Backup resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.backups/create)'
+  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

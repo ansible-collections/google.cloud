@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_alloydb_backup
+short_description: Manages a Alloydb.Backup resource
 description:
   - An AlloyDB Backup.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_alloydb_backup
-notes:
-  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.backups/create)'
-  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   annotations:
     description:
@@ -115,7 +111,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Alloydb.Backup resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.backups/create)'
+  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -129,10 +129,25 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+annotations:
+  description:
+    - Annotations to allow client tools to store small amount of arbitrary data.
+    - This is distinct from labels.
+    - 'https://google.aip.dev/128 An object containing a list of "key": value pairs.'
+    - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+    - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+clusterName:
+  description:
+    - The full resource name of the backup source cluster (e.g., projects/{project}/locations/{location}/clusters/{clusterId}).
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
+  type: str
 clusterUid:
   description:
     - Output only.
@@ -155,6 +170,29 @@ deleteTime:
     - 'Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".'
   returned: success
   type: str
+description:
+  description:
+    - User-provided description of the backup.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - User-settable and human-readable display name for the Backup.
+  returned: when set
+  type: str
+encryptionConfig:
+  contains:
+    kmsKeyName:
+      description:
+        - The fully-qualified resource name of the KMS key.
+        - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  returned: when set
+  type: dict
 encryptionInfo:
   contains:
     encryptionType:
@@ -207,6 +245,14 @@ expiryTime:
     - It is the duration specified by the backup's retention policy, added to the backup's createTime.
   returned: success
   type: str
+labels:
+  description:
+    - User-defined labels for the alloydb backup.
+    - 'An object containing a list of "key": value pairs.'
+    - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 name:
   description:
     - Output only.
@@ -231,6 +277,11 @@ state:
     - Output only.
     - The current state of the backup.
   returned: success
+  type: str
+type:
+  description:
+    - The backup type, which suggests the trigger for the backup.
+  returned: when set
   type: str
 uid:
   description:

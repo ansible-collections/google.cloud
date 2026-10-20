@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_dataset
+short_description: Manages a VertexAI.Dataset resource
 description:
   - A collection of DataItems and Annotations on them.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_dataset
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   display_name:
     description:
@@ -93,7 +89,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.Dataset resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.datasets)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -114,6 +114,42 @@ createTime:
   description:
     - The timestamp of when the dataset was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
+  type: str
+displayName:
+  description:
+    - The user-defined name of the Dataset.
+    - The name can be up to 128 characters long and can be consist of any UTF-8 characters.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.'
+        - The key needs to be in the same region as where the resource is created.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - Customer-managed encryption key spec for a Dataset.
+    - If set, this Dataset and all sub-resources of this Dataset will be secured by this key.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - A set of key/value label pairs to assign to this Workflow.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+metadataSchemaUri:
+  description:
+    - Points to a YAML file stored on Google Cloud Storage describing additional information about the Dataset.
+    - The schema is defined as an OpenAPI 3.0.2 Schema Object.
+    - The schema files that can be used here are found in gs://google-cloud-aiplatform/schema/dataset/metadata/.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
   type: str
 name:
   description:

@@ -31,16 +31,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_deployment_resource_pool
+short_description: Manages a VertexAI.DeploymentResourcePool resource
 description:
   - '''DeploymentResourcePool can be shared by multiple deployed models,'
   - whose underlying specification consists of dedicated resources.'
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_deployment_resource_pool
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.deploymentResourcePools)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   dedicated_resources:
     description:
@@ -130,7 +127,10 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.DeploymentResourcePool resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.deploymentResourcePools)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -157,6 +157,83 @@ createTime:
   description:
     - A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
+  type: str
+dedicatedResources:
+  contains:
+    autoscalingMetricSpecs:
+      contains:
+        metricName:
+          description:
+            - The resource metric name.
+            - 'Supported metrics: For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`.'
+          returned: always
+          type: str
+        target:
+          description:
+            - The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change.
+            - The default value is 60 (representing 60%) if not provided.
+          returned: when set
+          type: int
+      description:
+        - A list of the metric specifications that overrides a resource utilization metric.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      elements: dict
+      returned: when set
+      type: list
+    machineSpec:
+      contains:
+        acceleratorCount:
+          description:
+            - The number of accelerators to attach to the machine.
+          returned: when set
+          type: int
+        acceleratorType:
+          description:
+            - The type of accelerator(s) that may be attached to the machine as per accelerator_count.
+            - See possible values [here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
+          returned: when set
+          type: str
+        machineType:
+          description:
+            - The type of the machine.
+            - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+      description:
+        - The specification of a single machine used by the prediction.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: dict
+    maxReplicaCount:
+      description:
+        - The maximum number of replicas this DeployedModel may be deployed on when the traffic against it increases.
+        - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale the model to that many replicas is guaranteed (barring service outages).
+        - If traffic against the DeployedModel increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
+        - If this value is not provided, will use min_replica_count as the default value.
+        - The value of this field impacts the charge against Vertex CPU and GPU quotas.
+        - Specifically, you will be charged for max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: int
+    minReplicaCount:
+      description:
+        - The minimum number of machine replicas this DeployedModel will be always deployed on.
+        - This value must be greater than or equal to 1.
+        - If traffic against the DeployedModel increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: int
+  description:
+    - The underlying dedicated resources that the deployment resource pool uses.
+  returned: when set
+  type: dict
+name:
+  description:
+    - The resource name of deployment resource pool.
+    - The maximum length is 63 characters, and valid characters are `/^[a-z]([a-z0-9-]{0,61}[a-z0-9])?$/`.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
   type: str
 state:
   description: The current state of the resource.

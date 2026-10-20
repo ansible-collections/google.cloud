@@ -31,17 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_online_store_featureview_info
+short_description: List VertexAI.FeatureOnlineStoreFeatureview resources
 description:
   - FeatureView is representation of values that the FeatureOnlineStore will serve based on its syncConfig.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_vertexai_feature_online_store_featureview_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores.featureViews)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   feature_online_store:
     description:
@@ -61,7 +56,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List VertexAI.FeatureOnlineStoreFeatureview resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores.featureViews)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

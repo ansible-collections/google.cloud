@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_index_endpoint_info
+short_description: List VertexAI.IndexEndpoint resources
 description:
   - An endpoint indexes are deployed into. An index endpoint can have multiple deployed indexes.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_vertexai_index_endpoint_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -54,7 +50,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List VertexAI.IndexEndpoint resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

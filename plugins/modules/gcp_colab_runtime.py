@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_colab_runtime
+short_description: Manages a Colab.Runtime resource
 description:
   - '''A runtime is a Google-provisioned virtual machine (VM) that can run the code in your notebook (IPYNB file).'''
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_colab_runtime
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimes)'
-  - 'Create a runtime Guide: U(https://cloud.google.com/colab/docs/create-runtime)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   auto_upgrade:
     description:
@@ -107,7 +103,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Colab.Runtime resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimes)'
+  - 'Create a runtime Guide: U(https://cloud.google.com/colab/docs/create-runtime)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -140,6 +140,18 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+description:
+  description:
+    - The description of the Runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the Runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
+  type: str
 expirationTime:
   description:
     - Output only.
@@ -152,11 +164,29 @@ isUpgradable:
     - Checks if the NotebookRuntime is upgradable.
   returned: success
   type: bool
+notebookRuntimeTemplateRef:
+  contains:
+    notebookRuntimeTemplate:
+      description:
+        - The resource name of the NotebookRuntimeTemplate based on which a NotebookRuntime will be created.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - '''Runtime specific information used for NotebookRuntime creation.''.'
+  returned: when set
+  type: dict
 notebookRuntimeType:
   description:
     - Output only.
     - The type of the notebook runtime.
   returned: success
+  type: str
+runtimeUser:
+  description:
+    - The user email of the NotebookRuntime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
   type: str
 state:
   description:

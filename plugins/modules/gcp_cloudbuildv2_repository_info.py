@@ -31,17 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_cloudbuildv2_repository_info
+short_description: List Cloudbuildv2.Repository resources
 description:
   - A repository associated to a parent connection.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_cloudbuildv2_repository_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -55,7 +50,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List Cloudbuildv2.Repository resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

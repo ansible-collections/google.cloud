@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_featurestore
+short_description: Manages a VertexAI.Featurestore resource
 description:
   - A collection of DataItems and Annotations on them.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_featurestore
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   encryption_spec:
     description:
@@ -127,7 +123,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.Featurestore resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -162,6 +162,65 @@ createTime:
     - The timestamp of when the featurestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.'
+        - The key needs to be in the same region as where the compute resource is created.
+      returned: always
+      type: str
+  description:
+    - If set, both of the online and offline data storage will be secured by this key.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - A set of key/value label pairs to assign to this Featurestore.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+onlineServingConfig:
+  contains:
+    fixedNodeCount:
+      description:
+        - The number of nodes for each cluster.
+        - The number of nodes will not scale automatically but can be scaled manually by providing different values when updating.
+      returned: when set
+      type: int
+    scaling:
+      contains:
+        maxNodeCount:
+          description:
+            - The maximum number of nodes to scale up to.
+            - Must be greater than minNodeCount, and less than or equal to 10 times of 'minNodeCount'.
+          returned: always
+          type: int
+        minNodeCount:
+          description:
+            - The minimum number of nodes to scale down to.
+            - Must be greater than or equal to 1.
+          returned: always
+          type: int
+      description:
+        - Online serving scaling configuration.
+        - Only one of fixedNodeCount and scaling can be set.
+        - Setting one will reset the other.
+      returned: when set
+      type: dict
+  description:
+    - Config for online serving resources.
+  returned: when set
+  type: dict
+onlineStorageTtlDays:
+  description:
+    - TTL in days for feature values that will be stored in online serving storage.
+    - The Feature Store online storage periodically removes obsolete feature values older than onlineStorageTtlDays since the feature generation time.
+    - Note that onlineStorageTtlDays should be less than or equal to offlineStorageTtlDays for each EntityType under a featurestore.
+    - If not set, default to 4000 days.
+  returned: when set
+  type: int
 state:
   description: The current state of the resource.
   returned: always

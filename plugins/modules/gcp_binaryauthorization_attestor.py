@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_binaryauthorization_attestor
+short_description: Manages a BinaryAuthorization.Attestor resource
 description:
   - An attestor that attests to container image artifacts.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_binaryauthorization_attestor
-notes:
-  - 'API Reference: U(https://cloud.google.com/binary-authorization/docs/reference/rest/)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/binary-authorization/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   attestation_authority_note:
     description:
@@ -133,7 +129,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a BinaryAuthorization.Attestor resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/binary-authorization/docs/reference/rest/)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/binary-authorization/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""

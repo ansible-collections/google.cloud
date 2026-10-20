@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_rag_engine_config
+short_description: Manages a VertexAI.RagEngineConfig resource
 description:
   - 'Vertex AI RAG Engine lets you scale your RagManagedDb instance based on your usage and performance requirements using a choice of two tiers, and optionally, lets you delete your Vertex AI RAG Engine data using a third tier. The tier is a project-level setting that''s available in the RagEngineConfig resource that impacts all RAG corpora using RagManagedDb. The following tiers are available in RagEngineConfig: Basic, Scaled and Unprovisioned.'
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_rag_engine_config
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest/v1/RagEngineConfig)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/understanding-ragmanageddb)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   rag_managed_db_config:
     choices:
@@ -78,7 +74,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.RagEngineConfig resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/generative-ai/docs/reference/rest/v1/RagEngineConfig)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/rag-engine/understanding-ragmanageddb)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -115,6 +115,20 @@ name:
     - The resource name of the Dataset.
     - This value is set by Google.
   returned: success
+  type: str
+ragManagedDbConfig:
+  description:
+    - The config of the RagManagedDb used by RagEngine.
+    - 'Basic tier is a cost-effective and low compute tier suitable for the following cases: Experimenting with RagManagedDb, Small data size, Latency insensitive workload, Only using RAG Engine with external vector DBs.'
+    - 'NOTE: This is the default tier if not explicitly chosen.'
+    - Scaled tier offers production grade performance along with autoscaling functionality.
+    - It is suitable for customers with large amounts of data or performance sensitive workloads.
+    - Unprovisioned tier disables the RAG Engine service and deletes all your data held within this service.
+    - This will halt the billing of the service.
+    - 'NOTE: Once deleted the data cannot be recovered.'
+    - To start using RAG Engine again, you will need to update the tier by calling the UpdateRagEngineConfig API.
+    - 'NOTE: Setting to unprovisioned is the same as state=absent.'
+  returned: when set
   type: str
 state:
   description: The current state of the resource.

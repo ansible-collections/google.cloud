@@ -31,17 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_reasoning_engine_info
+short_description: List VertexAI.ReasoningEngine resources
 description:
   - ReasoningEngine provides a customizable runtime for models to determine which actions to take and in which order.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_vertexai_reasoning_engine_info
-notes:
-  - 'API Reference: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines)'
-  - 'Scale your agents Guide: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -55,7 +50,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List VertexAI.ReasoningEngine resources
+notes:
+  - 'API Reference: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines)'
+  - 'Scale your agents Guide: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""
