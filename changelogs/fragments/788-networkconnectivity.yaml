@@ -1,0 +1,2 @@
+minor_changes:
+  - gcp_networkconnectivity_* - Add gcp_networkconnectivity_hub and gcp_networkconnectivity_spoke with accompanying _info modules (https://github.com/ansible-collections/google.cloud/pull/788)
