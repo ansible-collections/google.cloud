@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_networkconnectivity_hub
+short_description: Manages a NetworkConnectivity.Hub resource
 description:
   - The NetworkConnectivity Hub resource
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_networkconnectivity_hub
-notes:
-  - 'API Reference: U(https://cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1beta/projects.locations.global.hubs)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   description:
     description:
@@ -101,7 +97,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a NetworkConnectivity.Hub resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest/v1beta/projects.locations.global.hubs)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -360,7 +360,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -373,7 +373,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,
