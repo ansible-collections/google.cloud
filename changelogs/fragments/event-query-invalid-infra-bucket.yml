@@ -1,0 +1,10 @@
+---
+bugfixes:
+  - event_query - the two Pub/Sub queries emitted ``infra_bucket``
+    ``app_integration_messaging``, which is not one of the nine values the
+    Normalized Resource Taxonomy defines. Those nodes bucketed into a category
+    nothing downstream aggregates. Corrected to ``devops_app_integration``.
+minor_changes:
+  - event_query - the contract test now compiles every expression with ``jq``.
+    Every other check in that file reads the query as text, so all of them pass
+    on an expression that cannot run.
