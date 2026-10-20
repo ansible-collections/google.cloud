@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_group_feature
+short_description: Manages a VertexAI.FeatureGroupFeature resource
 description:
   - Vertex AI Feature Group Feature is feature metadata information.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_feature_group_feature
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureGroups.features)'
-  - 'Creating a Feature Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-feature)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   description:
     description:
@@ -87,7 +83,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.FeatureGroupFeature resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureGroups.features)'
+  - 'Creating a Feature Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-feature)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -110,6 +110,17 @@ createTime:
     - The timestamp of when the FeatureGroup was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+description:
+  description:
+    - The description of the FeatureGroup.
+  returned: when set
+  type: str
+labels:
+  description:
+    - The labels with user-defined metadata to organize your FeatureGroup.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
@@ -118,6 +129,12 @@ updateTime:
   description:
     - The timestamp of when the FeatureGroup was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
+  type: str
+versionColumnName:
+  description:
+    - The name of the BigQuery Table/View column hosting data for this version.
+    - If no value is provided, will use featureId.
+  returned: when set
   type: str
 """  # noqa: E501
 
@@ -250,7 +267,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -263,7 +280,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

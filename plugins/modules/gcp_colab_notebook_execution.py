@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_colab_notebook_execution
+short_description: Manages a Colab.NotebookExecution resource
 description:
   - '''An instance of a notebook Execution'''
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_colab_notebook_execution
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookExecutionJobs)'
-  - 'Schedule a notebook run Guide: U(https://cloud.google.com/colab/docs/schedule-notebook-run)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   custom_environment_spec:
     description:
@@ -234,7 +230,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Colab.NotebookExecution resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookExecutionJobs)'
+  - 'Schedule a notebook run Guide: U(https://cloud.google.com/colab/docs/schedule-notebook-run)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -342,6 +342,178 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+customEnvironmentSpec:
+  contains:
+    machineSpec:
+      contains:
+        acceleratorCount:
+          description:
+            - The number of accelerators used by the runtime.
+          returned: when set
+          type: int
+        acceleratorType:
+          description:
+            - The type of hardware accelerator used by the runtime.
+            - If specified, acceleratorCount must also be specified.
+          returned: when set
+          type: str
+        machineType:
+          description:
+            - The Compute Engine machine type selected for the runtime.
+          returned: when set
+          type: str
+      description:
+        - '''The machine configuration of the runtime.''.'
+      returned: when set
+      type: dict
+    networkSpec:
+      contains:
+        enableInternetAccess:
+          description:
+            - Enable public internet access for the runtime.
+          returned: when set
+          type: bool
+        network:
+          description:
+            - The name of the VPC that this runtime is in.
+          returned: when set
+          type: str
+        subnetwork:
+          description:
+            - The name of the subnetwork that this runtime is in.
+          returned: when set
+          type: str
+      description:
+        - The network configuration for the runtime.
+      returned: when set
+      type: dict
+    persistentDiskSpec:
+      contains:
+        diskSizeGb:
+          description:
+            - The disk size of the runtime in GB.
+            - If specified, the diskType must also be specified.
+            - The minimum size is 10GB and the maximum is 65536GB.
+          returned: when set
+          type: str
+        diskType:
+          description:
+            - The type of the persistent disk.
+          returned: when set
+          type: str
+      description:
+        - The configuration for the data disk of the runtime.
+      returned: when set
+      type: dict
+    shieldedInstanceConfig:
+      contains:
+        enableIntegrityMonitoring:
+          description:
+            - Defines whether the instance has integrity monitoring enabled.
+            - Enables monitoring and attestation of the boot integrity of the instance.
+            - The attestation is performed against the integrity policy baseline.
+            - This baseline is initially derived from the implicitly trusted boot image when the instance is created.
+            - Enabled by default.
+          returned: when set
+          type: bool
+        enableSecureBoot:
+          description:
+            - Defines whether the instance has Secure Boot enabled.
+            - Secure Boot helps ensure that the system only runs authentic software by verifying the digital signature of all boot components, and halting the boot process if signature verification fails.
+            - Disabled by default.
+          returned: when set
+          type: bool
+        enableVtpm:
+          description:
+            - Defines whether the instance has the vTPM enabled.
+            - Enabled by default.
+          returned: when set
+          type: bool
+      description:
+        - Shielded VM configuration.
+      returned: when set
+      type: dict
+  description:
+    - Compute configuration to use for an execution job.
+  returned: when set
+  type: dict
+dataformRepositorySource:
+  contains:
+    commitSha:
+      description:
+        - The commit SHA to read repository with.
+        - If unset, the file will be read at HEAD.
+      returned: when set
+      type: str
+    dataformRepositoryResourceName:
+      description:
+        - The resource name of the Dataform Repository.
+      returned: always
+      type: str
+  description:
+    - The Dataform Repository containing the input notebook.
+  returned: when set
+  type: dict
+directNotebookSource:
+  contains:
+    content:
+      description:
+        - The base64-encoded contents of the input notebook file.
+      returned: always
+      type: str
+  description:
+    - The content of the input notebook in ipynb format.
+  returned: when set
+  type: dict
+displayName:
+  description:
+    - The display name of the Notebook Execution.
+  returned: always
+  type: str
+executionTimeout:
+  description:
+    - Max running time of the execution job in seconds (default 86400s / 24 hrs).
+  returned: when set
+  type: str
+executionUser:
+  description:
+    - The user email to run the execution as.
+  returned: when set
+  type: str
+gcsNotebookSource:
+  contains:
+    generation:
+      description:
+        - The version of the Cloud Storage object to read.
+        - If unset, the current version of the object is read.
+        - See https://cloud.google.com/storage/docs/metadata#generation-number.
+      returned: when set
+      type: str
+    uri:
+      description:
+        - The Cloud Storage uri pointing to the ipynb file.
+      returned: always
+      type: str
+  description:
+    - The Cloud Storage uri for the input notebook.
+  returned: when set
+  type: dict
+gcsOutputUri:
+  description:
+    - The Cloud Storage location to upload the result to.
+    - Format:`gs://bucket-name`.
+  returned: always
+  type: str
+notebookRuntimeTemplateResourceName:
+  description:
+    - The NotebookRuntimeTemplate to source compute configuration from.
+  returned: when set
+  type: str
+serviceAccount:
+  description:
+    - The service account to run the execution as.
+  returned: when set
+  type: str
 state:
   description: The current state of the resource.
   returned: always
@@ -690,7 +862,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -719,7 +891,10 @@ def main():
 
     # --------- END post-read custom code ---------
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

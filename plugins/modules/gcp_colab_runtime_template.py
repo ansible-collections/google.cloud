@@ -31,18 +31,14 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_colab_runtime_template
+short_description: Manages a Colab.RuntimeTemplate resource
 description:
   - '''A runtime template is a VM configuration that specifies a machine type and other characteristics of the VM,'
   - as well as common settings such as the network and whether public internet access is enabled. When you create
   - a runtime, its VM is created according to the specifications of a runtime template.'
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_colab_runtime_template
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates)'
-  - 'Create a runtime template Guide: U(https://cloud.google.com/colab/docs/create-runtime-template)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   data_persistent_disk_spec:
     description:
@@ -246,7 +242,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Colab.RuntimeTemplate resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates)'
+  - 'Create a runtime template Guide: U(https://cloud.google.com/colab/docs/create-runtime-template)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -266,6 +266,219 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+dataPersistentDiskSpec:
+  contains:
+    diskSizeGb:
+      description:
+        - The disk size of the runtime in GB.
+        - If specified, the diskType must also be specified.
+        - The minimum size is 10GB and the maximum is 65536GB.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+    diskType:
+      description:
+        - The type of the persistent disk.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - The configuration for the data disk of the runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+description:
+  description:
+    - The description of the Runtime Template.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the Runtime Template.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS encryption key (customer-managed encryption key) used to protect the runtime.
+      returned: when set
+      type: str
+  description:
+    - Customer-managed encryption key spec for the notebook runtime.
+  returned: when set
+  type: dict
+eucConfig:
+  contains:
+    eucDisabled:
+      description:
+        - Disable end user credential access for the runtime.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: bool
+  description:
+    - EUC configuration of the NotebookRuntimeTemplate.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+idleShutdownConfig:
+  contains:
+    idleTimeout:
+      description:
+        - The duration after which the runtime is automatically shut down.
+        - An input of 0s disables the idle shutdown feature, and a valid range is [10m, 24h].
+      returned: when set
+      type: str
+  description:
+    - Notebook Idle Shutdown configuration for the runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - Labels to identify and group the runtime template.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+machineSpec:
+  contains:
+    acceleratorCount:
+      description:
+        - The number of accelerators used by the runtime.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: int
+    acceleratorType:
+      description:
+        - The type of hardware accelerator used by the runtime.
+        - If specified, acceleratorCount must also be specified.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+    machineType:
+      description:
+        - The Compute Engine machine type selected for the runtime.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - '''The machine configuration of the runtime.''.'
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+name:
+  description:
+    - The resource name of the Runtime Template.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
+  type: str
+networkSpec:
+  contains:
+    enableInternetAccess:
+      description:
+        - Enable public internet access for the runtime.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: bool
+    network:
+      description:
+        - The name of the VPC that this runtime is in.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+    subnetwork:
+      description:
+        - The name of the subnetwork that this runtime is in.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - The network configuration for the runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+networkTags:
+  description:
+    - Applies the given Compute Engine tags to the runtime.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  elements: str
+  returned: when set
+  type: list
+shieldedVmConfig:
+  contains:
+    enableSecureBoot:
+      description:
+        - Enables secure boot for the runtime.
+      returned: when set
+      type: bool
+  description:
+    - Runtime Shielded VM spec.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+softwareConfig:
+  contains:
+    colabImage:
+      contains:
+        releaseName:
+          description:
+            - The release name of the NotebookRuntime Colab image, e.g.
+            - '"py310".'
+            - If not specified, detault to the latest release.
+          returned: when set
+          type: str
+      description:
+        - Colab Image Configuration.
+      returned: when set
+      type: dict
+    env:
+      contains:
+        name:
+          description:
+            - Name of the environment variable.
+            - Must be a valid C identifier.
+          returned: when set
+          type: str
+        value:
+          description:
+            - Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables.
+            - If a variable cannot be resolved, the reference in the input string will be unchanged.
+            - 'The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).'
+            - Escaped references will never be expanded, regardless of whether the variable exists or not.
+          returned: when set
+          type: str
+      description:
+        - Environment variables to be passed to the container.
+      elements: dict
+      returned: when set
+      type: list
+    postStartupScriptConfig:
+      contains:
+        postStartupScript:
+          description:
+            - Post startup script to run after runtime is started.
+          returned: when set
+          type: str
+        postStartupScriptBehavior:
+          description:
+            - Post startup script behavior that defines download and execution behavior.
+          returned: when set
+          type: str
+        postStartupScriptUrl:
+          description:
+            - Post startup script url to download.
+            - 'Example: https://bucket/script.sh.'
+          returned: when set
+          type: str
+      description:
+        - Post startup script config.
+      returned: when set
+      type: dict
+  description:
+    - The notebook software configuration of the notebook runtime.
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
@@ -613,7 +826,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -626,7 +839,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

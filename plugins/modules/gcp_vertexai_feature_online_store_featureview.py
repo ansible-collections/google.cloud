@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_online_store_featureview
+short_description: Manages a VertexAI.FeatureOnlineStoreFeatureview resource
 description:
   - FeatureView is representation of values that the FeatureOnlineStore will serve based on its syncConfig.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_feature_online_store_featureview
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores.featureViews)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   big_query_source:
     description:
@@ -190,7 +186,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.FeatureOnlineStoreFeatureview resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores.featureViews)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -207,6 +207,24 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+bigQuerySource:
+  contains:
+    entityIdColumns:
+      description:
+        - Columns to construct entityId / row keys.
+        - Start by supporting 1 only.
+      elements: str
+      returned: always
+      type: list
+    uri:
+      description:
+        - The BigQuery view URI that will be materialized on each sync trigger based on FeatureView.SyncConfig.
+      returned: always
+      type: str
+  description:
+    - Configures how data is supposed to be extracted from a BigQuery source to be loaded onto the FeatureOnlineStore.
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -216,15 +234,124 @@ createTime:
     - The timestamp of when the featureOnlinestore was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+featureRegistrySource:
+  contains:
+    featureGroups:
+      contains:
+        featureGroupId:
+          description:
+            - Identifier of the feature group.
+          returned: always
+          type: str
+        featureIds:
+          description:
+            - Identifiers of features under the feature group.
+          elements: str
+          returned: always
+          type: list
+      description:
+        - List of features that need to be synced to Online Store.
+      elements: dict
+      returned: always
+      type: list
+    projectNumber:
+      description:
+        - The project number of the parent project of the feature Groups.
+      returned: when set
+      type: str
+  description:
+    - Configures the features from a Feature Registry source that need to be loaded onto the FeatureOnlineStore.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - A set of key/value label pairs to assign to this FeatureView.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
   type: str
+syncConfig:
+  contains:
+    continuous:
+      description:
+        - If true, syncs the FeatureView in a continuous manner to Online Store.
+      returned: when set
+      type: bool
+    cron:
+      description:
+        - Cron schedule (https://en.wikipedia.org/wiki/Cron) to launch scheduled runs.
+        - 'To explicitly set a timezone to the cron tab, apply a prefix in the cron tab: "CRON_TZ=${IANA_TIME_ZONE}" or "TZ=${IANA_TIME_ZONE}".'
+      returned: when set
+      type: str
+  description:
+    - Configures when data is to be synced/updated for this FeatureView.
+    - At the end of the sync the latest featureValues for each entityId of this FeatureView are made ready for online serving.
+  returned: when set
+  type: dict
 updateTime:
   description:
     - The timestamp of when the featureOnlinestore was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+vectorSearchConfig:
+  contains:
+    bruteForceConfig:
+      description:
+        - Configuration options for using brute force search, which simply implements the standard linear search in the database for each query.
+        - It is primarily meant for benchmarking and to generate the ground truth for approximate search.
+      returned: when set
+      type: dict
+    crowdingColumn:
+      description:
+        - Column of crowding.
+        - This column contains crowding attribute which is a constraint on a neighbor list produced by nearest neighbor search requiring that no more than some value k' of the k neighbors returned have the same value of crowdingAttribute.
+      returned: when set
+      type: str
+    distanceMeasureType:
+      description:
+        - The distance measure used in nearest neighbor search.
+        - For details on allowed values, see the [API documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureOnlineStores.featureViews#DistanceMeasureType).
+      returned: when set
+      type: str
+    embeddingColumn:
+      description:
+        - Column of embedding.
+        - This column contains the source data to create index for vector search.
+      returned: always
+      type: str
+    embeddingDimension:
+      description:
+        - The number of dimensions of the input embedding.
+      returned: when set
+      type: int
+    filterColumns:
+      description:
+        - Columns of features that are used to filter vector search results.
+      elements: str
+      returned: when set
+      type: list
+    treeAhConfig:
+      contains:
+        leafNodeEmbeddingCount:
+          description:
+            - Number of embeddings on each leaf node.
+            - The default value is 1000 if not set.
+          returned: when set
+          type: str
+      description:
+        - Configuration options for the tree-AH algorithm (Shallow tree + Asymmetric Hashing).
+        - 'Please refer to this paper for more details: https://arxiv.org/abs/1908.10396.'
+      returned: when set
+      type: dict
+  description:
+    - Configuration for vector search.
+    - It contains the required configurations to create an index from source data, so that approximate nearest neighbor (a.k.a ANN) algorithms search can be performed during online serving.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
 """  # noqa: E501
 
 ################################################################################
@@ -498,7 +625,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -511,7 +638,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

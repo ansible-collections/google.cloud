@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_reasoning_engine
+short_description: Manages a VertexAI.ReasoningEngine resource
 description:
   - ReasoningEngine provides a customizable runtime for models to determine which actions to take and in which order.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_reasoning_engine
-notes:
-  - 'API Reference: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines)'
-  - 'Scale your agents Guide: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   context_spec:
     description:
@@ -938,7 +934,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.ReasoningEngine resource
+notes:
+  - 'API Reference: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/rest/v1/projects.locations.reasoningEngines)'
+  - 'Scale your agents Guide: U(https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -974,20 +974,1019 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+contextSpec:
+  contains:
+    exampleStoreConfig:
+      contains:
+        similaritySearchConfig:
+          contains:
+            embeddingModel:
+              description:
+                - The Gemini model used to generate embeddings to lookup similar examples.
+              returned: always
+              type: str
+          description:
+            - Configuration for how to perform similarity search on examples.
+          returned: when set
+          type: dict
+      description:
+        - Specification for an Example Store, which manages few-shot examples for the Agent Engine.
+      returned: when set
+      type: dict
+    memoryBankConfig:
+      contains:
+        customizationConfigs:
+          contains:
+            consolidationConfig:
+              contains:
+                revisionsPerCandidateCount:
+                  description:
+                    - Number of revisions to consider per candidate count.
+                  returned: when set
+                  type: int
+              description:
+                - Configuration for how many memory revisions Memory Bank considers when consolidating each memory candidate.
+              returned: when set
+              type: dict
+            disableNaturalLanguageMemories:
+              description:
+                - Indicates whether natural language memory generation should be disabled.
+              returned: when set
+              type: bool
+            enableThirdPersonMemories:
+              description:
+                - Generate memories in the third person if set to true.
+              returned: when set
+              type: bool
+            generateMemoriesExamples:
+              contains:
+                conversationSource:
+                  contains:
+                    events:
+                      contains:
+                        content:
+                          contains:
+                            parts:
+                              contains:
+                                audioTranscription:
+                                  contains:
+                                    speakerLabel:
+                                      description:
+                                        - A label identifying the speaker of this audio segment (e.g.
+                                        - spk_1, spk_2).
+                                        - Present when diarization is set.
+                                      returned: when set
+                                      type: str
+                                    text:
+                                      description:
+                                        - The transcription text of this audio segment.
+                                      returned: always
+                                      type: str
+                                    words:
+                                      contains:
+                                        endOffset:
+                                          description:
+                                            - End offset in time of the word relative to the start of the audio.
+                                          returned: when set
+                                          type: str
+                                        startOffset:
+                                          description:
+                                            - Start offset in time of the word relative to the start of the audio.
+                                          returned: when set
+                                          type: str
+                                        word:
+                                          description:
+                                            - Transcript of the word.
+                                          returned: always
+                                          type: str
+                                      description:
+                                        - Detailed word-level transcriptions and timing details.
+                                        - Present when word_timestamp is set.
+                                      elements: dict
+                                      returned: when set
+                                      type: list
+                                  description:
+                                    - Audio (input or output) transcription.
+                                    - This is only set when this Part contains audio data.
+                                  returned: when set
+                                  type: dict
+                                codeExecutionResult:
+                                  contains:
+                                    id:
+                                      description:
+                                        - The identifier of the ExecutableCode part this result is for.
+                                      returned: when set
+                                      type: str
+                                    outcome:
+                                      description:
+                                        - Outcome of the code execution.
+                                        - 'Possible values: ["OUTCOME_UNSPECIFIED", "OUTCOME_OK", "OUTCOME_FAILED", "OUTCOME_DEADLINE_EXCEEDED"].'
+                                      returned: always
+                                      type: str
+                                    output:
+                                      description:
+                                        - Contains stdout when code execution is successful, stderr or other description otherwise.
+                                      returned: when set
+                                      type: str
+                                  description:
+                                    - Result of executing the ExecutableCode.
+                                  returned: when set
+                                  type: dict
+                                executableCode:
+                                  contains:
+                                    code:
+                                      description:
+                                        - The code to be executed.
+                                      returned: always
+                                      type: str
+                                    id:
+                                      description:
+                                        - Unique identifier of the ExecutableCode part.
+                                      returned: when set
+                                      type: str
+                                    language:
+                                      description:
+                                        - Supported programming languages for the generated code.
+                                        - 'Possible values: ["LANGUAGE_UNSPECIFIED", "PYTHON", "BASH"].'
+                                      returned: always
+                                      type: str
+                                  description:
+                                    - Code generated by the model that is intended to be executed.
+                                  returned: when set
+                                  type: dict
+                                fileData:
+                                  contains:
+                                    fileUri:
+                                      description:
+                                        - The URI of the file in Google Cloud Storage.
+                                      returned: always
+                                      type: str
+                                    mimeType:
+                                      description:
+                                        - The IANA standard MIME type of the source data.
+                                      returned: always
+                                      type: str
+                                  description:
+                                    - URI based data.
+                                  returned: when set
+                                  type: dict
+                                functionCall:
+                                  contains:
+                                    args:
+                                      description:
+                                        - The function parameters and values in JSON object format.
+                                      returned: when set
+                                      type: str
+                                    id:
+                                      description:
+                                        - The unique id of the function call.
+                                      returned: when set
+                                      type: str
+                                    name:
+                                      description:
+                                        - The name of the function to call.
+                                      returned: when set
+                                      type: str
+                                  description:
+                                    - A predicted function call returned from the model.
+                                  returned: when set
+                                  type: dict
+                                functionResponse:
+                                  contains:
+                                    id:
+                                      description:
+                                        - The id of the function call this response is for.
+                                      returned: when set
+                                      type: str
+                                    name:
+                                      description:
+                                        - The name of the function to call.
+                                      returned: always
+                                      type: str
+                                    response:
+                                      description:
+                                        - The function response in JSON object format.
+                                      returned: when set
+                                      type: str
+                                  description:
+                                    - The result of a function call.
+                                  returned: when set
+                                  type: dict
+                                inlineData:
+                                  contains:
+                                    data:
+                                      description:
+                                        - Raw bytes, which should be base64-encoded.
+                                      returned: always
+                                      type: str
+                                    mimeType:
+                                      description:
+                                        - The IANA standard MIME type of the source data.
+                                      returned: always
+                                      type: str
+                                  description:
+                                    - The inline data content of the part.
+                                  returned: when set
+                                  type: dict
+                                text:
+                                  description:
+                                    - The text content of the part.
+                                  returned: when set
+                                  type: str
+                                thought:
+                                  description:
+                                    - Indicates whether the part represents the model's thought process or reasoning.
+                                  returned: when set
+                                  type: bool
+                                videoMetadata:
+                                  contains:
+                                    endOffset:
+                                      description:
+                                        - The end offset of the video.
+                                      returned: when set
+                                      type: str
+                                    startOffset:
+                                      description:
+                                        - The start offset of the video.
+                                      returned: when set
+                                      type: str
+                                  description:
+                                    - Video metadata.
+                                  returned: when set
+                                  type: dict
+                              description:
+                                - A list of Part objects that make up a single message.
+                              elements: dict
+                              returned: always
+                              type: list
+                            role:
+                              description:
+                                - The producer of the content.
+                                - Must be either 'user' or 'model'.
+                                - If not set, the service will default to 'user'.
+                              returned: when set
+                              type: str
+                          description:
+                            - Represents the content of the event.
+                          returned: always
+                          type: dict
+                      description:
+                        - Represents the input conversation events for the example.
+                      elements: dict
+                      returned: when set
+                      type: list
+                  description:
+                    - A conversation source for the example.
+                  returned: when set
+                  type: dict
+                generatedMemories:
+                  contains:
+                    fact:
+                      description:
+                        - Represents the fact to generate a memory from.
+                      returned: always
+                      type: str
+                    topics:
+                      contains:
+                        customMemoryTopicLabel:
+                          description:
+                            - Represents the custom memory topic label.
+                          returned: when set
+                          type: str
+                        managedMemoryTopic:
+                          description:
+                            - Represents the managed memory topic.
+                            - 'Possible values: ["USER_PERSONAL_INFO", "USER_PREFERENCES", "KEY_CONVERSATION_DETAILS", "EXPLICIT_INSTRUCTIONS"].'
+                          returned: when set
+                          type: str
+                      description:
+                        - Represents the list of topics that the memory should be associated with.
+                      elements: dict
+                      returned: when set
+                      type: list
+                  description:
+                    - Represents the memories that are expected to be generated from the input conversation.
+                  elements: dict
+                  returned: when set
+                  type: list
+              description:
+                - Provides examples of how to generate memories for a particular scope.
+              elements: dict
+              returned: when set
+              type: list
+            memoryTopics:
+              contains:
+                customMemoryTopic:
+                  contains:
+                    description:
+                      description:
+                        - Description of custom memory topic.
+                      returned: when set
+                      type: str
+                    label:
+                      description:
+                        - Label of custom memory topic.
+                      returned: when set
+                      type: str
+                  description:
+                    - Custom memory topic.
+                  returned: when set
+                  type: dict
+                managedMemoryTopic:
+                  contains:
+                    managedTopicEnum:
+                      description:
+                        - Managed topic enum (e.g.
+                        - USER_PREFERENCES, EXPLICIT_INSTRUCTIONS).
+                      returned: when set
+                      type: str
+                  description:
+                    - Managed memory topic.
+                  returned: when set
+                  type: dict
+              description:
+                - List of topics that the memory should be associated with.
+              elements: dict
+              returned: when set
+              type: list
+            scopeKeys:
+              description:
+                - List of scope keys that this customization config applies to.
+              elements: str
+              returned: when set
+              type: list
+          description:
+            - Customization configs for how Agent Engine sub-resources manage context at different scope levels.
+          elements: dict
+          returned: when set
+          type: list
+        disableMemoryRevisions:
+          description:
+            - If true, no memory revisions will be created for any requests to the Memory Bank.
+          returned: when set
+          type: bool
+        generationConfig:
+          contains:
+            generationTriggerConfig:
+              contains:
+                generationRule:
+                  contains:
+                    eventCount:
+                      description:
+                        - Specifies to trigger generation when the event count reaches this limit.
+                      returned: when set
+                      type: int
+                    fixedInterval:
+                      description:
+                        - Specifies to trigger generation at a fixed interval.
+                        - The duration must have a minute-level granularity.
+                      returned: when set
+                      type: str
+                    idleDuration:
+                      description:
+                        - Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event.
+                        - The duration must have a minute-level granularity.
+                      returned: when set
+                      type: str
+                    overlapEventCount:
+                      description:
+                        - Re-include the last N already-processed events in the next window.
+                      returned: when set
+                      type: int
+                  description:
+                    - The active rule that determines when to flush the buffer.
+                    - If not set, then the stream will be force flushed immediately.
+                  returned: when set
+                  type: dict
+              description:
+                - Configuration for triggering memory generation.
+              returned: when set
+              type: dict
+            model:
+              description:
+                - The model used to generate memories.
+                - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+              returned: always
+              type: str
+          description:
+            - Configuration for how to generate memories for the Memory Bank.
+          returned: when set
+          type: dict
+        similaritySearchConfig:
+          contains:
+            embeddingModel:
+              description:
+                - The model used to generate embeddings to lookup similar memories.
+                - 'Format: projects/{project}/locations/{location}/publishers/google/models/{model}.'
+              returned: always
+              type: str
+          description:
+            - Configuration for how to perform similarity search on memories.
+          returned: when set
+          type: dict
+        structuredMemoryConfigs:
+          contains:
+            schemaConfigs:
+              contains:
+                id:
+                  description:
+                    - Unique ID identifying the memory schema.
+                  returned: always
+                  type: str
+                schema:
+                  description:
+                    - The memory schema defined as an OpenAPI Schema Object JSON string.
+                  returned: when set
+                  type: str
+              description:
+                - List of schema configs that this structured memory config applies to.
+              elements: dict
+              returned: when set
+              type: list
+            scopeKeys:
+              description:
+                - List of scope keys that this structured memory config applies to.
+              elements: str
+              returned: when set
+              type: list
+          description:
+            - Structured memory configurations for Agent Engine sub-resources.
+          elements: dict
+          returned: when set
+          type: list
+        ttlConfig:
+          contains:
+            defaultTtl:
+              description:
+                - The default TTL duration of the memories in the Memory Bank.
+              returned: when set
+              type: str
+            granularTtlConfig:
+              contains:
+                createTtl:
+                  description:
+                    - The TTL duration for memories uploaded via CreateMemory.
+                  returned: when set
+                  type: str
+                generateCreatedTtl:
+                  description:
+                    - The TTL duration for memories newly generated via GenerateMemories.
+                  returned: when set
+                  type: str
+                generateUpdatedTtl:
+                  description:
+                    - The TTL duration for memories updated via GenerateMemories.
+                  returned: when set
+                  type: str
+              description:
+                - The granular TTL configuration of the memories in the Memory Bank.
+              returned: when set
+              type: dict
+            memoryRevisionDefaultTtl:
+              description:
+                - The default TTL duration of the memory revisions in the Memory Bank.
+              returned: when set
+              type: str
+          description:
+            - Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank.
+          returned: when set
+          type: dict
+      description:
+        - Specification for a Memory Bank, which manages memories for the Agent Engine.
+      returned: when set
+      type: dict
+  description:
+    - Configuration for how Agent Engine sub-resources should manage context.
+  returned: when set
+  type: dict
 createTime:
   description:
     - The timestamp of when the Index was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+description:
+  description:
+    - The description of the ReasoningEngine.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the ReasoningEngine.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.'
+        - The key needs to be in the same region as where the compute resource is created.
+      returned: always
+      type: str
+  description:
+    - Customer-managed encryption key spec for a ReasoningEngine.
+    - If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - The labels associated with this ReasoningEngine.
+    - You can use these to organize and group your ReasoningEngines.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 name:
   description:
     - The generated name of the ReasoningEngine, in the format projects/{project}/locations/{location}/reasoningEngines/{reasoningEngine}.
   returned: success
   type: str
+spec:
+  contains:
+    agentCard:
+      description:
+        - The A2A Agent Card for the agent (if available).
+      returned: when set
+      type: str
+    agentFramework:
+      description:
+        - The OSS agent framework used to develop the agent.
+      returned: when set
+      type: str
+    buildSpec:
+      contains:
+        serviceAccount:
+          description:
+            - The service account that the Cloud Build builder runs as.
+          returned: when set
+          type: str
+        workerPool:
+          description:
+            - The resource name of the Cloud Build WorkerPool to use for the build.
+          returned: when set
+          type: str
+      description:
+        - Configuration for building container image.
+      returned: when set
+      type: dict
+    classMethods:
+      description:
+        - Declarations for object class methods in OpenAPI specification format.
+        - '**Note**: When deploying via Terraform, this field must be populated manually.'
+        - Otherwise, client SDKs (like `agent_engines.get()`) will not be able to discover the methods, and calls to the engine (or A2A integrations) will fail.
+        - 'Depending on the template/framework used (`agent_framework`), the required class methods and their parameters differ:  **Warning**: The configuration snippets below are illustrative, may not be exhaustive, and could stop working over time.'
+        - 'For the most up-to-date method lists and schemas, please consult the respective SDK source code: * For Google ADK: See [ADK Python SDK cli_deploy.py](https://github.com/google/adk-python/blob/68a780306e3bdd648a882ef34c0abf8e5148353e/src/google/adk/cli/cli_deploy.py#L109).'
+        - '* For Langchain: See [Vertex AI Python SDK langchain.py](https://github.com/googleapis/python-aiplatform/blob/c8a38a085931b01f4d6071f0ab7a64cb42851829/agentplatform/agent_engines/templates/langchain.py#L642-L717).'
+        - '### 1.'
+        - 'Langchain Template * `query` (api_mode = "sync" or empty) * `stream_query` (api_mode = "stream")  Example for Langchain: ```hcl class_methods = jsonencode([   {     name        = "query"     api_mode    = "sync"     description = "Queries the reasoning engine"     parameters  = {       type       = "object"       required   = ["input"]       properties = {         input = {           type        = "string"           description = "The input prompt"         }       }     }   },   {     name        = "stream_query"     api_mode    = "stream"     description = "Streams queries from the reasoning engine"     parameters  = {       type       = "object"       required   = ["input"]       properties = {         input = {           type        = "string"           description = "The input prompt"         }       }     }   } ]) ```  ### 2.'
+        - 'Google ADK Template (Standard - No A2A) For standard Google ADK (Agent Development Kit) deployments, you must define the following 11 methods:  Example for Standard ADK: ```hcl class_methods = jsonencode([   {     name        = "get_session"     api_mode    = ""     description = "Retrieve session by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "async_get_session"     api_mode    = "async"     description = "Retrieve session asynchronously by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "list_sessions"     api_mode    = ""     description = "List all sessions for a user"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id = { type = "string" }       }     }   },   {     name        = "async_list_sessions"     api_mode    = "async"     description = "List all sessions for a user asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id = { type = "string" }       }     }   },   {     name        = "create_session"     api_mode    = ""     description = "Create a new session"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }   },   {     name        = "async_create_session"     api_mode    = "async"     description = "Create a new session asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }   },   {     name        = "delete_session"     api_mode    = ""     description = "Delete session by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "async_delete_session"     api_mode    = "async"     description = "Delete session asynchronously by ID"     parameters  = {       type     = "object"       required = ["user_id", "session_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }       }     }   },   {     name        = "stream_query"     api_mode    = "stream"     description = "Stream queries from the agent"     parameters  = {       type     = "object"       required = ["message", "user_id"]       properties = {         message    = { description = "Message string or object" }         user_id    = { type = "string" }         session_id = { type = "string" }         run_config = { type = "object" }       }     }   },   {     name        = "async_stream_query"     api_mode    = "async_stream"     description = "Stream queries asynchronously from the agent"     parameters  = {       type     = "object"       required = ["message", "user_id"]       properties = {         message        = { description = "Message string or object" }         user_id        = { type = "string" }         session_id     = { type = "string" }         session_events = { type = "array", items = { type = "object" } }         run_config     = { type = "object" }       }     }   },   {     name        = "streaming_agent_run_with_events"     api_mode    = "async_stream"     description = "Stream agent run with events asynchronously"     parameters  = {       type     = "object"       required = ["request_json"]       properties = {         request_json = { type = "string" }       }     }   } ]) ```  ### 3.'
+        - 'Google ADK Template (A2A-Enabled) If the agent integrates with the Gemini Enterprise Agent Registry (A2A), you must inject the `a2a_agent_card` JSON metadata as a string **specifically inside the `async_create_session` method definition**:  Example for A2A-Enabled ADK: ```hcl locals {   # Construct the A2A endpoint URL   a2a_url = "https://us-central1-aiplatform.googleapis.com/v1/projects/my-project/locations/us-central1/reasoningEngines/my-agent/a2a"    agent_card = {     name                 = "my-agent"     description          = "A2A Agent"     version              = "1.0.0"     preferred_transport  = "HTTP_JSON"     supported_interfaces = [{ url = local.a2a_url, protocol_binding = "HTTP_JSON" }]     capabilities         = { streaming = true }   } }  # In class_methods, append "a2a_agent_card" key ONLY to the "async_create_session" method: class_methods = jsonencode([   # ..'
+        - other 10 standard methods (same as Standard ADK) ..
+        - '{     name        = "async_create_session"     api_mode    = "async"     description = "Create a new session asynchronously"     parameters  = {       type     = "object"       required = ["user_id"]       properties = {         user_id    = { type = "string" }         session_id = { type = "string" }         state      = { type = "object" }       }     }     # Inject the serialized Agent Card here     a2a_agent_card = jsonencode(local.agent_card)   } ]) ```.'
+      returned: when set
+      type: str
+    containerSpec:
+      contains:
+        imageUri:
+          description:
+            - The Artifact Registry Docker image URI (e.g., `us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag`) of the container image that is to be run on each worker replica.
+          returned: always
+          type: str
+        port:
+          description:
+            - The port that the container listens on for incoming requests.
+            - If not specified, defaults to 8080.
+          returned: when set
+          type: int
+      description:
+        - Deploy from a container image with a defined entrypoint and commands.
+      returned: when set
+      type: dict
+    deploymentSpec:
+      contains:
+        agentGatewayConfig:
+          contains:
+            agentToAnywhereConfig:
+              contains:
+                agentGateway:
+                  description:
+                    - The resource name of the Agent Gateway for outbound traffic.
+                  returned: always
+                  type: str
+              description:
+                - Configuration for traffic originating from the Reasoning Engine.
+              returned: when set
+              type: dict
+            clientToAgentConfig:
+              contains:
+                agentGateway:
+                  description:
+                    - The resource name of the Agent Gateway to use for inbound traffic.
+                  returned: always
+                  type: str
+              description:
+                - Configuration for traffic targeting the Reasoning Engine.
+              returned: when set
+              type: dict
+          description:
+            - Agent Gateway configuration for a Reasoning Engine deployment.
+          returned: when set
+          type: dict
+        agentServerMode:
+          description:
+            - The agent server mode specifies what features are used when deploy the agent to agent engine.
+            - 'Possible values: * `STABLE`: Stable agent server mode.'
+            - '* `EXPERIMENTAL`: Experimental agent server mode.'
+          returned: when set
+          type: str
+        containerConcurrency:
+          description:
+            - Concurrency for each container and agent server.
+            - 'Recommended value: 2 * cpu + 1.'
+            - Defaults to 9.
+          returned: when set
+          type: int
+        dedicatedIngressEndpointEnabled:
+          description:
+            - Whether to enable dedicated ingress endpoint for the deployment.
+            - If true, the deployment will be accessible via a dedicated endpoint.
+            - This is required to enable GKE V2 runtime.
+          returned: when set
+          type: bool
+        env:
+          contains:
+            name:
+              description:
+                - The name of the environment variable.
+                - Must be a valid C identifier.
+              returned: always
+              type: str
+            value:
+              description:
+                - Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables.
+                - If a variable cannot be resolved, the reference in the input string will be unchanged.
+                - 'The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).'
+                - Escaped references will never be expanded, regardless of whether the variable exists or not.
+              returned: always
+              type: str
+          description:
+            - Environment variables to be set with the Reasoning Engine deployment.
+          elements: dict
+          returned: when set
+          type: list
+        keepAliveProbe:
+          contains:
+            httpGet:
+              contains:
+                path:
+                  description:
+                    - Specifies the path of the HTTP GET request (e.g., `"/is_busy"`).
+                  returned: always
+                  type: str
+                port:
+                  description:
+                    - Specifies the port number on the container to which the request is sent.
+                  returned: when set
+                  type: int
+              description:
+                - Specifies the HTTP GET configuration for the probe.
+              returned: when set
+              type: dict
+            maxSeconds:
+              description:
+                - Specifies the maximum duration (in seconds) to keep the instance alive via this probe.
+                - Can be a maximum of 3600 seconds (1 hour).
+              returned: when set
+              type: int
+          description:
+            - Specifies the configuration for keep-alive probe.
+          returned: when set
+          type: dict
+        maxInstances:
+          description:
+            - The maximum number of application instances that can be launched to handle increased traffic.
+            - Defaults to 100.
+            - 'Range: [1, 1000].'
+            - If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].
+          returned: when set
+          type: int
+        minInstances:
+          description:
+            - The minimum number of application instances that will be kept running at all times.
+            - Defaults to 1.
+            - 'Range: [0, 10].'
+          returned: when set
+          type: int
+        pscInterfaceConfig:
+          contains:
+            dnsPeeringConfigs:
+              contains:
+                domain:
+                  description:
+                    - The DNS name suffix of the zone being peered to, e.g., "my-internal-domain.corp.".
+                    - Must end with a dot.
+                  returned: always
+                  type: str
+                targetNetwork:
+                  description:
+                    - The VPC network name in the targetProject where the DNS zone specified by 'domain' is visible.
+                  returned: always
+                  type: str
+                targetProject:
+                  description:
+                    - The project id hosting the Cloud DNS managed zone that contains the 'domain'.
+                    - The Vertex AI service Agent requires the dns.peer role on this project.
+                  returned: always
+                  type: str
+              description:
+                - DNS peering configurations.
+                - When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS.
+                - The user must grant the dns.peer role to the Vertex AI service Agent on the target project.
+              elements: dict
+              returned: when set
+              type: list
+            networkAttachment:
+              description:
+                - The name of the Compute Engine network attachment to attach to the resource within the region and user project.
+                - To specify this field, you must have already created a network attachment.
+                - This field is only used for resources using PSC-Interface.
+              returned: when set
+              type: str
+          description:
+            - Configuration for PSC-Interface.
+          returned: when set
+          type: dict
+        resourceLimits:
+          description:
+            - Resource limits for each container.
+            - Only 'cpu' and 'memory' keys are supported.
+            - 'Defaults to {"cpu": "4", "memory": "4Gi"}.'
+            - The only supported values for CPU are '1', '2', '4', '6' and '8'.
+            - For more information, go to https://cloud.google.com/run/docs/configuring/cpu.
+            - The only supported values for memory are '1Gi', '2Gi', ..
+            - '''32 Gi''.'
+            - For more information, go to https://cloud.google.com/run/docs/configuring/memory-limits.
+          returned: when set
+          type: dict
+        secretEnv:
+          contains:
+            name:
+              description:
+                - The name of the environment variable.
+                - Must be a valid C identifier.
+              returned: always
+              type: str
+            secretRef:
+              contains:
+                secret:
+                  description:
+                    - The name of the secret in Cloud Secret Manager.
+                    - 'Format: {secret_name}.'
+                  returned: always
+                  type: str
+                version:
+                  description:
+                    - The Cloud Secret Manager secret version.
+                    - Can be 'latest' for the latest version, an integer for a specific version, or a version alias.
+                  returned: when set
+                  type: str
+              description:
+                - Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable.
+              returned: always
+              type: dict
+          description:
+            - Environment variables where the value is a secret in Cloud Secret Manager.
+            - To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine service Agent.
+          elements: dict
+          returned: when set
+          type: list
+      description:
+        - The specification of a Reasoning Engine deployment.
+      returned: when set
+      type: dict
+    effectiveIdentity:
+      description:
+        - The identity to use for the Reasoning Engine.
+      returned: success
+      type: str
+    exampleStore:
+      description:
+        - The resource name of the linked ExampleStore.
+      returned: when set
+      type: str
+    identityType:
+      description:
+        - The identity type to use for the Reasoning Engine.
+        - If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
+        - 'Possible values: * `SERVICE_ACCOUNT`: Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.'
+        - '* `AGENT_IDENTITY`: Use Agent Identity.'
+        - The `service_account` field must not be set.
+      returned: when set
+      type: str
+    packageSpec:
+      contains:
+        dependencyFilesGcsUri:
+          description:
+            - The Cloud Storage URI of the dependency files in tar.gz format.
+          returned: when set
+          type: str
+        pickleObjectGcsUri:
+          description:
+            - The Cloud Storage URI of the pickled python object.
+          returned: when set
+          type: str
+        pythonVersion:
+          description:
+            - The Python version.
+            - Currently support 3.8, 3.9, 3.10, 3.11, 3.12, 3.13.
+            - If not specified, default value is 3.10.
+          returned: when set
+          type: str
+        requirementsGcsUri:
+          description:
+            - The Cloud Storage URI of the requirements.txtfile.
+          returned: when set
+          type: str
+      description:
+        - User provided package spec of the ReasoningEngine.
+        - Ignored when users directly specify a deployment image through deploymentSpec.first_party_image_override, but keeping the field_behavior to avoid introducing breaking changes.
+      returned: when set
+      type: dict
+    serviceAccount:
+      description:
+        - The service account that the Reasoning Engine artifact runs as.
+        - It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions.
+        - If not specified, the Vertex AI Reasoning Engine service Agent in the project will be used.
+      returned: when set
+      type: str
+    sourceCodeSpec:
+      contains:
+        agentConfigSource:
+          contains:
+            adkConfig:
+              contains:
+                jsonConfig:
+                  description:
+                    - The value of the ADK config in JSON format.
+                  returned: always
+                  type: str
+              description:
+                - Configuration for the Agent Development Kit (ADK).
+              returned: when set
+              type: dict
+            inlineSource:
+              contains:
+                sourceArchive:
+                  description:
+                    - Input only.
+                    - The application source code archive, provided as a compressed tarball (.tar.gz) file.
+                  returned: always
+                  type: str
+              description:
+                - Any additional files needed to interpret the config.
+              returned: when set
+              type: dict
+          description:
+            - Specification for the deploying from agent config.
+          returned: when set
+          type: dict
+        developerConnectSource:
+          contains:
+            config:
+              contains:
+                dir:
+                  description:
+                    - Directory, relative to the source root, in which to run the build.
+                  returned: always
+                  type: str
+                gitRepositoryLink:
+                  description:
+                    - The Developer Connect Git repository link, formatted as projects/*/locations/*/connections/*/gitRepositoryLink/*.
+                  returned: always
+                  type: str
+                revision:
+                  description:
+                    - The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.
+                  returned: always
+                  type: str
+              description:
+                - The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.
+              returned: always
+              type: dict
+          description:
+            - Specification for source code to be fetched from a Git repository managed through the Developer Connect service.
+          returned: when set
+          type: dict
+        imageSpec:
+          contains:
+            buildArgs:
+              description:
+                - Build arguments to be used.
+                - They will be passed through --build-arg flags.
+              returned: when set
+              type: dict
+          description:
+            - Configuration for building an image with custom config file.
+          returned: when set
+          type: dict
+        inlineSource:
+          contains:
+            sourceArchive:
+              description:
+                - Input only.
+                - The application source code archive, provided as a compressed tarball (.tar.gz) file.
+                - A base64-encoded string.
+              returned: when set
+              type: str
+          description:
+            - Source code is provided directly in the request.
+          returned: when set
+          type: dict
+        pythonSpec:
+          contains:
+            entrypointModule:
+              description:
+                - The Python module to load as the entrypoint, specified as a fully qualified module name.
+                - 'For example: path.to.agent.'
+                - If not specified, defaults to "agent".
+                - The project root will be added to Python sys.path, allowing imports to be specified relative to the root.
+              returned: when set
+              type: str
+            entrypointObject:
+              description:
+                - The name of the callable object within the entrypointModule to use as the application If not specified, defaults to "root_agent".
+              returned: when set
+              type: str
+            requirementsFile:
+              description:
+                - The path to the requirements file, relative to the source root.
+                - If not specified, defaults to "requirements.txt".
+              returned: when set
+              type: str
+            version:
+              description:
+                - The version of Python to use.
+                - Support version includes 3.9, 3.10, 3.11, 3.12, 3.13.
+                - If not specified, default value is 3.10.
+              returned: when set
+              type: str
+          description:
+            - Specification for running a Python application from source.
+          returned: when set
+          type: dict
+      description:
+        - Specification for deploying from source code.
+      returned: when set
+      type: dict
+  description:
+    - Configurations of the ReasoningEngine.
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
   type: str
+trafficConfig:
+  contains:
+    trafficSplitAlwaysLatest:
+      description:
+        - Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.
+      returned: when set
+      type: dict
+    trafficSplitManual:
+      contains:
+        targets:
+          contains:
+            percent:
+              description:
+                - Specifies percent of the traffic to this Runtime Revision.
+              returned: always
+              type: int
+            runtimeRevisionName:
+              description:
+                - The Runtime Revision name to which to send this portion of traffic.
+                - Accepts revision IDs, short names (e.g.
+                - '`rev-1`), or keywords such as `LATEST` and `PREVIOUS`.'
+                - 'Note: Keywords like `LATEST` and `PREVIOUS` resolve at apply time to the concrete underlying revision ID and remain pinned until `traffic_config` is updated in Terraform.'
+              returned: always
+              type: str
+          description:
+            - A list of traffic targets for the Runtimes Revisions.
+            - The sum of percentages must equal to 100.
+          elements: dict
+          returned: when set
+          type: list
+      description:
+        - Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each.
+      returned: when set
+      type: dict
+  description:
+    - Traffic distribution configuration for the Reasoning Engine.
+    - ~> **Note:** Because revision IDs do not exist before the resource is created, the best practice for initial deployment is to set `traffic_split_always_latest {}`.
+    - Once the resource is created, you can update the configuration to a manual split using newly generated revision IDs, short names (e.g.
+    - '`rev-1`), or keywords such as `LATEST` and `PREVIOUS`.'
+  returned: when set
+  type: dict
 updateTime:
   description:
     - The timestamp of when the Index was last updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
@@ -2532,7 +3531,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -2560,7 +3559,10 @@ def main():
 
     # --------- END post-read custom code ---------
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

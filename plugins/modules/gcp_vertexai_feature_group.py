@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_group
+short_description: Manages a VertexAI.FeatureGroup resource
 description:
   - Vertex AI Feature Group.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_feature_group
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureGroups)'
-  - 'Creating a Feature Group Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-featuregroup)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   big_query:
     description:
@@ -98,7 +94,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.FeatureGroup resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureGroups)'
+  - 'Creating a Feature Group Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-featuregroup)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -114,6 +114,33 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+bigQuery:
+  contains:
+    bigQuerySource:
+      contains:
+        inputUri:
+          description:
+            - BigQuery URI to a table, up to 2000 characters long.
+            - 'For example: `bq://projectId.bqDatasetId.bqTableId.`.'
+          returned: always
+          type: str
+      description:
+        - The BigQuery source URI that points to either a BigQuery Table or View.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: dict
+    entityIdColumns:
+      description:
+        - Columns to construct entityId / row keys.
+        - If not provided defaults to entityId.
+      elements: str
+      returned: when set
+      type: list
+  description:
+    - Indicates that features for this group come from BigQuery Table/View.
+    - By default treats the source as a sparse time series source, which is required to have an entityId and a feature_timestamp column in the source.
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -122,6 +149,22 @@ createTime:
   description:
     - The timestamp of when the FeatureGroup was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
+  type: str
+description:
+  description:
+    - The description of the FeatureGroup.
+  returned: when set
+  type: str
+labels:
+  description:
+    - The labels with user-defined metadata to organize your FeatureGroup.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+name:
+  description:
+    - The resource name of the Feature Group.
+  returned: when set
   type: str
 state:
   description: The current state of the resource.
@@ -292,7 +335,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -305,7 +348,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

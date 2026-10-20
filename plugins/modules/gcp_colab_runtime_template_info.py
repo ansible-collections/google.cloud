@@ -31,19 +31,14 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_colab_runtime_template_info
+short_description: List Colab.RuntimeTemplate resources
 description:
   - '''A runtime template is a VM configuration that specifies a machine type and other characteristics of the VM,'
   - as well as common settings such as the network and whether public internet access is enabled. When you create
   - a runtime, its VM is created according to the specifications of a runtime template.'
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_colab_runtime_template_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates)'
-  - 'Create a runtime template Guide: U(https://cloud.google.com/colab/docs/create-runtime-template)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -57,7 +52,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List Colab.RuntimeTemplate resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.notebookRuntimeTemplates)'
+  - 'Create a runtime template Guide: U(https://cloud.google.com/colab/docs/create-runtime-template)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

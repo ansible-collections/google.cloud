@@ -1,0 +1,4 @@
+bugfixes:
+  - ansible-mmv1(templates) - Reverted to a 3-way boolean check for custom diff logic, this way you can force a custom diff when the values aren't actually different
+  - ansible-mmv1(templates) - The RETURNS block was showing incomplete output (fix - https://github.com/thekad/ansible-mmv1/commit/54a04c5d75ca09e1bb75f0d4766347373bfc22ef)
+  - ansible-mmv1(templates) - The DOCUMENTATION block was incorrectly printing `short_description` at the end of the block because of alphabetical order (bug - https://github.com/ansible-collections/google.cloud/issues/789, fix - https://github.com/thekad/ansible-mmv1/commit/993cb04be0c6567d2846ce473e78769a696c536f)
