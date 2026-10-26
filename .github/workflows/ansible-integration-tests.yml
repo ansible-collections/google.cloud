@@ -61,7 +61,7 @@ jobs:
             # fetch modified integration tests
             git diff --name-only --diff-filter=ACMRT origin/master -- tests/integration/ | cut -d'/' -f4 >> /tmp/integration_targets.txt
             # fetch supplied targets in test-hints
-            echo "$PR_BODY" | grep -i "^test-hints:" | grep -i "targets=" | tr ',' ' ' | cut -d'=' -f2 >> /tmp/integration_targets.txt
+            echo "$PR_BODY" | grep -i "^test-hints:" | grep -i "targets=" | cut -d'=' -f2 | tr ',' ' ' | tr ' ' '\n' >> /tmp/integration_targets.txt
             echo "targets=$(grep . /tmp/integration_targets.txt | sort | uniq | paste -s -d' ') cloud/gcp/teardown/" >> "$GITHUB_OUTPUT"
           fi
 
