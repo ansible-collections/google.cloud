@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_alloydb_cluster
+short_description: Manages a Alloydb.Cluster resource
 description:
   - A managed alloydb cluster.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_alloydb_cluster
-notes:
-  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters/create)'
-  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   annotations:
     description:
@@ -453,7 +449,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Alloydb.Cluster resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters/create)'
+  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -483,6 +483,134 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+annotations:
+  description:
+    - Annotations to allow client tools to store small amount of arbitrary data.
+    - This is distinct from labels.
+    - 'https://google.aip.dev/128 An object containing a list of "key": value pairs.'
+    - 'Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+    - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
+  returned: when set
+  type: dict
+automatedBackupPolicy:
+  contains:
+    backupWindow:
+      description:
+        - The length of the time window during which a backup can be taken.
+        - If a backup does not succeed within this time window, it will be canceled and considered failed.
+        - The backup window must be at least 5 minutes long.
+        - There is no upper bound on the window.
+        - If not set, it will default to 1 hour.
+        - A duration in seconds with up to nine fractional digits, terminated by 's'.
+        - 'Example: "3.5s".'
+      returned: when set
+      type: str
+    enabled:
+      description:
+        - Whether automated backups are enabled.
+      returned: when set
+      type: bool
+    encryptionConfig:
+      contains:
+        kmsKeyName:
+          description:
+            - The fully-qualified resource name of the KMS key.
+            - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+          returned: when set
+          type: str
+      description:
+        - EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+      returned: when set
+      type: dict
+    labels:
+      description:
+        - Labels to apply to backups created using this configuration.
+      returned: when set
+      type: dict
+    location:
+      description:
+        - The location where the backup will be stored.
+        - Currently, the only supported option is to store the backup in the same region as the cluster.
+      returned: when set
+      type: str
+    quantityBasedRetention:
+      contains:
+        count:
+          description:
+            - The number of backups to retain.
+          returned: when set
+          type: int
+      description:
+        - Quantity-based Backup retention policy to retain recent backups.
+        - Conflicts with 'time_based_retention', both can't be set together.
+      returned: when set
+      type: dict
+    timeBasedRetention:
+      contains:
+        retentionPeriod:
+          description:
+            - The retention period.
+            - A duration in seconds with up to nine fractional digits, terminated by 's'.
+            - 'Example: "3.5s".'
+          returned: when set
+          type: str
+      description:
+        - Time-based Backup retention policy.
+        - Conflicts with 'quantity_based_retention', both can't be set together.
+      returned: when set
+      type: dict
+    weeklySchedule:
+      contains:
+        daysOfWeek:
+          description:
+            - The days of the week to perform a backup.
+            - At least one day of the week must be provided.
+          elements: str
+          returned: when set
+          type: list
+        startTimes:
+          contains:
+            hours:
+              description:
+                - Hours of day in 24 hour format.
+                - Should be from 0 to 23.
+                - An API may choose to allow the value "24:00:00" for scenarios like business closing time.
+              returned: when set
+              type: int
+            minutes:
+              description:
+                - Minutes of hour of day.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+            nanos:
+              description:
+                - Fractions of seconds in nanoseconds.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+            seconds:
+              description:
+                - Seconds of minutes of the time.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+          description:
+            - The times during the day to start a backup.
+            - At least one start time must be provided.
+            - The start times are assumed to be in UTC and to be an exact hour (e.g., 04:00:00).
+          elements: dict
+          returned: always
+          type: list
+      description:
+        - Weekly schedule for the Backup.
+      returned: when set
+      type: dict
+  description:
+    - The automated backup policy for this cluster.
+    - AutomatedBackupPolicy is disabled by default.
+  returned: when set
+  type: dict
 backupSource:
   contains:
     backupName:
@@ -509,6 +637,45 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+clusterType:
+  description:
+    - The type of cluster.
+    - If not set, defaults to PRIMARY.
+  returned: when set
+  type: str
+continuousBackupConfig:
+  contains:
+    enabled:
+      description:
+        - Whether continuous backup recovery is enabled.
+        - If not set, defaults to true.
+      returned: when set
+      type: bool
+    encryptionConfig:
+      contains:
+        kmsKeyName:
+          description:
+            - The fully-qualified resource name of the KMS key.
+            - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+          returned: when set
+          type: str
+      description:
+        - EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+      returned: when set
+      type: dict
+    recoveryWindowDays:
+      description:
+        - The numbers of days that are eligible to restore from using PITR.
+        - To support the entire recovery window, backups and logs are retained for one day more than the recovery window.
+        - If not set, defaults to 14 days.
+      returned: when set
+      type: int
+  description:
+    - The continuous backup config for this cluster.
+    - If no policy is provided then the default policy will be used.
+    - The default policy takes one backup a day and retains backups for 14 days.
+  returned: when set
+  type: dict
 continuousBackupInfo:
   contains:
     earliestRestorableTime:
@@ -555,6 +722,44 @@ continuousBackupInfo:
     - ContinuousBackupInfo describes the continuous backup properties of a cluster.
   returned: success
   type: dict
+databaseVersion:
+  description:
+    - The database engine major version.
+    - This is an optional field and it's populated at the Cluster creation time.
+    - 'Note: Changing this field to a higer version results in upgrading the AlloyDB cluster which is an irreversible change.'
+  returned: when set
+  type: str
+dataplexConfig:
+  contains:
+    enabled:
+      description:
+        - Indicates whether Dataplex integration is enabled for the cluster.
+      returned: always
+      type: bool
+  description:
+    - Configuration for Dataplex integration.
+    - This is an optional field.
+    - If not set, Dataplex integration will be enabled by default.
+  returned: when set
+  type: dict
+displayName:
+  description:
+    - User-settable and human-readable display name for the Cluster.
+  returned: when set
+  type: str
+encryptionConfig:
+  contains:
+    kmsKeyName:
+      description:
+        - The fully-qualified resource name of the KMS key.
+        - 'Each Cloud KMS key is regionalized and has the following format: projects/[PROJECT]/locations/[REGION]/keyRings/[RING]/cryptoKeys/[KEY_NAME].'
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: str
+  description:
+    - EncryptionConfig describes the encryption config of a cluster or a backup that is encrypted with a CMEK (customer-managed encryption key).
+  returned: when set
+  type: dict
 encryptionInfo:
   contains:
     encryptionType:
@@ -573,6 +778,68 @@ encryptionInfo:
   description:
     - EncryptionInfo describes the encryption information of a cluster or a backup.
   returned: success
+  type: dict
+etag:
+  description:
+    - For Resource freshness validation (https://google.aip.dev/154).
+  returned: when set
+  type: str
+labels:
+  description:
+    - User-defined labels for the alloydb cluster.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+maintenanceUpdatePolicy:
+  contains:
+    maintenanceWindows:
+      contains:
+        day:
+          description:
+            - Preferred day of the week for maintenance, e.g.
+            - MONDAY, TUESDAY, etc.
+          returned: always
+          type: str
+        startTime:
+          contains:
+            hours:
+              description:
+                - Hours of day in 24 hour format.
+                - Should be from 0 to 23.
+              returned: always
+              type: int
+            minutes:
+              description:
+                - Minutes of hour of day.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+            nanos:
+              description:
+                - Fractions of seconds in nanoseconds.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+            seconds:
+              description:
+                - Seconds of minutes of the time.
+                - Currently, only the value 0 is supported.
+              returned: when set
+              type: int
+          description:
+            - Preferred time to start the maintenance operation on the specified day.
+            - Maintenance will start within 1 hour of this time.
+          returned: always
+          type: dict
+      description:
+        - Preferred windows to perform maintenance.
+        - Currently limited to 1.
+      elements: dict
+      returned: when set
+      type: list
+  description:
+    - MaintenanceUpdatePolicy defines the policy for system updates.
+  returned: when set
   type: dict
 migrationSource:
   contains:
@@ -600,6 +867,43 @@ name:
     - The name of the cluster resource.
   returned: success
   type: str
+networkConfig:
+  contains:
+    allocatedIpRange:
+      description:
+        - The name of the allocated IP range for the private IP AlloyDB cluster.
+        - 'For example: "google-managed-services-default".'
+        - If set, the instance IPs for this cluster will be created in the allocated range.
+      returned: when set
+      type: str
+    network:
+      description:
+        - The resource link for the VPC network in which cluster resources are created and from which they are accessible via Private IP.
+        - The network must belong to the same project as the cluster.
+        - 'It is specified in the form: "projects/{projectNumber}/global/networks/{network_id}".'
+      returned: when set
+      type: str
+  description:
+    - Metadata related to network configuration.
+  returned: when set
+  type: dict
+pscConfig:
+  contains:
+    pscEnabled:
+      description:
+        - Create an instance that allows connections from Private Service Connect endpoints to the instance.
+      returned: when set
+      type: bool
+    serviceOwnedProjectNumber:
+      description:
+        - The project number that needs to be allowlisted on the network attachment to enable outbound connectivity, if the network attachment is configured to ACCEPT_MANUAL connections.
+        - In case the network attachment is configured to ACCEPT_AUTOMATIC, this project number does not need to be allowlisted explicitly.
+      returned: success
+      type: int
+  description:
+    - Configuration for Private Service Connect (PSC) for the cluster.
+  returned: when set
+  type: dict
 reconciling:
   description:
     - Output only.
@@ -608,11 +912,28 @@ reconciling:
     - This can happen due to user-triggered updates or system actions like failover or maintenance.
   returned: success
   type: bool
+secondaryConfig:
+  contains:
+    primaryClusterName:
+      description:
+        - Name of the primary cluster must be in the format 'projects/{project}/locations/{location}/clusters/{cluster_id}'.
+      returned: always
+      type: str
+  description:
+    - Configuration of the secondary cluster for Cross Region Replication.
+    - This should be set if and only if the cluster is of type SECONDARY.
+  returned: when set
+  type: dict
 state:
   description:
     - Output only.
     - The current serving state of the cluster.
   returned: success
+  type: str
+subscriptionType:
+  description:
+    - The subscrition type of cluster.
+  returned: when set
   type: str
 trialMetadata:
   contains:
@@ -1325,7 +1646,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -1338,7 +1659,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

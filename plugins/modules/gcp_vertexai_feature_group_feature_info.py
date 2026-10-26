@@ -31,17 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_group_feature_info
+short_description: List VertexAI.FeatureGroupFeature resources
 description:
   - Vertex AI Feature Group Feature is feature metadata information.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_vertexai_feature_group_feature_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureGroups.features)'
-  - 'Creating a Feature Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-feature)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   feature_group:
     description:
@@ -61,7 +56,12 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List VertexAI.FeatureGroupFeature resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.featureGroups.features)'
+  - 'Creating a Feature Guide: U(https://cloud.google.com/vertex-ai/docs/featurestore/latest/create-feature)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""

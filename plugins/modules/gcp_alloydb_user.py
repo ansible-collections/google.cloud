@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_alloydb_user
+short_description: Manages a Alloydb.User resource
 description:
   - A database user in an AlloyDB cluster.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_alloydb_user
-notes:
-  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters.users/create)'
-  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   cluster:
     description:
@@ -88,7 +84,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Alloydb.User resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/alloydb/docs/reference/rest/v1/projects.locations.clusters.users/create)'
+  - 'AlloyDB Guide: U(https://cloud.google.com/alloydb/docs/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -109,13 +109,30 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+databaseRoles:
+  description:
+    - List of database roles this database user has.
+  elements: str
+  returned: when set
+  type: list
 name:
   description:
     - Name of the resource in the form of projects/{project}/locations/{location}/clusters/{cluster}/users/{user}.
   returned: success
   type: str
+passwordWoVersion:
+  description:
+    - For more info see [updating write-only arguments](/docs/providers/google/guides/using_write_only_arguments.html#updating-write-only-arguments).
+  returned: when set
+  type: str
 state:
   description: The current state of the resource.
+  returned: always
+  type: str
+userType:
+  description:
+    - The type of this user.
+    - This property is immutable, to change it, you must delete and recreate the resource.
   returned: always
   type: str
 """  # noqa: E501
@@ -210,7 +227,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     resource.url_params["cluster"] = gcp_v2.resource_ref(module.params["cluster"], "name")
@@ -224,7 +241,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

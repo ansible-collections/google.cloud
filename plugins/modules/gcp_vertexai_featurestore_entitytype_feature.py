@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_featurestore_entitytype_feature
+short_description: Manages a VertexAI.FeaturestoreEntitytypeFeature resource
 description:
   - Feature Metadata information that describes an attribute of an entity type. For example, apple is an entity type, and color is a feature that describes apple.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_featurestore_entitytype_feature
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   description:
     description:
@@ -85,7 +81,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.FeaturestoreEntitytypeFeature resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -107,6 +107,17 @@ createTime:
     - The timestamp of when the entity type was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+description:
+  description:
+    - Description of the feature.
+  returned: when set
+  type: str
+labels:
+  description:
+    - A set of key/value label pairs to assign to the feature.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
@@ -115,6 +126,14 @@ updateTime:
   description:
     - The timestamp when the entity type was most recently updated in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
+  type: str
+valueType:
+  description:
+    - Type of Feature value.
+    - Immutable.
+    - https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featurestores.entityTypes.features#ValueType.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
   type: str
 """  # noqa: E501
 
@@ -224,7 +243,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -249,7 +268,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

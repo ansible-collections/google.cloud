@@ -31,15 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_index_endpoint
+short_description: Manages a VertexAI.IndexEndpoint resource
 description:
   - An endpoint indexes are deployed into. An index endpoint can have multiple deployed indexes.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_index_endpoint
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   description:
     description:
@@ -140,7 +137,10 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.IndexEndpoint resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexEndpoints/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -171,11 +171,94 @@ createTime:
     - The timestamp of when the Index was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+description:
+  description:
+    - The description of the Index.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the Index.
+    - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.'
+        - The key needs to be in the same region as where the compute resource is created.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - Customer-managed encryption key spec for an IndexEndpoint.
+    - If set, this IndexEndpoint and all sub-resources of this IndexEndpoint will be secured by this key.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - The labels with user-defined metadata to organize your Indexes.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 name:
   description:
     - The resource name of the Index.
   returned: success
   type: str
+network:
+  description:
+    - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the index endpoint should be peered.
+    - Private services access must already be configured for the network.
+    - If left unspecified, the index endpoint is not peered with any network.
+    - '[Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`.'
+    - Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: str
+privateServiceConnectConfig:
+  contains:
+    enablePrivateServiceConnect:
+      description:
+        - If set to true, the IndexEndpoint is created without private service access.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: bool
+    projectAllowlist:
+      description:
+        - A list of Projects from which the forwarding rule will target the service attachment.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      elements: str
+      returned: when set
+      type: list
+    pscAutomationConfigs:
+      contains:
+        network:
+          description:
+            - The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks).
+            - '[Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): projects/{project}/global/networks/{network}.'
+          returned: always
+          type: str
+        projectId:
+          description:
+            - Project id used to create forwarding rule.
+          returned: always
+          type: str
+      description:
+        - List of projects and networks where the PSC endpoints will be created.
+        - This field is used by Online Inference(Prediction) only.
+      elements: dict
+      returned: when set
+      type: list
+  description:
+    - Configuration for private service connect.
+    - '`network` and `privateServiceConnectConfig` are mutually exclusive.'
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
 publicEndpointDomainName:
   description:
     - If publicEndpointEnabled is true, this field will be populated with the domain name to use for this index endpoint.
@@ -382,7 +465,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -411,7 +494,10 @@ def main():
 
     # --------- END post-read custom code ---------
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

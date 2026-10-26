@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_feature_online_store
+short_description: Manages a VertexAI.FeatureOnlineStore resource
 description:
   - Vertex AI Feature Online Store provides a centralized repository for serving ML features and embedding indexes at low latency. The Feature Online Store is a top-level container.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_feature_online_store
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   bigtable:
     description:
@@ -177,7 +173,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.FeatureOnlineStore resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.featureOnlineStores)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -194,6 +194,49 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+bigtable:
+  contains:
+    autoScaling:
+      contains:
+        cpuUtilizationTarget:
+          description:
+            - A percentage of the cluster's CPU capacity.
+            - Can be from 10% to 80%.
+            - When a cluster's CPU utilization exceeds the target that you have set, Bigtable immediately adds nodes to the cluster.
+            - When CPU utilization is substantially lower than the target, Bigtable removes nodes.
+            - If not set will default to 50%.
+          returned: when set
+          type: int
+        maxNodeCount:
+          description:
+            - The maximum number of nodes to scale up to.
+            - Must be greater than or equal to minNodeCount, and less than or equal to 10 times of 'minNodeCount'.
+          returned: always
+          type: int
+        minNodeCount:
+          description:
+            - The minimum number of nodes to scale down to.
+            - Must be greater than or equal to 1.
+          returned: always
+          type: int
+      description:
+        - Autoscaling config applied to Bigtable Instance.
+      returned: always
+      type: dict
+    enableDirectBigtableAccess:
+      description:
+        - If true, enable direct access to the Bigtable instance.
+      returned: when set
+      type: bool
+    zone:
+      description:
+        - The zone where the Bigtable instance will be created.
+      returned: when set
+      type: str
+  description:
+    - Settings for Cloud Bigtable instance that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore.
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -203,6 +246,81 @@ createTime:
     - The timestamp of when the feature online store was created in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to nine fractional digits.
   returned: success
   type: str
+dedicatedServingEndpoint:
+  contains:
+    privateServiceConnectConfig:
+      contains:
+        enablePrivateServiceConnect:
+          description:
+            - If set to true, customers will use private service connection to send request.
+            - Otherwise, the connection will set to public endpoint.
+          returned: always
+          type: bool
+        projectAllowlist:
+          description:
+            - A list of Projects from which the forwarding rule will target the service attachment.
+          elements: str
+          returned: when set
+          type: list
+      description:
+        - Private service connect config.
+      returned: when set
+      type: dict
+    publicEndpointDomainName:
+      description:
+        - Domain name to use for this FeatureOnlineStore.
+      returned: success
+      type: str
+    serviceAttachment:
+      description:
+        - Name of the service attachment resource.
+        - Applicable only if private service connect is enabled and after FeatureViewSync is created.
+      returned: success
+      type: str
+  description:
+    - The dedicated serving endpoint for this FeatureOnlineStore, which is different from common vertex service endpoint.
+    - Only need to be set when you choose Optimized storage type or enable EmbeddingManagement.
+    - Will use public endpoint by default.
+  returned: when set
+  type: dict
+embeddingManagement:
+  contains:
+    enabled:
+      description:
+        - Enable embedding management.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: bool
+  description:
+    - The settings for embedding management in FeatureOnlineStore.
+    - Embedding management can only be set for BigTable.
+    - It is enabled by default for optimized storagetype.
+  returned: when set
+  type: dict
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key.'
+        - The key needs to be in the same region as where the compute resource is created.
+      returned: always
+      type: str
+  description:
+    - If set, both of the online and offline data storage will be secured by this key.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - The labels with user-defined metadata to organize your feature online stores.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+optimized:
+  description:
+    - Settings for the Optimized store that will be created to serve featureValues for all FeatureViews under this FeatureOnlineStore.
+  returned: when set
+  type: dict
 state:
   description:
     - The state of the Feature Online Store.
@@ -480,7 +598,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -493,7 +611,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

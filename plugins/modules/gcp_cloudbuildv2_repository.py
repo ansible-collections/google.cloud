@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_cloudbuildv2_repository
+short_description: Manages a Cloudbuildv2.Repository resource
 description:
   - A repository associated to a parent connection.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_cloudbuildv2_repository
-notes:
-  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   annotations:
     description:
@@ -86,7 +82,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Cloudbuildv2.Repository resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -120,6 +120,13 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+annotations:
+  description:
+    - Allows clients to store small amounts of arbitrary data.
+    - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -134,6 +141,12 @@ etag:
   description:
     - This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
   returned: success
+  type: str
+remoteUri:
+  description:
+    - Git Clone HTTPS URI.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: always
   type: str
 state:
   description: The current state of the resource.
@@ -285,7 +298,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     resource.url_params["parent_connection"] = gcp_v2.resource_ref(module.params["parent_connection"], "name")
@@ -299,7 +312,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

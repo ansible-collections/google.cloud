@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_endpoint
+short_description: Manages a VertexAI.Endpoint resource
 description:
   - Models are deployed into it, and afterwards Endpoint is called to obtain predictions and explanations.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_endpoint
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   dedicated_endpoint_enabled:
     description:
@@ -220,7 +216,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.Endpoint resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/vertex-ai/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -253,6 +253,14 @@ dedicatedEndpointDns:
     - 'Format: `https://{endpointId}.{region}-{projectNumber}.prediction.vertexai.goog`.'
   returned: success
   type: str
+dedicatedEndpointEnabled:
+  description:
+    - If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns].
+    - Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability.
+    - 'Note: Once you enabled dedicated endpoint, you won''t be able to send request to the shared DNS {region}-aiplatform.googleapis.com.'
+    - The limitation will be removed soon.
+  returned: when set
+  type: bool
 deployedModels:
   contains:
     automaticResources:
@@ -448,6 +456,42 @@ deployedModels:
   elements: dict
   returned: success
   type: list
+description:
+  description:
+    - The description of the Endpoint.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the Endpoint.
+    - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.'
+        - The key needs to be in the same region as where the compute resource is created.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - Customer-managed encryption key spec for an Endpoint.
+    - If set, this Endpoint and all sub-resources of this Endpoint will be secured by this key.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
+labels:
+  description:
+    - The labels with user-defined metadata to organize your Endpoints.
+    - Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes.
+    - International characters are allowed.
+    - See https://goo.gl/xmQnxf for more information and examples of labels.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
 modelDeploymentMonitoringJob:
   description:
     - Output only.
@@ -455,9 +499,129 @@ modelDeploymentMonitoringJob:
     - 'Format: `projects/{project}/locations/{location}/modelDeploymentMonitoringJobs/{model_deployment_monitoring_job}`.'
   returned: success
   type: str
+network:
+  description:
+    - The full name of the Google Compute Engine [network](https://cloud.google.com//compute/docs/networks-and-firewalls#networks) to which the Endpoint should be peered.
+    - Private services access must already be configured for the network.
+    - If left unspecified, the Endpoint is not peered with any network.
+    - Only one of the fields, network or enable_private_service_connect, can be set.
+    - '[Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/insert): `projects/{project}/global/networks/{network}`.'
+    - Where `{project}` is a project number, as in `12345`, and `{network}` is network name.
+    - Only one of the fields, `network` or `privateServiceConnectConfig`, can be set.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: str
+predictRequestResponseLoggingConfig:
+  contains:
+    bigqueryDestination:
+      contains:
+        outputUri:
+          description:
+            - BigQuery URI to a project or table, up to 2000 characters long.
+            - When only the project is specified, the Dataset and Table is created.
+            - When the full table reference is specified, the Dataset must exist and table must not exist.
+            - 'Accepted forms: - BigQuery path.'
+            - 'For example: `bq://projectId` or `bq://projectId.bqDatasetId` or `bq://projectId.bqDatasetId.bqTableId`.'
+          returned: when set
+          type: str
+      description:
+        - BigQuery table for logging.
+        - If only given a project, a new dataset will be created with name `logging_<endpoint-display-name>_<endpoint-id>` where will be made BigQuery-dataset-name compatible (e.g.
+        - most special characters will become underscores).
+        - If no table name is given, a new table will be created with name `request_response_logging`.
+      returned: when set
+      type: dict
+    enabled:
+      description:
+        - If logging is enabled or not.
+      returned: when set
+      type: bool
+    samplingRate:
+      description:
+        - Percentage of requests to be logged, expressed as a fraction in range(0,1].
+      returned: when set
+      type: float
+  description:
+    - Configures the request-response logging for online prediction.
+  returned: when set
+  type: dict
+privateServiceConnectConfig:
+  contains:
+    enablePrivateServiceConnect:
+      description:
+        - If true, expose the IndexEndpoint via private service connect.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: bool
+    enableSecurePrivateServiceConnect:
+      description:
+        - If set to true, enable secure private service connect with IAM authorization.
+        - Otherwise, private service connect will be done without authorization.
+        - Note latency will be slightly increased if authorization is enabled.
+      returned: when set
+      type: bool
+    projectAllowlist:
+      description:
+        - A list of Projects from which the forwarding rule will target the service attachment.
+      elements: str
+      returned: when set
+      type: list
+    pscAutomationConfigs:
+      contains:
+        errorMessage:
+          description:
+            - Error message if the PSC service automation failed.
+          returned: success
+          type: str
+        forwardingRule:
+          description:
+            - Forwarding rule created by the PSC service automation.
+          returned: success
+          type: str
+        ipAddress:
+          description:
+            - IP address rule created by the PSC service automation.
+          returned: success
+          type: str
+        network:
+          description:
+            - The full name of the Google Compute Engine [network](https://cloud.google.com/compute/docs/networks-and-firewalls#networks).
+            - '[Format](https://cloud.google.com/compute/docs/reference/rest/v1/networks/get): projects/{project}/global/networks/{network}.'
+          returned: always
+          type: str
+        projectId:
+          description:
+            - Project id used to create forwarding rule.
+          returned: always
+          type: str
+        state:
+          description:
+            - The state of the PSC service automation.
+          returned: success
+          type: str
+      description:
+        - List of projects and networks where the PSC endpoints will be created.
+        - This field is used by Online Inference(Prediction) only.
+      elements: dict
+      returned: when set
+      type: list
+  description:
+    - Configuration for private service connect.
+    - '`network` and `privateServiceConnectConfig` are mutually exclusive.'
+  returned: when set
+  type: dict
 state:
   description: The current state of the resource.
   returned: always
+  type: str
+trafficSplit:
+  description:
+    - A map from a DeployedModel's id to the percentage of this Endpoint's traffic that should be forwarded to that DeployedModel.
+    - If a DeployedModel's id is not listed in this map, then it receives no traffic.
+    - The traffic percentage values must add up to 100, or map must be empty if the Endpoint is to not accept any traffic at a moment.
+    - See the `deployModel` [example](https://cloud.google.com/vertex-ai/docs/general/deployment#deploy_a_model_to_an_endpoint) and [documentation](https://cloud.google.com/vertex-ai/docs/reference/rest/v1beta1/projects.locations.endpoints/deployModel) for more information.
+    - ~> **Note:** To set the map to empty, set `"{}"`, apply, and then remove the field from your config.
+  returned: when set
   type: str
 updateTime:
   description:
@@ -817,7 +981,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -830,7 +994,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

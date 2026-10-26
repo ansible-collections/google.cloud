@@ -31,15 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_index
+short_description: Manages a VertexAI.Index resource
 description:
   - A representation of a collection of database items organized in a way that allows for approximate nearest neighbor (a.k.a ANN) algorithms search.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_index
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexes/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   description:
     description:
@@ -189,7 +186,10 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.Index resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.indexes/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -257,6 +257,33 @@ deployedIndexes:
   elements: dict
   returned: success
   type: list
+description:
+  description:
+    - The description of the Index.
+  returned: when set
+  type: str
+displayName:
+  description:
+    - The display name of the Index.
+    - The name can be up to 128 characters long and can consist of any UTF-8 characters.
+  returned: always
+  type: str
+encryptionSpec:
+  contains:
+    kmsKeyName:
+      description:
+        - The Cloud KMS resource identifier of the customer managed encryption key used to protect a resource.
+        - 'Has the form: `projects/my-project/locations/my-region/keyRings/my-kr/cryptoKeys/my-key`.'
+        - The key needs to be in the same region as where the compute resource is created.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - Customer-managed encryption key spec for an Index.
+    - If set, this Index and all sub-resources of this Index will be secured by this key.
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: dict
 indexStats:
   contains:
     shardsCount:
@@ -272,6 +299,118 @@ indexStats:
   description:
     - Stats of the index resource.
   returned: success
+  type: dict
+indexUpdateMethod:
+  description:
+    - The update method to use with this Index.
+    - The value must be the followings.
+    - If not set, BATCH_UPDATE will be used by default.
+    - '* BATCH_UPDATE: user can call indexes.patch with files on Cloud Storage of datapoints to update.'
+    - '* STREAM_UPDATE: user can call indexes.upsertDatapoints/DeleteDatapoints to update the Index and the updates will be applied in corresponding DeployedIndexes in nearly real-time.'
+    - This property is immutable, to change it, you must delete and recreate the resource.
+  returned: when set
+  type: str
+labels:
+  description:
+    - The labels with user-defined metadata to organize your Indexes.
+    - '**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.'
+  returned: when set
+  type: dict
+metadata:
+  contains:
+    config:
+      contains:
+        algorithmConfig:
+          contains:
+            bruteForceConfig:
+              description:
+                - Configuration options for using brute force search, which simply implements the standard linear search in the database for each query.
+              returned: when set
+              type: dict
+            treeAhConfig:
+              contains:
+                leafNodeEmbeddingCount:
+                  description:
+                    - Number of embeddings on each leaf node.
+                    - The default value is 1000 if not set.
+                  returned: when set
+                  type: int
+                leafNodesToSearchPercent:
+                  description:
+                    - The default percentage of leaf nodes that any query may be searched.
+                    - Must be in range 1-100, inclusive.
+                    - The default value is 10 (means 10%) if not set.
+                  returned: when set
+                  type: int
+              description:
+                - Configuration options for using the tree-AH algorithm (Shallow tree + Asymmetric Hashing).
+                - 'Please refer to this paper for more details: https://arxiv.org/abs/1908.10396.'
+              returned: when set
+              type: dict
+          description:
+            - The configuration with regard to the algorithms used for efficient search.
+            - This field may be required based on your configuration.
+          returned: when set
+          type: dict
+        approximateNeighborsCount:
+          description:
+            - The default number of neighbors to find via approximate search before exact reordering is performed.
+            - Exact reordering is a procedure where results returned by an approximate search algorithm are reordered via a more expensive distance computation.
+            - Required if tree-AH algorithm is used.
+          returned: when set
+          type: int
+        dimensions:
+          description:
+            - The number of dimensions of the input vectors.
+          returned: always
+          type: int
+        distanceMeasureType:
+          description:
+            - The distance measure used in nearest neighbor search.
+            - 'The value must be one of the followings: * SQUARED_L2_DISTANCE: Euclidean (L_2) Distance * L1_DISTANCE: Manhattan (L_1) Distance * COSINE_DISTANCE: Cosine Distance.'
+            - Defined as 1 - cosine similarity.
+            - '* DOT_PRODUCT_DISTANCE: Dot Product Distance.'
+            - Defined as a negative of the dot product.
+          returned: when set
+          type: str
+        featureNormType:
+          description:
+            - Type of normalization to be carried out on each vector.
+            - 'The value must be one of the followings: * UNIT_L2_NORM: Unit L2 normalization type * NONE: No normalization type is specified.'
+          returned: when set
+          type: str
+        shardSize:
+          description:
+            - Index data is split into equal parts to be processed.
+            - These are called "shards".
+            - The shard size must be specified when creating an index.
+            - 'The value must be one of the followings: * SHARD_SIZE_SMALL: Small (2GB) * SHARD_SIZE_MEDIUM: Medium (20GB) * SHARD_SIZE_LARGE: Large (50GB).'
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+      description:
+        - The configuration of the Matching Engine Index.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: dict
+    contentsDeltaUri:
+      description:
+        - Allows inserting, updating  or deleting the contents of the Matching Engine Index.
+        - The string must be a valid Cloud Storage directory path.
+        - If this field is set when calling IndexService.UpdateIndex, then no other Index field can be also updated as part of the same call.
+        - The expected structure and format of the files this URI points to is described at https://cloud.google.com/vertex-ai/docs/matching-engine/using-matching-engine#input-data-format.
+      returned: when set
+      type: str
+    isCompleteOverwrite:
+      description:
+        - If this field is set together with contentsDeltaUri when calling IndexService.UpdateIndex, then existing content of the Index will be replaced by the data from the contentsDeltaUri.
+      returned: when set
+      type: bool
+  description:
+    - Additional information about the Index.
+    - Although this field is not marked as required in the API specification, it is currently required when creating an Index and must be provided.
+    - Attempts to create an Index without this field will result in an API error.
+  returned: always
   type: dict
 metadataSchemaUri:
   description:
@@ -563,7 +702,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -592,7 +731,10 @@ def main():
 
     # --------- END post-read custom code ---------
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

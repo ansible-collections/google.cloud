@@ -31,16 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_cloudbuildv2_connection
+short_description: Manages a Cloudbuildv2.Connection resource
 description:
   - A connection to a SCM like GitHub, GitHub Enterprise, Bitbucket Data Center/Cloud or GitLab.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_cloudbuildv2_connection
-notes:
-  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   annotations:
     description:
@@ -347,7 +343,11 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a Cloudbuildv2.Connection resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/build/docs/api/reference/rest)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/build/docs)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -393,6 +393,147 @@ EXAMPLES = r"""
 """  # noqa: E501
 
 RETURN = r"""
+annotations:
+  description:
+    - Allows clients to store small amounts of arbitrary data.
+    - '**Note**: This field is non-authoritative, and will only manage the annotations present in your configuration.'
+  returned: when set
+  type: dict
+bitbucketCloudConfig:
+  contains:
+    authorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - An access token with the `webhook`, `repository`, `repository:admin` and `pullrequest` scope access.
+        - It can be either a workspace, project or repository access token.
+        - It's recommended to use a system account to generate these credentials.
+      returned: always
+      type: dict
+    readAuthorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - An access token with the `repository` access.
+        - It can be either a workspace, project or repository access token.
+        - It's recommended to use a system account to generate the credentials.
+      returned: always
+      type: dict
+    webhookSecretSecretVersion:
+      description:
+        - SecretManager resource containing the webhook secret used to verify webhook events, formatted as `projects/*/secrets/*/versions/*`.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+    workspace:
+      description:
+        - The Bitbucket Cloud Workspace ID to be connected to Google Cloud Platform.
+      returned: always
+      type: str
+  description:
+    - Configuration for connections to Bitbucket Cloud.
+  returned: when set
+  type: dict
+bitbucketDataCenterConfig:
+  contains:
+    authorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - A http access token with the `REPO_ADMIN` scope access.
+      returned: always
+      type: dict
+    hostUri:
+      description:
+        - The URI of the Bitbucket Data Center host this connection is for.
+      returned: always
+      type: str
+    readAuthorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - A http access token with the `REPO_READ` access.
+      returned: always
+      type: dict
+    serverVersion:
+      description:
+        - Output only.
+        - Version of the Bitbucket Data Center running on the `host_uri`.
+      returned: success
+      type: str
+    serviceDirectoryConfig:
+      contains:
+        service:
+          description:
+            - The Service Directory service name.
+            - 'Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.'
+          returned: always
+          type: str
+      description:
+        - Configuration for using Service Directory to privately connect to a Bitbucket Data Center.
+        - This should only be set if the Bitbucket Data Center is hosted on-premises and not reachable by public internet.
+        - If this field is left empty, calls to the Bitbucket Data Center will be made over the public internet.
+      returned: when set
+      type: dict
+    sslCa:
+      description:
+        - SSL certificate to use for requests to the Bitbucket Data Center.
+      returned: when set
+      type: str
+    webhookSecretSecretVersion:
+      description:
+        - SecretManager resource containing the webhook secret used to verify webhook events, formatted as `projects/*/secrets/*/versions/*`.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - Configuration for connections to Bitbucket Data Center.
+  returned: when set
+  type: dict
 changed:
   description: Whether the resource was changed.
   returned: always
@@ -403,11 +544,182 @@ createTime:
     - Server assigned timestamp for when the connection was created.
   returned: success
   type: str
+disabled:
+  description:
+    - If disabled is set to true, functionality is disabled for this connection.
+    - Repository based API methods and webhooks processing for repositories in this connection will be disabled.
+  returned: when set
+  type: bool
 etag:
   description:
     - This checksum is computed by the server based on the value of other fields, and may be sent on update and delete requests to ensure the client has an up-to-date value before proceeding.
   returned: success
   type: str
+githubConfig:
+  contains:
+    appInstallationId:
+      description:
+        - GitHub App installation id.
+      returned: when set
+      type: int
+    authorizerCredential:
+      contains:
+        oauthTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the OAuth token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: when set
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - OAuth credential of the account that authorized the Cloud Build GitHub App.
+        - It is recommended to use a robot account instead of a human user account.
+        - The OAuth token must be tied to the Cloud Build GitHub App.
+      returned: when set
+      type: dict
+  description:
+    - Configuration for connections to github.com.
+  returned: when set
+  type: dict
+githubEnterpriseConfig:
+  contains:
+    appId:
+      description:
+        - Id of the GitHub App created from the manifest.
+      returned: when set
+      type: int
+    appInstallationId:
+      description:
+        - ID of the installation of the GitHub App.
+      returned: when set
+      type: int
+    appSlug:
+      description:
+        - The URL-friendly name of the GitHub App.
+      returned: when set
+      type: str
+    hostUri:
+      description:
+        - The URI of the GitHub Enterprise host this connection is for.
+      returned: always
+      type: str
+    privateKeySecretVersion:
+      description:
+        - SecretManager resource containing the private key of the GitHub App, formatted as `projects/*/secrets/*/versions/*`.
+      returned: when set
+      type: str
+    serviceDirectoryConfig:
+      contains:
+        service:
+          description:
+            - The Service Directory service name.
+            - 'Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.'
+          returned: always
+          type: str
+      description:
+        - Configuration for using Service Directory to privately connect to a GitHub Enterprise server.
+        - This should only be set if the GitHub Enterprise server is hosted on-premises and not reachable by public internet.
+        - If this field is left empty, calls to the GitHub Enterprise server will be made over the public internet.
+      returned: when set
+      type: dict
+    sslCa:
+      description:
+        - SSL certificate to use for requests to GitHub Enterprise.
+      returned: when set
+      type: str
+    webhookSecretSecretVersion:
+      description:
+        - SecretManager resource containing the webhook secret of the GitHub App, formatted as `projects/*/secrets/*/versions/*`.
+      returned: when set
+      type: str
+  description:
+    - Configuration for connections to an instance of GitHub Enterprise.
+  returned: when set
+  type: dict
+gitlabConfig:
+  contains:
+    authorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - A GitLab personal access token with the `api` scope access.
+      returned: always
+      type: dict
+    hostUri:
+      description:
+        - The URI of the GitLab Enterprise host this connection is for.
+        - If not specified, the default value is https://gitlab.com.
+      returned: when set
+      type: str
+    readAuthorizerCredential:
+      contains:
+        userTokenSecretVersion:
+          description:
+            - A SecretManager resource containing the user token that authorizes the Cloud Build connection.
+            - 'Format: `projects/*/secrets/*/versions/*`.'
+          returned: always
+          type: str
+        username:
+          description:
+            - Output only.
+            - The username associated to this token.
+          returned: success
+          type: str
+      description:
+        - A GitLab personal access token with the minimum `read_api` scope access.
+      returned: always
+      type: dict
+    serverVersion:
+      description:
+        - Output only.
+        - Version of the GitLab Enterprise server running on the `host_uri`.
+      returned: success
+      type: str
+    serviceDirectoryConfig:
+      contains:
+        service:
+          description:
+            - The Service Directory service name.
+            - 'Format: projects/{project}/locations/{location}/namespaces/{namespace}/services/{service}.'
+          returned: always
+          type: str
+      description:
+        - Configuration for using Service Directory to privately connect to a GitLab Enterprise server.
+        - This should only be set if the GitLab Enterprise server is hosted on-premises and not reachable by public internet.
+        - If this field is left empty, calls to the GitLab Enterprise server will be made over the public internet.
+      returned: when set
+      type: dict
+    sslCa:
+      description:
+        - SSL certificate to use for requests to GitLab Enterprise.
+      returned: when set
+      type: str
+    webhookSecretSecretVersion:
+      description:
+        - SecretManager resource containing the webhook secret of a GitLab Enterprise project, formatted as `projects/*/secrets/*/versions/*`.
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: always
+      type: str
+  description:
+    - Configuration for connections to gitlab.com or an instance of GitLab Enterprise.
+  returned: when set
+  type: dict
 installationState:
   contains:
     actionUri:
@@ -1049,7 +1361,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -1062,7 +1374,10 @@ def main():
     new_obj = {}
     gcp_v2.debug(module, request=gcp_v2.remove_empties(resource.to_request()), existing=existing_obj, post=False)
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

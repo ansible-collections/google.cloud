@@ -31,18 +31,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_vertexai_endpoint_with_model_garden_deployment
+short_description: Manages a VertexAI.EndpointWithModelGardenDeployment resource
 description:
   - Create an Endpoint and deploy a Model Garden model to it.
-extends_documentation_fragment:
-  - google.cloud.gcp
-module: gcp_vertexai_endpoint_with_model_garden_deployment
-notes:
-  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations/deploy)'
-  - 'Overview of Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/explore-models)'
-  - 'Overview of self-deployed models Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/self-deployed-models)'
-  - 'Use models in Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   deploy_config:
     description:
@@ -832,7 +826,13 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: Manages a VertexAI.EndpointWithModelGardenDeployment resource
+notes:
+  - 'API Reference: U(https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations/deploy)'
+  - 'Overview of Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/explore-models)'
+  - 'Overview of self-deployed models Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/self-deployed-models)'
+  - 'Use models in Model Garden Guide: U(https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/use-models)'
+extends_documentation_fragment:
+  - google.cloud.gcp
 """  # noqa: E501
 
 EXAMPLES = r"""
@@ -882,6 +882,147 @@ changed:
   description: Whether the resource was changed.
   returned: always
   type: bool
+deployConfig:
+  contains:
+    dedicatedResources:
+      contains:
+        autoscalingMetricSpecs:
+          contains:
+            metricName:
+              description:
+                - The resource metric name.
+                - 'Supported metrics:  * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization`.'
+              returned: always
+              type: str
+            target:
+              description:
+                - The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change.
+                - The default value is 60 (representing 60%) if not provided.
+              returned: when set
+              type: int
+          description:
+            - The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set).
+            - At most one entry is allowed per metric.
+            - If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value.
+            - The default target value is 60 for both metrics.
+            - If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set.
+            - For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.
+          elements: dict
+          returned: when set
+          type: list
+        machineSpec:
+          contains:
+            acceleratorCount:
+              description:
+                - The number of accelerators to attach to the machine.
+              returned: when set
+              type: int
+            acceleratorType:
+              description:
+                - 'Possible values: ACCELERATOR_TYPE_UNSPECIFIED NVIDIA_TESLA_K80 NVIDIA_TESLA_P100 NVIDIA_TESLA_V100 NVIDIA_TESLA_P4 NVIDIA_TESLA_T4 NVIDIA_TESLA_A100 NVIDIA_A100_80GB NVIDIA_L4 NVIDIA_H100_80GB NVIDIA_H100_MEGA_80GB NVIDIA_H200_141GB NVIDIA_B200 TPU_V2 TPU_V3 TPU_V4_POD TPU_V5_LITEPOD.'
+              returned: when set
+              type: str
+            machineType:
+              description:
+                - The type of the machine.
+                - See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types)  See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types).
+                - For DeployedModel this field is optional, and the default value is `n1-standard-2`.
+                - For BatchPredictionJob or as part of WorkerPoolSpec this field is required.
+                - This property is immutable, to change it, you must delete and recreate the resource.
+              returned: when set
+              type: str
+            multihostGpuNodeCount:
+              description:
+                - The number of nodes per replica for multihost GPU deployments.
+                - This property is immutable, to change it, you must delete and recreate the resource.
+              returned: when set
+              type: int
+            reservationAffinity:
+              contains:
+                key:
+                  description:
+                    - Corresponds to the label key of a reservation resource.
+                    - To target a SPECIFIC_RESERVATION by name, use `compute.googleapis.com/reservation-name` as the key and specify the name of your reservation as its value.
+                  returned: when set
+                  type: str
+                reservationAffinityType:
+                  description:
+                    - Specifies the reservation affinity type.
+                    - 'Possible values: TYPE_UNSPECIFIED NO_RESERVATION ANY_RESERVATION SPECIFIC_RESERVATION.'
+                  returned: always
+                  type: str
+                value_values:
+                  description:
+                    - Corresponds to the label values of a reservation resource.
+                    - This must be the full resource name of the reservation or reservation block.
+                  elements: str
+                  returned: when set
+                  type: list
+              description:
+                - A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity.
+              returned: when set
+              type: dict
+            tpuTopology:
+              description:
+                - The topology of the TPUs.
+                - Corresponds to the TPU topologies available from GKE.
+                - '(Example: tpu_topology: "2x2x1").'
+                - This property is immutable, to change it, you must delete and recreate the resource.
+              returned: when set
+              type: str
+          description:
+            - Specification of a single machine.
+          returned: always
+          type: dict
+        maxReplicaCount:
+          description:
+            - The maximum number of replicas that may be deployed on when the traffic against it increases.
+            - If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages).
+            - If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped.
+            - If this value is not provided, will use min_replica_count as the default value.
+            - The value of this field impacts the charge against Vertex CPU and GPU quotas.
+            - Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).
+          returned: when set
+          type: int
+        minReplicaCount:
+          description:
+            - The minimum number of machine replicas that will be always deployed on.
+            - This value must be greater than or equal to 1.
+            - If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.
+          returned: always
+          type: int
+        requiredReplicaCount:
+          description:
+            - Number of required available replicas for the deployment to succeed.
+            - This field is only needed when partial deployment/mutation is desired.
+            - If set, the deploy/mutate operation will succeed once available_replica_count reaches required_replica_count, and the rest of the replicas will be retried.
+            - If not set, the default required_replica_count will be min_replica_count.
+          returned: when set
+          type: int
+        spot:
+          description:
+            - If true, schedule the deployment workload on [spot VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms).
+          returned: when set
+          type: bool
+      description:
+        - A description of resources that are dedicated to a DeployedModel or DeployedIndex, and that need a higher degree of manual configuration.
+      returned: when set
+      type: dict
+    fastTryoutEnabled:
+      description:
+        - If true, enable the QMT fast tryout feature for this model if possible.
+      returned: when set
+      type: bool
+    systemLabels:
+      description:
+        - System labels for Model Garden deployments.
+        - These labels are managed by Google and for tracking purposes only.
+      returned: when set
+      type: dict
+  description:
+    - The deploy config to use for the deployment.
+  returned: when set
+  type: dict
 deployedModelDisplayName:
   description:
     - Output only.
@@ -895,6 +1036,737 @@ deployedModelId:
     - The unique numeric ID that Vertex AI assigns to the model at the time it is deployed to the endpoint.
     - It is required to undeploy the model from the endpoint during resource deletion as described in https://cloud.google.com/vertex-ai/docs/reference/rest/v1/projects.locations.endpoints/undeployModel.
   returned: success
+  type: str
+endpointConfig:
+  contains:
+    dedicatedEndpointEnabled:
+      description:
+        - If true, the endpoint will be exposed through a dedicated DNS [Endpoint.dedicated_endpoint_dns].
+        - Your request to the dedicated DNS will be isolated from other users' traffic and will have better performance and reliability.
+        - 'Note: Once you enabled dedicated endpoint, you won''t be able to send request to the shared DNS {region}-aiplatform.googleapis.com.'
+        - The limitations will be removed soon.
+      returned: when set
+      type: bool
+    endpointDisplayName:
+      description:
+        - The user-specified display name of the endpoint.
+        - If not set, a default name will be used.
+      returned: when set
+      type: str
+    privateServiceConnectConfig:
+      contains:
+        enablePrivateServiceConnect:
+          description:
+            - If true, expose the IndexEndpoint via private service connect.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: always
+          type: bool
+        projectAllowlist:
+          description:
+            - A list of Projects from which the forwarding rule will target the service attachment.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: str
+          returned: when set
+          type: list
+        pscAutomationConfigs:
+          contains:
+            errorMessage:
+              description:
+                - Output only.
+                - Error message if the PSC service automation failed.
+              returned: success
+              type: str
+            forwardingRule:
+              description:
+                - Output only.
+                - Forwarding rule created by the PSC service automation.
+              returned: success
+              type: str
+            ipAddress:
+              description:
+                - Output only.
+                - IP address rule created by the PSC service automation.
+              returned: success
+              type: str
+            network:
+              description:
+                - The full name of the Google Compute Engine network.
+                - 'Format: projects/{project}/global/networks/{network}.'
+                - This property is immutable, to change it, you must delete and recreate the resource.
+              returned: always
+              type: str
+            projectId:
+              description:
+                - Project id used to create forwarding rule.
+                - This property is immutable, to change it, you must delete and recreate the resource.
+              returned: always
+              type: str
+            state:
+              description:
+                - Output only.
+                - The state of the PSC service automation.
+              returned: success
+              type: str
+          description:
+            - PSC config that is used to automatically create PSC endpoints in the user projects.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: dict
+        serviceAttachment:
+          description:
+            - Output only.
+            - The name of the generated service attachment resource.
+            - This is only populated if the endpoint is deployed with PrivateServiceConnect.
+          returned: success
+          type: str
+      description:
+        - The configuration for Private Service Connect (PSC).
+        - This property is immutable, to change it, you must delete and recreate the resource.
+      returned: when set
+      type: dict
+  description:
+    - The endpoint config to use for the deployment.
+  returned: when set
+  type: dict
+huggingFaceModelId:
+  description:
+    - The Hugging Face model to deploy.
+    - 'Format: Hugging Face model ID like `google/gemma-2-2b-it`.'
+  returned: when set
+  type: str
+modelConfig:
+  contains:
+    acceptEula:
+      description:
+        - Whether the user accepts the End User License Agreement (EULA) for the model.
+      returned: when set
+      type: bool
+    containerSpec:
+      contains:
+        args:
+          description:
+            - Specifies arguments for the command that runs when the container starts.
+            - This overrides the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd).
+            - Specify this field as an array of executable and arguments, similar to a Docker `CMD`'s "default parameters" form.
+            - If you don't specify this field but do specify the command field, then the command from the `command` field runs without any additional arguments.
+            - See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
+            - If you don't specify this field and don't specify the `command` field, then the container's [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#cmd) and `CMD` determine what runs based on their default behavior.
+            - See the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
+            - In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field.
+            - You cannot reference environment variables set in the Docker image.
+            - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
+            - If a variable cannot be resolved, the reference in the input string is used unchanged.
+            - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `args` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: str
+          returned: when set
+          type: list
+        command:
+          description:
+            - Specifies the command that runs when the container starts.
+            - This overrides the container's [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint).
+            - Specify this field as an array of executable and arguments, similar to a Docker `ENTRYPOINT`'s "exec" form, not its "shell" form.
+            - If you do not specify this field, then the container's `ENTRYPOINT` runs, in conjunction with the args field or the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd), if either exists.
+            - If this field is not specified and the container does not have an `ENTRYPOINT`, then refer to the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact).
+            - If you specify this field, then you can also specify the `args` field to provide additional arguments for this command.
+            - However, if you specify this field, then the container's `CMD` is ignored.
+            - See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes).
+            - In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field.
+            - You cannot reference environment variables set in the Docker image.
+            - In order for environment variables to be expanded, reference them by using the following syntax:$(VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses.
+            - If a variable cannot be resolved, the reference in the input string is used unchanged.
+            - To avoid variable expansion, you can escape this syntax with `$$`; for example:$$(VARIABLE_NAME) This field corresponds to the `command` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: str
+          returned: when set
+          type: list
+        deploymentTimeout:
+          description:
+            - Deployment timeout.
+            - Limit for deployment timeout is 2 hours.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+        env:
+          contains:
+            name:
+              description:
+                - Name of the environment variable.
+                - Must be a valid C identifier.
+              returned: always
+              type: str
+            value:
+              description:
+                - Variables that reference a $(VAR_NAME) are expanded using the previous defined environment variables in the container and any service environment variables.
+                - If a variable cannot be resolved, the reference in the input string will be unchanged.
+                - 'The $(VAR_NAME) syntax can be escaped with a double $$, ie: $$(VAR_NAME).'
+                - Escaped references will never be expanded, regardless of whether the variable exists or not.
+              returned: always
+              type: str
+          description:
+            - List of environment variables to set in the container.
+            - After the container starts running, code running in the container can read these environment variables.
+            - Additionally, the command and args fields can reference these variables.
+            - Later entries in this list can also reference earlier entries.
+            - 'For example, the following example sets the variable `VAR_2` to have the value `foo bar`:  ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ```  If you switch the order of the variables in the example, then the expansion does not occur.'
+            - This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: dict
+          returned: when set
+          type: list
+        grpcPorts:
+          contains:
+            containerPort:
+              description:
+                - The number of the port to expose on the pod's IP address.
+                - Must be a valid port number, between 1 and 65535 inclusive.
+              returned: when set
+              type: int
+          description:
+            - List of ports to expose from the container.
+            - Vertex AI sends gRPC prediction requests that it receives to the first port on this list.
+            - Vertex AI also sends liveness and health checks to this port.
+            - If you do not specify this field, gRPC requests to the container will be disabled.
+            - Vertex AI does not use ports other than the first one listed.
+            - This field corresponds to the `ports` field of the Kubernetes Containers v1 core API.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: dict
+          returned: when set
+          type: list
+        healthProbe:
+          contains:
+            exec:
+              contains:
+                command:
+                  description:
+                    - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
+                    - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
+                    - To use a shell, you need to explicitly call out to that shell.
+                    - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                  elements: str
+                  returned: when set
+                  type: list
+              description:
+                - ExecAction specifies a command to execute.
+              returned: when set
+              type: dict
+            failureThreshold:
+              description:
+                - Number of consecutive failures before the probe is considered failed.
+                - Defaults to 3.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'failureThreshold'.
+              returned: when set
+              type: int
+            grpc:
+              contains:
+                port:
+                  description:
+                    - Port number of the gRPC service.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                service:
+                  description:
+                    - Service is the name of the service to place in the gRPC HealthCheckRequest.
+                    - See https://github.com/grpc/grpc/blob/master/doc/health-checking.md.
+                    - If this is not specified, the default behavior is defined by gRPC.
+                  returned: when set
+                  type: str
+              description:
+                - GrpcAction checks the health of a container using a gRPC service.
+              returned: when set
+              type: dict
+            httpGet:
+              contains:
+                host:
+                  description:
+                    - Host name to connect to, defaults to the model serving container's IP.
+                    - You probably want to set "Host" in httpHeaders instead.
+                  returned: when set
+                  type: str
+                httpHeaders:
+                  contains:
+                    name:
+                      description:
+                        - The header field name.
+                        - This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                      returned: when set
+                      type: str
+                    value:
+                      description:
+                        - The header field value.
+                      returned: when set
+                      type: str
+                  description:
+                    - Custom headers to set in the request.
+                    - HTTP allows repeated headers.
+                  elements: dict
+                  returned: when set
+                  type: list
+                path:
+                  description:
+                    - Path to access on the HTTP server.
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                scheme:
+                  description:
+                    - Scheme to use for connecting to the host.
+                    - Defaults to HTTP.
+                    - Acceptable values are "HTTP" or "HTTPS".
+                  returned: when set
+                  type: str
+              description:
+                - HttpGetAction describes an action based on HTTP Get requests.
+              returned: when set
+              type: dict
+            initialDelaySeconds:
+              description:
+                - Number of seconds to wait before starting the probe.
+                - Defaults to 0.
+                - Minimum value is 0.
+                - Maps to Kubernetes probe argument 'initialDelaySeconds'.
+              returned: when set
+              type: int
+            periodSeconds:
+              description:
+                - How often (in seconds) to perform the probe.
+                - Default to 10 seconds.
+                - Minimum value is 1.
+                - Must be less than timeout_seconds.
+                - Maps to Kubernetes probe argument 'periodSeconds'.
+              returned: when set
+              type: int
+            successThreshold:
+              description:
+                - Number of consecutive successes before the probe is considered successful.
+                - Defaults to 1.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'successThreshold'.
+              returned: when set
+              type: int
+            tcpSocket:
+              contains:
+                host:
+                  description:
+                    - 'Optional: Host name to connect to, defaults to the model serving container''s IP.'
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+              description:
+                - TcpSocketAction probes the health of a container by opening a TCP socket connection.
+              returned: when set
+              type: dict
+            timeoutSeconds:
+              description:
+                - Number of seconds after which the probe times out.
+                - Defaults to 1 second.
+                - Minimum value is 1.
+                - Must be greater or equal to period_seconds.
+                - Maps to Kubernetes probe argument 'timeoutSeconds'.
+              returned: when set
+              type: int
+          description:
+            - Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+          returned: when set
+          type: dict
+        healthRoute:
+          description:
+            - HTTP path on the container to send health checks to.
+            - Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy.
+            - Read more about [health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#health).
+            - For example, if you set this field to `/bar`, then Vertex AI intermittently sends a GET request to the `/bar` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field.
+            - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
+            - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
+            - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+        imageUri:
+          description:
+            - URI of the Docker image to be used as the custom container for serving predictions.
+            - This URI must identify an image in Artifact Registry or Container Registry.
+            - Learn more about the [container publishing requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing), including permissions requirements for the Vertex AI Service Agent.
+            - The container image is ingested upon ModelService.UploadModel, stored internally, and this original path is afterwards not used.
+            - To learn about the requirements for the Docker image itself, see [Custom container requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#).
+            - You can use the URI to one of Vertex AI's [pre-built container images for prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: always
+          type: str
+        livenessProbe:
+          contains:
+            exec:
+              contains:
+                command:
+                  description:
+                    - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
+                    - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
+                    - To use a shell, you need to explicitly call out to that shell.
+                    - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                  elements: str
+                  returned: when set
+                  type: list
+              description:
+                - ExecAction specifies a command to execute.
+              returned: when set
+              type: dict
+            failureThreshold:
+              description:
+                - Number of consecutive failures before the probe is considered failed.
+                - Defaults to 3.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'failureThreshold'.
+              returned: when set
+              type: int
+            grpc:
+              contains:
+                port:
+                  description:
+                    - Port number of the gRPC service.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                service:
+                  description:
+                    - Service is the name of the service to place in the gRPC HealthCheckRequest.
+                    - See https://github.com/grpc/grpc/blob/master/doc/health-checking.md.
+                    - If this is not specified, the default behavior is defined by gRPC.
+                  returned: when set
+                  type: str
+              description:
+                - GrpcAction checks the health of a container using a gRPC service.
+              returned: when set
+              type: dict
+            httpGet:
+              contains:
+                host:
+                  description:
+                    - Host name to connect to, defaults to the model serving container's IP.
+                    - You probably want to set "Host" in httpHeaders instead.
+                  returned: when set
+                  type: str
+                httpHeaders:
+                  contains:
+                    name:
+                      description:
+                        - The header field name.
+                        - This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                      returned: when set
+                      type: str
+                    value:
+                      description:
+                        - The header field value.
+                      returned: when set
+                      type: str
+                  description:
+                    - Custom headers to set in the request.
+                    - HTTP allows repeated headers.
+                  elements: dict
+                  returned: when set
+                  type: list
+                path:
+                  description:
+                    - Path to access on the HTTP server.
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                scheme:
+                  description:
+                    - Scheme to use for connecting to the host.
+                    - Defaults to HTTP.
+                    - Acceptable values are "HTTP" or "HTTPS".
+                  returned: when set
+                  type: str
+              description:
+                - HttpGetAction describes an action based on HTTP Get requests.
+              returned: when set
+              type: dict
+            initialDelaySeconds:
+              description:
+                - Number of seconds to wait before starting the probe.
+                - Defaults to 0.
+                - Minimum value is 0.
+                - Maps to Kubernetes probe argument 'initialDelaySeconds'.
+              returned: when set
+              type: int
+            periodSeconds:
+              description:
+                - How often (in seconds) to perform the probe.
+                - Default to 10 seconds.
+                - Minimum value is 1.
+                - Must be less than timeout_seconds.
+                - Maps to Kubernetes probe argument 'periodSeconds'.
+              returned: when set
+              type: int
+            successThreshold:
+              description:
+                - Number of consecutive successes before the probe is considered successful.
+                - Defaults to 1.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'successThreshold'.
+              returned: when set
+              type: int
+            tcpSocket:
+              contains:
+                host:
+                  description:
+                    - 'Optional: Host name to connect to, defaults to the model serving container''s IP.'
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+              description:
+                - TcpSocketAction probes the health of a container by opening a TCP socket connection.
+              returned: when set
+              type: dict
+            timeoutSeconds:
+              description:
+                - Number of seconds after which the probe times out.
+                - Defaults to 1 second.
+                - Minimum value is 1.
+                - Must be greater or equal to period_seconds.
+                - Maps to Kubernetes probe argument 'timeoutSeconds'.
+              returned: when set
+              type: int
+          description:
+            - Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+          returned: when set
+          type: dict
+        ports:
+          contains:
+            containerPort:
+              description:
+                - The number of the port to expose on the pod's IP address.
+                - Must be a valid port number, between 1 and 65535 inclusive.
+              returned: when set
+              type: int
+          description:
+            - List of ports to expose from the container.
+            - Vertex AI sends any prediction requests that it receives to the first port on this list.
+            - Vertex AI also sends [liveness and health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port.
+            - 'If you do not specify this field, it defaults to following value:  ```json [ { "containerPort": 8080 } ] ```  Vertex AI does not use ports other than the first one listed.'
+            - This field corresponds to the `ports` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          elements: dict
+          returned: when set
+          type: list
+        predictRoute:
+          description:
+            - HTTP path on the container to send prediction requests to.
+            - Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port.
+            - Vertex AI then returns the container's response in the API response.
+            - For example, if you set this field to `/foo`, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the `/foo` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field.
+            - 'If you don''t specify this field, it defaults to the following value when you deploy this Model to an Endpoint:/v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows:  * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed.'
+            - '(Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)  * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`.'
+            - (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).).
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+        sharedMemorySizeMb:
+          description:
+            - The amount of the VM memory to reserve as the shared memory for the model in megabytes.
+            - This property is immutable, to change it, you must delete and recreate the resource.
+          returned: when set
+          type: str
+        startupProbe:
+          contains:
+            exec:
+              contains:
+                command:
+                  description:
+                    - Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem.
+                    - The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work.
+                    - To use a shell, you need to explicitly call out to that shell.
+                    - Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                  elements: str
+                  returned: when set
+                  type: list
+              description:
+                - ExecAction specifies a command to execute.
+              returned: when set
+              type: dict
+            failureThreshold:
+              description:
+                - Number of consecutive failures before the probe is considered failed.
+                - Defaults to 3.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'failureThreshold'.
+              returned: when set
+              type: int
+            grpc:
+              contains:
+                port:
+                  description:
+                    - Port number of the gRPC service.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                service:
+                  description:
+                    - Service is the name of the service to place in the gRPC HealthCheckRequest.
+                    - See https://github.com/grpc/grpc/blob/master/doc/health-checking.md.
+                    - If this is not specified, the default behavior is defined by gRPC.
+                  returned: when set
+                  type: str
+              description:
+                - GrpcAction checks the health of a container using a gRPC service.
+              returned: when set
+              type: dict
+            httpGet:
+              contains:
+                host:
+                  description:
+                    - Host name to connect to, defaults to the model serving container's IP.
+                    - You probably want to set "Host" in httpHeaders instead.
+                  returned: when set
+                  type: str
+                httpHeaders:
+                  contains:
+                    name:
+                      description:
+                        - The header field name.
+                        - This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                      returned: when set
+                      type: str
+                    value:
+                      description:
+                        - The header field value.
+                      returned: when set
+                      type: str
+                  description:
+                    - Custom headers to set in the request.
+                    - HTTP allows repeated headers.
+                  elements: dict
+                  returned: when set
+                  type: list
+                path:
+                  description:
+                    - Path to access on the HTTP server.
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+                scheme:
+                  description:
+                    - Scheme to use for connecting to the host.
+                    - Defaults to HTTP.
+                    - Acceptable values are "HTTP" or "HTTPS".
+                  returned: when set
+                  type: str
+              description:
+                - HttpGetAction describes an action based on HTTP Get requests.
+              returned: when set
+              type: dict
+            initialDelaySeconds:
+              description:
+                - Number of seconds to wait before starting the probe.
+                - Defaults to 0.
+                - Minimum value is 0.
+                - Maps to Kubernetes probe argument 'initialDelaySeconds'.
+              returned: when set
+              type: int
+            periodSeconds:
+              description:
+                - How often (in seconds) to perform the probe.
+                - Default to 10 seconds.
+                - Minimum value is 1.
+                - Must be less than timeout_seconds.
+                - Maps to Kubernetes probe argument 'periodSeconds'.
+              returned: when set
+              type: int
+            successThreshold:
+              description:
+                - Number of consecutive successes before the probe is considered successful.
+                - Defaults to 1.
+                - Minimum value is 1.
+                - Maps to Kubernetes probe argument 'successThreshold'.
+              returned: when set
+              type: int
+            tcpSocket:
+              contains:
+                host:
+                  description:
+                    - 'Optional: Host name to connect to, defaults to the model serving container''s IP.'
+                  returned: when set
+                  type: str
+                port:
+                  description:
+                    - Number of the port to access on the container.
+                    - Number must be in the range 1 to 65535.
+                  returned: when set
+                  type: int
+              description:
+                - TcpSocketAction probes the health of a container by opening a TCP socket connection.
+              returned: when set
+              type: dict
+            timeoutSeconds:
+              description:
+                - Number of seconds after which the probe times out.
+                - Defaults to 1 second.
+                - Minimum value is 1.
+                - Must be greater or equal to period_seconds.
+                - Maps to Kubernetes probe argument 'timeoutSeconds'.
+              returned: when set
+              type: int
+          description:
+            - Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic.
+          returned: when set
+          type: dict
+      description:
+        - Specification of a container for serving predictions.
+        - Some fields in this message correspond to fields in the [Kubernetes Container v1 core specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).
+      returned: when set
+      type: dict
+    huggingFaceAccessToken:
+      description:
+        - The Hugging Face read access token used to access the model artifacts of gated models.
+      returned: when set
+      type: str
+    huggingFaceCacheEnabled:
+      description:
+        - If true, the model will deploy with a cached version instead of directly downloading the model artifacts from Hugging Face.
+        - This is suitable for VPC-SC users with limited internet access.
+      returned: when set
+      type: bool
+    modelDisplayName:
+      description:
+        - The user-specified display name of the uploaded model.
+        - If not set, a default name will be used.
+      returned: when set
+      type: str
+  description:
+    - The model config to use for the deployment.
+  returned: when set
+  type: dict
+publisherModelName:
+  description:
+    - The Model Garden model to deploy.
+    - 'Format: `publishers/{publisher}/models/{publisher_model}@{version_id}`, or `publishers/hf-{hugging-face-author}/models/{hugging-face-model-name}@001`.'
+  returned: when set
   type: str
 state:
   description: The current state of the resource.
@@ -1857,7 +2729,7 @@ def main():
     resource._state = state  # store the state in the resource object
 
     # Set this variable in one of the pre steps to implement custom diff logic
-    custom_diff = False
+    custom_diff = None
 
     # BEGIN massaging ResourceRef properties
     # END massaging ResourceRef properties
@@ -1955,7 +2827,10 @@ def main():
 
     # --------- END post-read custom code ---------
 
-    is_different = custom_diff or resource.diff(gcp_v2.remove_empties(existing_obj))
+    if custom_diff is not None:
+        is_different = custom_diff
+    else:
+        is_different = resource.diff(gcp_v2.remove_empties(existing_obj))
 
     gcp_v2.debug(
         module,

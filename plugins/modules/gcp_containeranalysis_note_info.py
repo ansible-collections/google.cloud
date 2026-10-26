@@ -31,19 +31,13 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = r"""
 ---
-author:
-  - Google Inc. (@googlecloudplatform)
+module: gcp_containeranalysis_note_info
+short_description: List ContainerAnalysis.Note resources
 description:
   - A Container Analysis note is a high-level piece of metadata that
   - describes a type of analysis that can be done for a resource.
-extends_documentation_fragment:
-  - google.cloud.gcp
-  - google.cloud.info
-module: gcp_containeranalysis_note_info
-notes:
-  - 'API Reference: U(https://cloud.google.com/container-analysis/api/reference/rest/)'
-  - 'Creating Attestations (Occurrences) Guide: U(https://cloud.google.com/binary-authorization/docs/making-attestations)'
-  - 'Official Documentation Guide: U(https://cloud.google.com/container-analysis/)'
+author:
+  - Google Inc. (@googlecloudplatform)
 options:
   filters:
     elements: str
@@ -52,7 +46,13 @@ requirements:
   - python >= 3.8
   - requests >= 2.18.4
   - google-auth >= 2.25.1
-short_description: List ContainerAnalysis.Note resources
+notes:
+  - 'API Reference: U(https://cloud.google.com/container-analysis/api/reference/rest/)'
+  - 'Creating Attestations (Occurrences) Guide: U(https://cloud.google.com/binary-authorization/docs/making-attestations)'
+  - 'Official Documentation Guide: U(https://cloud.google.com/container-analysis/)'
+extends_documentation_fragment:
+  - google.cloud.gcp
+  - google.cloud.info
 """  # noqa: E501
 
 EXAMPLES = r"""
