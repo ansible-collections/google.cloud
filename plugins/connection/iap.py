@@ -560,7 +560,7 @@ class IAP:
             cmd.extend(
                 [
                     "--configuration",
-                    shlex.quote(ospath.realpath(ospath.expanduser(config.strip()))),
+                    shlex.quote(config.strip()),
                 ]
             )
 
