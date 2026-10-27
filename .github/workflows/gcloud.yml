@@ -12,9 +12,6 @@ on:
       - .github/workflows/gcloud.yml
       - molecule/gcloud/**
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
-
 jobs:
   molecule:
     runs-on: ubuntu-latest
