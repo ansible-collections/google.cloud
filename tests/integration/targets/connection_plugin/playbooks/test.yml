@@ -5,6 +5,8 @@
   gather_facts: false
   vars_files:
     - ../vars.yml
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: TEST | Ping
       ansible.builtin.ping:
