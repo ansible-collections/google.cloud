@@ -1,0 +1,5 @@
+---
+bugfixes:
+  - iap connection plugin - ``gcloud_configuration`` was incorrectly resolved as a
+    filesystem path instead of being passed through as a gcloud configuration name,
+    causing ``gcloud compute start-iap-tunnel`` to crash (https://github.com/ansible-collections/google.cloud/issues/759).
