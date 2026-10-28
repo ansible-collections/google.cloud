@@ -50,6 +50,9 @@ options:
   object_name:
     description:
     - The full path of the object inside the bucket.
+    - Any leading C(/) is removed, so C(/agents/a.rpm) and C(agents/a.rpm) both sign
+      the object C(agents/a.rpm). An object whose name really starts with C(/) cannot
+      be signed with this module.
     required: true
     type: str
   signer_service_account:
@@ -89,7 +92,7 @@ options:
   expiration_seconds:
     description:
     - How long the signed URL stays valid, in seconds.
-    - Cannot exceed 604800 (7 days), the limit of the V4 signing scheme.
+    - Must be between 1 and 604800 (7 days), the limit of the V4 signing scheme.
     type: int
     default: 900
   http_method:
@@ -246,15 +249,22 @@ def main():
             http_method=dict(
                 type="str", default="GET", choices=["GET", "PUT", "DELETE", "HEAD"]
             ),
-        )
+        ),
+        supports_check_mode=True,
     )
 
     validate_signing_params(module)
 
-    if module.params["expiration_seconds"] > MAX_EXPIRATION_SECONDS:
+    if not 1 <= module.params["expiration_seconds"] <= MAX_EXPIRATION_SECONDS:
         module.fail_json(
-            msg="`expiration_seconds` cannot exceed %d (7 days), the limit of the V4 "
-            "signing scheme" % MAX_EXPIRATION_SECONDS
+            msg="`expiration_seconds` must be between 1 and %d (7 days), the limit of "
+            "the V4 signing scheme" % MAX_EXPIRATION_SECONDS
+        )
+
+    module.params["object_name"] = module.params["object_name"].lstrip("/")
+    if not module.params["object_name"]:
+        module.fail_json(
+            msg="`object_name` must not be empty or made only of '/' characters"
         )
 
     if module.params["hmac_key_access_id"]:
@@ -270,27 +280,28 @@ def main():
             "https://www.googleapis.com/auth/iam",
         ]
 
-    credentials = GcpSession(module, "storage")._credentials()
-
-    # generate_signed_url() with an explicit signer_service_account signs via the IAM
-    # Credentials API (signBlob) instead of a local private key, which application/
-    # machineaccount credentials never carry - that call needs a live bearer token
-    # from the caller's own credentials, not the target service account's.
-    if not credentials.valid:
-        credentials.refresh(google.auth.transport.requests.Request())
-
-    client = storage.Client(
-        project=module.params["project"],
-        credentials=credentials,
-        client_info=ClientInfo(user_agent="Google-Ansible-MM-signed-url"),
-    )
-
-    bucket = client.bucket(module.params["bucket"])
-    blob = bucket.blob(module.params["object_name"])
-
     expiration = datetime.timedelta(seconds=module.params["expiration_seconds"])
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     try:
+        credentials = GcpSession(module, "storage")._credentials()
+
+        # generate_signed_url() with an explicit signer_service_account signs via the IAM
+        # Credentials API (signBlob) instead of a local private key, which application/
+        # machineaccount credentials never carry - that call needs a live bearer token
+        # from the caller's own credentials, not the target service account's.
+        if not credentials.valid:
+            credentials.refresh(google.auth.transport.requests.Request())
+
+        client = storage.Client(
+            project=module.params["project"],
+            credentials=credentials,
+            client_info=ClientInfo(user_agent="Google-Ansible-MM-signed-url"),
+        )
+
+        bucket = client.bucket(module.params["bucket"])
+        blob = bucket.blob(module.params["object_name"])
+
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=expiration,
@@ -301,7 +312,7 @@ def main():
     except Exception as e:
         module.fail_json(msg="Could not generate signed URL: %s" % str(e))
 
-    expires_at = datetime.datetime.now(datetime.timezone.utc) + expiration
+    expires_at = now + expiration
     module.exit_json(
         changed=False,
         signed_url=signed_url,
