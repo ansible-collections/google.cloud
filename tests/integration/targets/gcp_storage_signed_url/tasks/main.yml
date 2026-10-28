@@ -1,0 +1,97 @@
+---
+# Pre-test setup
+- name: Create a temp file for uploading
+  ansible.builtin.tempfile:
+    state: file
+  register: upload_temp
+- name: Create a temp file for downloading via the signed URL
+  ansible.builtin.tempfile:
+    state: file
+  register: download_temp
+- name: Put content in the tempfile
+  ansible.builtin.copy:
+    content: Ansible GCS signed URL test file
+    dest: "{{ upload_temp.path }}"
+    mode: "0600"
+- name: Create a bucket
+  google.cloud.gcp_storage_bucket:
+    name: "{{ resource_name }}"
+    project: "{{ gcp_project }}"
+    auth_kind: "{{ gcp_cred_kind }}"
+    service_account_file: "{{ gcp_cred_file | default(omit) }}"
+    state: present
+  register: bucket
+# ----------------------------------------------------------------------------
+- block:
+    - name: Upload the object to gcs
+      google.cloud.gcp_storage_object:
+        action: upload
+        bucket: "{{ bucket.name }}"
+        src: "{{ upload_temp.path }}"
+        dest: ansible/{{ resource_name }}
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: result
+    - name: Assert changed is true
+      ansible.builtin.assert:
+        that:
+          - result.changed == true
+    # ------------------------------------------------------------------------
+    # signer_service_account is set to the identity running the module itself, so
+    # this only exercises IAM signBlob (needs roles/iam.serviceAccountTokenCreator
+    # on itself even when signer and caller are the same account - that grant has
+    # no local private key to sign with either way). The HMAC key signing method
+    # isn't exercised here: it needs a provisioned HMAC key, which
+    # cloud-config-gcp.ini has no slot for.
+    - name: Generate a signed URL for the uploaded object
+      google.cloud.gcp_storage_signed_url:
+        bucket: "{{ bucket.name }}"
+        object_name: ansible/{{ resource_name }}
+        signer_service_account: "{{ gcp_cred_email }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      register: signed_url_result
+    - name: Assert a signed URL was returned
+      ansible.builtin.assert:
+        that:
+          - signed_url_result.signed_url is defined
+          - "'X-Goog-Signature' in signed_url_result.signed_url"
+    - name: Download the object using only the signed URL, no GCP credentials involved
+      ansible.builtin.get_url:
+        url: "{{ signed_url_result.signed_url }}"
+        dest: "{{ download_temp.path }}"
+      register: result
+    - name: Assert changed is true
+      ansible.builtin.assert:
+        that:
+          - result.changed == true
+    - name: Read back the downloaded file
+      ansible.builtin.slurp:
+        src: "{{ download_temp.path }}"
+      register: downloaded_content
+    - name: Assert the downloaded content matches what was uploaded
+      ansible.builtin.assert:
+        that:
+          - downloaded_content.content | b64decode == "Ansible GCS signed URL test file"
+  always:
+    # The object may not exist if the upload task itself is what failed - ignore
+    # errors here so that failure surfaces as the real cause, not this cleanup.
+    - name: Delete the object
+      google.cloud.gcp_storage_object:
+        action: delete
+        bucket: "{{ bucket.name }}"
+        src: ansible/{{ resource_name }}
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+      ignore_errors: true
+    - name: Delete the bucket
+      google.cloud.gcp_storage_bucket:
+        name: "{{ resource_name }}"
+        project: "{{ gcp_project }}"
+        auth_kind: "{{ gcp_cred_kind }}"
+        service_account_file: "{{ gcp_cred_file | default(omit) }}"
+        state: absent
+      ignore_errors: true
