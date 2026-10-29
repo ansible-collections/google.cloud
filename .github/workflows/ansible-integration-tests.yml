@@ -9,6 +9,7 @@ on:
     paths:
       - 'plugins/**'
       - 'tests/integration/targets/**'
+      - '.github/workflows/ansible-integration-tests.yml'
 
 env:
   GCP_SERVICE_ACCOUNT: github-ci@ansible-gcp-ci.iam.gserviceaccount.com
