@@ -321,7 +321,7 @@ EXAMPLES = r"""
     state: present
     description: A gateway spoke
     location: us-central1
-    hub: projects/my-project/locations/us-central1/hubs/my-hub
+    hub: projects/my-project/locations/global/hubs/my-hub
     gateway:
       ip_range_reservations:
         - ip_range: 10.0.0.0/23
@@ -335,7 +335,7 @@ EXAMPLES = r"""
     name: my-spoke
     state: absent
     location: us-central1
-    hub: projects/my-project/locations/us-central1/hubs/my-hub
+    hub: projects/my-project/locations/global/hubs/my-hub
 """  # noqa: E501
 
 RETURN = r"""

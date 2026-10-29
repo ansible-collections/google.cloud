@@ -12,8 +12,24 @@
 - name: Run assertions
   ansible.builtin.assert:
     that:
-      - _my_spoke.changed | bool
+      - _my_spoke is changed
       - _my_spoke_info.resources | length == 1
+
+- name: No-op update
+  google.cloud.gcp_networkconnectivity_spoke:
+    name: "{{`{{ resource_name }}`}}"
+    state: present
+    location: global
+    hub: "{{`{{ _my_hub.id }}`}}"
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
+  register: _my_spoke
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _my_spoke is not changed
 
 - name: Update Network Connectivity Spoke
   google.cloud.gcp_networkconnectivity_spoke:
@@ -41,5 +57,5 @@
 - name: Run assertions
   ansible.builtin.assert:
     that:
-      - _my_spoke.changed | bool
+      - _my_spoke is changed
       - _my_spoke.description == "A linked VPC spoke (updated)"
