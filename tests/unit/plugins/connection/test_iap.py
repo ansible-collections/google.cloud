@@ -169,6 +169,51 @@ class TestIAPConnectionConnect(unittest.TestCase):
         self.assertIsNone(mock_iap_cls.call_args.kwargs["project"])
         mock_warning.assert_not_called()
 
+    def test_connect_failure_terminates_and_evicts_tunnel(self):
+        """A tunnel that never came up must not stay cached for the next attempt"""
+        dead = self._fake_tunnel(up=False, ready=False)
+        fresh = self._fake_tunnel(local_port=34567)
+        with (
+            mock.patch.object(iap, "IAP", side_effect=[dead, fresh]) as mock_iap_cls,
+            mock.patch.object(iap.time, "sleep"),
+        ):
+            with self.assertRaises(AnsibleRuntimeError):
+                self.conn._connect()
+
+            dead.terminate.assert_called_once()
+            self.assertNotIn("my-instance", self.conn.iaps)
+
+            self.conn._connect()
+
+        self.assertEqual(mock_iap_cls.call_count, 2)
+        self.conn.set_option.assert_any_call("port", 34567)
+
+    def test_connect_failure_tolerates_tunnel_already_evicted(self):
+        """The tunnel may be removed from the shared registry while we wait"""
+        dead = self._fake_tunnel(up=False, ready=False)
+        dead.ready.wait.side_effect = lambda timeout=None: self.conn.iaps.clear()
+        with (
+            mock.patch.object(iap, "IAP", return_value=dead),
+            mock.patch.object(iap.time, "sleep"),
+            self.assertRaises(AnsibleRuntimeError),
+        ):
+            self.conn._connect()
+
+    def test_connect_failure_logs_tunnel_output(self):
+        dead = self._fake_tunnel(up=False, ready=False)
+        dead.output = ["ERROR: (gcloud) permission denied"]
+        with (
+            mock.patch.object(iap, "IAP", return_value=dead),
+            mock.patch.object(iap.time, "sleep"),
+            mock.patch.object(iap.D, "vvvvv") as mock_vvvvv,
+            self.assertRaises(AnsibleRuntimeError),
+        ):
+            self.conn._connect()
+
+        mock_vvvvv.assert_any_call(
+            "ERROR: (gcloud) permission denied", host="my-instance"
+        )
+
     def test_connect_raises_without_host(self):
         self.options["host"] = None
 
@@ -303,6 +348,23 @@ class TestIAPTunnelCommand(unittest.TestCase):
             tunnel = iap.IAP("/usr/bin/gcloud", "my-instance", 22, **kwargs)
         os.close(master_fd)
         return tunnel, mock_popen
+
+    def test_instances_do_not_share_ready_or_output(self):
+        """Regression: ready/output were class attributes shared by all tunnels
+
+        A tunnel that failed would leave ``ready`` set for every later tunnel,
+        making ``ready.wait(timeout)`` return immediately.
+        """
+        first = self._build_tunnel(project=None, account=None, zone=None)[0]
+        second = self._build_tunnel(project=None, account=None, zone=None)[0]
+
+        first.ready.set()
+        first.output.append("some gcloud output")
+
+        self.assertIsNot(first.ready, second.ready)
+        self.assertIsNot(first.output, second.output)
+        self.assertFalse(second.ready.is_set())
+        self.assertEqual(second.output, [])
 
     def test_minimal_command(self):
         tunnel, mock_popen = self._build_tunnel(project=None, account=None, zone=None)  # noqa: RUF059
