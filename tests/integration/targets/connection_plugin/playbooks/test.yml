@@ -5,7 +5,15 @@
   gather_facts: false
   vars_files:
     - ../vars.yml
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
+    - name: TEST | Wait for instances to be reachable via IAP
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        sleep: 5
+        timeout: 180
+
     - name: TEST | Ping
       ansible.builtin.ping:
 

@@ -25,7 +25,7 @@
 
     - name: SETUP | Allow SSH through IAP
       google.cloud.gcp_compute_firewall:
-        name: all-iap
+        name: "{{ prefix }}-iap"
         state: present
         source_ranges:
           - 35.235.240.0/20
@@ -38,7 +38,10 @@
     - name: SETUP | Create instances
       google.cloud.gcp_compute_instance:
         name: "{{ prefix }}-{{ item.name }}"
+        state: present
+        zone: "{{ gcp_zone }}"
         machine_type: "{{ gcp_machine_type }}"
+        hostname: "{{ item.hostname | default(omit) }}"
         disks:
           - auto_delete: true
             boot: true
@@ -50,9 +53,6 @@
         metadata:
           ssh-keys: "{{ ansible_ssh_user }}:{{ _keypair.public_key }}"
         labels: "{{ item.labels | default({}) }}"
-        hostname: "{{ item.hostname | default(omit) }}"
-        zone: "{{ gcp_zone }}"
-        state: present
       loop: "{{ sut }}"
 
     - name: SETUP | Render dynamic inventory file

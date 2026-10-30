@@ -10,25 +10,22 @@
     GCP_AUTH_KIND: "{{ gcp_cred_kind }}"
     GCP_PROJECT: "{{ gcp_project }}"
   tasks:
-    - name: TEARDOWN | Destroy instances  # noqa: ignore-errors
+    - name: TEARDOWN | Destroy instances
       google.cloud.gcp_compute_instance:
         name: "{{ prefix }}-{{ item.name }}"
-        machine_type: "{{ gcp_machine_type }}"
-        zone: "{{ gcp_zone }}"
         state: absent
+        zone: "{{ gcp_zone }}"
+        machine_type: "{{ gcp_machine_type }}"
       loop: "{{ sut }}"
-      ignore_errors: true
 
-    - name: TEARDOWN | Remove IAP firewall rule  # noqa: ignore-errors
+    - name: TEARDOWN | Remove IAP firewall rule
       google.cloud.gcp_compute_firewall:
-        name: all-iap
+        name: "{{ prefix }}-iap"
         state: absent
         network:
           selfLink: "networks/{{ prefix }}"
-      ignore_errors: true
 
-    - name: TEARDOWN | Destroy network  # noqa: ignore-errors
+    - name: TEARDOWN | Destroy network
       google.cloud.gcp_compute_network:
         name: "{{ prefix }}"
         state: absent
-      ignore_errors: true
