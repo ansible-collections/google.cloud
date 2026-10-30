@@ -1,0 +1,2 @@
+trivial:
+  - github_actions - Reworked integration test GHA to use parallelization and split sanity and unit tests to improve execution (https://github.com/ansible-collections/google.cloud/pull/794)
