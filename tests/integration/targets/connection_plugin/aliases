@@ -1,4 +1,3 @@
 cloud/gcp
 cloud/gcp/v2
-cloud/gcp/connection_plugin
-unsupported
+cloud/gcp/connection/iap
