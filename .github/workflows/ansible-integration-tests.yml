@@ -101,10 +101,10 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
         with:
           python-version: ${{ matrix.python }}
-      - name: Install ansible-core (${{ matrix.ansible }})
+      - name: Install dependencies and ansible-core (${{ matrix.ansible }})
         run: |
           ${{ steps.python.outputs.python-path }} -m pip install -U pip
-          ${{ steps.python.outputs.python-path }} -m pip install 'ansible-core~=${{ matrix.ansible }}'
+          ${{ steps.python.outputs.python-path }} -m pip install 'ansible-core==${{ matrix.ansible }}.*' -r requirements.txt
           ansible --version
       - name: Auth to Gcloud
         id: auth
@@ -140,4 +140,4 @@ jobs:
       - name: Run integration tests
         run: |
           ansible-test --version
-          ansible-test integration -v --color --python ${{ matrix.python }} --venv ${{ needs.filter.outputs.targets }}
+          ansible-test integration -v --color --python-interpreter ${{ steps.python.outputs.python-path }} --local ${{ needs.filter.outputs.targets }}
