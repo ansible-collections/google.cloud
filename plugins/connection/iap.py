@@ -52,7 +52,7 @@ DOCUMENTATION = """
           key: executable
     gcloud_configuration:
       description:
-        - If set, points to non-standard gcloud configuration.
+        - Name of the gcloud configuration to use.
       type: string
       vars:
         - name: ansible_gcloud_configuration
@@ -520,7 +520,7 @@ from ansible.plugins.connection import ssh as sshconn
 from ansible.utils import display
 
 D = display.Display()
-DEFAULT_GCLOUD: T.Optional[str] = shutil.which("gcloud")
+DEFAULT_GCLOUD: str | None = shutil.which("gcloud")
 DEFAULT_SSH_PORT: int = 22
 PORT_REGEX = re.compile(r"\d+")
 
@@ -531,25 +531,27 @@ class IAP:
     remote_port: int
     master_fd: int
     up: bool = False
-    process: T.Optional[subprocess.Popen] = None
-    thread: T.Optional[threading.Thread] = None
-    ready: threading.Event = threading.Event()
-    output: T.List[str] = []
+    process: subprocess.Popen | None = None
+    thread: threading.Thread | None = None
+    ready: threading.Event
+    output: list[str]
 
     def __init__(
         self,
         gcloud_bin: str,
         host: str,
         remote_port: int,
-        project: T.Optional[str],
-        account: T.Optional[str],
-        zone: T.Optional[str],
-        config: T.Optional[str] = None,
-        token_file: T.Optional[str] = None,
+        project: str | None,
+        account: str | None,
+        zone: str | None,
+        config: str | None = None,
+        token_file: str | None = None,
     ) -> None:
         self.host = host
         self.remote_port = remote_port
-        cmd: T.List[str] = [
+        self.ready = threading.Event()
+        self.output = []
+        cmd: list[str] = [
             gcloud_bin,
             "compute",
             "start-iap-tunnel",
@@ -676,15 +678,15 @@ class Connection(sshconn.Connection):
     iaps: dict[str, IAP] = {}
     lock: threading.Lock = threading.Lock()
 
-    gcloud_executable: T.Optional[str] = None
+    gcloud_executable: str | None = None
 
     transport = "gcloud-iap"  # type: ignore[override]
 
     def __init__(self, *args: T.Any, **kwargs: T.Any) -> None:
-        super(Connection, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # If the gcloud binary isn't found/configured, bail out immediately
-        exec: T.Optional[str] = self.get_option("gcloud_executable")
+        exec: str | None = self.get_option("gcloud_executable")
         if exec is None:
             self.gcloud_executable = DEFAULT_GCLOUD
         else:
@@ -698,7 +700,7 @@ class Connection(sshconn.Connection):
 
     def exec_command(
         self, cmd: str, in_data: bytes | None = None, sudoable: bool = True
-    ) -> T.Tuple[int, bytes, bytes]:
+    ) -> tuple[int, bytes, bytes]:
         """
         Monkey patch upstream's exec_command
         Upstream SSH plugin thinks it is unnecessary to call _connect() so I do it for them
@@ -706,14 +708,12 @@ class Connection(sshconn.Connection):
 
         self._connect()
 
-        return super(Connection, self).exec_command(
-            cmd, in_data=in_data, sudoable=sudoable
-        )
+        return super().exec_command(cmd, in_data=in_data, sudoable=sudoable)
 
-    def _get_non_blank_option(self, name: str) -> T.Optional[str]:
+    def _get_non_blank_option(self, name: str) -> str | None:
         """Return the option value, or None (with a warning) if set but blank"""
 
-        value: T.Optional[str] = self.get_option(name)
+        value: str | None = self.get_option(name)
         if value is not None and not str(value).strip():
             D.warning(f"IAP: option '{name}' is set but empty, ignoring it")
             return None
@@ -723,16 +723,14 @@ class Connection(sshconn.Connection):
     def _connect(self) -> Connection:
         """Upstream ssh is empty, overload with the stuff starting the IAP tunnel"""
 
-        host: T.Optional[str] = self.get_option("host")
-        project: T.Optional[str] = self._get_non_blank_option("gcloud_project")
-        account: T.Optional[str] = self._get_non_blank_option("gcloud_account")
-        zone: T.Optional[str] = self._get_non_blank_option("gcloud_zone")
-        token_file: T.Optional[str] = self._get_non_blank_option(
-            "gcloud_access_token_file"
-        )
-        config: T.Optional[str] = self._get_non_blank_option("gcloud_configuration")
-        port: T.Optional[int] = self.get_option("port")
-        timeout: T.Optional[int] = self.get_option("timeout")
+        host: str | None = self.get_option("host")
+        project: str | None = self._get_non_blank_option("gcloud_project")
+        account: str | None = self._get_non_blank_option("gcloud_account")
+        zone: str | None = self._get_non_blank_option("gcloud_zone")
+        token_file: str | None = self._get_non_blank_option("gcloud_access_token_file")
+        config: str | None = self._get_non_blank_option("gcloud_configuration")
+        port: int | None = self.get_option("port")
+        timeout: int | None = self.get_option("timeout")
 
         # this shouldn't happen, but still.
         if host is None:
@@ -752,11 +750,12 @@ class Connection(sshconn.Connection):
                     config=config,
                     token_file=token_file,
                 )
+            tunnel: IAP = self.iaps[host]
 
-        success = self.iaps[host].ready.wait(timeout=timeout)
+        success = tunnel.ready.wait(timeout=timeout)
         is_up: bool = False
         for _ in range(3):  # pylint: disable=disallowed-name
-            is_up = self.iaps[host].up
+            is_up = tunnel.up
             if success and is_up:
                 D.vvv("IAP: TUNNEL IS UP", host=host)
                 is_up = True
@@ -766,7 +765,11 @@ class Connection(sshconn.Connection):
 
         if not is_up:
             D.vvv("IAP: TUNNEL FAILURE", host=host)
-            for line in self.iaps[host].output:
+            # don't leave a dead tunnel cached for the next attempt
+            with self.lock:
+                self.iaps.pop(host, None)
+            tunnel.terminate()
+            for line in tunnel.output:
                 D.vvvvv(line, host=host)
             raise errors.AnsibleRuntimeError("Failure when starting IAP tunnel")
 
@@ -776,8 +779,8 @@ class Connection(sshconn.Connection):
         )
 
         # have to trick SSH to connect to localhost instead of the instances
-        self.set_option("port", self.iaps[host].local_port)
-        our_opts: T.List[str] = [
+        self.set_option("port", tunnel.local_port)
+        our_opts: list[str] = [
             "-oHostname=localhost",
             f"-oHostKeyAlias={host}",
             f"-oUserKnownHostsFile={ukhf}",
@@ -796,7 +799,7 @@ class Connection(sshconn.Connection):
         all IAP tunnels as well
         """
 
-        host: T.Optional[str] = self.get_option("host")
+        host: str | None = self.get_option("host")
 
         D.vvv("IAP: CLOSING TUNNEL", host=host)
         # Terminate IAP
