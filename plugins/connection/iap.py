@@ -710,15 +710,27 @@ class Connection(sshconn.Connection):
             cmd, in_data=in_data, sudoable=sudoable
         )
 
+    def _get_non_blank_option(self, name: str) -> T.Optional[str]:
+        """Return the option value, or None (with a warning) if set but blank"""
+
+        value: T.Optional[str] = self.get_option(name)
+        if value is not None and not str(value).strip():
+            D.warning(f"IAP: option '{name}' is set but empty, ignoring it")
+            return None
+
+        return value
+
     def _connect(self) -> Connection:
         """Upstream ssh is empty, overload with the stuff starting the IAP tunnel"""
 
         host: T.Optional[str] = self.get_option("host")
-        project: T.Optional[str] = self.get_option("gcloud_project")
-        account: T.Optional[str] = self.get_option("gcloud_account")
-        zone: T.Optional[str] = self.get_option("gcloud_zone")
-        token_file: T.Optional[str] = self.get_option("gcloud_access_token_file")
-        config: T.Optional[str] = self.get_option("gcloud_configuration")
+        project: T.Optional[str] = self._get_non_blank_option("gcloud_project")
+        account: T.Optional[str] = self._get_non_blank_option("gcloud_account")
+        zone: T.Optional[str] = self._get_non_blank_option("gcloud_zone")
+        token_file: T.Optional[str] = self._get_non_blank_option(
+            "gcloud_access_token_file"
+        )
+        config: T.Optional[str] = self._get_non_blank_option("gcloud_configuration")
         port: T.Optional[int] = self.get_option("port")
         timeout: T.Optional[int] = self.get_option("timeout")
 
