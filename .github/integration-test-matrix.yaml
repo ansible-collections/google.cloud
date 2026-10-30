@@ -1,0 +1,9 @@
+# Integration tests take a lot longer than sanity or unit tests
+# so the strategy here is to test the most amount of targets with
+# the minium common denominator. We don't test against devel here.
+ansible:
+  - "2.18"
+  - "2.20"
+  - "2.21"
+python:
+  - "3.13"

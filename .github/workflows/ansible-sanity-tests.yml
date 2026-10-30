@@ -1,0 +1,60 @@
+---
+name: Run sanity tests
+on:
+  # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
+  push:
+    branches:
+      - master
+      - stable-*
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - '.github/workflows/ansible-sanity-tests.yml'
+  # Run CI once per day (at 06:00 UTC)
+  # This ensures that even if there haven't been commits that we are still
+  # testing against latest version of ansible-test for each ansible-core
+  # version
+  schedule:
+    - cron: '0 6 * * *'
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event.pull_request.number || github.sha
+    }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - id: set-matrix
+        run: |
+          # yq reads the .yaml and outputs a clean, minified JSON string
+          MATRIX_JSON=$(yq -o=json -I=0 .github/test-matrix.yaml)
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  sanity:
+    name: Ⓐ${{ matrix.ansible }} + Ⓟ${{ matrix.python }}
+    runs-on: ${{ matrix.ansible == 'devel' && 'ubuntu-22.04' || 'ubuntu-latest' }}
+    needs: setup
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+    continue-on-error: ${{ matrix.ansible == 'devel' || matrix.ansible == 'milestone' }}
+
+    steps:
+      # Run sanity tests inside a Docker container.
+      # The docker container has all the pinned dependencies that are
+      # required and all Python versions Ansible supports.
+      - name: Perform sanity testing
+        # See the documentation for the following GitHub action on
+        # https://github.com/ansible-community/ansible-test-gh-action/blob/main/README.md
+        uses: ansible-community/ansible-test-gh-action@6ded727edb598e670ac056a8e680ca4050bac0a3 # 1.18.0
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          target-python-version: ${{ matrix.python }}
+          testing-type: sanity
+          pull-request-change-detection: false
