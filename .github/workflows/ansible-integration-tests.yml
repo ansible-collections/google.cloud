@@ -129,10 +129,10 @@ jobs:
           gcp_integration_email: $GCP_INTEGRATION_EMAIL
           gcp_folder_id: $GCP_FOLDER_ID
           " > ./tests/integration/cloud-config-gcp.ini
-      - name: Install required collections as siblings
+      - name: Install required collections
         run: |
           ansible-galaxy --version
-          ansible-galaxy collection install -r requirements-test.yml -p ../../
+          ansible-galaxy collection install -r requirements-test.yml
           ansible-galaxy collection list
       # run tests on the host itself in a virtual environment, until we remove
       # all traces of gcloud command we cannot use the ansible-test GHA (which
