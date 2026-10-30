@@ -17,7 +17,7 @@ RC=0
 # we want to run teardown regardless of playbook exit status, so catch the
 # exit code of ansible-playbook manually
 set +e
-ansible-playbook -v playbooks/test.yml "$@" --extra-vars "ansible_gcloud_configuration=${GCLOUD_CONFIGURATION}"
+ansible-playbook -vvv playbooks/test.yml "$@" --extra-vars "ansible_gcloud_configuration=${GCLOUD_CONFIGURATION}"
 RC=$?
 set -e
 

@@ -16,7 +16,6 @@
         state: absent
         zone: "{{ gcp_zone }}"
         machine_type: "{{ gcp_machine_type }}"
-        hostname: "{{ item.hostname | default(omit) }}"
       loop: "{{ sut }}"
 
     - name: TEARDOWN | Remove IAP firewall rule
