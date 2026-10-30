@@ -128,11 +128,135 @@ class TestIAPConnectionConnect(unittest.TestCase):
             with self.assertRaises(AnsibleRuntimeError):
                 self.conn._connect()
 
+    def test_connect_ignores_empty_gcloud_options_with_warning(self):
+        """Options that are set but empty/blank must not reach the gcloud CLI"""
+        option_to_kwarg = {
+            "gcloud_configuration": "config",
+            "gcloud_project": "project",
+            "gcloud_account": "account",
+            "gcloud_zone": "zone",
+            "gcloud_access_token_file": "token_file",
+        }
+        for option, kwarg in option_to_kwarg.items():
+            for empty in ("", "   "):
+                with self.subTest(option=option, value=empty):
+                    self.conn.iaps = {}
+                    self.options[option] = empty
+                    with (
+                        mock.patch.object(iap, "IAP") as mock_iap_cls,
+                        mock.patch.object(iap.D, "warning") as mock_warning,
+                    ):
+                        mock_iap_cls.return_value = self._fake_tunnel()
+
+                        self.conn._connect()
+
+                    self.assertIsNone(mock_iap_cls.call_args.kwargs[kwarg])
+                    mock_warning.assert_called_once()
+                    self.assertIn(option, mock_warning.call_args.args[0])
+                    self.options[option] = None
+
+    def test_connect_does_not_warn_for_unset_or_valid_gcloud_options(self):
+        self.options["gcloud_configuration"] = "my-config"
+        with (
+            mock.patch.object(iap, "IAP") as mock_iap_cls,
+            mock.patch.object(iap.D, "warning") as mock_warning,
+        ):
+            mock_iap_cls.return_value = self._fake_tunnel()
+
+            self.conn._connect()
+
+        self.assertEqual(mock_iap_cls.call_args.kwargs["config"], "my-config")
+        self.assertIsNone(mock_iap_cls.call_args.kwargs["project"])
+        mock_warning.assert_not_called()
+
     def test_connect_raises_without_host(self):
         self.options["host"] = None
 
         with self.assertRaises(AnsibleAssertionError):
             self.conn._connect()
+
+
+class TestIAPConnectionRealOptions(unittest.TestCase):
+    """Exercise ansible's real option resolution (no get_option mocking)"""
+
+    def _real_connection(self, env):
+        # set_options() re-reads os.environ, so keep the env patched for the
+        # whole test, not just during construction
+        env_patch = mock.patch.dict(os.environ, env)
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
+        with mock.patch.object(iap, "DEFAULT_GCLOUD", "/usr/bin/gcloud"):
+            conn = connection_loader.get("google.cloud.iap", PlayContext(), StringIO())
+        conn.iaps = {}
+        return conn
+
+    def _connect_with_fake_tunnel(self, conn):
+        tunnel = mock.MagicMock()
+        tunnel.ready.wait.return_value = True
+        tunnel.up = True
+        tunnel.local_port = 23456
+        with (
+            mock.patch.object(iap, "IAP", return_value=tunnel) as mock_iap_cls,
+            mock.patch.object(iap.D, "warning") as mock_warning,
+        ):
+            conn._connect()
+        return mock_iap_cls, mock_warning
+
+    def test_environment_options_are_available_right_after_construction(self):
+        """Env values are readable before set_options() is ever called
+
+        Connection.__init__ calls get_option(), which makes ansible load the
+        env/ini/default layer. Task vars (ansible_*) are not part of that
+        layer: they only arrive later via set_options(var_options=...).
+        """
+        conn = self._real_connection(
+            {
+                "CLOUDSDK_AUTH_ACCESS_TOKEN_FILE": "",
+                "CLOUDSDK_ACTIVE_CONFIG_NAME": "  ",
+                "CLOUDSDK_CORE_PROJECT": "from-env",
+            }
+        )
+
+        self.assertEqual(conn.get_option("gcloud_access_token_file"), "")
+        self.assertEqual(conn.get_option("gcloud_configuration"), "  ")
+        self.assertEqual(conn.get_option("gcloud_project"), "from-env")
+        self.assertIsNone(conn.get_option("gcloud_zone"))
+
+    def test_blank_environment_options_are_ignored_with_warning(self):
+        conn = self._real_connection(
+            {
+                "CLOUDSDK_AUTH_ACCESS_TOKEN_FILE": "",
+                "CLOUDSDK_ACTIVE_CONFIG_NAME": "  ",
+                "CLOUDSDK_CORE_PROJECT": "from-env",
+            }
+        )
+        conn.set_options(var_options={"ansible_host": "my-instance"})
+
+        mock_iap_cls, mock_warning = self._connect_with_fake_tunnel(conn)
+
+        kwargs = mock_iap_cls.call_args.kwargs
+        self.assertIsNone(kwargs["token_file"])
+        self.assertIsNone(kwargs["config"])
+        self.assertEqual(kwargs["project"], "from-env")
+        warned = " ".join(call.args[0] for call in mock_warning.call_args_list)
+        self.assertEqual(mock_warning.call_count, 2)
+        self.assertIn("gcloud_access_token_file", warned)
+        self.assertIn("gcloud_configuration", warned)
+
+    def test_blank_task_vars_are_ignored_with_warning(self):
+        conn = self._real_connection({})
+        conn.set_options(
+            var_options={
+                "ansible_host": "my-instance",
+                "ansible_gcloud_configuration": "",
+            }
+        )
+
+        mock_iap_cls, mock_warning = self._connect_with_fake_tunnel(conn)
+
+        self.assertIsNone(mock_iap_cls.call_args.kwargs["config"])
+        mock_warning.assert_called_once()
+        self.assertIn("gcloud_configuration", mock_warning.call_args.args[0])
 
 
 class TestIAPConnectionExecCommand(unittest.TestCase):
