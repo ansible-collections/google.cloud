@@ -1,0 +1,14 @@
+- name: Create an Asset Folder Feed
+  google.cloud.gcp_cloudasset_folder_feed:
+    feed_id: my-feed  # must be unique at the folder level
+    folder: 123456789  # must be the numeric identifier
+    state: present
+    billing_project: my-billing-project
+    content_type: RESOURCE
+    asset_types:
+      - compute.googleapis.com/Subnetwork
+      - compute.googleapis.com/Network
+    feed_output_config:
+      pubsub_destination:
+        topic: projects/my-project/topics/my-topic
+
