@@ -1,0 +1,21 @@
+---
+self_link: "folders/{folder}/feeds/{feed_id}"
+update_url: "folders/{folder}/feeds/{feed_id}?updateMask={update_mask}"
+custom_code:
+  custom_import: _drop
+  encoder: |
+    r = {}
+    # wrap the request in a feed field on create/update
+    if self._state != "absent":
+        r["feed"] = request
+
+    return r
+  pre_update: |
+    # update mask is required on updates
+    resource.url_params["update_mask"] = ",".join(resource.dot_fields())
+samples:
+  - name: ansible_doc_folder_feed
+    exclude_test: true
+    steps:
+      - name: ansible_doc_folder_feed
+...

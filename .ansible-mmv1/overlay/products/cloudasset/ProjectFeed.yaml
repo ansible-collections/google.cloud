@@ -1,0 +1,33 @@
+---
+self_link: "projects/{project}/feeds/{feed_id}"
+update_url: "projects/{project}/feeds/{feed_id}?updateMask={update_mask}"
+custom_code:
+  custom_import: _drop
+  encoder: |
+    r = {}
+    # wrap the request in a feed field on create/update
+    if self._state != "absent":
+        r["feed"] = request
+
+    return r
+  pre_update: |
+    # update mask is required on updates
+    resource.url_params["update_mask"] = ",".join(resource.dot_fields())
+samples:
+  - name: ansible_doc_project_feed
+    exclude_test: true
+    steps:
+      - name: ansible_doc_project_feed
+  - name: ansible_test_project_feed
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_network
+        config_path: templates/ansible/samples/common/ansible_setup_network.tmpl
+      - name: ansible_setup_pubsub_topic
+        config_path: templates/ansible/samples/common/ansible_setup_pubsub_topic.tmpl
+      - name: ansible_setup_project_feed
+      - name: ansible_test_project_feed
+      - name: ansible_teardown_project_feed
+      - name: ansible_teardown_pubsub_topic
+        config_path: templates/ansible/samples/common/ansible_teardown_pubsub_topic.tmpl
+...
