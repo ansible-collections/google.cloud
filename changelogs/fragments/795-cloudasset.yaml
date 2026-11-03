@@ -1,0 +1,2 @@
+minor_changes:
+  - gcp_cloudasset_* - Added gcp_cloudasset_{folder,project,organization}_feed{,_info} modules (https://github.com/ansible-collections/google.cloud/pull/795)

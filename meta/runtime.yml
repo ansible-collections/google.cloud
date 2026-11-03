@@ -67,6 +67,12 @@ action_groups:
     - gcp_binaryauthorization_attestor_info
     - gcp_binaryauthorization_policy
     - gcp_binaryauthorization_policy_info
+    - gcp_cloudasset_folder_feed
+    - gcp_cloudasset_folder_feed_info
+    - gcp_cloudasset_project_feed
+    - gcp_cloudasset_project_feed_info
+    - gcp_cloudasset_organization_feed
+    - gcp_cloudasset_organization_feed_info
     - gcp_cloudbuild_trigger
     - gcp_cloudbuild_trigger_info
     - gcp_cloudbuildv2_connection
