@@ -1,6 +1,5 @@
 # It's important that tests are performed against all stable-X.Y branches.
 # Testing against `devel` may fail as new tests are added.
-# An alternative to `devel` is the `milestone` branch.
 ansible:
   - stable-2.16
   - stable-2.18
