@@ -75,6 +75,12 @@ action_groups:
     - gcp_cloudbuildv2_repository_info
     - gcp_cloudfunctions_cloud_function
     - gcp_cloudfunctions_cloud_function_info
+    - gcp_cloudrunv2_job
+    - gcp_cloudrunv2_job_info
+    - gcp_cloudrunv2_service
+    - gcp_cloudrunv2_service_info
+    - gcp_cloudrunv2_worker_pool
+    - gcp_cloudrunv2_worker_pool_info
     - gcp_cloudscheduler_job
     - gcp_cloudscheduler_job_info
     - gcp_cloudtasks_queue

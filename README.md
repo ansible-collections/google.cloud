@@ -25,6 +25,7 @@ buckets, Cloud SQL instances, and more.
 * Cloud Bigtable Instance (gcp_bigtable_instance, gcp_bigtable_instance_info)
 * Cloud Build Trigger (gcp_cloudbuild_trigger, gcp_cloudbuild_trigger_info)
 * Cloud Functions CloudFunction (gcp_cloudfunctions_cloud_function, gcp_cloudfunctions_cloud_function_info)
+* Cloud Run v2 (gcp_cloudrunv2_job, gcp_cloudrunv2_job_info, gcp_cloudrunv2_service, gcp_cloudrunv2_service_info, gcp_cloudrunv2_worker_pool, gcp_cloudrunv2_worker_pool_info)
 * Cloud Scheduler Job (gcp_cloudscheduler_job, gcp_cloudscheduler_job_info)
 * Cloud Tasks Queue (gcp_cloudtasks_queue, gcp_cloudtasks_queue_info)
 * Vertex AI Notebook Executions (gcp_colab_notebook_execution)
