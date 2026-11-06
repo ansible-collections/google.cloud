@@ -1,0 +1,28 @@
+---
+virtual_fields:
+  - name: deletion_protection
+    exclude: true  # only for TF state
+
+custom_code:
+  pre_delete: _drop
+
+samples:
+  - name: ansible_doc_job_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_job_basic
+  - name: ansible_doc_job_multi
+    exclude_test: true
+    steps:
+      - name: ansible_doc_job_multi
+  - name: ansible_doc_job_emptydir
+    exclude_test: true
+    steps:
+      - name: ansible_doc_job_emptydir
+  - name: ansible_test_job
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_job
+      - name: ansible_test_job
+      - name: ansible_teardown_job
+...

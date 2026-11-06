@@ -1,0 +1,9 @@
+- name: Create a basic CloudRun v2 Job
+  google.cloud.gcp_cloudrunv2_job:
+    name: my-job
+    state: present
+    location: us-central1
+    template:
+      template:
+        containers:
+          - image: us-docker.pkg.dev/cloudrun/container/job

@@ -1,0 +1,39 @@
+---
+virtual_fields:
+  - name: deletion_protection
+    exclude: true  # only for TF state
+
+custom_code:
+  pre_create: |-
+    resource._action = "create"  # flag for for encoder
+  pre_update: |-
+    resource._action = "update"  # flag for for encoder
+  pre_delete: |-
+    resource._action = "delete"  # flag for for encoder
+  encoder: |-
+    # worker_pool.name must be empty on CreateWorkerPoolRequest.
+    if self._action == "create":
+        request.pop("name")
+
+    return request
+
+samples:
+  - name: ansible_doc_worker_pool_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_worker_pool_basic
+  - name: ansible_doc_worker_pool_multi
+    exclude_test: true
+    steps:
+      - name: ansible_doc_worker_pool_multi
+  - name: ansible_doc_worker_pool_empty_dir
+    exclude_test: true
+    steps:
+      - name: ansible_doc_worker_pool_empty_dir
+  - name: ansible_test_worker_pool
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_worker_pool
+      - name: ansible_test_worker_pool
+      - name: ansible_teardown_worker_pool
+...
