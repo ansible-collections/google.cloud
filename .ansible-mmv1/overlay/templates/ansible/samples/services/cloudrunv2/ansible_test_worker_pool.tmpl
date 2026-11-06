@@ -1,0 +1,58 @@
+- name: Fetch worker pool info
+  google.cloud.gcp_cloudrunv2_worker_pool_info:
+    location: us-central1
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
+  register: _mywp_info
+
+# list endpoint doesn't support filtering, do it client-side
+- name: Filter by worker pool name
+  ansible.builtin.set_fact:
+    _mywp_fact: "{{`{{ item }}`}}"
+  loop: "{{`{{ _mywp_info.resources | selectattr('name', 'equalto', _mywp.name) }}`}}"
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _mywp is changed
+      - _mywp_info.resources | length > 0
+      - _mywp_fact is defined
+
+- name: Update worker pool
+  google.cloud.gcp_cloudrunv2_worker_pool:
+    name: "{{`{{ resource_name }}`}}"
+    state: present
+    location: us-central1
+    template:
+      containers:
+        - name: wp-1
+          image: us-docker.pkg.dev/cloudrun/container/worker-pool
+          depends_on:
+            - wp-2
+          volume_mounts:
+            - name: empty-dir-vol
+              mount_path: /mnt
+        - name: wp-2
+          image: us-docker.pkg.dev/cloudrun/container/worker-pool
+          startup_probe:
+            http_get:
+              path: /healthz
+              port: 8080
+            period_seconds: 5
+            timeout_seconds: 2
+            failure_threshold: 3
+      volumes:
+        - name: empty-dir-vol
+          empty_dir:
+            medium: MEMORY
+            size_limit: 256Mi
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
+  register: _mywp
+
+- name: Run assertions
+  ansible.builtin.assert:
+    that:
+      - _mywp is changed

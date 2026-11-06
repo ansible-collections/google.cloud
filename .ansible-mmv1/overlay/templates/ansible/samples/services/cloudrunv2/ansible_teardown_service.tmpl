@@ -1,0 +1,10 @@
+- name: Delete service
+  google.cloud.gcp_cloudrunv2_service:
+    name: "{{`{{ resource_name }}`}}"
+    state: absent
+    location: us-central1
+    template:
+      containers: []
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
