@@ -1,0 +1,17 @@
+- name: Create a CloudRun v2 Job with empty-dir volume
+  google.cloud.gcp_cloudrunv2_job:
+    name: my-job
+    state: present
+    location: us-central1
+    template:
+      template:
+        containers:
+          - image: us-docker.pkg.dev/cloudrun/container/job
+            volume_mounts:
+              - name: empty-dir-volume
+                mount_path: /mnt
+        volumes:
+          - name: empty-dir-volume
+            empty_dir:
+              medium: MEMORY
+              size_limit: 128Mi

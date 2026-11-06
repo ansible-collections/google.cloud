@@ -65,6 +65,11 @@ products:
     resources:
       - Connection
       - Repository
+  - name: cloudrunv2
+    resources:
+      - Job
+      - Service
+      - WorkerPool
   - name: colab
     resources:
       - NotebookExecution

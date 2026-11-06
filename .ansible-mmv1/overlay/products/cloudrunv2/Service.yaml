@@ -1,0 +1,28 @@
+---
+virtual_fields:
+  - name: deletion_protection
+    exclude: true  # only for TF state
+
+custom_code:
+  pre_delete: _drop
+
+samples:
+  - name: ansible_doc_service_basic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_service_basic
+  - name: ansible_doc_service_limits
+    exclude_test: true
+    steps:
+      - name: ansible_doc_service_limits
+  - name: ansible_doc_service_probes
+    exclude_test: true
+    steps:
+      - name: ansible_doc_service_probes
+  - name: ansible_test_service
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_service
+      - name: ansible_test_service
+      - name: ansible_teardown_service
+...

@@ -1,0 +1,11 @@
+- name: Create a basic CloudRun v2 Service
+  google.cloud.gcp_cloudrunv2_service:
+    name: my-service
+    state: present
+    location: us-central1
+    ingress: INGRESS_TRAFFIC_ALL
+    scaling:
+      max_instance_count: 100
+    template:
+      containers:
+        - image: us-docker.pkg.dev/cloudrun/container/hello

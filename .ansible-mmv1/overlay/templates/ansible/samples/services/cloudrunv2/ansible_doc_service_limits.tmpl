@@ -1,0 +1,14 @@
+- name: Create a CloudRun v2 Service with limits
+  google.cloud.gcp_cloudrunv2_service:
+    name: my-service
+    state: present
+    location: us-central1
+    ingress: INGRESS_TRAFFIC_ALL
+    template:
+      health_check_disabled: true
+      containers:
+        - image: us-docker.pkg.dev/cloudrun/container/hello
+          resources:
+            limits:
+              cpu: '2'  # must be string
+              memory: 1024Mi
