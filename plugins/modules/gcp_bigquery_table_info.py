@@ -221,6 +221,11 @@ resources:
       returned: success
       type: complex
       contains:
+        query:
+          description:
+          - The SQL query defining this view.
+          returned: success
+          type: str
         useLegacySql:
           description:
           - Specifies whether to use BigQuery's legacy SQL for this view .
