@@ -1,0 +1,9 @@
+- name: Create Eventarc Channel
+  google.cloud.gcp_eventarc_channel:
+    name: my-channel
+    state: present
+    location: us-central1
+    # optional: specify a key to encrypt channel traffic
+    crypto_key_name: projects/my-project/locations/us-central1/keyRings/my-keyring/cryptoKeys/my-key
+    # optional: specify a provider who will be granted publish permissions
+    third_party_provider: projects/my-project/locations/us-central1/providers/datadog

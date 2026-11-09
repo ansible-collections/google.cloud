@@ -1,0 +1,42 @@
+---
+# it's easier to overload the update URL and build the param in pre_update
+update_url: 'projects/{{project}}/locations/{{location}}/channels/{{name}}?updateMask={{update_mask}}'
+custom_code:
+  encoder: |
+    self.debug(encoded=False, request=request)
+    # we already have all the pieces to build the right channelId
+    fq_name = "projects/{project}/locations/{location}/channels/{name}".format(**self.module.params)
+    request["name"] = fq_name
+    self.debug(encoded=True, request=request)
+
+    return request
+  decoder: |
+    # flatten the name and shift the FQ name to id
+    self.debug(decoded=False, response=response)
+    if not gcp_v2.empty(response):
+      channel_id = response.pop("name")
+      response["name"] = gcp_v2.flatten_name(channel_id)
+      response["id"] = channel_id
+    self.debug(decoded=True, response=response)
+
+    return response
+
+  pre_update: |
+    resource.url_params["update_mask"] = ",".join(resource.dot_fields())
+
+samples:
+  - name: ansible_doc_channel_create
+    exclude_test: true
+    steps:
+      - name: ansible_doc_channel_create
+  - name: ansible_doc_channel_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_channel_delete
+  - name: ansible_test_channel
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_channel
+      - name: ansible_test_channel
+      - name: ansible_teardown_channel
+...
