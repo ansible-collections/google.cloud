@@ -1,0 +1,41 @@
+---
+virtual_fields:
+  - name: deletion_protection
+    exclude: true  # TF-only field
+
+properties:
+  - name: sourceContents
+    type: String
+    required: true
+    description: Workflow code to be executed. The size limit is 128KB.
+
+custom_code:
+  pre_delete: _drop
+  encoder: _drop
+  decoder: |
+    self.debug(decoded=False, response=response)
+    if not gcp_v2.empty(response) and "name" in response:
+      # flatten name back to module
+      n = response.pop("name")
+      response["name"] = gcp_v2.flatten_name(n)
+      response["id"] = n
+    self.debug(decoded=True, response=response)
+
+    return response
+
+samples:
+  - name: ansible_doc_workflow_create
+    exclude_test: true
+    steps:
+      - name: ansible_doc_workflow_create
+  - name: ansible_doc_workflow_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_workflow_delete
+  - name: ansible_test_workflow
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_workflow
+      - name: ansible_test_workflow
+      - name: ansible_teardown_workflow
+...

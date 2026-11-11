@@ -103,3 +103,6 @@ products:
       - RagEngineConfig
       - ReasoningEngine
       - Tensorboard
+  - name: workflows
+    resources:
+      - Workflow
