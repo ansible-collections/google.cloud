@@ -1,0 +1,7 @@
+- name: Delete Eventarc Trigger
+  google.cloud.gc_eventarc_trigger:
+    name: my-trigger
+    state: absent
+    location: us-central1
+    matching_criteria: []
+    destination: {}

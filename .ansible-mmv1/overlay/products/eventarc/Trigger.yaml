@@ -1,0 +1,36 @@
+---
+custom_code:
+  decoder: |
+    # flatten the name and shift the FQ name to id
+    self.debug(decoded=False, response=response)
+    if not gcp_v2.empty(response):
+      trigger_id = response.pop("name")
+      response["name"] = gcp_v2.flatten_name(trigger_id)
+      response["id"] = trigger_id
+    self.debug(decoded=True, response=response)
+
+    return response
+samples:
+  - name: ansible_doc_trigger_with_workflow
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_with_workflow
+  - name: ansible_doc_trigger_with_cloudrun
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_with_cloudrun
+  - name: ansible_doc_trigger_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_trigger_delete
+  - name: ansible_test_trigger
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_workflow
+        config_path: templates/ansible/samples/services/workflows/ansible_setup_workflow.tmpl
+      - name: ansible_setup_trigger
+      - name: ansible_test_trigger
+      - name: ansible_teardown_trigger
+      - name: ansible_teardown_workflow
+        config_path: templates/ansible/samples/services/workflows/ansible_teardown_workflow.tmpl
+...
