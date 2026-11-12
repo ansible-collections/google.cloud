@@ -1,0 +1,11 @@
+- name: Create Eventarc Trigger with Workflow detination
+  google.cloud.gc_eventarc_trigger:
+    name: my-trigger
+    state: present
+    location: us-central1
+    matching_criteria:
+      - attribute: type
+        value: google.cloud.pubsub.topic.v1.messagePublished
+    destination:
+      workflow: projects/my-project/locations/us-central1/workflows/my-workflow
+    service_account: my-service@my-project.iam.gserviceaccount.com

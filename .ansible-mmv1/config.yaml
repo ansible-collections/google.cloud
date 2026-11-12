@@ -78,6 +78,7 @@ products:
     resources:
       - Channel
       - Pipeline
+      - Trigger
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources
