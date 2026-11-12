@@ -193,6 +193,12 @@ action_groups:
     - gcp_dns_managed_zone_info
     - gcp_dns_resource_record_set
     - gcp_dns_resource_record_set_info
+    - gcp_eventarc_channel
+    - gcp_eventarc_channel_info
+    - gcp_eventarc_pipeline
+    - gcp_eventarc_pipeline_info
+    - gcp_eventarc_trigger
+    - gcp_eventarc_trigger_info
     - gcp_filestore_instance
     - gcp_filestore_instance_info
     - gcp_iam_role
@@ -272,3 +278,5 @@ action_groups:
     - gcp_vertexai_reasoning_engine_info
     - gcp_vertexai_tensorboard
     - gcp_vertexai_tensorboard_info
+    - gcp_workflows_workflow
+    - gcp_workflows_workflow_info
