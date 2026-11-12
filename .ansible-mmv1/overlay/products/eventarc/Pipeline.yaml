@@ -1,0 +1,29 @@
+---
+samples:
+  - name: ansible_doc_pipeline_with_topic
+    exclude_test: true
+    steps:
+      - name: ansible_doc_pipeline_with_topic
+  - name: ansible_doc_pipeline_with_workflow
+    exclude_test: true
+    steps:
+      - name: ansible_doc_pipeline_with_workflow
+  - name: ansible_doc_pipeline_with_http
+    exclude_test: true
+    steps:
+      - name: ansible_doc_pipeline_with_http
+  - name: ansible_doc_pipeline_delete
+    exclude_test: true
+    steps:
+      - name: ansible_doc_pipeline_delete
+  - name: ansible_test_pipeline
+    exclude_basic_doc: true
+    steps:
+      - name: ansible_setup_workflow
+        config_path: templates/ansible/samples/services/workflows/ansible_setup_workflow.tmpl
+      - name: ansible_setup_pipeline
+      - name: ansible_test_pipeline
+      - name: ansible_teardown_pipeline
+      - name: ansible_teardown_workflow
+        config_path: templates/ansible/samples/services/workflows/ansible_teardown_workflow.tmpl
+...

@@ -1,0 +1,13 @@
+- name: Create Eventarc Trigger with CloudRun Service destination
+  google.cloud.gc_eventarc_trigger:
+    name: my-trigger
+    state: present
+    location: us-central1
+    matching_criteria:
+      - attribute: type
+        value: datadog.v1.alert
+    destination:
+      cloud_run_service:
+        service: projects/my-project/locations/us-central1/services/my-service
+    service_account: my-service@my-project.iam.gserviceaccount.com
+    channel: projects/my-project/locations/us-central1/channels/my-channel
