@@ -1,0 +1,7 @@
+- name: Create Eventarc Pipeline with Workflow destination
+  google.cloud.gcp_eventarc_pipeline:
+    pipeline_id: my-pipeline
+    state: present
+    location: us-central1
+    destinations:
+      - workflow: projects/my-project/locations/us-central1/workflows/my-workflow

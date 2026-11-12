@@ -1,0 +1,6 @@
+- name: Delete Eventarc Pipeline
+  google.cloud.gcp_eventarc_pipeline:
+    pipeline_id: my-pipeline
+    state: absent
+    location: us-central1
+    destinations: []
