@@ -1,0 +1,3 @@
+minor_changes:
+  - gcp_eventarc_* - Eventarc resources and _info resources Channel, Pipeline, and Trigger (https://github.com/ansible-collections/google.cloud/pull/797)
+  - gcp_workflows_workflow - Workflows resource and _info resource (https://github.com/ansible-collections/google.cloud/pull/797)
