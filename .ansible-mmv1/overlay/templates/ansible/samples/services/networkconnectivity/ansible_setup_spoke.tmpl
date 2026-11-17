@@ -1,0 +1,22 @@
+- name: Create Network Connectivity Spoke
+  google.cloud.gcp_networkconnectivity_spoke:
+    name: "{{`{{ resource_name }}`}}"
+    state: present
+    description: A linked VPC spoke
+    labels:
+      env: ci
+    location: global
+    hub: "{{`{{ _my_hub.id }}`}}"
+    linked_vpc_network:
+      exclude_export_ranges:
+        - 198.51.100.0/24
+        - 10.10.0.0/16
+      include_export_ranges:
+        - 198.51.100.0/23
+        - 10.0.0.0/8
+      uri: "{{`{{ _network.selfLink }}`}}"
+    group: non-prod
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
+  register: _my_spoke

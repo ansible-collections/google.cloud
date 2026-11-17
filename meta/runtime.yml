@@ -206,6 +206,10 @@ action_groups:
     - gcp_kms_key_ring_info
     - gcp_logging_metric
     - gcp_logging_metric_info
+    - gcp_networkconnectivity_hub
+    - gcp_networkconnectivity_hub_info
+    - gcp_networkconnectivity_spoke
+    - gcp_networkconnectivity_spoke_info
     - gcp_parameter_manager
     - gcp_pubsub_subscription
     - gcp_pubsub_subscription_info

@@ -1,0 +1,6 @@
+- name: Delete Network Connectivity Spoke
+  google.cloud.gcp_networkconnectivity_spoke:
+    name: my-spoke
+    state: absent
+    location: us-central1
+    hub: projects/my-project/locations/global/hubs/my-hub
