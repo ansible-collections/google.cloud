@@ -1,2 +1,0 @@
-bugfixes:
-  - gcp_utils, inventory/gcp_compute, gcp_iam_service_account_key - Replaced deprecated `ansible.module_utils._text` imports with `ansible.module_utils.common.text.converters`
