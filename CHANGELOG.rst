@@ -15,6 +15,7 @@ Minor Changes
 - audit - dropped the mappings for ``gcp_resource_record_set`` and ``gcp_sourcerepo_repository``; neither module exists in this collection (https://github.com/ansible-collections/google.cloud/pull/781).
 - event_query - the contract test now compiles every expression with ``jq``. Every other check in that file reads the query as text, so all of them pass on an expression that cannot run.
 - gcp_networkconnectivity_* - Add gcp_networkconnectivity_hub and gcp_networkconnectivity_spoke with accompanying _info modules (https://github.com/ansible-collections/google.cloud/pull/788)
+- gcp_sql_instance - Add ``edition`` option to ``settings`` (e.g., ``ENTERPRISE``, ``ENTERPRISE_PLUS``) to allow specifying the Cloud SQL instance edition (https://github.com/ansible-collections/google.cloud/pull/784)
 
 Bugfixes
 --------
