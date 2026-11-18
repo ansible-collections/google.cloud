@@ -161,6 +161,87 @@ releases:
     - gcp_compute-skip-unreachable-projects.yaml
     - gcp_compute-skipped-summary.yaml
     release_date: '2026-09-25'
+  1.16.0:
+    changes:
+      bugfixes:
+      - ansible-mmv1(templates) - Reverted to a 3-way boolean check for custom diff
+        logic, this way you can force a custom diff when the values aren't actually
+        different
+      - ansible-mmv1(templates) - The DOCUMENTATION block was incorrectly printing
+        `short_description` at the end of the block because of alphabetical order
+        (bug - https://github.com/ansible-collections/google.cloud/issues/789, fix
+        - https://github.com/thekad/ansible-mmv1/commit/993cb04be0c6567d2846ce473e78769a696c536f)
+      - ansible-mmv1(templates) - The RETURNS block was showing incomplete output
+        (fix - https://github.com/thekad/ansible-mmv1/commit/54a04c5d75ca09e1bb75f0d4766347373bfc22ef)
+      - audit - ``device_type`` was looked up by the resource ``kind``, which no module's
+        ``response_to_hash()`` returns, so every resource would have been labelled
+        ``missing``. Each module now carries its resource type literally (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - ``gcp_container_cluster`` and ``gcp_container_node_pool`` were keyed
+        on ``.name``, which the GKE API returns as the short name only. Same-named
+        node pools in different clusters, and same-named clusters in different projects
+        or locations, collapsed into a single indirect node; because the controller
+        requires ``name`` to be unique within a job, a job touching two of them lost
+        every audit record it produced. Both now key on the full resource identity
+        (``.id``/``.selfLink``) (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - ``gcp_dns_resource_record_set`` guarded only ``.name``, so a result
+        carrying no ``.type`` emitted the identifier ``"<name>/null"`` -- ``null |
+        tostring`` is the string ``"null"``, not null -- and every such record in
+        a job collided on the same identifier. ``.type`` is now guarded as well (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - ``gcp_dns_resource_record_set`` was identified by name alone; an A
+        record and a TXT record on the same name are two resources and were collapsed
+        into one (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - ``name`` was part of ``canonical_facts``, which is the only key the
+        controller deduplicates on, so a renamed resource counted twice (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - the identifier fell back to ``etag`` when a module returned no ``id``.
+        ``etag`` changes on every mutation, so ``gcp_filestore_instance`` -- the only
+        module in the collection that returns no ``id`` -- counted the same resource
+        again each time it was modified (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - the indirect node counting query was shipped as ``extensions/audit/taxonomy.jq``.
+        The Automation Platform controller only reads ``extensions/audit/event_query.yml``,
+        so the file was never loaded and this collection reported no indirect nodes
+        at all. It is now ``extensions/audit/event_query.yml`` (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - the query iterated the module result with ``.[]`` and called ``has("results")``
+        on each value, which raises ``Cannot check whether boolean has a string key``
+        on the ``changed`` key that every module returns. The controller catches jq
+        errors and discards the whole event, so the query could not have emitted a
+        record even if it had been loaded (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - the query selected resources with ``select($data.action | in($actions))``,
+        but the controller passes jq only the module result and no module in this
+        collection returns its own name, so nothing was ever selected. Each module
+        now has its own entry keyed by FQCN (https://github.com/ansible-collections/google.cloud/pull/781).
+      - event_query - the two Pub/Sub queries emitted ``infra_bucket`` ``app_integration_messaging``,
+        which is not one of the nine values the Normalized Resource Taxonomy defines.
+        Those nodes bucketed into a category nothing downstream aggregates. Corrected
+        to ``devops_app_integration``.
+      - gcp_utils, inventory/gcp_compute, gcp_iam_service_account_key - Replaced deprecated
+        `ansible.module_utils._text` imports with `ansible.module_utils.common.text.converters`
+      minor_changes:
+      - Added gcp_storage_signed_url module - generates a V4 signed URL for a GCS
+        object, so a party without any IAM access to the bucket can perform a single
+        HTTP request against that object until the URL expires. Supports signing via
+        the IAM Credentials API (``signBlob``, using a service account other than
+        the one running the module) or locally via an HMAC key, with no IAM API call
+        and no ``serviceAccountTokenCreator`` grant required for the latter.
+      - audit - added ``tests/unit/audit/test_event_query_contract.py``, which asserts
+        the constraints the controller imposes on the query file (https://github.com/ansible-collections/google.cloud/pull/781).
+      - audit - dropped the mappings for ``gcp_resource_record_set`` and ``gcp_sourcerepo_repository``;
+        neither module exists in this collection (https://github.com/ansible-collections/google.cloud/pull/781).
+      - event_query - the contract test now compiles every expression with ``jq``.
+        Every other check in that file reads the query as text, so all of them pass
+        on an expression that cannot run.
+      - gcp_networkconnectivity_* - Add gcp_networkconnectivity_hub and gcp_networkconnectivity_spoke
+        with accompanying _info modules (https://github.com/ansible-collections/google.cloud/pull/788)
+      - gcp_sql_instance - Add ``edition`` option to ``settings`` (e.g., ``ENTERPRISE``,
+        ``ENTERPRISE_PLUS``) to allow specifying the Cloud SQL instance edition (https://github.com/ansible-collections/google.cloud/pull/784)
+    fragments:
+    - 784-sql-instance-edition.yaml
+    - 785-templates.yaml
+    - 788-networkconnectivity.yaml
+    - audit-event-query.yml
+    - bugfix-775-deprecated-to_text.yaml
+    - event-query-invalid-infra-bucket.yml
+    - gcp_storage_signed_url.yaml
+    release_date: '2026-11-18'
   1.2.0:
     changes:
       bugfixes:
