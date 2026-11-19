@@ -1,0 +1,14 @@
+- name: Create an Asset Organization Feed
+  google.cloud.gcp_cloudasset_organization_feed:
+    feed_id: my-feed  # must be unique at the organization level
+    org_id: 123456789  # must be the numeric org identifier
+    billing_project: my-billing-project
+    state: present
+    content_type: RESOURCE
+    asset_types:
+      - compute.googleapis.com/Subnetwork
+      - compute.googleapis.com/Network
+    feed_output_config:
+      pubsub_destination:
+        topic: projects/my-project/topics/my-topic
+
