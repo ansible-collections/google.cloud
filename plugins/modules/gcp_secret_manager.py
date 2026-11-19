@@ -371,8 +371,30 @@ def merge_dicts(x, y):
     return z
 
 
-# create secret is a create call + an add version call
-def create_secret(module):
+def check_secret_exists(module):
+    url = (make_url_prefix(module) + "secrets/{name}").format(**module.params)
+    auth = get_auth(module)
+    response = auth.get(url)
+    return response.status_code == 200
+
+
+# Create a secret without an initial value
+def create_secret_without_value(module):
+    payload = {"replication": {"automatic": {}}}
+    if module.params['location']:
+        payload = dict()
+    if module.params['labels']:
+        payload['labels'] = module.params['labels']
+
+    url = (make_url_prefix(module) + "secrets").format(**module.params)
+    auth = get_auth(module)
+    post_response = auth.post(url, body=payload, params={'secretId': module.params['name']})
+    module.raise_for_status(post_response)
+    return {"msg": "Secret '{name}' created without a value".format(**module.params)}
+
+
+# Create a secret AND its first version
+def create_secret_with_value(module):
     # build the payload
     payload = {"replication": {"automatic": {}}}
     if module.params['location']:
@@ -489,27 +511,39 @@ def main():
     module.params['calc_version'] = module.params['version']
 
     state = module.params['state']
+    secret_exists = check_secret_exists(module)
     fetch = fetch_resource(module, allow_not_found=True)
     changed = False
 
     # nothing came back, so the secret doesn't exist
-    if not fetch:
-        # doesn't exist, must create
-        if module.params.get('value') and state == 'present':
-            # create a new secret
-            fetch = create_secret(module)
-            changed = True
-        # specified present but no value
-        # fail, let the user know
-        # that no secret could be created without a value to encrypt
-        elif state == 'present':
-            module.fail_json(msg="secret '{name}' not present in '{project}' and no value for the secret is provided".format(**module.params))
-
-        # secret is absent, success
+    # Logic to handle a secret that does NOT exist
+    # Create the secret AND its first version with a value or Create the secret but without a value (empty secret)
+    if not secret_exists:
+        if state == 'present':
+            if module.params.get('value'):
+                fetch = create_secret_with_value(module)
+                changed = True
+            else:
+                fetch = create_secret_without_value(module)
+                changed = True
         else:
+            # state is 'absent'
+            # secret doesn't exist, so no changes needed
             fetch = {"msg": "secret '{name}' in project '{project}' not present".format(**module.params)}
 
     else:
+        if state == 'present':
+            # Handle cases where the secret exists but has no versions
+            if not fetch and module.params.get('value'):
+                fetch = update_secret(module)
+                changed = True
+            # Handle updates to a secret with existing versions
+            elif fetch and "value" in fetch and module.params.get('value') is not None:
+                if fetch['value'] != module.params['value']:
+                    update_secret(module)
+                    changed = True
+                else:
+                    fetch['msg'] = "values identical, no need to update secret"
         # delete the secret version (latest if no version is specified)
         if state == "absent":
             # delete the secret
