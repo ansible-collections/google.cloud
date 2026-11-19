@@ -1,0 +1,14 @@
+- name: Create a basic job
+  google.cloud.gcp_cloudrunv2_job:
+    name: "{{`{{ resource_name }}`}}"
+    state: present
+    location: us-central1
+    template:
+      template:
+        containers:
+          - name: job-1
+            image: us-docker.pkg.dev/cloudrun/container/job
+    project: "{{`{{ gcp_project }}`}}"
+    auth_kind: "{{`{{ gcp_cred_kind }}`}}"
+    service_account_file: "{{`{{ gcp_cred_file | default(omit) }}`}}"
+  register: _myjob
