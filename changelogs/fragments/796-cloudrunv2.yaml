@@ -1,0 +1,2 @@
+minor_changes:
+  - gcp_cloudrunv2_* - Adding CloudRun v2 Job, Service, and WorkerPool resources (https://github.com/ansible-collections/google.cloud/pull/796)
