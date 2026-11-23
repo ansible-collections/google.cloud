@@ -383,8 +383,11 @@ def create_secret(module):
     url = (make_url_prefix(module) + "secrets").format(**module.params)
     auth = get_auth(module)
     post_response = auth.post(url, body=payload, params={'secretId': module.params['name']})
-    # validate create
-    module.raise_for_status(post_response)
+    # the secret can already exist without any enabled version, for example
+    # when it was created outside of Ansible; add the new version to it
+    if post_response.status_code != 409:
+        # validate create
+        module.raise_for_status(post_response)
     return update_secret(module)
 
 
