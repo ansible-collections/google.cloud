@@ -78,6 +78,11 @@ products:
     resources:
       - Hub
       - Spoke
+  - name: eventarc
+    resources:
+      - Channel
+      - Pipeline
+      - Trigger
   - name: vertexai
     # skip-tests:
     #   - Endpoint   # or skip-tests: ['*'] for all resources
@@ -104,3 +109,6 @@ products:
       - RagEngineConfig
       - ReasoningEngine
       - Tensorboard
+  - name: workflows
+    resources:
+      - Workflow

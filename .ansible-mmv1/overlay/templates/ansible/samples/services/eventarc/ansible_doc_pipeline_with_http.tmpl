@@ -1,0 +1,10 @@
+- name: Create Eventarc Pipeline with HTTP destination
+  google.cloud.gcp_eventarc_pipeline:
+    pipeline_id: my-pipeline
+    state: present
+    location: us-central1
+    destinations:
+      - http_endpoint:
+        uri: https://example.com/endpoint
+      - network_config:
+        network_attachment: projects/my-project/regions/us-central1/networkAttachments/my-attachment

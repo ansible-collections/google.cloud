@@ -1,0 +1,43 @@
+- name: Create Workflow
+  google.cloud.gcp_workflows_workflow:
+    name: my-workflow
+    state: present
+    region: us-central1
+    description: My very own workflow
+    call_log_level: LOG_ERRORS_ONLY
+    user_env_vars:
+      TZ_URL: 'https://timeapi.io/api/Time/current/zone?timeZone=America/New_York'
+      WIKI_URL: 'https://en.wikipedia.org/w/api.php'
+    source_contents: |
+      - init:
+          assign:
+            - months:
+              - January
+              - February
+              - March
+              - April
+              - May
+              - June
+              - July
+              - August
+              - September
+              - October
+              - November
+              - December
+      - getCurrentTime:
+          call: http.get
+          args:
+            url: ${sys.get_env("TZ_URL")}
+          result: currentTime
+      - readWikipedia:
+          call: http.get
+          args:
+            url: ${sys.get_env("WIKI_URL")}
+            query:
+              action: opensearch
+              search: ${months[currentTime.body.month - 1] + "_" + currentTime.body.day}
+              format: json
+              limit: 10
+          result: todayInHistory
+      - returnOutput:
+          return: ${todayInHistory.body}

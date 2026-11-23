@@ -1,0 +1,6 @@
+- name: Delete Workflow
+  google.cloud.gcp_workflows_workflow:
+    name: my-workflow
+    state: absent
+    region: us-central1
+    source_contents: ""
