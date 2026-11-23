@@ -686,11 +686,11 @@ class Connection(sshconn.Connection):
         super().__init__(*args, **kwargs)
 
         # If the gcloud binary isn't found/configured, bail out immediately
-        exec: str | None = self.get_option("gcloud_executable")
-        if exec is None:
+        _exec: str | None = self.get_option("gcloud_executable")
+        if _exec is None:
             self.gcloud_executable = DEFAULT_GCLOUD
         else:
-            self.gcloud_executable = exec
+            self.gcloud_executable = _exec
 
         if self.gcloud_executable is None:
             raise errors.AnsiblePluginError(
