@@ -1,0 +1,13 @@
+- name: Create an Asset Project Feed
+  google.cloud.gcp_cloudasset_project_feed:
+    feed_id: my-feed  # must be unique at the project level
+    project: 123456789  # must be the numeric project identifier
+    state: present
+    content_type: RESOURCE
+    asset_types:
+      - compute.googleapis.com/Subnetwork
+      - compute.googleapis.com/Network
+    feed_output_config:
+      pubsub_destination:
+        topic: projects/my-project/topics/my-topic
+

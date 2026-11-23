@@ -59,6 +59,14 @@ products:
       - "*"
     resources:
       - Trigger
+  - name: cloudasset
+    skip-tests:
+      - OrganizationFeed
+      - FolderFeed
+    resources:
+      - OrganizationFeed
+      - ProjectFeed
+      - FolderFeed
   - name: cloudbuildv2
     skip-tests:
       - "*"
